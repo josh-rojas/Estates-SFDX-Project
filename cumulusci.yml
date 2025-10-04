@@ -53,6 +53,148 @@ tasks:
 # ==================== FLOWS WITH AUTOMATION CONTROL ====================
 
 flows:
+  # ========== DEPLOYMENT FLOWS ==========
+  
+  deploy_succession:
+    description: Complete succession deployment - metadata + permissions + test data
+    steps:
+      1:
+        task: deploy
+        options:
+          path: force-app/main/default
+      2:
+        task: deploy_post
+        ignore_failure: True
+      3:
+        task: update_admin_profile
+        ignore_failure: True
+      4:
+        task: assign_permission_sets
+        options:
+          api_names: Succession_Management_Access,Succession_Field_Access
+      5:
+        task: load_succession_test_data
+
+  deploy_succession_no_data:
+    description: Deploy succession metadata and permissions only (no test data)
+    steps:
+      1:
+        task: deploy
+        options:
+          path: force-app/main/default
+      2:
+        task: deploy_post
+        ignore_failure: True
+      3:
+        task: update_admin_profile
+        ignore_failure: True
+      4:
+        task: assign_permission_sets
+        options:
+          api_names: Succession_Management_Access,Succession_Field_Access
+
+  deploy_succession_incremental:
+    description: Incremental deployment - only succession components (faster for updates)
+    steps:
+      1:
+        task: deploy
+        options:
+          path: force-app/main/default/classes
+      2:
+        task: deploy
+        options:
+          path: force-app/main/default/lwc
+      3:
+        task: deploy
+        options:
+          path: force-app/main/default/flows
+      4:
+        task: assign_permission_sets
+        options:
+          api_names: Succession_Management_Access,Succession_Field_Access
+
+  uninstall_succession:
+    description: Remove succession components from org (DESTRUCTIVE)
+    steps:
+      1:
+        task: deploy
+        options:
+          path: manifest/package-empty.xml
+          destructive_changes: manifest/destructiveChanges.xml
+
+  # ========== CI/CD FLOWS ==========
+  
+  ci_succession_feature:
+    description: CI pipeline for feature branches - deploy and test
+    steps:
+      1:
+        flow: deploy_succession_no_data
+      2:
+        task: run_tests
+        options:
+          required_org_code_coverage_percent: 75
+      3:
+        task: robot
+        options:
+          suites: tests
+        ignore_failure: True
+
+  ci_succession_main:
+    description: CI pipeline for main branch - full deployment with validation
+    steps:
+      1:
+        flow: deploy_succession
+      2:
+        task: run_tests
+        options:
+          required_org_code_coverage_percent: 75
+      3:
+        task: snapshot_changes
+        ignore_failure: True
+
+  ci_succession_release:
+    description: Release validation - deploy, test, and create package
+    steps:
+      1:
+        flow: deploy_succession
+      2:
+        task: run_tests
+        options:
+          required_org_code_coverage_percent: 75
+      3:
+        task: github_release
+        ignore_failure: True
+
+  # ========== QA/STAGING FLOWS ==========
+  
+  qa_full_setup:
+    description: Complete QA environment setup with all test scenarios
+    steps:
+      1:
+        flow: deploy_succession
+      2:
+        task: load_final_grant_scenario
+      3:
+        task: load_multi_successor_scenario
+      4:
+        task: load_sla_escalation_scenario
+      5:
+        task: load_demo_ui_showcase
+
+  staging_deploy:
+    description: Deploy to staging with smoke tests
+    steps:
+      1:
+        flow: deploy_succession_no_data
+      2:
+        task: run_tests
+        options:
+          test_name_match: "%_TEST"
+      3:
+        task: load_demo_ui_showcase
+
+  # ========== TEST DATA FLOWS ==========
+  
   succession_test_setup:
     description: Complete succession test data setup
     steps:
@@ -70,3 +212,15 @@ flows:
     steps:
       1:
         task: load_demo_ui_showcase
+
+  load_all_scenarios:
+    description: Load all test scenarios for comprehensive testing
+    steps:
+      1:
+        task: load_succession_test_data
+      2:
+        task: load_final_grant_scenario
+      3:
+        task: load_multi_successor_scenario
+      4:
+        task: load_sla_escalation_scenario

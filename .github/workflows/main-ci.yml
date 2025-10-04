@@ -1,0 +1,145 @@
+name: Main Branch CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'force-app/**'
+      - 'datasets/**'
+      - 'cumulusci.yml'
+      - '.github/workflows/**'
+
+jobs:
+  deploy-and-test:
+    name: Deploy to QA & Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install CumulusCI
+        run: |
+          pip install cumulusci
+          cci version
+
+      - name: Authenticate Dev Hub
+        env:
+          SFDX_AUTH_URL: ${{ secrets.DEVHUB_AUTH_URL }}
+        run: |
+          echo "${SFDX_AUTH_URL}" > devhub_auth
+          cci org import devhub devhub_auth --global-org
+          rm devhub_auth
+
+      - name: Create QA scratch org
+        run: |
+          cci org scratch qa qa-main --default --days 30
+
+      - name: Deploy full succession solution
+        run: |
+          cci flow run ci_succession_main --org qa-main
+
+      - name: Run comprehensive tests
+        run: |
+          cci task run run_tests \
+            --org qa-main \
+            --required-org-code-coverage-percent 75
+
+      - name: Generate release notes
+        if: success()
+        run: |
+          cci task run github_release_notes --org qa-main || echo "No release notes generated"
+
+      - name: Keep QA org for review
+        if: success()
+        run: |
+          echo "✅ QA org preserved for 30 days for review"
+          cci org info qa-main
+
+      - name: Delete scratch org on failure
+        if: failure()
+        run: |
+          cci org scratch_delete qa-main || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-test-results
+          path: |
+            test_results.json
+            robot_results/
+            coverage/
+          retention-days: 90
+
+      - name: Comment on commit
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ job.status }}';
+            const emoji = status === 'success' ? '✅' : '❌';
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `${emoji} Main branch CI ${status}\n\nDeployment to QA org completed with ${status} status.`
+            });
+
+  deploy-sandbox:
+    name: Deploy to Schwab Sandbox
+    needs: deploy-and-test
+    if: success()
+    runs-on: ubuntu-latest
+    environment: sandbox
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install CumulusCI
+        run: |
+          pip install cumulusci
+          cci version
+
+      - name: Authenticate to Sandbox
+        env:
+          SANDBOX_AUTH_URL: ${{ secrets.SANDBOX_AUTH_URL }}
+        run: |
+          echo "${SANDBOX_AUTH_URL}" > sandbox_auth
+          cci org import schwab-sandbox sandbox_auth --global-org
+          rm sandbox_auth
+
+      - name: Deploy to sandbox (no test data)
+        run: |
+          cci flow run deploy_succession_no_data --org schwab-sandbox
+
+      - name: Run smoke tests
+        run: |
+          cci task run run_tests \
+            --org schwab-sandbox \
+            --test-name-match "%_TEST"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "📦 Deployment Summary"
+          echo "===================="
+          echo "Org: schwab-sandbox"
+          echo "Branch: main"
+          echo "Commit: ${{ github.sha }}"
+          echo "Status: ${{ job.status }}"
