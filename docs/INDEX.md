@@ -1,195 +1,112 @@
-# Estates SFDX Project - Documentation Index
+# Documentation Index
 
-**Last Updated**: October 2, 2025  
-**Total Documentation Files**: 20+ documents
+Comprehensive documentation for the Succession Management System v1.0
 
----
+## 📖 Core Documentation
 
-## 📊 Succession Project Documentation
+### Architecture & Design
+- **[Succession Flow Architecture](SUCCESSION_FLOW_ARCHITECTURE.md)** - Complete flow architecture, triggers, and data model
+- **[Field Documentation](field-documentation-succession.md)** - All custom field definitions and usage
+- **[Component Inventory](SUCCESSION_COMPONENT_INVENTORY.md)** - Complete component list with descriptions
+- **[Succession Audit Summary](SUCCESSION_AUDIT_SUMMARY.md)** - Component audit and validation results
 
-### Core Succession Documents (Updated October 2025)
-| Document | Purpose | Status |
+### Deployment & Configuration
+- **[Implementation Summary](IMPLEMENTATION-SUMMARY.md)** - Project overview and implementation details
+- **[Org Deployment Tasks](ORG_DEPLOYMENT_TASKS.md)** - Post-deployment manual configuration checklist
+- **[Automation Control Guide](AUTOMATION-CONTROL-GUIDE.md)** - Flow automation management and troubleshooting
+
+### Experience Cloud Portal
+- **[Experience Cloud Deployment](EXPERIENCE_CLOUD_DEPLOYMENT.md)** - Complete portal setup guide
+- **[Experience Cloud Quick Start](EXPERIENCE_CLOUD_QUICK_START.md)** - Rapid deployment steps
+- **[Experience Cloud UI Setup](EXPERIENCE_CLOUD_UI_SETUP.md)** - UI configuration and branding
+- **[LWC Form Deployment](LWC_SUCCESSION_FORM_DEPLOYMENT.md)** - Succession form component setup
+
+### Multi-Successor Features
+- **[Multi-Successor Hierarchy Component](MULTI_SUCCESSOR_HIERARCHY_COMPONENT.md)** - Hierarchical case visualization
+- **[Multi-Successor Testing Guide](MULTI_SUCCESSOR_TESTING_GUIDE.md)** - Testing scenarios and data generation
+- **[Relationship Analysis](RELATIONSHIP_ANALYSIS.md)** - Data relationship mapping
+
+### Testing & Data Generation
+- **[CumulusCI Implementation Guide](cumulusci-snowfakery-implementation-guide.md)** - Test data with Snowfakery
+- **[CumulusCI Validation Guide](CUMULUSCI-VALIDATION-GUIDE.md)** - Validation procedures
+- **[Snowfakery Data Model Analysis](snowfakery-data-model-analysis.md)** - Data model for test generation
+
+## 🚀 Quick Start Paths
+
+### For Developers
+```
+1. README.md (project overview)
+2. SUCCESSION_FLOW_ARCHITECTURE.md (understand flows)
+3. SUCCESSION_COMPONENT_INVENTORY.md (know what's available)
+4. field-documentation-succession.md (field reference)
+```
+
+### For Administrators
+```
+1. README.md (project overview)
+2. ORG_DEPLOYMENT_TASKS.md (post-deployment setup)
+3. EXPERIENCE_CLOUD_DEPLOYMENT.md (portal configuration)
+4. AUTOMATION-CONTROL-GUIDE.md (flow management)
+```
+
+### For Testers
+```
+1. MULTI_SUCCESSOR_TESTING_GUIDE.md (test scenarios)
+2. cumulusci-snowfakery-implementation-guide.md (test data)
+3. Test Data Generator LWC (in-app testing)
+```
+
+## 📋 Document Categories
+
+### ⚙️ Technical Architecture (4 docs)
+- Flow Architecture
+- Field Documentation  
+- Component Inventory
+- Audit Summary
+
+### 🚢 Deployment (3 docs)
+- Implementation Summary
+- Org Deployment Tasks
+- Automation Control Guide
+
+### 🌐 Experience Cloud (4 docs)
+- Deployment Guide
+- Quick Start
+- UI Setup
+- LWC Form Deployment
+
+### 👥 Multi-Successor (3 docs)
+- Hierarchy Component
+- Testing Guide
+- Relationship Analysis
+
+### 🧪 Testing (3 docs)
+- CumulusCI Implementation
+- CumulusCI Validation
+- Snowfakery Data Model
+
+## 🎯 By Use Case
+
+| Task | Documents |
+|------|----------|
+| Initial deployment | Implementation Summary → Org Deployment Tasks |
+| Portal setup | Experience Cloud Quick Start → Deployment → UI Setup |
+| Understanding flows | Flow Architecture → Automation Control |
+| Testing multi-successor | Multi-Successor Testing → CumulusCI Implementation |
+| Field reference | Field Documentation |
+| Component lookup | Component Inventory |
+| Troubleshooting | Automation Control → Audit Summary |
+
+## 📊 Documentation Status
+
+| Document | Version | Status |
 |----------|---------|--------|
-| [SUCCESSION_COMPONENT_INVENTORY.md](./SUCCESSION_COMPONENT_INVENTORY.md) | Complete inventory of 75 succession components | ✅ Complete |
-| [CODEBASE_AUDIT.md](./CODEBASE_AUDIT.md) | Succession-focused audit of active components | ✅ Updated |
-| [SUCCESSION_ROADMAP_PHASE_2.md](../SUCCESSION_ROADMAP_PHASE_2.md) | Phase 2 development roadmap | 🔄 Active |
-
-### Implementation & Configuration
-| Document | Purpose | Last Updated |
-|----------|---------|--------------|
-| [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) | Test Data Factory implementation status and API sync | Oct 2, 2025 |
-| [org-configuration-notes.md](./org-configuration-notes.md) | Org-specific configuration and validation rules | Oct 1, 2025 |
-| [VALIDATION_ISSUES_CURRENT_STATUS.md](./VALIDATION_ISSUES_CURRENT_STATUS.md) | Current validation rule issues blocking tests | Oct 1, 2025 |
-| [VALIDATION_ISSUES_FINAL_STATUS.md](./VALIDATION_ISSUES_FINAL_STATUS.md) | Resolution status of validation issues | Oct 1, 2025 |
-| [VALIDATION_RULE_FIX.md](./VALIDATION_RULE_FIX.md) | Specific fixes for validation rules | Oct 1, 2025 |
+| All Core Docs | 1.0 | ✅ Production Ready |
+| Experience Cloud | 1.0 | ✅ Production Ready |
+| Testing Guides | 1.0 | ✅ Production Ready |
 
 ---
 
-## 🧪 Test Data & Testing
-
-### Test Data Documentation
-|| Document | Purpose | Version |
-||----------|---------|---------|
-|| [test-data-factory-usage.md](./test-data-factory-usage.md) | Complete guide to SuccessionTestDataFactory | v1.0 |
-|| [test-data-expanded-summary.md](./test-data-expanded-summary.md) | Expanded test scenarios and coverage | v1.0 |
-|| [test-data-expansion-plan.md](./test-data-expansion-plan.md) | 7-phase roadmap for test data enhancement | v1.0 |
-|| [test-data-plan-succession.md](./test-data-plan-succession.md) | Original succession test data strategy | v1.0 |
-|| [test-data-ui-quickstart.md](./test-data-ui-quickstart.md) | UI testing quick start guide | v1.0 |
-|| [test-data-factory-operations.md](./test-data-factory-operations.md) | Generic TestDataFactory operations, maintenance, verification | v1.0 |
-
-### Testing Guides
-| Document | Purpose | Status |
-|----------|---------|--------|
-| [MULTI_SUCCESSOR_TESTING_GUIDE.md](./MULTI_SUCCESSOR_TESTING_GUIDE.md) | Guide for testing multi-successor scenarios | Active |
-| [QUICK_FIX_GUIDE.md](./QUICK_FIX_GUIDE.md) | Quick fixes for common test issues | Active |
-
----
-
-## 🏗️ Architecture & Design
-
-### System Architecture
-| Document | Purpose | Coverage |
-|----------|---------|----------|
-| [RELATIONSHIP_ANALYSIS.md](./RELATIONSHIP_ANALYSIS.md) | Object relationship and data model analysis | Complete |
-| [field-documentation-succession.md](./field-documentation-succession.md) | Field-level documentation for succession objects | Complete |
-| [AUTONOMOUS_RESOLUTION_SUMMARY.md](./AUTONOMOUS_RESOLUTION_SUMMARY.md) | Automated resolution patterns | Active |
-
----
-
-## 📝 Code Reviews
-
-### Flow Reviews
-| Document | Date | Status |
-|----------|------|--------|
-| [succession-flows-final-validation-2025-01-31.md](./reviews/succession-flows-final-validation-2025-01-31.md) | Jan 31, 2025 | Final |
-| [succession-flows-review-2025-01-31.md](./reviews/succession-flows-review-2025-01-31.md) | Jan 31, 2025 | Complete |
-
----
-
-## 🚀 Project Management
-
-### Main Project Documentation
-| Document | Location | Purpose |
-|----------|----------|---------|
-| [WARP.md](../WARP.md) | Project root | WARP terminal configuration and commands |
-| [README.md](../README.md) | Project root | Project overview and setup instructions |
-| [sfdx-project.json](../sfdx-project.json) | Project root | SFDX project configuration |
-
-### Configuration Files
-| File | Purpose | Location |
-|------|---------|----------|
-| `.prettierrc`| Code formatting rules | Project root |
-| `.eslintrc.json` | JavaScript linting rules | Project root |
-| `jest.config.js` | Jest testing configuration | Project root |
-| `package.json` | NPM dependencies and scripts | Project root |
-
----
-
-## 📚 Quick Reference Sections
-
-### By Use Case
-
-#### **Starting a New Feature**
-1. Read [WARP.md](../WARP.md) for project setup
-2. Review [CODEBASE_AUDIT.md](./CODEBASE_AUDIT.md) for architecture patterns
-3. Check [test-data-factory-usage.md](./test-data-factory-usage.md) for test data creation
-
-#### **Debugging Issues**
-1. Check [VALIDATION_ISSUES_CURRENT_STATUS.md](./VALIDATION_ISSUES_CURRENT_STATUS.md)
-2. Review [QUICK_FIX_GUIDE.md](./QUICK_FIX_GUIDE.md)
-3. See [org-configuration-notes.md](./org-configuration-notes.md)
-
-#### **Writing Tests**
-1. Start with [test-data-factory-usage.md](./test-data-factory-usage.md)
-2. Review [MULTI_SUCCESSOR_TESTING_GUIDE.md](./MULTI_SUCCESSOR_TESTING_GUIDE.md)
-3. Check [test-data-ui-quickstart.md](./test-data-ui-quickstart.md)
-
-#### **Code Review Preparation**
-1. Review [COMPONENT_INVENTORY.md](./COMPONENT_INVENTORY.md)
-2. Check against patterns in [CODEBASE_AUDIT.md](./CODEBASE_AUDIT.md)
-3. Validate with [README_AUDIT.md](./README_AUDIT.md) recommendations
-
----
-
-## 🔍 Document Status Legend
-
-| Icon | Status | Meaning |
-|------|--------|---------|
-| ✅ | Complete | Document is finalized and up-to-date |
-| 🔄 | Active | Document is actively maintained |
-| 📝 | Draft | Document is in progress |
-| ⚠️ | Outdated | Document needs updating |
-| 🆕 | New | Recently created document |
-
----
-
-## 📈 Documentation Statistics
-
-### Coverage by Component
-- **Apex Classes**: 90% documented
-- **Flows**: 75% documented
-- **LWCs**: 60% documented
-- **Objects**: 85% documented
-- **Test Classes**: 95% documented
-
-### Documentation Health
-- **Total Documents**: 20+
-- **Updated in Last 30 Days**: 15
-- **Average Document Size**: 250 lines
-- **Total Documentation Lines**: 5,000+
-
----
-
-## 🔄 Maintenance Schedule
-
-### Weekly Reviews
-- Validation issues status
-- Test coverage reports
-- Quick fix guide updates
-
-### Monthly Updates
-- Component inventory
-- Implementation summary
-- Architecture patterns
-
-### Quarterly Audits
-- Complete codebase audit
-- Security review
-- Performance analysis
-
----
-
-## 📮 Contributing to Documentation
-
-### How to Add New Documentation
-1. Create document in `/docs` folder
-2. Follow naming convention: `category-topic-description.md`
-3. Add entry to this INDEX.md
-4. Update WARP.md if relevant to development workflow
-
-### Documentation Standards
-- Use Markdown formatting
-- Include "Last Updated" date
-- Add table of contents for documents >100 lines
-- Include examples where applicable
-- Cross-reference related documents
-
----
-
-## 🔗 External Resources
-
-### Salesforce Documentation
-- [Financial Services Cloud Guide](https://help.salesforce.com/s/articleView?id=sf.fsc_admin_intro.htm)
-- [Apex Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/)
-- [Lightning Web Components Guide](https://developer.salesforce.com/docs/component-library/documentation/en/lwc)
-
-### Project Tools
-- [Repomix](https://github.com/yamadashy/repomix) - Code consolidation tool
-- [SFDX CLI](https://developer.salesforce.com/tools/sfdxcli) - Salesforce development CLI
-- [Jest](https://jestjs.io/) - JavaScript testing framework
-
----
-
-**Maintained By**: Salesforce Architecture Team  
-**Last Index Update**: October 2, 2025  
-**Next Review**: November 1, 2025
+**Total Documents:** 17  
+**Last Updated:** October 2025  
+**Format:** Markdown (.md)
