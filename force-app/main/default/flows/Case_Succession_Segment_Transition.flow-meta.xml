@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <actionCalls>
+        <name>Post_Transition_to_Chatter</name>
+        <label>Post Transition to Chatter</label>
+        <locationX>176</locationX>
+        <locationY>468</locationY>
+        <actionName>chatterPost</actionName>
+        <actionType>chatterPost</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>text</name>
+            <value>
+                <elementReference>ChatterMessage</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>subjectNameOrId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>chatterPost</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <assignments>
+        <name>Set_Contact_Established_Message</name>
+        <label>Set Contact Established Message</label>
+        <locationX>50</locationX>
+        <locationY>360</locationY>
+        <assignmentItems>
+            <assignToReference>ChatterMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue
+        >📞 ✅ Workflow Transition: Contact established with successor. Case moved to &quot;Awaiting Form&quot; segment. Next: Send pathway selection form.</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Post_Transition_to_Chatter</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Set_Form_Completed_Message</name>
+        <label>Set Form Completed Message</label>
+        <locationX>314</locationX>
+        <locationY>360</locationY>
+        <assignmentItems>
+            <assignToReference>ChatterMessage</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue
+        >✅ 📋 Workflow Transition: Pathway form completed. Pathway: {!$Record.Pathway_Confirmed__c}. Case moved to &quot;Form Completed&quot; segment. Next: Gather required documentation.</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Post_Transition_to_Chatter</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Which_Transition_Occurred</name>
+        <label>Which Transition Occurred?</label>
+        <locationX>176</locationX>
+        <locationY>252</locationY>
+        <defaultConnectorLabel>Other Transition</defaultConnectorLabel>
+        <rules>
+            <name>Contact_Established_Transition</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference
+        >$Record.Contact_Established__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference
+        >$Record__Prior.Contact_Established__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference
+        >Set_Contact_Established_Message</targetReference>
+            </connector>
+            <label>Contact Established Transition</label>
+        </rules>
+        <rules>
+            <name>Form_Completed_Transition</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference
+        >$Record.Form_Completed_Date__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference
+        >$Record__Prior.Form_Completed_Date__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Set_Form_Completed_Message</targetReference>
+            </connector>
+            <label>Form Completed Transition</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_Segment_Transition</name>
+        <label>Is Segment Transition?</label>
+        <locationX>176</locationX>
+        <locationY>144</locationY>
+        <defaultConnectorLabel>No Transition</defaultConnectorLabel>
+        <rules>
+            <name>Transition_Detected</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference
+        >$Record.Contact_Established__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference
+          >$Record__Prior.Contact_Established__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference
+        >$Record.Form_Completed_Date__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference
+        >$Record.Pathway_Confirmed__c</leftValueReference>
+                <operator>IsChanged</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Which_Transition_Occurred</targetReference>
+            </connector>
+            <label>Transition Detected</label>
+        </rules>
+    </decisions>
+    <description
+  >Data Processing Engine: Tracks and logs workflow segment transitions. Posts Chatter updates when cases move between processing segments (Contact, Form, Documentation phases).</description>
+    <environments>Default</environments>
+    <interviewLabel
+  >Case: Succession Segment Transition {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Case: Succession Segment Transition</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_Segment_Transition</targetReference>
+        </connector>
+        <filterFormula>AND(
+    RecordType.DeveloperName = &quot;EstateAdministration&quot;,
+    IsClosed = FALSE
+)</filterFormula>
+        <object>Case</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>ChatterMessage</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

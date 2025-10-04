@@ -1,0 +1,31 @@
+Dear {!Case.ContactName},
+
+We have made multiple attempts to reach you regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360.
+
+It has been approximately one month since we first contacted you. As the designated successor, your input is essential for handling the account assets properly. We want to ensure you understand your options and can make an informed decision.
+
+ACCOUNT INFORMATION:
+• Account Number: {!Case.FinancialAccount__r.Name}
+• Approximate Balance: {!Case.FinancialAccount__r.Balance__c}
+• Case Number: {!Case.CaseNumber}
+• Days Since Initial Contact: 35+ days
+
+YOUR THREE OPTIONS:
+When we speak, we will explain your three pathway options:
+1. Final Grant to Charity - Direct the account balance as charitable grants
+2. Transfer to New DAF Account - Become the new account holder
+3. Disclaim Successor Rights - Decline your rights as successor
+
+NEXT STEPS:
+Please contact us at 1-800-746-2227 or reply to this email at your convenience. If we do not hear from you within the next 30 days, we will need to proceed with account handling per our organizational policies and the original donor's instructions.
+
+We are here to help you through this process. Please reach out so we can assist you.
+
+Sincerely,
+
+{!Case.Owner.Name}
+Estate Administration Team
+DAFGiving360
+Phone: 1-800-746-2227
+Email: {!Case.Owner.Email}
+Case Number: {!Case.CaseNumber}

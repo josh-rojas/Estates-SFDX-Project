@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Pathway Selection - Form Invitation</name>
+    <style>none</style>
+    <subject>Your Succession Pathway Options - DAF Account {!Case.FinancialAccount__r.Name}</subject>
+    <textOnly>Dear {!Case.ContactName},
+
+Thank you for speaking with us regarding the Donor-Advised Fund account held by {!Case.Account.Name}. As discussed during our conversation, we are pleased to provide you with the Succession Recommendation process to formalize your pathway selection.
+
+YOUR OPTIONS (as discussed):
+We reviewed the three pathway options available to you:
+
+1. FINAL GRANT TO CHARITY
+   Direct the account balance as charitable grants to organizations of your choice
+
+2. TRANSFER TO NEW DAF ACCOUNT
+   Become the new account holder and continue charitable giving
+
+3. DISCLAIM SUCCESSOR RIGHTS
+   Decline your rights, and the account will be handled per organizational policy
+
+NEXT STEPS:
+We will follow up with you via phone within the next 3-5 business days to complete the pathway selection process and collect any necessary documentation.
+
+If you have specific charities in mind for grants, or questions about the new account setup process, please have that information ready when we speak.
+
+REQUIRED DOCUMENTS (please gather):
+Regardless of which pathway you select, you will need:
+• Certified copy of death certificate
+• Government-issued photo ID (driver's license or passport)
+
+Additional documents may be required depending on your pathway selection.
+
+SUPPORT:
+If you have any questions before our follow-up call, please contact me directly:
+• Phone: {!Case.Owner.Phone}
+• Email: {!Case.Owner.Email}
+• Case Number: {!Case.CaseNumber}
+
+We are here to support you through this process.
+
+Warm regards,
+
+{!Case.Owner.Name}
+Estate Administration Team
+DAFGiving360</textOnly>
+    <type>text</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>

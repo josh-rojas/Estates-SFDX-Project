@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Next_Contact_Due_Required</fullName>
+    <active>true</active>
+    <description>BRD Contact Cadence: Next Contact Due date must be set when contact not established and attempts remain. Ensures visibility for agents.</description>
+    <errorConditionFormula>AND(
+    Contact_Established__c &lt;&gt; TRUE,
+    NOT(ISBLANK(Contact_Attempt_Count__c)),
+    Contact_Attempt_Count__c &lt; 5,
+    ISBLANK(Next_Contact_Due__c)
+)</errorConditionFormula>
+    <errorDisplayField>Next_Contact_Due__c</errorDisplayField>
+    <errorMessage>Next Contact Due date is required when contact is not established and attempts remain. Please set the next scheduled contact date per BRD cadence (Day 5, 35, 65, or 95).</errorMessage>
+</ValidationRule>

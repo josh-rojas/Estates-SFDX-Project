@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!-- Destructive changes for Succession-related list views -->
+    <types>
+        <members>Case.All_Active_Succession_Cases</members>
+        <members>Case.My_Active_Succession_Cases</members>
+        <members>Case.Recently_Closed_Succession</members>
+        <members>Case.Succession_All_Active</members>
+        <members>Case.Succession_At_Risk</members>
+        <members>Case.Succession_Attention_Needed</members>
+        <members>Case.Succession_Awaiting_Contact</members>
+        <members>Case.Succession_Awaiting_Form</members>
+        <members>Case.Succession_Contact_Established</members>
+        <members>Case.Succession_Critical</members>
+        <members>Case.Succession_Disclaim</members>
+        <members>Case.Succession_Disclaim_Pathway</members>
+        <members>Case.Succession_Documentation_Pending</members>
+        <members>Case.Succession_Final_Grant</members>
+        <members>Case.Succession_Final_Grant_Pathway</members>
+        <members>Case.Succession_Form_Completed</members>
+        <members>Case.Succession_Form_Pending</members>
+        <members>Case.Succession_Multi_Successor</members>
+        <members>Case.Succession_Multi_Successor_Master</members>
+        <members>Case.Succession_My_Cases</members>
+        <members>Case.Succession_Needs_Review</members>
+        <members>Case.Succession_New_DAF</members>
+        <members>Case.Succession_New_DAF_Pathway</members>
+        <members>Case.Succession_On_Track</members>
+        <members>Case.Succession_Pending_Contact</members>
+        <members>Case.Succession_Ready_For_Execution</members>
+        <members>Case.Succession_SLA_At_Risk</members>
+        <members>Case.Succession_SLA_Critical</members>
+        <members>Case.Succession_SLA_Needs_Attention</members>
+        <name>ListView</name>
+    </types>
+    <version>65.0</version>
+</Package>

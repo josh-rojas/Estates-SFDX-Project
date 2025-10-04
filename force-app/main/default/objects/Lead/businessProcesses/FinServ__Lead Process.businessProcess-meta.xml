@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BusinessProcess xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FinServ__Lead Process</fullName>
+    <description>Consumer lead</description>
+    <isActive>true</isActive>
+    <values>
+        <fullName>Direct Qualified Lead %28DQL%29</fullName>
+        <default>false</default>
+    </values>
+    <values>
+        <fullName>Disqualified</fullName>
+        <default>false</default>
+    </values>
+    <values>
+        <fullName>Engaged</fullName>
+        <default>true</default>
+    </values>
+    <values>
+        <fullName>Inquiry</fullName>
+        <default>false</default>
+    </values>
+    <values>
+        <fullName>Marketing Qualified Lead %28MQL%29</fullName>
+        <default>false</default>
+    </values>
+    <values>
+        <fullName>Prospect</fullName>
+        <default>false</default>
+    </values>
+    <values>
+        <fullName>Recycle</fullName>
+        <default>false</default>
+    </values>
+    <values>
+        <fullName>Sales Accepted Lead %28SAL%29</fullName>
+        <default>false</default>
+    </values>
+    <values>
+        <fullName>Sales Qualified Lead %28SQL%29</fullName>
+        <default>false</default>
+    </values>
+    <values>
+        <fullName>Suspect</fullName>
+        <default>false</default>
+    </values>
+</BusinessProcess>

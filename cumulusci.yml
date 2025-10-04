@@ -1,0 +1,72 @@
+project:
+  name: Estates SFDX Project
+  package:
+    name: Estates SFDX Project
+    api_version: "65.0"
+  source_format: sfdx
+
+orgs:
+  scratch:
+    dev:
+      config_file: config/project-scratch-def.json
+      days: 7
+    qa:
+      config_file: config/project-scratch-def.json
+      days: 30
+
+tasks:
+  load_succession_test_data:
+    description: Load complete succession management test data using Snowfakery
+    class_path: cumulusci.tasks.bulkdata.generate_and_load_data_from_yaml.GenerateAndLoadDataFromYaml
+    options:
+      mapping: datasets/succession_mapping.yml
+      generator_yaml: datasets/succession_data.recipe.yml
+
+  load_final_grant_scenario:
+    description: Load Final Grant Scenario (BRD Phase 1-5 complete lifecycle)
+    class_path: cumulusci.tasks.bulkdata.generate_and_load_data_from_yaml.GenerateAndLoadDataFromYaml
+    options:
+      mapping: datasets/succession_mapping.yml
+      generator_yaml: datasets/final_grant_scenario.recipe.yml
+
+  load_multi_successor_scenario:
+    description: Load Multi-Successor Scenario (BRD Appendix B - multiple successors with allocation splits)
+    class_path: cumulusci.tasks.bulkdata.generate_and_load_data_from_yaml.GenerateAndLoadDataFromYaml
+    options:
+      mapping: datasets/succession_mapping.yml
+      generator_yaml: datasets/multi_successor_scenario.recipe.yml
+
+  load_sla_escalation_scenario:
+    description: Load SLA Escalation Scenario (BRD Section 3.2 - unresponsive successor after 4 attempts)
+    class_path: cumulusci.tasks.bulkdata.generate_and_load_data_from_yaml.GenerateAndLoadDataFromYaml
+    options:
+      mapping: datasets/succession_mapping.yml
+      generator_yaml: datasets/sla_escalation_scenario.recipe.yml
+
+  load_demo_ui_showcase:
+    description: Load Demo UI Showcase data for LWC component demonstration (Contact Cadence + Case Hierarchy)
+    class_path: cumulusci.tasks.bulkdata.generate_and_load_data_from_yaml.GenerateAndLoadDataFromYaml
+    options:
+      mapping: datasets/succession_mapping.yml
+      generator_yaml: datasets/demo_ui_showcase.recipe.yml
+
+# ==================== FLOWS WITH AUTOMATION CONTROL ====================
+
+flows:
+  succession_test_setup:
+    description: Complete succession test data setup
+    steps:
+      1:
+        task: load_succession_test_data
+
+  final_grant_test_setup:
+    description: Load Final Grant Scenario
+    steps:
+      1:
+        task: load_final_grant_scenario
+
+  demo_setup:
+    description: Load demo UI data
+    steps:
+      1:
+        task: load_demo_ui_showcase

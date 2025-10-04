@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Succession: Form Reminder</name>
+    <style>none</style>
+    <subject
+  >Action Required: Complete Succession Form - Case {!Case.CaseNumber}</subject>
+    <textOnly>Dear {!Contact.FirstName},
+
+Thank you for speaking with me regarding the succession of the donor-advised fund account for {!Case.Deceased_Donor__c}.
+
+As discussed, the next step is to complete the Succession Recommendation Form to indicate your preferred pathway for the account assets. This form will help us process your request efficiently.
+
+Case Number: {!Case.CaseNumber}
+Form Sent Date: {!Case.Form_Sent_Date__c}
+
+You have three pathway options:
+1. **Final Grant** - Liquidate the account and issue a grant to qualified charities
+2. **New DAF Account** - Transfer assets to a new donor-advised fund in your name
+3. **Disclaim Assets** - Decline the account according to fund bylaws
+
+Please complete the form at your earliest convenience. If you have any questions about the pathways or need assistance completing the form, please don't hesitate to reach out.
+
+You can access the form here: [Link will be provided separately]
+
+Thank you for your prompt attention to this matter.
+
+Best regards,
+
+{!User.Name}
+{!User.Title}
+{!Organization.Name}
+{!User.Phone}
+{!User.Email}</textOnly>
+    <type>text</type>
+</EmailTemplate>

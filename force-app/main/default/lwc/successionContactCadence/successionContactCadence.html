@@ -1,0 +1,212 @@
+<template>
+    <lightning-card title="Contact Cadence Progress" icon-name="standard:task">
+
+        <!-- Loading Spinner -->
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading contact cadence..." size="small"></lightning-spinner>
+        </template>
+
+        <!-- Error Message -->
+        <template if:true={error}>
+            <div class="slds-m-around_medium">
+                <div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+                    <h2>Error loading contact cadence</h2>
+                    <p>{error.body.message}</p>
+                </div>
+            </div>
+        </template>
+
+        <!-- No Data Message -->
+        <template if:false={hasData}>
+            <template if:false={isLoading}>
+                <div class="slds-m-around_medium slds-text-color_weak">
+                    <p>No contact attempts found. Contact cadence will begin when case is created.</p>
+                </div>
+            </template>
+        </template>
+
+        <!-- Contact Cadence Display -->
+        <template if:true={hasData}>
+            <div class="slds-card__body slds-card__body_inner">
+
+                <!-- Progress Bar Section -->
+                <div class="progress-section slds-m-bottom_large">
+
+                    <!-- Progress Status Header -->
+                    <div class="slds-grid slds-grid_align-spread slds-m-bottom_medium">
+                        <div class="slds-col">
+                            <p class="slds-text-heading_small">{progressStatusText}</p>
+                        </div>
+                        <template if:true={cadenceData.contactEstablished}>
+                            <div class="slds-col slds-text-align_right">
+                                <lightning-icon icon-name="utility:success" size="small" variant="success" class="slds-m-right_x-small"></lightning-icon>
+                                <span class="slds-text-color_success">Contact Established</span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-track"></div>
+                        <div class="progress-bar-fill" style={progressBarStyle}></div>
+
+                        <!-- Progress Nodes (5 attempts) -->
+                        <div class="progress-nodes">
+                            <template for:each={attemptsWithProps} for:item="attempt">
+                                <div key={attempt.attemptNumber} class={attempt.progressNodeClass}>
+                                    <div class="node-circle">
+                                        <template if:true={attempt.isCompleted}>
+                                            <span class="node-icon">✓</span>
+                                        </template>
+                                        <template if:true={attempt.isCurrent}>
+                                            <span class="node-icon">⏺</span>
+                                        </template>
+                                        <template if:true={attempt.isPending}>
+                                            <span class="node-icon">○</span>
+                                        </template>
+                                    </div>
+                                    <p class="node-label slds-text-body_small">{attempt.dayLabel}</p>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Attempt Cards Grid -->
+                <div class="attempts-grid">
+                    <template for:each={attemptsWithProps} for:item="attempt">
+                        <div key={attempt.attemptNumber} class={attempt.cardClass}>
+
+                            <!-- Card Header -->
+                            <div class="card-header slds-m-bottom_small">
+                                <h3 class="slds-text-heading_small">
+                                    {attempt.completionIcon}
+                                    {attempt.currentIcon}
+                                    {attempt.pendingIcon}
+                                    {attempt.attemptLabel}
+                                </h3>
+                                <p class="slds-text-body_small slds-text-color_weak">{attempt.dayLabel}</p>
+                            </div>
+
+                            <!-- Completed Card (Read-Only) -->
+                            <template if:true={attempt.showReadOnly}>
+                                <div class="card-content">
+                                    <div class="slds-form-element slds-m-bottom_x-small">
+                                        <label class="slds-form-element__label slds-text-body_small">Status</label>
+                                        <p class="slds-text-body_regular">
+                                            <lightning-icon icon-name="utility:success" size="x-small" variant="success" class="slds-m-right_xx-small"></lightning-icon>
+                                            {attempt.statusLabel}
+                                        </p>
+                                    </div>
+
+                                    <template if:true={attempt.taskRecord.Succession_Contact_Established__c}>
+                                        <div class="slds-form-element slds-m-bottom_x-small">
+                                            <p class="slds-text-color_success">
+                                                <lightning-icon icon-name="utility:check" size="x-small" class="slds-m-right_xx-small"></lightning-icon>
+                                                Contact Established
+                                            </p>
+                                        </div>
+                                    </template>
+
+                                    <template if:true={attempt.taskNotes}>
+                                        <div class="slds-form-element">
+                                            <label class="slds-form-element__label slds-text-body_small">Notes</label>
+                                            <div class="notes-display slds-box slds-box_x-small slds-p-around_small">
+                                                <p class="slds-text-body_small">{attempt.taskNotes}</p>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <!-- Current Card (Editable) -->
+                            <template if:true={attempt.isCurrent}>
+                                <template if:false={attempt.showEditForm}>
+                                    <!-- Not editing - show edit button -->
+                                    <div class="card-content">
+                                        <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">
+                                            Due: {attempt.dueDate}
+                                        </p>
+                                        <template if:true={attempt.hasTask}>
+                                            <lightning-button
+                                                variant="brand"
+                                                label="Record Outcome"
+                                                data-task-id={attempt.taskRecord.Id}
+                                                onclick={handleEdit}
+                                                class="slds-m-top_small">
+                                            </lightning-button>
+                                        </template>
+                                        <template if:false={attempt.hasTask}>
+                                            <p class="slds-text-color_weak slds-text-body_small">
+                                                Task will be created automatically based on cadence schedule.
+                                            </p>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <template if:true={attempt.showEditForm}>
+                                    <!-- Editing - show inline form -->
+                                    <div class="card-content">
+                                        <div class="slds-form-element slds-m-bottom_small">
+                                            <div class="slds-form-element__control">
+                                                <lightning-input
+                                                    type="checkbox"
+                                                    label="Contact Established?"
+                                                    checked={contactEstablished}
+                                                    onchange={handleCheckboxChange}>
+                                                </lightning-input>
+                                            </div>
+                                        </div>
+
+                                        <div class="slds-form-element slds-m-bottom_small">
+                                            <label class="slds-form-element__label">
+                                                <abbr class="slds-required" title="required">*</abbr>
+                                                Notes
+                                            </label>
+                                            <div class="slds-form-element__control">
+                                                <lightning-textarea
+                                                    value={notes}
+                                                    onchange={handleNotesChange}
+                                                    placeholder="Enter details about this contact attempt..."
+                                                    required>
+                                                </lightning-textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="slds-grid slds-grid_align-spread">
+                                            <lightning-button
+                                                variant="neutral"
+                                                label="Cancel"
+                                                onclick={handleCancel}>
+                                            </lightning-button>
+                                            <lightning-button
+                                                variant="brand"
+                                                label="Save Outcome"
+                                                data-task-id={attempt.taskRecord.Id}
+                                                onclick={handleSaveOutcome}>
+                                            </lightning-button>
+                                        </div>
+                                    </div>
+                                </template>
+                            </template>
+
+                            <!-- Pending Card (Disabled) -->
+                            <template if:true={attempt.showDisabled}>
+                                <div class="card-content card-disabled">
+                                    <p class="slds-text-body_small slds-text-color_weak">
+                                        This attempt will be scheduled after previous attempts are completed.
+                                    </p>
+                                    <p class="slds-text-body_small slds-text-color_weak slds-m-top_x-small">
+                                        Expected: {attempt.dayLabel}
+                                    </p>
+                                </div>
+                            </template>
+
+                        </div>
+                    </template>
+                </div>
+
+            </div>
+        </template>
+    </lightning-card>
+</template>

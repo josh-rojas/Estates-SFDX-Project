@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SLA_Critical_Escalate</fullName>
+    <label>🔴 Critical - Escalate</label>
+    <filterScope>Everything</filterScope>
+        <field>TYPE</field>
+        <operation>equals</operation>
+        <value>Named Successor Enactment</value>
+    </filters>
+        <field>SLA_Status__c</field>
+        <operation>contains</operation>
+        <value>Critical</value>
+    </filters>
+        <field>CLOSED</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <columns>Contact_Attempt_Count__c</columns>
+    <columns>Last_Contact_Attempt__c</columns>
+    <columns>SLA_Status__c</columns>
+</ListView>

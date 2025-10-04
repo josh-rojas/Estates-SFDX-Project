@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Last_Contact_Attempt_Not_Future</fullName>
+    <active>true</active>
+    <description>Last Contact Attempt cannot be in the future. Ensures accurate tracking of contact attempt history for compliance.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Last_Contact_Attempt__c)),
+    Last_Contact_Attempt__c &gt; NOW()
+)</errorConditionFormula>
+    <errorDisplayField>Last_Contact_Attempt__c</errorDisplayField>
+    <errorMessage>Last Contact Attempt cannot be in the future. Please enter the actual attempt date/time.</errorMessage>
+</ValidationRule>

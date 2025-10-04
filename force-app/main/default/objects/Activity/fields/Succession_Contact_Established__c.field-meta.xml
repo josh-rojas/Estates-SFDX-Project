@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Succession_Contact_Established__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>BRD Contact Cadence: Agent marks this TRUE when verbal contact with successor is made. Used by Flow to stop automated contact cadence and update parent Case.Contact_Established__c.</description>
+    <inlineHelpText>Check this box when you successfully make verbal contact with the successor and explain the three pathway options. This stops the automated contact schedule.</inlineHelpText>
+    <label>Succession Contact Established</label>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contact_Established__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>BRD Phase 1-2: Indicates whether verbal contact has been successfully established with the successor. Used as gate to stop contact cadence automation. Only check after direct conversation where successor understands their options.</description>
+    <inlineHelpText>Check this box ONLY after you have successfully spoken with the successor and confirmed they understand their three pathway options (Final Grant, New DAF, or Disclaim).</inlineHelpText>
+    <label>Contact Established</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

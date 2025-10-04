@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Day 95 - Final Contact (Last Chance)</name>
+    <style>none</style>
+    <subject>Final Contact Regarding DAF Account - Case {!Case.CaseNumber}</subject>
+    <textOnly>Dear {!Case.ContactName},
+
+This is our final attempt to reach you regarding the Donor-Advised Fund account held by {!Case.Account.Name}.
+
+We have attempted to contact you five times over the past three months regarding your role as successor for this account. We have not yet received a response.
+
+ACCOUNT INFORMATION:
+• Account Number: {!Case.FinancialAccount__r.Name}
+• Approximate Balance: {!Case.FinancialAccount__r.Balance__c}
+• Case Number: {!Case.CaseNumber}
+• Days Since Initial Contact: 95+ days
+• Contact Attempts: 5
+
+NEXT STEPS:
+If we do not receive contact from you within 7 business days, we will proceed with account processing as follows:
+• The account will be transitioned to our Operations team for processing
+• Assets will be distributed according to the original donor's stated charitable preferences
+• This will be our last communication regarding your successor designation
+
+We encourage you to contact us at 1-800-746-2227 or reply to this email by {!TODAY() + 7} if you would like to discuss your options.
+
+We have made every reasonable effort to reach you and remain available to assist you.
+
+Sincerely,
+
+{!Case.Owner.Name}
+Estate Administration Team
+DAFGiving360
+Phone: 1-800-746-2227
+Email: {!Case.Owner.Email}
+Case Number: {!Case.CaseNumber}
+
+---
+This is our final outreach. If we do not hear from you, account processing will proceed per our standard procedures.</textOnly>
+    <type>text</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>

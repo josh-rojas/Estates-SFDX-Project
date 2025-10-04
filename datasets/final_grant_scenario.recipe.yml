@@ -1,0 +1,316 @@
+# Happy Path Scenario - Final Grant
+# BRD Section 3.1: Phase 1-5 Complete Lifecycle
+# Responsive successor, chooses Final Grant pathway, standard 65-day timeline
+
+# ==================== MACROS ====================
+
+- macro: PersonAccountRecordType
+  value: PersonAccount
+
+- macro: BusinessAccountRecordType
+  value: IndustriesBusiness
+
+- macro: EstateAdministrationRecordType
+  value: EstateAdministration
+
+- macro: ClientAssociateTaskRecordType
+  value: ClientAssociateTask
+
+# ==================== DECEASED DONOR ====================
+
+- object: Account
+  nickname: DeceasedDonor_Margaret
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Margaret
+    LastName: Thompson
+    Salutation: Mrs.
+    PersonBirthdate: 1945-06-15
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -30d
+        end_date: -30d
+    PersonEmail: margaret.thompson@legacy-estate.example.com
+    PersonMobilePhone: (555) 000-1001
+    PersonHomePhone: (555) 001-1001
+    PersonMailingStreet: 123 Estate Lane
+    PersonMailingCity: San Francisco
+    PersonMailingState: CA
+    PersonMailingPostalCode: 94102
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Platinum
+    FinServ__NetWorth__c: 5000000
+    FinServ__Status__c: Closed
+    FinServ__InvestmentObjectives__c: Conservative Income;Income
+    FinServ__RiskTolerance__c: Conservative
+    DAF_Accounts__c: 1
+    Self_Qualified_Premier__c: true
+
+# ==================== LIVING SUCCESSOR ====================
+
+- object: Account
+  nickname: Successor_Jennifer
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Jennifer
+    LastName: Thompson
+    Salutation: Ms.
+    PersonBirthdate: 1975-03-20
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: jennifer.thompson@email.example.com
+    PersonMobilePhone: (555) 100-2001
+    PersonMailingStreet: 456 Successor Ave
+    PersonMailingCity: Los Angeles
+    PersonMailingState: CA
+    PersonMailingPostalCode: 90001
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Silver
+    Area_of_Interest__c: Family Philanthropy / Legacy Planning
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+# ==================== ADVISOR FIRM ====================
+
+- object: Account
+  nickname: AdvisorFirm_Pacific
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: Pacific Heritage Group
+    Type: Advisor
+    Phone: (555) 200-3001
+    BillingStreet: 789 Financial Plaza
+    BillingCity: San Francisco
+    BillingState: CA
+    BillingPostalCode: 94105
+    BillingCountry: United States
+    AS_Segment__c: Star
+    AS_Region__c: SO. CALIFORNIA
+    FinServ__Status__c: Active
+
+# ==================== FINANCIAL ACCOUNT ====================
+
+- object: FinancialAccount
+  nickname: DAF_Thompson
+  fields:
+    Name: Thompson Family Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 2500000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -5y
+        end_date: -5y
+    FirstContributionDate: ${{OpenDate}}
+    MostRecentGrantDate:
+      date_between:
+        start_date: -90d
+        end_date: -90d
+    ArtsCultureLifetime: 50000
+    EducationLifetime: 75000
+    HealthLifetime: 37500
+    HumanServicesLifetime: 50000
+    ReligionLifetime: 25000
+    EnvironmentalLifetime: 12500
+    Ownership: Individual
+    SeparatelyManagedAccount: false
+    LegacyAccount: false
+    BeneficiaryAccount: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_Margaret
+
+# ==================== FINANCIAL ACCOUNT ROLES ====================
+
+- object: FinancialAccountRole
+  nickname: Role_PrimaryOwner
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -5y
+        end_date: -5y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Thompson
+    - object: Account
+      nickname: DeceasedDonor_Margaret
+
+- object: FinancialAccountRole
+  nickname: Role_Successor
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -5y
+        end_date: -5y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Thompson
+    - object: Account
+      nickname: Successor_Jennifer
+
+- object: FinancialAccountRole
+  nickname: Role_Advisor
+  fields:
+    Role: Advisor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -5y
+        end_date: -5y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Thompson
+    - object: Account
+      nickname: AdvisorFirm_Pacific
+
+# ==================== SUCCESSION CASE ====================
+
+- object: Case
+  nickname: Case_Thompson_HappyPath
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Succession - Thompson Estate
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -7d
+        end_date: -7d
+    PathwayConfirmed: Final Grant
+    FormSentDate:
+      date_between:
+        start_date: -5d
+        end_date: -5d
+    FormCompletedDate:
+      date_between:
+        start_date: -3d
+        end_date: -3d
+    NextContactDue: null
+    LastContactAttempt:
+      date_between:
+        start_date: -20d
+        end_date: -20d
+    NotificationSource: Financial Advisor
+    Description: Happy path succession case - responsive successor, Final Grant pathway selected.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_Margaret
+    - object: FinancialAccount
+      nickname: DAF_Thompson
+
+# ==================== CONTACT ATTEMPT TASKS ====================
+
+# BRD Day 0: Initial Contact (Successful)
+- object: Task
+  nickname: Task_InitialContact
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Contact Attempt 1 - Initial Outreach
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype: Call
+    ActivityDate:
+      date_between:
+        start_date: -20d
+        end_date: -20d
+    ContactAttemptNumber: 1
+    SuccessionContactEstablished: true
+    CallType: Outbound
+    CallDisposition: Spoke with Contact
+    CallDurationInSeconds: 420
+    Description: Successfully reached Jennifer Thompson. Explained succession options and next steps. Successor is responsive and engaged.
+  friends:
+    - object: Case
+      nickname: Case_Thompson_HappyPath
+
+# Follow-up Email Task
+- object: Task
+  nickname: Task_FollowUpEmail
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Send Succession Election Form
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype: Email
+    ActivityDate:
+      date_between:
+        start_date: -7d
+        end_date: -7d
+    Description: Succession election form emailed to successor with instructions per BRD Phase 2.
+  friends:
+    - object: Case
+      nickname: Case_Thompson_HappyPath
+
+# Form Review Task
+- object: Task
+  nickname: Task_FormReview
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Review Completed Succession Form
+    Status: Completed
+    Priority: Normal
+    Type: Other
+    TaskSubtype: Task
+    ActivityDate:
+      date_between:
+        start_date: -3d
+        end_date: -3d
+    Description: Verified form completeness and accuracy. Final Grant pathway confirmed per BRD Phase 2.
+  friends:
+    - object: Case
+      nickname: Case_Thompson_HappyPath
+
+# ==================== CHATTER POSTS ====================
+
+- object: FeedItem
+  nickname: Chatter_CaseOpened
+  fields:
+    Type: TextPost
+    Body: New succession case opened. Reviewing deceased donor documentation and preparing for successor outreach. Case assigned to Estates team per BRD Phase 1.
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_Thompson_HappyPath
+
+- object: FeedItem
+  nickname: Chatter_ContactEstablished
+  fields:
+    Type: TextPost
+    Body: Contact established with successor. Succession election form sent. Successor is responsive and engaged. Moving to BRD Phase 2 - Pathway Selection.
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_Thompson_HappyPath
+
+- object: FeedItem
+  nickname: Chatter_PathwayConfirmed
+  fields:
+    Type: TextPost
+    Body: Succession pathway confirmed - Final Grant. Processing final grant to designated charity. Account will be closed upon completion per BRD Phase 4.
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_Thompson_HappyPath

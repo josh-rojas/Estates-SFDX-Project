@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Document_Reviewer__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>BRD Phase 3: User assigned to review submitted documents. Assignment based on pathway: Grants Office queue (Final Grant), New Account team (New DAF), Compliance team (Disclaim).</description>
+    <inlineHelpText>Person responsible for reviewing and approving submitted documents. Typically assigned based on succession pathway chosen.</inlineHelpText>
+    <label>Document Reviewer</label>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Cases Reviewing (Succession)</relationshipLabel>
+    <relationshipName>Cases_Reviewing_Succession</relationshipName>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

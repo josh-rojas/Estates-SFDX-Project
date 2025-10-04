@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Succession: Documentation Request</name>
+    <style>none</style>
+    <subject
+  >Documentation Required - Succession Case {!Case.CaseNumber}</subject>
+    <textOnly>Dear {!Contact.FirstName},
+
+Thank you for completing the Succession Recommendation Form. We have received your pathway selection: {!Case.Pathway_Confirmed__c}.
+
+To proceed with processing your request, we need the following documentation:
+
+**Required Documents:**
+• Copy of death certificate for {!Case.Deceased_Donor__c}
+• Government-issued photo ID (driver's license or passport)
+• Proof of successor designation (if not already on file)
+
+**Pathway-Specific Documents:**
+{!Case.Pathway_Confirmed__c} pathway may require additional documentation. We will provide a complete checklist upon receipt of the core documents listed above.
+
+**How to Submit:**
+You can upload documents securely through your case portal, or reply to this email with scanned copies as attachments.
+
+Case Number: {!Case.CaseNumber}
+Current Status: {!Case.Status}
+
+Once we receive and review these documents, we will contact you with next steps. The typical processing time is 5-10 business days after all documentation is complete.
+
+Please let me know if you have any questions or need assistance with document submission.
+
+Thank you for your cooperation.
+
+Sincerely,
+
+{!User.Name}
+{!User.Title}
+{!Organization.Name}
+{!User.Phone}
+{!User.Email}</textOnly>
+    <type>text</type>
+</EmailTemplate>

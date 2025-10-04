@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <description>Template for notifying administrators of flow errors in succession management processes</description>
+    <encodingKey>UTF-8</encodingKey>
+    <name>Flow Error Notification</name>
+    <style>none</style>
+    <subject>⚠️ Flow Error Alert - {!Flow_Error__c.Flow_Name__c} - Severity: {!Flow_Error__c.Severity__c}</subject>
+    <textOnly>FLOW ERROR ALERT
+
+Flow Name: {!Flow_Error__c.Flow_Name__c}
+Severity: {!Flow_Error__c.Severity__c}
+Error Type: {!Flow_Error__c.Error_Type__c}
+Timestamp: {!Flow_Error__c.Error_Timestamp__c}
+User: {!Flow_Error__c.User__c}
+Record ID: {!Flow_Error__c.Record_Id__c}
+
+Error Message:
+{!Flow_Error__c.Error_Message__c}
+
+IMMEDIATE ACTIONS REQUIRED:
+1. Review the error log record in Salesforce
+2. Check the affected record (Record ID above)
+3. Verify succession management contact cadence is functioning
+4. If critical: Manually create successor contact tasks as needed
+5. Mark error as Resolved after taking corrective action
+
+View Error Record: {!Flow_Error__c.Link}
+
+---
+This is an automated notification from the Succession Management Error Handling Framework.
+Do not reply to this email. For support, contact your Salesforce administrator.
+</textOnly>
+    <type>custom</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>

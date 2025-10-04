@@ -1,0 +1,118 @@
+{
+  "runDir": "/Users/joshsmbp/Schwab Downloads/Estates SFDX Project/",
+  "violationCounts": {
+    "total": 3,
+    "sev1": 0,
+    "sev2": 0,
+    "sev3": 0,
+    "sev4": 0,
+    "sev5": 3
+  },
+  "versions": {
+    "code-analyzer": "0.36.0",
+    "regex": "0.28.0",
+    "flow": "0.27.0",
+    "cpd": "0.31.0",
+    "pmd": "0.31.0",
+    "sfge": "0.13.0"
+  },
+  "violations": [
+    {
+      "rule": "DetectCopyPasteForXml",
+      "engine": "cpd",
+      "severity": 5,
+      "tags": [
+        "Design",
+        "Xml"
+      ],
+      "primaryLocationIndex": 0,
+      "locations": [
+        {
+          "file": "force-app/main/default/flows/Case_Succession_Contact_Cadence.flow-meta.xml",
+          "startLine": 7,
+          "startColumn": 44,
+          "endLine": 31,
+          "endColumn": 30
+        },
+        {
+          "file": "force-app/main/default/flows/Task_Succession_Contact_Update.flow-meta.xml",
+          "startLine": 7,
+          "startColumn": 43,
+          "endLine": 31,
+          "endColumn": 30
+        }
+      ],
+      "message": "Duplicate code detected for language 'xml'. Found 2 code locations containing the same block of code consisting of 151 tokens across 25 lines.",
+      "resources": [
+        "https://docs.pmd-code.org/latest/pmd_userdocs_cpd.html#refactoring-duplicates"
+      ]
+    },
+    {
+      "rule": "DetectCopyPasteForXml",
+      "engine": "cpd",
+      "severity": 5,
+      "tags": [
+        "Design",
+        "Xml"
+      ],
+      "primaryLocationIndex": 0,
+      "locations": [
+        {
+          "file": "force-app/main/default/flows/Case_Succession_Contact_Cadence.flow-meta.xml",
+          "startLine": 130,
+          "startColumn": 246,
+          "endLine": 148,
+          "endColumn": 30
+        },
+        {
+          "file": "force-app/main/default/flows/Case_Succession_Contact_Cadence.flow-meta.xml",
+          "startLine": 254,
+          "startColumn": 209,
+          "endLine": 272,
+          "endColumn": 30
+        },
+        {
+          "file": "force-app/main/default/flows/Case_Succession_Contact_Cadence.flow-meta.xml",
+          "startLine": 378,
+          "startColumn": 187,
+          "endLine": 396,
+          "endColumn": 30
+        }
+      ],
+      "message": "Duplicate code detected for language 'xml'. Found 3 code locations containing the same block of code consisting of 107 tokens across 19 lines.",
+      "resources": [
+        "https://docs.pmd-code.org/latest/pmd_userdocs_cpd.html#refactoring-duplicates"
+      ]
+    },
+    {
+      "rule": "DetectCopyPasteForXml",
+      "engine": "cpd",
+      "severity": 5,
+      "tags": [
+        "Design",
+        "Xml"
+      ],
+      "primaryLocationIndex": 0,
+      "locations": [
+        {
+          "file": "force-app/main/default/flows/Case_Succession_Contact_Cadence.flow-meta.xml",
+          "startLine": 502,
+          "startColumn": 245,
+          "endLine": 520,
+          "endColumn": 30
+        },
+        {
+          "file": "force-app/main/default/flows/Case_Succession_Contact_Cadence.flow-meta.xml",
+          "startLine": 626,
+          "startColumn": 254,
+          "endLine": 644,
+          "endColumn": 30
+        }
+      ],
+      "message": "Duplicate code detected for language 'xml'. Found 2 code locations containing the same block of code consisting of 107 tokens across 19 lines.",
+      "resources": [
+        "https://docs.pmd-code.org/latest/pmd_userdocs_cpd.html#refactoring-duplicates"
+      ]
+    }
+  ]
+}

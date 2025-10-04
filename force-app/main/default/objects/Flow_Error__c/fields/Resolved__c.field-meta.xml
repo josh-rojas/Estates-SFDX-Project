@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resolved__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indicates whether the error has been resolved and corrective action taken</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Check this box after resolving the error and taking any necessary corrective actions</inlineHelpText>
+    <label>Resolved</label>
+    <trackFeedHistory>true</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

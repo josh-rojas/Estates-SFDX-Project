@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>PrimaryAndJointOwnerCannotBeSame</fullName>
+    <active>true</active>
+    <description>Prevents the same Account from being set as both Primary Owner and Joint Owner on a Financial Account. Fixed to only validate when both fields have values (not null).</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(FinServ__PrimaryOwner__c)),
+    NOT(ISBLANK(FinServ__JointOwner__c)),
+    FinServ__PrimaryOwner__c = FinServ__JointOwner__c
+)</errorConditionFormula>
+    <errorMessage>The primary and joint owner must be different.</errorMessage>
+</ValidationRule>

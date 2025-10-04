@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Severity__c</fullName>
+    <description>BRD Error Handling: Classifies the error severity level for succession workflow failures. Values include Critical (blocks succession processing), High (requires immediate attention), Medium (impacts functionality), and Low (informational). Used to prioritize error resolution in DAF Account Succession Management processes.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Error priority level: Critical = Succession process blocked, High = Immediate action required, Medium = Review within 24 hours, Low = Informational only.</inlineHelpText>
+    <isFilteringDisabled>false</isFilteringDisabled>
+    <isNameField>false</isNameField>
+    <isSortingDisabled>false</isSortingDisabled>
+    <label>Severity</label>
+    <length>20</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

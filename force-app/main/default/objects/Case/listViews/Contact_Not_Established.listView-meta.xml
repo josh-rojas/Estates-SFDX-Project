@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contact_Not_Established</fullName>
+    <label>Contact Not Established</label>
+    <filterScope>Everything</filterScope>
+        <field>TYPE</field>
+        <operation>equals</operation>
+        <value>Named Successor Enactment</value>
+    </filters>
+        <field>Contact_Established__c</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+        <field>CLOSED</field>
+        <operation>equals</operation>
+        <value>0</value>
+    </filters>
+    <columns>Contact_Attempt_Count__c</columns>
+    <columns>Last_Contact_Attempt__c</columns>
+    <columns>Next_Contact_Due__c</columns>
+    <columns>SLA_Status__c</columns>
+</ListView>

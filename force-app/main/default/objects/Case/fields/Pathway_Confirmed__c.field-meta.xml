@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pathway_Confirmed__c</fullName>
+    <description>BRD Phase 2: Successor&apos;s chosen succession pathway. Three mutually exclusive options per BRD section 3.1. Pathway locks once documentation begins - cannot be changed after that point.</description>
+    <inlineHelpText>Select the succession pathway chosen by the successor. This selection locks once documentation collection begins and cannot be changed.</inlineHelpText>
+    <label>Succession Pathway</label>
+    <required>false</required>
+    <trackFeedHistory>true</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Not Selected</fullName>
+                <default>true</default>
+                <label>Not Selected</label>
+            </value>
+            <value>
+                <fullName>Final Grant</fullName>
+                <default>false</default>
+                <label>Final Grant</label>
+            </value>
+            <value>
+                <fullName>New DAF Account</fullName>
+                <default>false</default>
+                <label>New DAF Account</label>
+            </value>
+            <value>
+                <fullName>Disclaim Assets</fullName>
+                <default>false</default>
+                <label>Disclaim Assets</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

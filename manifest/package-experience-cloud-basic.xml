@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Succession Portal</members>
+        <name>Network</name>
+    </types>
+    <types>
+        <members>Succession_Portal</members>
+        <name>CustomSite</name>
+    </types>
+    <types>
+        <members>SuccessionFormController</members>
+        <members>SuccessionFormTokenValidator</members>
+        <members>SuccessionFormTokenGenerator</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>successionPathwayForm</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <version>65.0</version>
+</Package>

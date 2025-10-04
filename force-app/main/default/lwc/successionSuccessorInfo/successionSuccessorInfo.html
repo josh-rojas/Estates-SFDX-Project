@@ -1,0 +1,51 @@
+<template>
+    <div class="slds-box">
+        <h2 class="slds-text-heading_small slds-m-bottom_medium">Your Information</h2>
+
+        <p class="slds-m-bottom_medium">
+            Please verify your contact information below. If any information is incorrect, please contact support
+            before proceeding.
+        </p>
+
+        <div class="slds-form slds-form_stacked">
+            <div class="slds-grid slds-gutters slds-wrap">
+
+                <div class="slds-col slds-size_1-of-1">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label slds-text-body_small">Full Name</label>
+                        <div class="slds-form-element__control">
+                            <p class="slds-text-body_regular"><strong>{caseContext.successorName}</strong></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label slds-text-body_small">Email Address</label>
+                        <div class="slds-form-element__control">
+                            <p class="slds-text-body_regular">{caseContext.successorEmail}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label slds-text-body_small">Phone Number</label>
+                        <div class="slds-form-element__control">
+                            <p class="slds-text-body_regular">{formattedPhone}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="slds-box slds-theme_shade slds-m-top_large">
+            <p class="slds-text-body_small">
+                <lightning-icon icon-name="utility:info" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                <strong>Note:</strong> We will use this email address for all communication regarding your submission.
+                If you need to update your contact information, please call us at 1-800-746-6216.
+            </p>
+        </div>
+    </div>
+</template>

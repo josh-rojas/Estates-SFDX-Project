@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Form_Date_After_Contact</fullName>
+    <active>true</active>
+    <description>Form Sent Date cannot be before Contact Established Date. Enforces BRD requirement that form is sent only after verbal contact.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Form_Sent_Date__c)),
+    NOT(ISBLANK(Contact_Established_Date__c)),
+    Form_Sent_Date__c &lt; Contact_Established_Date__c
+)</errorConditionFormula>
+    <errorDisplayField>Form_Sent_Date__c</errorDisplayField>
+    <errorMessage>Form Sent Date cannot be before Contact Established Date. Forms must be sent after verbal contact per BRD requirements.</errorMessage>
+</ValidationRule>

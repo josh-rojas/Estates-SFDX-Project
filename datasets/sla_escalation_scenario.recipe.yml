@@ -1,0 +1,331 @@
+# SLA Escalation Scenario
+# BRD Section 3.2: Critical Business Rules - Escalation after 4 attempts
+# Unresponsive successor, 4+ contact attempts, escalated per BRD Day 95 protocol
+
+# ==================== MACROS ====================
+
+- macro: PersonAccountRecordType
+  value: PersonAccount
+
+- macro: BusinessAccountRecordType
+  value: IndustriesBusiness
+
+- macro: EstateAdministrationRecordType
+  value: EstateAdministration
+
+- macro: ClientAssociateTaskRecordType
+  value: ClientAssociateTask
+
+# ==================== DECEASED DONOR ====================
+
+- object: Account
+  nickname: DeceasedDonor_OConnor
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: James
+    LastName: OConnor
+    Salutation: Mr.
+    PersonBirthdate: 1950-08-10
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -70d
+        end_date: -70d
+    PersonEmail: james.oconnor@legacy-estate.example.com
+    PersonMobilePhone: (555) 000-2001
+    PersonHomePhone: (555) 001-2001
+    PersonMailingStreet: 456 Heritage Drive
+    PersonMailingCity: Boston
+    PersonMailingState: MA
+    PersonMailingPostalCode: 02101
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Gold
+    FinServ__NetWorth__c: 750000
+    FinServ__Status__c: Closed
+    FinServ__InvestmentObjectives__c: Conservative Income;Income
+    FinServ__RiskTolerance__c: Conservative
+    DAF_Accounts__c: 1
+    Self_Qualified_Premier__c: false
+
+# ==================== UNRESPONSIVE SUCCESSOR ====================
+
+- object: Account
+  nickname: Successor_Sean_Unresponsive
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Sean
+    LastName: OConnor
+    Salutation: Mr.
+    PersonBirthdate: 1980-11-15
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: null
+    PersonMobilePhone: null
+    PersonMailingStreet: Unknown
+    PersonMailingCity: Unknown
+    PersonMailingState: CA
+    PersonMailingPostalCode: 00000
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Silver
+    Area_of_Interest__c: Family Philanthropy / Legacy Planning
+    PersonHasOptedOutOfEmail: true
+    PersonDoNotCall: true
+
+# ==================== ADVISOR FIRM ====================
+
+- object: Account
+  nickname: AdvisorFirm_Heartland
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: Heartland Wealth Management
+    Type: Advisor
+    Phone: (555) 200-4001
+    BillingStreet: 123 Main Street
+    BillingCity: Chicago
+    BillingState: IL
+    BillingPostalCode: 60601
+    BillingCountry: United States
+    AS_Segment__c: Premium
+    AS_Region__c: HEARTLAND
+    FinServ__Status__c: Active
+
+# ==================== FINANCIAL ACCOUNT ====================
+
+- object: FinancialAccount
+  nickname: DAF_OConnor
+  fields:
+    Name: OConnor Charitable Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 250000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+    FirstContributionDate: ${{OpenDate}}
+    MostRecentGrantDate:
+      date_between:
+        start_date: -120d
+        end_date: -120d
+    ArtsCultureLifetime: 15000
+    EducationLifetime: 25000
+    HealthLifetime: 10000
+    HumanServicesLifetime: 20000
+    ReligionLifetime: 8000
+    EnvironmentalLifetime: 5000
+    Ownership: Individual
+    SeparatelyManagedAccount: false
+    LegacyAccount: false
+    BeneficiaryAccount: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_OConnor
+
+# ==================== FINANCIAL ACCOUNT ROLES ====================
+
+- object: FinancialAccountRole
+  nickname: Role_PrimaryOwner_OConnor
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_OConnor
+    - object: Account
+      nickname: DeceasedDonor_OConnor
+
+- object: FinancialAccountRole
+  nickname: Role_Successor_Sean
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_OConnor
+    - object: Account
+      nickname: Successor_Sean_Unresponsive
+
+- object: FinancialAccountRole
+  nickname: Role_Advisor_Heartland
+  fields:
+    Role: Advisor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_OConnor
+    - object: Account
+      nickname: AdvisorFirm_Heartland
+
+# ==================== SUCCESSION CASE (ESCALATED) ====================
+
+- object: Case
+  nickname: Case_OConnor_Escalated
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Succession - OConnor Estate (ESCALATED)
+    Status: In Progress
+    Priority: High
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 4
+    ContactEstablished: false
+    ContactEstablishedDate: null
+    PathwayConfirmed: Not Selected
+    FormSentDate: null
+    FormCompletedDate: null
+    NextContactDue:
+      date_between:
+        start_date: +5d
+        end_date: +5d
+    LastContactAttempt:
+      date_between:
+        start_date: -5d
+        end_date: -5d
+    NotificationSource: Financial Advisor
+    Description: SLA escalation scenario - unresponsive successor after 4 contact attempts per BRD Section 3.2. Escalated for manager review and certified mail per Day 95 protocol.
+    IsEscalated: true
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_OConnor
+    - object: FinancialAccount
+      nickname: DAF_OConnor
+
+# ==================== CONTACT ATTEMPT TASKS (BRD CADENCE) ====================
+
+# BRD Day 0: Initial Contact (No Answer)
+- object: Task
+  nickname: Task_Attempt1
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Contact Attempt 1 - Initial Outreach
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype: Call
+    ActivityDate:
+      date_between:
+        start_date: -65d
+        end_date: -65d
+    ContactAttemptNumber: 1
+    SuccessionContactEstablished: false
+    CallType: Outbound
+    CallDisposition: Left Voicemail
+    CallDurationInSeconds: null
+    Description: BRD Day 0 - Left voicemail with callback number. Sent follow-up email with succession information.
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
+
+# BRD Day 5: First Follow-up (No Answer)
+- object: Task
+  nickname: Task_Attempt2
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Contact Attempt 2 - Email Follow-up
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype: Email
+    ActivityDate:
+      date_between:
+        start_date: -60d
+        end_date: -60d
+    ContactAttemptNumber: 2
+    SuccessionContactEstablished: false
+    Description: BRD Day 5 - Follow-up email sent with succession information and next steps. No response received.
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
+
+# BRD Day 35: Second Contact (No Answer)
+- object: Task
+  nickname: Task_Attempt3
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Contact Attempt 3 - Second Call Attempt
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype: Call
+    ActivityDate:
+      date_between:
+        start_date: -30d
+        end_date: -30d
+    ContactAttemptNumber: 3
+    SuccessionContactEstablished: false
+    CallType: Outbound
+    CallDisposition: No Answer
+    CallDurationInSeconds: null
+    Description: BRD Day 35 - Attempted call, no answer. Left voicemail emphasizing timeline per BRD.
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
+
+# BRD Day 65: Third Contact (No Answer - Priority Escalated)
+- object: Task
+  nickname: Task_Attempt4
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Contact Attempt 4 - Final Outreach Before Escalation
+    Status: Completed
+    Priority: High
+    Type: Call
+    TaskSubtype: Call
+    ActivityDate:
+      date_between:
+        start_date: -5d
+        end_date: -5d
+    ContactAttemptNumber: 4
+    SuccessionContactEstablished: false
+    CallType: Outbound
+    CallDisposition: No Answer
+    CallDurationInSeconds: null
+    Description: BRD Day 65 - Final attempt before escalation. No response. Escalation pending per BRD Section 3.2 - routing to trading/liquidation.
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
+
+# ==================== CHATTER POSTS (ESCALATION) ====================
+
+- object: FeedItem
+  nickname: Chatter_InitialAttempts
+  fields:
+    Type: TextPost
+    Body: Initial contact attempts in progress per BRD Day 0-35 cadence. Left voicemail and sent follow-up email with succession information.
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
+
+- object: FeedItem
+  nickname: Chatter_Escalation
+  fields:
+    Type: TextPost
+    Body: Case escalated due to unresponsive successor after 4 contact attempts per BRD Section 3.2. Sent certified mail per SLA policy. Awaiting manager review for next steps - routing to trading/liquidation per Day 95 protocol.
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated

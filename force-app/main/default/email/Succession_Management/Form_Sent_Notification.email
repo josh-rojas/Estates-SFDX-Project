@@ -1,0 +1,43 @@
+Dear {!Case.ContactName},
+
+Thank you for speaking with us regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360 (Account Number: {!Case.FinancialAccount__r.Name}).
+
+As discussed during our conversation, we are sending you the Succession Recommendation Form to officially document your preferred pathway for handling the account assets.
+
+NEXT STEPS:
+Please complete the digital form using the link below within the next 7 business days. The form will take approximately 10-15 minutes to complete.
+
+[FORM LINK - To be added via OmniScript URL]
+
+REMINDER OF YOUR THREE PATHWAY OPTIONS:
+
+1. FINAL GRANT TO CHARITY
+   Direct the entire account balance as charitable grants to organizations of your choice.
+
+2. TRANSFER TO NEW DAF ACCOUNT
+   Become the new account holder and continue the charitable giving legacy.
+
+3. DISCLAIM SUCCESSOR RIGHTS
+   Decline your rights as successor. Assets will be handled per our organizational policies and the original donor's stated preferences.
+
+QUESTIONS OR ASSISTANCE:
+If you have any questions or need assistance completing the form, please contact us:
+
+Phone: 1-800-746-2227
+Email: {!Case.Owner.Email}
+Case Number: {!Case.CaseNumber}
+
+We understand this may be a difficult time, and we appreciate your attention to this important matter. Our team is here to support you through this process.
+
+Sincerely,
+
+{!Case.Owner.Name}
+Estate Administration Team
+DAFGiving360
+Phone: 1-800-746-2227
+Email: {!Case.Owner.Email}
+Case Number: {!Case.CaseNumber}
+
+---
+This form was sent on {!TODAY()}
+If you did not expect to receive this email, please contact us immediately at 1-800-746-2227.

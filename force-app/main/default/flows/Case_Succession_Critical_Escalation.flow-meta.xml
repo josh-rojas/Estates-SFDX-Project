@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <actionCalls>
+        <name>Send_Critical_Alert_Email</name>
+        <label>Send Critical Alert Email</label>
+        <locationX>176</locationX>
+        <locationY>252</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailAddresses</name>
+            <value>
+                <elementReference>$Record.Owner:User.Email</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <stringValue
+        >🔴 CRITICAL: Succession Case {!$Record.CaseNumber} Requires Immediate Action</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <stringValue
+        >CRITICAL ALERT - Succession Case Escalation Required
+
+Case Number: {!$Record.CaseNumber}
+Account: {!$Record.Account.Name}
+SLA Status: {!$Record.SLA_Status__c}
+Contact Attempts: {!$Record.Contact_Attempt_Count__c}
+Next Contact Due: {!$Record.Next_Contact_Due__c}
+
+This case has exceeded SLA thresholds and requires immediate attention. Please review and take action within 4 hours.
+
+Case Link: {!$Record.Id}
+
+---
+Data Processing Engine - Automated Escalation</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <actionCalls>
+        <name>Post_to_Chatter</name>
+        <label>Post to Chatter</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <actionName>chatterPost</actionName>
+        <actionType>chatterPost</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>text</name>
+            <value>
+                <stringValue
+        >🔴 CRITICAL: This case has been automatically escalated due to SLA breach. Contact Attempt Count: {!$Record.Contact_Attempt_Count__c}. Next Contact Due: {!$Record.Next_Contact_Due__c}. Immediate action required.</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>subjectNameOrId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>chatterPost</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <decisions>
+        <name>Is_Critical_Status</name>
+        <label>Is Critical Status?</label>
+        <locationX>176</locationX>
+        <locationY>144</locationY>
+        <defaultConnectorLabel>Not Critical</defaultConnectorLabel>
+        <rules>
+            <name>Status_Contains_Critical</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.SLA_Status__c</leftValueReference>
+                <operator>Contains</operator>
+                <rightValue>
+                    <stringValue>🔴 Critical</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Critical_Alert_Email</targetReference>
+            </connector>
+            <label>Status Contains Critical</label>
+        </rules>
+    </decisions>
+    <description
+  >Data Processing Engine: Auto-escalates succession cases when they reach critical SLA status. Sends email alerts and Chatter posts to case owner and manager.</description>
+    <environments>Default</environments>
+    <interviewLabel
+  >Case: Succession Critical Escalation {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Case: Succession Critical Escalation</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_Critical_Status</targetReference>
+        </connector>
+        <filterFormula>AND(
+    ISCHANGED({!$Record.SLA_Status__c}),
+    RecordType.DeveloperName = &quot;EstateAdministration&quot;,
+    IsClosed = FALSE
+)</filterFormula>
+        <object>Case</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

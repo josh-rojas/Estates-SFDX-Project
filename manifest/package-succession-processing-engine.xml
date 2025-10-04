@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members
+    >Succession_Management_Reports/Succession_Critical_Cases</members>
+        <members
+    >Succession_Management_Reports/Succession_At_Risk_Cases</members>
+        <members
+    >Succession_Management_Reports/Succession_Needs_Attention_Cases</members>
+        <members
+    >Succession_Management_Reports/Succession_Pending_Contact_Cases</members>
+        <members
+    >Succession_Management_Reports/Succession_Awaiting_Form_Cases</members>
+        <members
+    >Succession_Management_Reports/Succession_Form_Completed_Cases</members>
+        <members
+    >Succession_Management_Reports/Succession_Final_Grant_Pathway</members>
+        <members
+    >Succession_Management_Reports/Succession_New_DAF_Pathway</members>
+        <members
+    >Succession_Management_Reports/Succession_Disclaim_Pathway</members>
+        <members
+    >Succession_Management_Reports/Succession_Multi_Successor_Cases</members>
+        <members
+    >Succession_Management_Reports/Succession_Processing_Engine_Overview</members>
+        <name>Report</name>
+    </types>
+    <types>
+        <members>Case_Succession_Critical_Escalation</members>
+        <members>Case_Succession_Segment_Transition</members>
+        <members>Case_Succession_Processing_Metrics</members>
+        <name>Flow</name>
+    </types>
+    <version>65.0</version>
+</Package>

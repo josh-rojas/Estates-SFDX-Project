@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <available>true</available>
+    <encodingKey>ISO-8859-1</encodingKey>
+    <name>Day 5 - First Follow-Up</name>
+    <style>none</style>
+    <subject>Follow-up: DAF Account Succession - Case {!Case.CaseNumber}</subject>
+    <textOnly>Dear {!Case.ContactName},
+
+We previously reached out to you on {!Case.CreatedDate} regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360.
+
+This is our first follow-up attempt to connect with you about this important matter.
+
+TIME-SENSITIVE MATTER:
+As the designated successor, we need to speak with you about the options for handling this account. Your response is important to ensure the account assets are managed according to your wishes and in compliance with our organizational policies.
+
+ACCOUNT INFORMATION:
+• Account Number: {!Case.FinancialAccount__r.Name}
+• Approximate Balance: {!Case.FinancialAccount__r.Balance__c}
+• Case Number: {!Case.CaseNumber}
+
+ACTION REQUIRED:
+Please contact us at your earliest convenience at 1-800-746-2227 or reply to this email. We are available Monday-Friday, 9am-5pm Eastern Time.
+
+We understand this may be a difficult time, and we are here to make this process as smooth as possible for you. We can address any questions you may have and help you understand your options.
+
+Sincerely,
+
+{!Case.Owner.Name}
+Estate Administration Team
+DAFGiving360
+Phone: 1-800-746-2227
+Email: {!Case.Owner.Email}
+Case Number: {!Case.CaseNumber}</textOnly>
+    <type>text</type>
+    <uiType>Aloha</uiType>
+</EmailTemplate>

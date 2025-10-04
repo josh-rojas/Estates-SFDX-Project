@@ -1,0 +1,75 @@
+<template>
+    <div class="slds-box">
+        <h2 class="slds-text-heading_small slds-m-bottom_medium">New DAF Account Details</h2>
+
+        <p class="slds-m-bottom_large">
+            The donor-advised fund account will be transferred to you as the new account holder. You will gain full
+            control to make grants and manage the account going forward.
+        </p>
+
+        <!-- Email Input -->
+        <div class="slds-form slds-form_stacked slds-m-bottom_large">
+            <lightning-input
+                type="email"
+                label="Your Email Address"
+                value={email}
+                onchange={handleEmailChange}
+                required
+                placeholder="your.email@example.com"
+                field-level-help="This email will be used for your new DAF account access">
+            </lightning-input>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="slds-box slds-theme_shade slds-m-bottom_medium">
+            <h3 class="slds-text-heading_x-small slds-m-bottom_small">What happens next:</h3>
+            <ul class="slds-list_ordered slds-m-left_large">
+                <li class="slds-m-bottom_x-small">
+                    We will transfer the account to your name within 5-7 business days
+                </li>
+                <li class="slds-m-bottom_x-small">
+                    You will receive account setup instructions via email
+                </li>
+                <li class="slds-m-bottom_x-small">
+                    Original account name and grant history will be preserved
+                </li>
+                <li class="slds-m-bottom_x-small">
+                    You can begin making grants immediately after setup
+                </li>
+                <li class="slds-m-bottom_x-small">
+                    You may make additional contributions to the account in the future
+                </li>
+            </ul>
+        </div>
+
+        <!-- Terms Acknowledgment -->
+        <div class="slds-form-element slds-m-top_medium">
+            <div class="slds-form-element__control">
+                <lightning-input
+                    type="checkbox"
+                    label=""
+                    checked={termsAcknowledged}
+                    onchange={handleTermsChange}
+                    required>
+                </lightning-input>
+                <label class="slds-checkbox__label">
+                    <span class="slds-form-element__label">
+                        I acknowledge that by accepting this account, I agree to the
+                        <a href="https://www.schwabcharitable.org/terms" target="_blank">Schwab Charitable Terms and Conditions</a>
+                        and understand that I will become the new donor-advised fund account holder with full control
+                        over grant recommendations.
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Tax Information -->
+        <div class="slds-box slds-theme_info slds-m-top_large">
+            <lightning-icon icon-name="utility:info" size="small" class="slds-m-right_small"></lightning-icon>
+            <p class="slds-text-body_small">
+                <strong>Tax Information:</strong> Future grants from this account will be tax-deductible to you
+                (as the new donor), not to the original donor's estate. Consult your tax advisor for guidance.
+            </p>
+        </div>
+    </div>
+</template>

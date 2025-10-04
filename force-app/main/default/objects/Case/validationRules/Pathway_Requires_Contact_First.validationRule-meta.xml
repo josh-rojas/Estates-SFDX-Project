@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pathway_Requires_Contact_First</fullName>
+    <active>true</active>
+    <description>BRD Requirement: Successor must have verbal contact established before pathway can be selected. Prevents selecting pathway before Phase 2 completion.</description>
+    <errorConditionFormula>AND(
+    NOT(ISPICKVAL(Pathway_Confirmed__c, &quot;Not Selected&quot;)),
+    Contact_Established__c &lt;&gt; TRUE
+)</errorConditionFormula>
+    <errorDisplayField>Pathway_Confirmed__c</errorDisplayField>
+    <errorMessage>Pathway cannot be selected until verbal contact is established with the successor. Please check Contact Established first.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,86 @@
+/**
+ * Grant Beneficiaries Table Styles
+ */
+
+/* Balance status indicators */
+.balanced {
+    background-color: #d9f0d1;
+    border: 1px solid #04844b;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.warning {
+    background-color: #fef7e9;
+    border: 1px solid #fe9339;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.error {
+    background-color: #feded8;
+    border: 1px solid #c23934;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* Table styling */
+.slds-table {
+    width: 100%;
+}
+
+.slds-table thead th {
+    background-color: #f3f3f3;
+    font-weight: 600;
+    padding: 0.75rem;
+}
+
+.slds-table tbody td {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+/* Input styling within table */
+lightning-input {
+    width: 100%;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .slds-scrollable_x {
+        overflow-x: auto;
+    }
+
+    .slds-table {
+        min-width: 600px;
+    }
+}
+
+/* Action button alignment */
+lightning-button-icon {
+    margin: 0 auto;
+    display: block;
+}
+
+/* Balance message animation */
+.balance-message {
+    transition: all 0.3s ease;
+}
+
+/* Success/Warning box styling */
+.slds-theme_success {
+    background-color: #d9f0d1;
+    border-left: 4px solid #04844b;
+    padding: 0.75rem;
+}
+
+.slds-theme_warning {
+    background-color: #fef7e9;
+    border-left: 4px solid #fe9339;
+    padding: 0.75rem;
+}
+
+/* Hover effects for delete button */
+lightning-button-icon:hover {
+    opacity: 0.8;
+}

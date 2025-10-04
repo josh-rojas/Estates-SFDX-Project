@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Calculate_Processing_Time</name>
+        <label>Calculate Processing Time</label>
+        <locationX>176</locationX>
+        <locationY>252</locationY>
+        <assignmentItems>
+            <assignToReference>ProcessingDays</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>CalculateDaysBetween</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Processing_Time</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Is_Case_Closed</name>
+        <label>Is Case Closed?</label>
+        <locationX>176</locationX>
+        <locationY>144</locationY>
+        <defaultConnectorLabel>Case Not Closed</defaultConnectorLabel>
+        <rules>
+            <name>Case_Just_Closed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.IsClosed</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.IsClosed</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Calculate_Processing_Time</targetReference>
+            </connector>
+            <label>Case Just Closed</label>
+        </rules>
+    </decisions>
+    <description
+  >Data Processing Engine: Tracks processing metrics when succession cases close. Calculates total processing time and updates analytics fields for reporting.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>CalculateDaysBetween</name>
+        <dataType>Number</dataType>
+        <expression>{!$Record.ClosedDate} - {!$Record.CreatedDate}</expression>
+        <scale>0</scale>
+    </formulas>
+    <interviewLabel
+  >Case: Succession Processing Metrics {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Case: Succession Processing Metrics</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_Processing_Time</name>
+        <label>Update Processing Time</label>
+        <locationX>176</locationX>
+        <locationY>360</locationY>
+        <inputAssignments>
+            <field>Description</field>
+            <value>
+                <stringValue
+        >Succession case completed. Total processing time: {!ProcessingDays} days. Pathway: {!$Record.Pathway_Confirmed__c}. Contact attempts: {!$Record.Contact_Attempt_Count__c}.</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_Case_Closed</targetReference>
+        </connector>
+        <filterFormula>AND(
+    RecordType.DeveloperName = &quot;EstateAdministration&quot;,
+    ISCHANGED({!$Record.Status})
+)</filterFormula>
+        <object>Case</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>ProcessingDays</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+    </variables>
+</Flow>

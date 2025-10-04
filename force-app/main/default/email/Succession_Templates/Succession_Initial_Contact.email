@@ -1,0 +1,26 @@
+Dear {!Contact.FirstName},
+
+I hope this message finds you well. I am reaching out to you regarding the charitable fund account previously held by {!Case.Deceased_Donor__c}.
+
+We have received notice of the account holder's passing, and our records indicate that you are listed as a named successor for this donor-advised fund account.
+
+Case Number: {!Case.CaseNumber}
+Financial Account: {!Case.FinServ__FinancialAccount__r.Name}
+
+As a named successor, you have several options for how to proceed with the assets in this account. We would like to schedule a brief call to:
+
+• Verify your identity and successor designation
+• Explain the available pathways (Final Grant, New DAF Account, or Asset Disclaimer)
+• Answer any questions you may have about the process
+
+I am available at your convenience over the next few days. Please reply to this email with your preferred date and time, or feel free to call me directly.
+
+Thank you for your attention to this matter. I look forward to speaking with you soon.
+
+Sincerely,
+
+{!User.Name}
+{!User.Title}
+{!Organization.Name}
+{!User.Phone}
+{!User.Email}

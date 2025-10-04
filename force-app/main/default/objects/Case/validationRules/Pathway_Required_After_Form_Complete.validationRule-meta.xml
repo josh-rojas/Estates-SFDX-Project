@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Pathway_Required_After_Form_Complete</fullName>
+    <active>true</active>
+    <description>BRD Phase 2: Pathway must be selected when form is completed. Successor cannot complete form without pathway selection.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Form_Completed_Date__c)),
+    ISPICKVAL(Pathway_Confirmed__c, &quot;Not Selected&quot;)
+)</errorConditionFormula>
+    <errorDisplayField>Pathway_Confirmed__c</errorDisplayField>
+    <errorMessage>Pathway selection is required when form is completed. Please select Final Grant, New DAF Account, or Disclaim Assets.</errorMessage>
+</ValidationRule>

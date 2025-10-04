@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Asset_Transfer_Status__c</fullName>
+    <description>BRD Phase 4 - New DAF Pathway: Tracks the asset transfer process from deceased donor&apos;s account to new successor DAF account. Includes journal entry, transfer execution, and relationship linking.</description>
+    <inlineHelpText>Only applicable when Pathway = New DAF Account. Tracks transfer from journal entry creation through asset transfer to relationship establishment.</inlineHelpText>
+    <label>Asset Transfer Status</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+                <label>Not Applicable</label>
+            </value>
+            <value>
+                <fullName>New Account Verified</fullName>
+                <default>false</default>
+                <label>New Account Verified</label>
+            </value>
+            <value>
+                <fullName>Journal Entry Created</fullName>
+                <default>false</default>
+                <label>Journal Entry Created</label>
+            </value>
+            <value>
+                <fullName>Transfer In Progress</fullName>
+                <default>false</default>
+                <label>Transfer In Progress</label>
+            </value>
+            <value>
+                <fullName>Both Accounts Updated</fullName>
+                <default>false</default>
+                <label>Both Accounts Updated</label>
+            </value>
+            <value>
+                <fullName>Relationship Established</fullName>
+                <default>false</default>
+                <label>Relationship Established</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

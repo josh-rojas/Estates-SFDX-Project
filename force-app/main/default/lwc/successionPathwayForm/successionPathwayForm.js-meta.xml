@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightningCommunity__Page</target>
+        <target>lightningCommunity__Default</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightningCommunity__Default">
+            <property name="token" type="String" label="Access Token" description="Encrypted token from URL parameter"/>
+        </targetConfig>
+    </targetConfigs>
+    <masterLabel>Succession Pathway Form</masterLabel>
+    <description>Multi-step wizard for succession pathway selection (Final Grant, New DAF, Disclaim)</description>
+</LightningComponentBundle>

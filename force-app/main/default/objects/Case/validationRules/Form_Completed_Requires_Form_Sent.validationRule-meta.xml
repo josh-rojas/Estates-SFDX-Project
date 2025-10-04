@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Form_Completed_Requires_Form_Sent</fullName>
+    <active>true</active>
+    <description>Form Completed Date requires Form Sent Date to be populated first. Ensures logical progression through Phase 2.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(Form_Completed_Date__c)),
+    ISBLANK(Form_Sent_Date__c)
+)</errorConditionFormula>
+    <errorDisplayField>Form_Completed_Date__c</errorDisplayField>
+    <errorMessage>Form cannot be marked complete before it was sent. Please populate Form Sent Date first.</errorMessage>
+</ValidationRule>

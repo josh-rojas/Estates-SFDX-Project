@@ -1,0 +1,357 @@
+# Multiple Successors Scenario
+# BRD Appendix B: Multiple successor coordination with allocation splits
+# Creates parent/child case hierarchy via Case_Multiple_Successors_Handler flow
+
+# ==================== MACROS ====================
+
+- macro: PersonAccountRecordType
+  value: PersonAccount
+
+- macro: BusinessAccountRecordType
+  value: IndustriesBusiness
+
+- macro: EstateAdministrationRecordType
+  value: EstateAdministration
+
+- macro: ClientAssociateTaskRecordType
+  value: ClientAssociateTask
+
+# ==================== DECEASED DONOR ====================
+
+- object: Account
+  nickname: DeceasedDonor_Williams
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Patricia
+    LastName: Williams
+    Salutation: Mrs.
+    PersonBirthdate: 1948-04-22
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -40d
+        end_date: -40d
+    PersonEmail: patricia.williams@legacy-estate.example.com
+    PersonMobilePhone: (555) 000-3001
+    PersonHomePhone: (555) 001-3001
+    PersonMailingStreet: 789 Legacy Boulevard
+    PersonMailingCity: Seattle
+    PersonMailingState: WA
+    PersonMailingPostalCode: 98101
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Platinum
+    FinServ__NetWorth__c: 7000000
+    FinServ__Status__c: Closed
+    FinServ__InvestmentObjectives__c: Conservative Income;Income
+    FinServ__RiskTolerance__c: Conservative
+    DAF_Accounts__c: 1
+    Self_Qualified_Premier__c: true
+
+# ==================== LIVING SUCCESSORS (50/50 SPLIT) ====================
+
+- object: Account
+  nickname: Successor_Amanda
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Amanda
+    LastName: Williams
+    Salutation: Ms.
+    PersonBirthdate: 1978-06-10
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: amanda.williams@email.example.com
+    PersonMobilePhone: (555) 100-3001
+    PersonMailingStreet: 123 First Street
+    PersonMailingCity: Portland
+    PersonMailingState: OR
+    PersonMailingPostalCode: 97201
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Silver
+    Area_of_Interest__c: Family Philanthropy / Legacy Planning
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+- object: Account
+  nickname: Successor_Brandon
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Brandon
+    LastName: Williams
+    Salutation: Mr.
+    PersonBirthdate: 1980-09-15
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: brandon.williams@email.example.com
+    PersonMobilePhone: (555) 100-3002
+    PersonMailingStreet: 456 Second Avenue
+    PersonMailingCity: San Diego
+    PersonMailingState: CA
+    PersonMailingPostalCode: 92101
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Silver
+    Area_of_Interest__c: Family Philanthropy / Legacy Planning
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+# ==================== ADVISOR FIRM ====================
+
+- object: Account
+  nickname: AdvisorFirm_Northwest
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: Northwest Financial Partners
+    Type: Advisor
+    Phone: (555) 200-5001
+    BillingStreet: 1000 Financial Center
+    BillingCity: Seattle
+    BillingState: WA
+    BillingPostalCode: 98104
+    BillingCountry: United States
+    AS_Segment__c: Star
+    AS_Region__c: PACIFIC NORTHWEST
+    FinServ__Status__c: Active
+
+# ==================== FINANCIAL ACCOUNT ====================
+
+- object: FinancialAccount
+  nickname: DAF_Williams
+  fields:
+    Name: Williams Family Foundation Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 3500000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -10y
+        end_date: -10y
+    FirstContributionDate: ${{OpenDate}}
+    MostRecentGrantDate:
+      date_between:
+        start_date: -60d
+        end_date: -60d
+    ArtsCultureLifetime: 150000
+    EducationLifetime: 200000
+    HealthLifetime: 100000
+    HumanServicesLifetime: 175000
+    ReligionLifetime: 75000
+    EnvironmentalLifetime: 50000
+    Ownership: Individual
+    SeparatelyManagedAccount: false
+    LegacyAccount: false
+    BeneficiaryAccount: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_Williams
+
+# ==================== FINANCIAL ACCOUNT ROLES ====================
+
+- object: FinancialAccountRole
+  nickname: Role_PrimaryOwner_Williams
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -10y
+        end_date: -10y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Williams
+    - object: Account
+      nickname: DeceasedDonor_Williams
+
+# Successor 1: Amanda (50% allocation)
+- object: FinancialAccountRole
+  nickname: Role_Successor_Amanda
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -10y
+        end_date: -10y
+    SuccessorAllocation: 50
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Williams
+    - object: Account
+      nickname: Successor_Amanda
+
+# Successor 2: Brandon (50% allocation)
+- object: FinancialAccountRole
+  nickname: Role_Successor_Brandon
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -10y
+        end_date: -10y
+    SuccessorAllocation: 50
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Williams
+    - object: Account
+      nickname: Successor_Brandon
+
+- object: FinancialAccountRole
+  nickname: Role_Advisor_Northwest
+  fields:
+    Role: Advisor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -10y
+        end_date: -10y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Williams
+    - object: Account
+      nickname: AdvisorFirm_Northwest
+
+# ==================== INITIAL SUCCESSION CASE ====================
+# NOTE: Case_Multiple_Successors_Handler flow will automatically:
+# 1. Detect 2 FinancialAccountRoles with Role="Successor"
+# 2. Create parent "Multi-Account Succession Master" Case
+# 3. Update this Case to be Child 1 (with ParentId)
+# 4. Create Child 2 Case for Brandon
+# 5. Add both successors as Case Team Members to parent
+
+- object: Case
+  nickname: Case_Williams_MultiSuccessor
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Succession - Williams Estate (Multiple Successors)
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 2
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -10d
+        end_date: -10d
+    PathwayConfirmed: Final Grant
+    FormSentDate:
+      date_between:
+        start_date: -8d
+        end_date: -8d
+    FormCompletedDate:
+      date_between:
+        start_date: -5d
+        end_date: -5d
+    NextContactDue: null
+    LastContactAttempt:
+      date_between:
+        start_date: -15d
+        end_date: -15d
+    NotificationSource: Financial Advisor
+    Description: Multiple successors scenario - 50/50 split between Amanda and Brandon Williams. Case_Multiple_Successors_Handler flow will create parent case and child case for second successor per BRD Appendix B.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_Williams
+    - object: FinancialAccount
+      nickname: DAF_Williams
+
+# ==================== CONTACT ATTEMPT TASKS ====================
+
+# BRD Day 0: Initial Contact (Successful with Amanda)
+- object: Task
+  nickname: Task_InitialContact_Amanda
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Contact Attempt 1 - Initial Outreach (Amanda Williams)
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype: Call
+    ActivityDate:
+      date_between:
+        start_date: -25d
+        end_date: -25d
+    ContactAttemptNumber: 1
+    SuccessionContactEstablished: false
+    CallType: Outbound
+    CallDisposition: Spoke with Contact
+    CallDurationInSeconds: 480
+    Description: BRD Day 0 - Reached Amanda Williams. Explained succession options. Noted there are 2 successors (50/50 split). Coordinating with Brandon.
+  friends:
+    - object: Case
+      nickname: Case_Williams_MultiSuccessor
+
+# BRD Day 5: Follow-up (Both Successors Coordinated)
+- object: Task
+  nickname: Task_FollowUp_BothSuccessors
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Contact Attempt 2 - Coordination Call (Both Successors)
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype: Call
+    ActivityDate:
+      date_between:
+        start_date: -20d
+        end_date: -20d
+    ContactAttemptNumber: 2
+    SuccessionContactEstablished: true
+    CallType: Outbound
+    CallDisposition: Spoke with Contact
+    CallDurationInSeconds: 600
+    Description: BRD Day 5 - Conference call with both Amanda and Brandon Williams. Discussed 50/50 allocation and Final Grant pathway. Both successors in agreement. Contact established.
+  friends:
+    - object: Case
+      nickname: Case_Williams_MultiSuccessor
+
+# Form Sent Task
+- object: Task
+  nickname: Task_FormSent_MultiSuccessor
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Send Succession Election Forms (2 Successors)
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype: Email
+    ActivityDate:
+      date_between:
+        start_date: -8d
+        end_date: -8d
+    Description: Succession election forms emailed to both Amanda and Brandon Williams per BRD Phase 2. Each successor receives form for their 50% allocation.
+  friends:
+    - object: Case
+      nickname: Case_Williams_MultiSuccessor
+
+# ==================== CHATTER POSTS ====================
+
+- object: FeedItem
+  nickname: Chatter_MultiSuccessorDetected
+  fields:
+    Type: TextPost
+    Body: Multiple successors detected (2) with 50/50 allocation split. Case_Multiple_Successors_Handler flow will create parent case and child cases per BRD Appendix B. Coordinating contact with both Amanda and Brandon Williams.
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_Williams_MultiSuccessor
+
+- object: FeedItem
+  nickname: Chatter_BothSuccessorsContacted
+  fields:
+    Type: TextPost
+    Body: Contact established with both successors via conference call. Amanda and Brandon Williams are in agreement on Final Grant pathway. Forms sent to both successors for their respective 50% allocations per BRD Phase 2.
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_Williams_MultiSuccessor

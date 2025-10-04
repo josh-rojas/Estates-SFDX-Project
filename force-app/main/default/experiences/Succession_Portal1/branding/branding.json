@@ -1,0 +1,43 @@
+{
+  "type": "branding",
+  "id": "succession-portal-branding",
+  "label": "Succession Portal Branding",
+  "theme": {
+    "colors": {
+      "primary": "#003a5d",
+      "secondary": "#007aff",
+      "accent": "#f7941d",
+      "success": "#4caf50",
+      "warning": "#ff9800",
+      "error": "#f44336",
+      "background": "#ffffff",
+      "text": "#333333",
+      "textSecondary": "#666666"
+    },
+    "fonts": {
+      "heading": {
+        "family": "'Helvetica Neue', Helvetica, Arial, sans-serif",
+        "size": "24px",
+        "weight": "600"
+      },
+      "body": {
+        "family": "'Helvetica Neue', Helvetica, Arial, sans-serif",
+        "size": "14px",
+        "weight": "400"
+      }
+    },
+    "spacing": {
+      "small": "8px",
+      "medium": "16px",
+      "large": "24px",
+      "xlarge": "32px"
+    }
+  },
+  "logo": {
+    "imageUrl": "/resource/schwab_charitable_logo",
+    "altText": "Schwab Charitable",
+    "linkUrl": "https://www.schwabcharitable.org"
+  },
+  "companyName": "Schwab Charitable",
+  "description": "Professional branding for Schwab Charitable Succession Portal"
+}

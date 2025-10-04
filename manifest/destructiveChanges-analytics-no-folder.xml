@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!-- Manifest for destructive changes WITHOUT the report folder -->
+    <!-- This removes only the Apex classes and reports that we successfully deployed -->
+    <version>65.0</version>
+</Package>

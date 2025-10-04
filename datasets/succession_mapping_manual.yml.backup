@@ -1,0 +1,209 @@
+# CumulusCI Mapping for Succession Test Data
+# Maps Snowfakery-generated data to Salesforce objects
+
+# ==================== RECORD TYPES ====================
+
+Insert RecordType:
+    sf_object: RecordType
+    table: RecordType
+    fields:
+        DeveloperName: DeveloperName
+        Name: Name
+        SobjectType: SobjectType
+
+# ==================== ACCOUNTS ====================
+
+Insert Account:
+    sf_object: Account
+    table: Account
+    fields:
+        FirstName: FirstName
+        LastName: LastName
+        Salutation: Salutation
+        PersonBirthdate: PersonBirthdate
+        Type: Type
+        Deceased__c: Deceased__c
+        Date_of_Death__c: Date_of_Death__c
+        PersonEmail: PersonEmail
+        PersonMobilePhone: PersonMobilePhone
+        PersonHomePhone: PersonHomePhone
+        PersonMailingStreet: PersonMailingStreet
+        PersonMailingCity: PersonMailingCity
+        PersonMailingState: PersonMailingState
+        PersonMailingPostalCode: PersonMailingPostalCode
+        PersonMailingCountry: PersonMailingCountry
+        FinServ__ClientCategory__c: FinServ__ClientCategory__c
+        FinServ__NetWorth__c: FinServ__NetWorth__c
+        FinServ__Status__c: FinServ__Status__c
+        FinServ__InvestmentObjectives__c: FinServ__InvestmentObjectives__c
+        FinServ__RiskTolerance__c: FinServ__RiskTolerance__c
+        DAF_Accounts__c: DAF_Accounts__c
+        Self_Qualified_Premier__c: Self_Qualified_Premier__c
+        Area_of_Interest__c: Area_of_Interest__c
+        PersonHasOptedOutOfEmail: PersonHasOptedOutOfEmail
+        PersonDoNotCall: PersonDoNotCall
+        # Business Account fields
+        Name: Name
+        Phone: Phone
+        BillingStreet: BillingStreet
+        BillingCity: BillingCity
+        BillingState: BillingState
+        BillingPostalCode: BillingPostalCode
+        BillingCountry: BillingCountry
+        AS_Segment__c: AS_Segment__c
+        AS_Region__c: AS_Region__c
+    lookups:
+        RecordTypeId:
+            table: RecordType
+            key_field: DeveloperName
+
+# ==================== CONTACTS (Auto-created from Person Accounts) ====================
+
+Insert Contact:
+    sf_object: Contact
+    table: Contact
+    fields:
+        FirstName: FirstName
+        LastName: LastName
+        Email: Email
+        Phone: Phone
+
+# ==================== FINANCIAL ACCOUNTS ====================
+
+Insert FinServ__FinancialAccount__c:
+    sf_object: FinServ__FinancialAccount__c
+    table: FinancialAccount
+    fields:
+        Name: Name
+        FinServ__FinancialAccountNumber__c: FinancialAccountNumber
+        FinServ__FinancialAccountType__c: FinancialAccountType
+        Program__c: Program
+        FinServ__Status__c: Status
+        FinServ__Balance__c: Balance
+        Balance_As_Of__c: BalanceAsOf
+        FinServ__OpenDate__c: OpenDate
+        First_Contribution_Date__c: FirstContributionDate
+        Most_Recent_Grant_Date__c: MostRecentGrantDate
+        Arts_Culture_Humanities_Lifetime__c: ArtsCultureLifetime
+        Education_Lifetime__c: EducationLifetime
+        Health_Lifetime__c: HealthLifetime
+        Human_Services_Lifetime__c: HumanServicesLifetime
+        Religion_Related_Lifetime__c: ReligionLifetime
+        Environmental_and_Animals_Lifetime__c: EnvironmentalLifetime
+        FinServ__Ownership__c: Ownership
+        Separately_Managed_Account__c: SeparatelyManagedAccount
+        Legacy_Account__c: LegacyAccount
+        Beneficiary_Account__c: BeneficiaryAccount
+    lookups:
+        FinServ__PrimaryOwner__c:
+            table: Account
+        Advisor__c:
+            table: Account
+
+# ==================== FINANCIAL ACCOUNT ROLES ====================
+
+Insert FinServ__FinancialAccountRole__c:
+    sf_object: FinServ__FinancialAccountRole__c
+    table: FinancialAccountRole
+    fields:
+        FinServ__Role__c: Role
+        FinServ__Active__c: Active
+        FinServ__StartDate__c: StartDate
+        SuccessorAllocation__c: SuccessorAllocation
+    lookups:
+        FinServ__FinancialAccount__c:
+            table: FinancialAccount
+        FinServ__RelatedAccount__c:
+            table: Account
+
+# ==================== CASES ====================
+
+Insert Case:
+    sf_object: Case
+    table: Case
+    fields:
+        Type: Type
+        Subject: Subject
+        Status: Status
+        Priority: Priority
+        Origin: Origin
+        Verification_Status__c: VerificationStatus
+        Contact_Attempt_Count__c: ContactAttemptCount
+        Contact_Established__c: ContactEstablished
+        Contact_Established_Date__c: ContactEstablishedDate
+        Pathway_Confirmed__c: PathwayConfirmed
+        Form_Sent_Date__c: FormSentDate
+        Form_Completed_Date__c: FormCompletedDate
+        Next_Contact_Due__c: NextContactDue
+        Last_Contact_Attempt__c: LastContactAttempt
+        Notification_Source__c: NotificationSource
+        Description: Description
+        IsEscalated: IsEscalated
+    lookups:
+        RecordTypeId:
+            table: RecordType
+            key_field: DeveloperName
+        AccountId:
+            table: Account
+        FinServ__FinancialAccount__c:
+            table: FinancialAccount
+        Deceased_Donor__c:
+            table: Account
+
+# ==================== TASKS ====================
+
+Insert Task:
+    sf_object: Task
+    table: Task
+    fields:
+        Subject: Subject
+        Status: Status
+        Priority: Priority
+        Type: Type
+        TaskSubtype: TaskSubtype
+        ActivityDate: ActivityDate
+        Contact_Attempt_Number__c: ContactAttemptNumber
+        Succession_Contact_Established__c: SuccessionContactEstablished
+        CallType: CallType
+        CallDisposition: CallDisposition
+        CallDurationInSeconds: CallDurationInSeconds
+        Description: Description
+    lookups:
+        RecordTypeId:
+            table: RecordType
+            key_field: DeveloperName
+        WhatId:
+            table: Case
+
+# ==================== EVENTS ====================
+
+Insert Event:
+    sf_object: Event
+    table: Event
+    fields:
+        Subject: Subject
+        StartDateTime: StartDateTime
+        DurationInMinutes: DurationInMinutes
+        Location: Location
+        Type: Type
+        ShowAs: ShowAs
+        Description: Description
+    lookups:
+        RecordTypeId:
+            table: RecordType
+            key_field: DeveloperName
+        WhatId:
+            table: Case
+
+# ==================== CHATTER POSTS ====================
+
+Insert FeedItem:
+    sf_object: FeedItem
+    table: FeedItem
+    fields:
+        Type: Type
+        Body: Body
+        Visibility: Visibility
+    lookups:
+        ParentId:
+            table: Case

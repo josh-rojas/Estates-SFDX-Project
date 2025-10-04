@@ -1,0 +1,102 @@
+# This file is used for Git repositories to specify intentionally untracked files that Git should ignore. 
+# If you are not using git, you can delete this file. For more information see: https://git-scm.com/docs/gitignore
+# For useful gitignore templates see: https://github.com/github/gitignore
+
+# Salesforce DX and CLI cache
+.sf/
+.sfdx/
+.localdevserver/
+deploy-options.json
+
+# Agent-specific local guidance files (not tracked)
+CLAUDE.md
+WARP.md
+GIT_INITIALIZED.md
+AGENTS.md
+
+# Proprietary documentation (internal only)
+docs/product/daf-account-succession-brd.md
+
+# Agent tool directories
+.kilocode/
+
+# Agent-generated documentation (not version controlled)
+docs/implementation/
+
+# LWC VSCode autocomplete
+**/lwc/jsconfig.json
+
+# LWC Jest coverage reports
+coverage/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+node_modules/
+
+# ApexPMD cache
+.pmdCache
+
+# ESLint cache
+.eslintcache
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Local environment variables
+.env
+
+# Python Salesforce Functions
+**/__pycache__/
+**/.venv/
+**/venv/
+
+# Org-specific files (credentials, tokens)
+*.org
+*.key
+
+# IDE specific files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Build artifacts
+target/
+build/
+dist/
+
+# Backup files
+*.bak
+*.tmp
+
+# Test results
+test-results/
+.nyc_output/
+repomix-output.xml
+Support/Code/User/globalStorage/salesforce.salesforcedx-einstein-gpt/settings/a4d_mcp_settings.json
+
+# CumulusCI
+.cci/
+.cumulusci/
+*.db
+*.db-journal
+
+# Snowfakery outputs
+/tmp/snowfakery-*.json
+/tmp/snowfakery-*.txt
+datasets/*.json
+datasets/*.csv
+datasets/output/

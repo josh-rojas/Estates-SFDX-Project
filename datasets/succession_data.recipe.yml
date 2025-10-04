@@ -1,0 +1,481 @@
+# Snowfakery Recipe for Succession Management Test Data
+# Generates realistic, BRD-compliant test data for DAF succession scenarios
+
+# ==================== MACROS ====================
+
+- macro: PersonAccountRecordType
+  value: PersonAccount
+
+- macro: BusinessAccountRecordType
+  value: IndustriesBusiness
+
+- macro: EstateAdministrationRecordType
+  value: EstateAdministration
+
+- macro: ClientAssociateTaskRecordType
+  value: ClientAssociateTask
+
+- macro: ClientAssociateEventRecordType
+  value: ClientAssociateEvent
+
+# ==================== DECEASED DONORS ====================
+
+- object: Account
+  nickname: DeceasedDonor
+  count: 5
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName:
+      fake: FirstName
+    LastName:
+      fake: LastName
+    Salutation:
+      random_choice:
+        - Mr.
+        - Mrs.
+        - Ms.
+        - Dr.
+    PersonBirthdate:
+      date_between:
+        start_date: -80y
+        end_date: -60y
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -90d
+        end_date: -10d
+    PersonEmail: ${{fake.Email}}
+    PersonMobilePhone: ${{fake.PhoneNumber}}
+    PersonHomePhone: ${{fake.PhoneNumber}}
+    PersonMailingStreet: ${{fake.StreetAddress}}
+    PersonMailingCity: ${{fake.City}}
+    PersonMailingState:
+      random_choice:
+        - CA
+        - NY
+        - FL
+        - TX
+        - IL
+    PersonMailingPostalCode: ${{fake.Postcode}}
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c:
+      random_choice:
+        - Gold
+        - Platinum
+        - Silver
+    FinServ__NetWorth__c:
+      random_number:
+        min: 750000
+        max: 10000000
+    FinServ__Status__c: Closed
+    FinServ__InvestmentObjectives__c: Conservative Income;Income
+    FinServ__RiskTolerance__c: Conservative
+    DAF_Accounts__c: 1
+    Self_Qualified_Premier__c:
+      if:
+        - choice:
+            when: ${{FinServ__ClientCategory__c == 'Platinum'}}
+            pick: true
+        - choice:
+            pick: false
+
+# ==================== LIVING SUCCESSORS ====================
+
+- object: Account
+  nickname: Successor
+  count: 5
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName:
+      fake: FirstName
+    LastName:
+      fake: LastName
+    Salutation:
+      random_choice:
+        - Mr.
+        - Mrs.
+        - Ms.
+        - Dr.
+    PersonBirthdate:
+      date_between:
+        start_date: -60y
+        end_date: -25y
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: ${{fake.Email}}
+    PersonMobilePhone: ${{fake.PhoneNumber}}
+    PersonMailingStreet: ${{fake.StreetAddress}}
+    PersonMailingCity: ${{fake.City}}
+    PersonMailingState:
+      random_choice:
+        - CA
+        - NY
+        - FL
+        - TX
+        - IL
+    PersonMailingPostalCode: ${{fake.Postcode}}
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Silver
+    Area_of_Interest__c: Family Philanthropy / Legacy Planning
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+# ==================== ADVISOR FIRMS ====================
+
+- object: Account
+  nickname: AdvisorFirm
+  count: 3
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: ${{fake.Company}} Financial Advisors
+    Type: Advisor
+    Phone: ${{fake.PhoneNumber}}
+    BillingStreet: ${{fake.StreetAddress}}
+    BillingCity: ${{fake.City}}
+    BillingState:
+      random_choice:
+        - CA
+        - NY
+        - FL
+    BillingPostalCode: ${{fake.Postcode}}
+    BillingCountry: United States
+    AS_Segment__c:
+      random_choice:
+        - Star
+        - Premium
+        - Select
+    AS_Region__c:
+      random_choice:
+        - NY METRO
+        - SO. CALIFORNIA
+        - FLORIDA
+        - HEARTLAND
+        - PACIFIC NORTHWEST
+    FinServ__Status__c: Active
+
+# ==================== FINANCIAL ACCOUNTS (DAF) ====================
+
+- object: FinancialAccount
+  nickname: DAFAccount
+  count: 5
+  fields:
+    Name: ${{fake.LastName}} Family Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program:
+      random_choice:
+        - ASDAF
+        - ISDAF
+        - PMA
+    Status: Active
+    Balance:
+      random_number:
+        min: 50000
+        max: 5000000
+    BalanceAsOf:
+      date_between:
+        start_date: -7d
+        end_date: -1d
+    OpenDate:
+      date_between:
+        start_date: -10y
+        end_date: -1y
+    FirstContributionDate: ${{OpenDate}}
+    MostRecentGrantDate:
+      date_between:
+        start_date: -180d
+        end_date: -30d
+    ArtsCultureLifetime:
+      random_number:
+        min: 10000
+        max: 100000
+    EducationLifetime:
+      random_number:
+        min: 10000
+        max: 150000
+    HealthLifetime:
+      random_number:
+        min: 5000
+        max: 75000
+    HumanServicesLifetime:
+      random_number:
+        min: 10000
+        max: 100000
+    ReligionLifetime:
+      random_number:
+        min: 5000
+        max: 50000
+    EnvironmentalLifetime:
+      random_number:
+        min: 2500
+        max: 25000
+    Ownership: Individual
+    SeparatelyManagedAccount:
+      if:
+        - choice:
+            when: ${{Program == 'PMA'}}
+            pick: true
+        - choice:
+            pick: false
+    LegacyAccount: false
+    BeneficiaryAccount: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor
+
+# ==================== FINANCIAL ACCOUNT ROLES ====================
+
+# Primary Owner Role (Deceased Donor)
+- object: FinancialAccountRole
+  nickname: PrimaryOwnerRole
+  count: 5
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -10y
+        end_date: -1y
+  friends:
+    - object: FinancialAccount
+      nickname: DAFAccount
+    - object: Account
+      nickname: DeceasedDonor
+
+# Successor Role
+- object: FinancialAccountRole
+  nickname: SuccessorRole
+  count: 5
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -5y
+        end_date: -1y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAFAccount
+    - object: Account
+      nickname: Successor
+
+# Advisor Role
+- object: FinancialAccountRole
+  nickname: AdvisorRole
+  count: 3
+  fields:
+    Role: Advisor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -5y
+        end_date: -1y
+  friends:
+    - object: FinancialAccount
+      nickname: DAFAccount
+    - object: Account
+      nickname: AdvisorFirm
+
+# ==================== SUCCESSION CASES ====================
+
+- object: Case
+  nickname: SuccessionCase
+  count: 5
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Succession - ${{reference(DeceasedDonor).LastName}} Estate
+    Status: In Progress
+    Priority:
+      random_choice:
+        - Medium
+        - High
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount:
+      random_number:
+        min: 1
+        max: 4
+    ContactEstablished:
+      random_choice:
+        - true
+        - false
+    ContactEstablishedDate:
+      if:
+        - choice:
+            when: ${{ContactEstablished == true}}
+            pick:
+              date_between:
+                start_date: -14d
+                end_date: -3d
+        - choice:
+            pick: null
+    PathwayConfirmed:
+      if:
+        - choice:
+            when: ${{ContactEstablished == true}}
+            pick:
+              random_choice:
+                - Final Grant
+                - New DAF Account
+                - Disclaim Assets
+        - choice:
+            pick: Not Selected
+    FormSentDate:
+      if:
+        - choice:
+            when: ${{ContactEstablished == true}}
+            pick:
+              date_between:
+                start_date: -10d
+                end_date: -2d
+        - choice:
+            pick: null
+    FormCompletedDate:
+      if:
+        - choice:
+            when: ${{ContactEstablished == true}}
+            pick:
+              date_between:
+                start_date: -7d
+                end_date: -1d
+        - choice:
+            pick: null
+    NextContactDue:
+      if:
+        - choice:
+            when: ${{ContactEstablished == false}}
+            pick:
+              date_between:
+                start_date: +1d
+                end_date: +30d
+        - choice:
+            pick: null
+    LastContactAttempt:
+      if:
+        - choice:
+            when: ${{ContactAttemptCount > 0}}
+            pick:
+              date_between:
+                start_date: -10d
+                end_date: -1d
+        - choice:
+            pick: null
+    NotificationSource: Financial Advisor
+    Description: Succession case created for estate settlement.
+    IsEscalated:
+      if:
+        - choice:
+            when: ${{ContactAttemptCount >= 4 and ContactEstablished == false}}
+            pick: true
+        - choice:
+            pick: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor
+    - object: FinancialAccount
+      nickname: DAFAccount
+
+# ==================== CONTACT ATTEMPT TASKS ====================
+
+- object: Task
+  nickname: ContactAttemptTask
+  count: 10
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateTaskRecordType}}
+    Subject: Contact Attempt - Succession Outreach
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    TaskSubtype:
+      random_choice:
+        - Call
+        - Email
+    ActivityDate:
+      date_between:
+        start_date: -30d
+        end_date: -1d
+    ContactAttemptNumber:
+      random_number:
+        min: 1
+        max: 4
+    SuccessionContactEstablished:
+      random_choice:
+        - true
+        - false
+    CallType:
+      if:
+        - choice:
+            when: ${{TaskSubtype == 'Call'}}
+            pick: Outbound
+        - choice:
+            pick: null
+    CallDisposition:
+      if:
+        - choice:
+            when: ${{TaskSubtype == 'Call'}}
+            pick:
+              random_choice:
+                - Left Voicemail
+                - Spoke with Contact
+                - No Answer
+        - choice:
+            pick: null
+    CallDurationInSeconds:
+      if:
+        - choice:
+            when: ${{CallDisposition == 'Spoke with Contact'}}
+            pick:
+              random_number:
+                min: 180
+                max: 900
+        - choice:
+            pick: null
+    Description: Succession contact attempt documentation.
+  friends:
+    - object: Case
+      nickname: SuccessionCase
+
+# ==================== SUCCESSION MEETINGS ====================
+
+- object: Event
+  nickname: SuccessionMeeting
+  count: 3
+  fields:
+    RecordType.DeveloperName: ${{ClientAssociateEventRecordType}}
+    Subject: Succession Planning Meeting
+    StartDateTime:
+      date_between:
+        start_date: +1d
+        end_date: +30d
+    DurationInMinutes: 60
+    Location: Virtual - Zoom
+    Type: Meeting, Client
+    ShowAs: Busy
+    Description: Succession planning consultation with successor.
+  friends:
+    - object: Case
+      nickname: SuccessionCase
+
+# ==================== CHATTER POSTS ====================
+
+- object: FeedItem
+  nickname: ChatterPost
+  count: 5
+  fields:
+    Type: TextPost
+    Body:
+      random_choice:
+        - New succession case opened. Reviewing deceased donor documentation and preparing for successor outreach.
+        - Contact established with successor. Succession election form sent.
+        - Succession pathway confirmed. Processing according to BRD guidelines.
+        - Case escalated due to unresponsive successor after multiple contact attempts.
+        - Documentation review complete. Proceeding with next steps.
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: SuccessionCase

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>New_DAF_Account_Number__c</fullName>
+    <description>BRD Phase 4 - New DAF Pathway: The newly established DAF account number where assets will be transferred. Populated during Step 1 (Verify new account established) of New DAF execution.</description>
+    <encryptionScheme>None</encryptionScheme>
+    <externalId>false</externalId>
+    <inlineHelpText>Only applicable when Pathway = New DAF Account. Enter the new account number after verifying it has been established for the successor.</inlineHelpText>
+    <label>New DAF Account Number</label>
+    <length>50</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

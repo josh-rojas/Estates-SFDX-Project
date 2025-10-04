@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Execution_Notes__c</fullName>
+    <description>BRD Phase 4: Detailed notes documenting the execution process for the chosen pathway. Includes coordination details, settlement tracking, issues encountered, and resolution steps.</description>
+    <encryptionScheme>None</encryptionScheme>
+    <inlineHelpText>Use this field to document execution details, external system coordination (MyQ, Charities Profile, INSF), settlement timing, and any issues or exceptions during the process.</inlineHelpText>
+    <label>Execution Notes</label>
+    <length>32768</length>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

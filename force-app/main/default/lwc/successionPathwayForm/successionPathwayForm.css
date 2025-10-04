@@ -1,0 +1,103 @@
+/**
+ * Succession Pathway Form - Parent Component Styles
+ */
+
+.succession-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .succession-form-container {
+        padding: 0.5rem;
+    }
+}
+
+/* Step content spacing */
+.slds-box {
+    padding: 1.5rem;
+}
+
+/* Progress indicator customization */
+lightning-progress-indicator {
+    margin-bottom: 2rem;
+}
+
+/* Navigation footer */
+.slds-card__footer {
+    background-color: #f3f3f3;
+    border-top: 1px solid #dddbda;
+}
+
+/* Warning/Info boxes */
+.slds-theme_warning {
+    background-color: #fef7e9;
+    border-left: 4px solid #fe9339;
+}
+
+.slds-theme_error {
+    background-color: #feded8;
+    border-left: 4px solid #c23934;
+}
+
+.slds-theme_success {
+    background-color: #d9f0d1;
+    border-left: 4px solid #04844b;
+}
+
+/* List styling */
+.slds-list_dotted {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+}
+
+.slds-list_dotted li {
+    margin-bottom: 0.5rem;
+}
+
+/* Button group alignment */
+.slds-grid_align-spread {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .slds-grid_align-spread {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .slds-col {
+        width: 100%;
+        text-align: center !important;
+    }
+}
+
+/* Success message styling */
+.slds-text-align_center {
+    text-align: center;
+}
+
+.slds-text-heading_large {
+    font-size: 2rem;
+    font-weight: 300;
+    color: #04844b;
+}
+
+/* Loading spinner overlay */
+lightning-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+/* Accessibility: Focus indicators */
+lightning-button:focus {
+    outline: 2px solid #0176d3;
+    outline-offset: 2px;
+}

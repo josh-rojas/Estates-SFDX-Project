@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Disclaimer_Disposition__c</fullName>
+    <description>BRD Phase 4 - Disclaim Pathway: Tracks how disclaimed assets are routed and processed. Assets may go to contingent beneficiaries, Phil Fund, or per original donor instructions.</description>
+    <inlineHelpText>Only applicable when Pathway = Disclaim Assets. Documents final disposition of disclaimed assets per fund bylaws and original instructions.</inlineHelpText>
+    <label>Disclaimer Disposition</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Not Applicable</fullName>
+                <default>true</default>
+                <label>Not Applicable</label>
+            </value>
+            <value>
+                <fullName>Disclaimer Docs Processed</fullName>
+                <default>false</default>
+                <label>Disclaimer Docs Processed</label>
+            </value>
+            <value>
+                <fullName>Routed to Contingent Beneficiary</fullName>
+                <default>false</default>
+                <label>Routed to Contingent Beneficiary</label>
+            </value>
+            <value>
+                <fullName>Routed to Phil Fund</fullName>
+                <default>false</default>
+                <label>Routed to Phil Fund</label>
+            </value>
+            <value>
+                <fullName>Executed Per Original Instructions</fullName>
+                <default>false</default>
+                <label>Executed Per Original Instructions</label>
+            </value>
+            <value>
+                <fullName>Disposition Documented</fullName>
+                <default>false</default>
+                <label>Disposition Documented</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
