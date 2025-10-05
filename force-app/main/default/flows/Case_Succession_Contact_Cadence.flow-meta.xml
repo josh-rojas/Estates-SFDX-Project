@@ -82,11 +82,91 @@
             <targetReference>Update_Case_Attempt_5</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>Clear_Scheduled_Task_2</name>
+        <label>Clear Scheduled Task Field</label>
+        <locationX>660</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Next_Task_Scheduled_At__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Contact_Attempt_Count__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>2.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Case_Attempt_2</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Clear_Scheduled_Task_3</name>
+        <label>Clear Scheduled Task Field</label>
+        <locationX>660</locationX>
+        <locationY>542</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Next_Task_Scheduled_At__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Contact_Attempt_Count__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>3.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Case_Attempt_3</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Clear_Scheduled_Task_4</name>
+        <label>Clear Scheduled Task Field</label>
+        <locationX>660</locationX>
+        <locationY>734</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Next_Task_Scheduled_At__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Contact_Attempt_Count__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>4.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Case_Attempt_4</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Clear_Scheduled_Task_5</name>
+        <label>Clear Scheduled Task Field</label>
+        <locationX>660</locationX>
+        <locationY>926</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Next_Task_Scheduled_At__c</assignToReference>
+            <operator>Assign</operator>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Contact_Attempt_Count__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <numberValue>5.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Case_Attempt_5</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>Check_Contact_Established_Attempt_2</name>
         <label>Check Contact Established - Attempt 2</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
+        <locationX>440</locationX>
+        <locationY>158</locationY>
         <defaultConnectorLabel>Contact Not Established</defaultConnectorLabel>
         <rules>
             <name>Contact_Already_Established_2</name>
@@ -106,6 +186,28 @@
                 </rightValue>
             </conditions>
             <label>Contact Already Established</label>
+        </rules>
+        <rules>
+            <name>Manual_Task_Scheduled_2</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Next_Task_Scheduled_At__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Next_Task_Scheduled_At__c</leftValueReference>
+                <operator>LessThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Flow.CurrentDateTime</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Clear_Scheduled_Task_2</targetReference>
+            </connector>
+            <label>Manual Task Scheduled</label>
         </rules>
         <rules>
             <name>Create_Attempt_2</name>
@@ -133,8 +235,8 @@
     <decisions>
         <name>Check_Contact_Established_Attempt_3</name>
         <label>Check Contact Established - Attempt 3</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
+        <locationX>880</locationX>
+        <locationY>158</locationY>
         <defaultConnectorLabel>Contact Not Established</defaultConnectorLabel>
         <rules>
             <name>Contact_Already_Established_3</name>
@@ -154,6 +256,28 @@
                 </rightValue>
             </conditions>
             <label>Contact Already Established</label>
+        </rules>
+        <rules>
+            <name>Manual_Task_Scheduled_3</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Next_Task_Scheduled_At__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Next_Task_Scheduled_At__c</leftValueReference>
+                <operator>LessThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Flow.CurrentDateTime</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Clear_Scheduled_Task_3</targetReference>
+            </connector>
+            <label>Manual Task Scheduled</label>
         </rules>
         <rules>
             <name>Create_Attempt_3</name>
@@ -181,8 +305,8 @@
     <decisions>
         <name>Check_Contact_Established_Attempt_4</name>
         <label>Check Contact Established - Attempt 4</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
+        <locationX>1320</locationX>
+        <locationY>158</locationY>
         <defaultConnectorLabel>Contact Not Established</defaultConnectorLabel>
         <rules>
             <name>Contact_Already_Established_4</name>
@@ -202,6 +326,28 @@
                 </rightValue>
             </conditions>
             <label>Contact Already Established</label>
+        </rules>
+        <rules>
+            <name>Manual_Task_Scheduled_4</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Next_Task_Scheduled_At__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Next_Task_Scheduled_At__c</leftValueReference>
+                <operator>LessThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Flow.CurrentDateTime</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Clear_Scheduled_Task_4</targetReference>
+            </connector>
+            <label>Manual Task Scheduled</label>
         </rules>
         <rules>
             <name>Create_Attempt_4</name>
@@ -229,8 +375,8 @@
     <decisions>
         <name>Check_Contact_Established_Attempt_5</name>
         <label>Check Contact Established - Attempt 5</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
+        <locationX>1760</locationX>
+        <locationY>158</locationY>
         <defaultConnectorLabel>Contact Not Established</defaultConnectorLabel>
         <rules>
             <name>Contact_Already_Established_5</name>
@@ -250,6 +396,28 @@
                 </rightValue>
             </conditions>
             <label>Contact Already Established</label>
+        </rules>
+        <rules>
+            <name>Manual_Task_Scheduled_5</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Next_Task_Scheduled_At__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Next_Task_Scheduled_At__c</leftValueReference>
+                <operator>LessThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Flow.CurrentDateTime</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Clear_Scheduled_Task_5</targetReference>
+            </connector>
+            <label>Manual Task Scheduled</label>
         </rules>
         <rules>
             <name>Create_Attempt_5</name>
@@ -274,7 +442,7 @@
             <label>Create Attempt 5</label>
         </rules>
     </decisions>
-    <description>BRD Contact Cadence: Automates Day 0, 5, 35, 65, 95 contact attempt schedule for Named Successor Enactment cases. Creates tasks conditionally - only schedules next attempt if previous failed and Contact_Established__c remains FALSE. Stops automation when contact succeeds.</description>
+    <description>BRD Contact Cadence: Automates Day 0, 5, 35, 65, 95 contact attempt schedule for Named Successor Enactment cases. Creates tasks via two mechanisms: (1) Scheduled paths at Day 5/35/65/95 if Contact_Attempt_Count__c matches, OR (2) Manual recording via LWC sets Next_Task_Scheduled_At__c to NOW+2min, giving agents grace period to correct mistakes before task creation. Stops automation when Contact_Established__c = TRUE.</description>
     <environments>Default</environments>
     <interviewLabel>Case Succession Contact Cadence {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Case: Succession Contact Cadence</label>

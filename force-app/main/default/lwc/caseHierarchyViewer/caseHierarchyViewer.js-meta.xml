@@ -2,8 +2,8 @@
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
-    <masterLabel>Case Hierarchy Viewer</masterLabel>
-    <description>Displays nested hierarchy for Multi-Account Succession Master cases showing child cases, financial accounts, and successors with allocations.</description>
+    <masterLabel>Generic Case Hierarchy Viewer</masterLabel>
+    <description>Configurable hierarchy viewer for any Case with parent-child relationships. Admins can select which child Case fields to display via component properties.</description>
     <targets>
         <target>lightning__RecordPage</target>
         <target>lightning__AppPage</target>
@@ -14,6 +14,14 @@
             <objects>
                 <object>Case</object>
             </objects>
+            <property name="cardTitle" type="String" label="Card Title" default="Case Hierarchy" description="Title displayed on the component card"/>
+            <property name="childCaseFields" type="String" label="Child Case Fields (comma-separated)" default="Status,Contact_Attempt_Count__c,SLA_Status__c,Pathway_Confirmed__c" description="Additional Case field API names to display. CaseNumber is always shown first automatically. Examples: Status,Priority,Owner.Name"/>
+            <property name="showFinancialAccounts" type="Boolean" label="Show Financial Accounts" default="true" description="Display related Financial Account information"/>
+            <property name="showAccountRoles" type="Boolean" label="Show Account Roles" default="true" description="Display related Account Roles (contacts associated with financial accounts)"/>
+            <property name="accountRoleLabel" type="String" label="Account Role Section Label" default="Designated Successors" description="Label for the account roles section (e.g., 'Successors', 'Account Holders', 'Beneficiaries')"/>
+            <property name="roleFilter" type="String" label="Role Filter (optional)" default="Successor" description="Filter Account Roles by this role name. Leave blank to show all active roles. Use comma-separated values for multiple roles (e.g., 'Successor,Beneficiary')"/>
+            <property name="excludeStatuses" type="String" label="Exclude Child Case Statuses (optional)" default="" description="Comma-separated list of Case statuses to exclude from display. Examples: Cancelled,Closed,Inactive"/>
+            <property name="expandFirstChild" type="Boolean" label="Auto-Expand First Child" default="true" description="Automatically expand the first child case on load"/>
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

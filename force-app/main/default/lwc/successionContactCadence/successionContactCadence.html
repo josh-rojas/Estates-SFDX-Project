@@ -6,6 +6,19 @@
             <lightning-spinner alternative-text="Loading contact cadence..." size="small"></lightning-spinner>
         </template>
 
+        <!-- Invalid Record Type Message -->
+        <template if:true={showInvalidRecordType}>
+            <div class="slds-m-around_medium">
+                <div class="slds-notify slds-notify_alert slds-alert_warning" role="alert">
+                    <span class="slds-assistive-text">Warning</span>
+                    <h2 class="slds-text-heading_small slds-m-bottom_x-small">
+                        Invalid Record Type
+                    </h2>
+                    <p>{invalidRecordTypeMessage}</p>
+                </div>
+            </div>
+        </template>
+
         <!-- Error Message -->
         <template if:true={error}>
             <div class="slds-m-around_medium">
@@ -19,9 +32,11 @@
         <!-- No Data Message -->
         <template if:false={hasData}>
             <template if:false={isLoading}>
-                <div class="slds-m-around_medium slds-text-color_weak">
-                    <p>No contact attempts found. Contact cadence will begin when case is created.</p>
-                </div>
+                <template if:false={showInvalidRecordType}>
+                    <div class="slds-m-around_medium slds-text-color_weak">
+                        <p>No contact attempts found. Contact cadence will begin when case is created.</p>
+                    </div>
+                </template>
             </template>
         </template>
 
@@ -127,20 +142,14 @@
                                         <p class="slds-text-body_small slds-text-color_weak slds-m-bottom_small">
                                             Due: {attempt.dueDate}
                                         </p>
-                                        <template if:true={attempt.hasTask}>
-                                            <lightning-button
-                                                variant="brand"
-                                                label="Record Outcome"
-                                                data-task-id={attempt.taskRecord.Id}
-                                                onclick={handleEdit}
-                                                class="slds-m-top_small">
-                                            </lightning-button>
-                                        </template>
-                                        <template if:false={attempt.hasTask}>
-                                            <p class="slds-text-color_weak slds-text-body_small">
-                                                Task will be created automatically based on cadence schedule.
-                                            </p>
-                                        </template>
+                                        <lightning-button
+                                            variant="brand"
+                                            label="Record Outcome"
+                                            data-task-id={attempt.taskRecord.Id}
+                                            data-attempt-number={attempt.attemptNumber}
+                                            onclick={handleEdit}
+                                            class="slds-m-top_small">
+                                        </lightning-button>
                                     </div>
                                 </template>
 
@@ -160,15 +169,13 @@
 
                                         <div class="slds-form-element slds-m-bottom_small">
                                             <label class="slds-form-element__label">
-                                                <abbr class="slds-required" title="required">*</abbr>
-                                                Notes
+                                                Notes (Optional)
                                             </label>
                                             <div class="slds-form-element__control">
                                                 <lightning-textarea
                                                     value={notes}
                                                     onchange={handleNotesChange}
-                                                    placeholder="Enter details about this contact attempt..."
-                                                    required>
+                                                    placeholder="Enter details about this contact attempt (optional)...">
                                                 </lightning-textarea>
                                             </div>
                                         </div>

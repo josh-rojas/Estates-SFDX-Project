@@ -1,11 +1,16 @@
 /**
  * CaseHierarchyController
  *
- * Apex controller for caseHierarchyViewer LWC component.
- * Retrieves parent case with all child cases, financial accounts, and successors.
+ * Generic Apex controller for caseHierarchyViewer LWC component.
+ * Retrieves parent case with all child cases, optionally including financial accounts and successors.
  *
- * Used for Multi-Account Succession Master cases to display full hierarchy:
- * Parent Case → Child Cases → Financial Accounts → Successors (with allocations)
+ * Configurable for any Case hierarchy:
+ * Parent Case → Child Cases → (Optional) Financial Accounts → (Optional) Successors
+ *
+ * Configuration is controlled via LWC design properties allowing admins to:
+ * - Select which child case fields to display
+ * - Toggle financial account visibility
+ * - Toggle successor visibility
  */
 public with sharing class CaseHierarchyController {
 
@@ -42,11 +47,23 @@ public with sharing class CaseHierarchyController {
     /**
      * Get complete case hierarchy for a parent case
      *
-     * @param parentCaseId - ID of the parent Multi-Account Succession Master case
+     * @param parentCaseId - ID of the parent case (any Case with child cases)
+     * @param childFieldNames - Comma-separated list of Case field API names to display (for UI filtering)
+     * @param includeFinancialAccounts - Whether to include Financial Account data
+     * @param includeAccountRoles - Whether to include account role data from Financial Account Roles
+     * @param roleFilterString - Filter roles by this string (comma-separated). If blank, shows all active roles.
+     * @param excludeStatusString - Comma-separated list of Case statuses to exclude from child cases
      * @return CaseHierarchyData with complete hierarchy
      */
     @AuraEnabled(cacheable=true)
-    public static CaseHierarchyData getCaseHierarchy(Id parentCaseId) {
+    public static CaseHierarchyData getCaseHierarchy(
+        Id parentCaseId,
+        String childFieldNames,
+        Boolean includeFinancialAccounts,
+        Boolean includeAccountRoles,
+        String roleFilterString,
+        String excludeStatusString
+    ) {
         try {
             CaseHierarchyData hierarchyData = new CaseHierarchyData();
 
@@ -62,63 +79,93 @@ public with sharing class CaseHierarchyController {
                 LIMIT 1
             ];
 
-            // Query all child cases
-            List<Case> childCases = [
-                SELECT Id, CaseNumber, Subject, Status, CreatedDate,
-                       ContactId, Contact.Name, Contact.Email, Contact.Phone,
-                       AccountId, Account.Name,
-                       FinServ__FinancialAccount__c, FinServ__FinancialAccount__r.Name,
-                       FinServ__FinancialAccount__r.FinServ__Balance__c,
-                       FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c,
-                       Pathway_Confirmed__c, Contact_Established__c, SLA_Status__c,
-                       Contact_Attempt_Count__c, Last_Contact_Attempt__c
-                FROM Case
-                WHERE ParentId = :parentCaseId
-                ORDER BY CreatedDate ASC
-            ];
+            // Build child case query with optional status exclusion
+            String childQuery = 'SELECT Id, CaseNumber, Subject, Status, CreatedDate, ' +
+                'ContactId, Contact.Name, Contact.Email, Contact.Phone, ' +
+                'AccountId, Account.Name, ' +
+                'FinServ__FinancialAccount__c, FinServ__FinancialAccount__r.Name, ' +
+                'FinServ__FinancialAccount__r.FinServ__Balance__c, ' +
+                'FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c, ' +
+                'Pathway_Confirmed__c, Contact_Established__c, SLA_Status__c, ' +
+                'Contact_Attempt_Count__c, Last_Contact_Attempt__c ' +
+                'FROM Case WHERE ParentId = :parentCaseId';
 
-            // Get all related financial account IDs
-            Set<Id> financialAccountIds = new Set<Id>();
-            for (Case childCase : childCases) {
-                if (childCase.FinServ__FinancialAccount__c != null) {
-                    financialAccountIds.add(childCase.FinServ__FinancialAccount__c);
+            // Add status exclusion filter if provided
+            if (String.isNotBlank(excludeStatusString)) {
+                List<String> excludedStatuses = excludeStatusString.split(',');
+                List<String> escapedStatuses = new List<String>();
+                for (String status : excludedStatuses) {
+                    escapedStatuses.add('\'' + String.escapeSingleQuotes(status.trim()) + '\'');
+                }
+                childQuery += ' AND Status NOT IN (' + String.join(escapedStatuses, ',') + ')';
+            }
+
+            childQuery += ' ORDER BY CreatedDate ASC';
+
+            List<Case> childCases = Database.query(childQuery);
+
+            // Conditionally query financial accounts and account roles
+            Map<Id, FinServ__FinancialAccount__c> financialAccountMap = new Map<Id, FinServ__FinancialAccount__c>();
+            Map<Id, List<FinServ__FinancialAccountRole__c>> rolesByAccount = new Map<Id, List<FinServ__FinancialAccountRole__c>>();
+
+            if (includeFinancialAccounts || includeAccountRoles) {
+                // Get all related financial account IDs
+                Set<Id> financialAccountIds = new Set<Id>();
+                for (Case childCase : childCases) {
+                    if (childCase.FinServ__FinancialAccount__c != null) {
+                        financialAccountIds.add(childCase.FinServ__FinancialAccount__c);
+                    }
+                }
+
+                if (includeFinancialAccounts && !financialAccountIds.isEmpty()) {
+                    // Query financial accounts with full details
+                    financialAccountMap = new Map<Id, FinServ__FinancialAccount__c>([
+                        SELECT Id, Name, FinServ__Balance__c,
+                               FinServ__FinancialAccountNumber__c,
+                               FinServ__Status__c, FinServ__ProductName__c
+                        FROM FinServ__FinancialAccount__c
+                        WHERE Id IN :financialAccountIds
+                    ]);
+                }
+
+                if (includeAccountRoles && !financialAccountIds.isEmpty()) {
+                    // Build dynamic query based on role filter
+                    String roleQuery = 'SELECT Id, FinServ__FinancialAccount__c, FinServ__RelatedContact__c, ' +
+                        'FinServ__RelatedContact__r.Name, FinServ__RelatedContact__r.Email, ' +
+                        'FinServ__RelatedContact__r.Phone, FinServ__Role__c, FinServ__Active__c, ' +
+                        'SuccessorAllocation__c FROM FinServ__FinancialAccountRole__c ' +
+                        'WHERE FinServ__FinancialAccount__c IN :financialAccountIds AND FinServ__Active__c = TRUE';
+
+                    // Add role filter if provided
+                    if (String.isNotBlank(roleFilterString)) {
+                        // Parse comma-separated roles
+                        List<String> roleFilters = roleFilterString.split(',');
+                        List<String> roleConditions = new List<String>();
+
+                        for (String roleFilter : roleFilters) {
+                            String trimmedRole = roleFilter.trim();
+                            roleConditions.add('FinServ__Role__c LIKE \'%' + String.escapeSingleQuotes(trimmedRole) + '%\'');
+                        }
+
+                        roleQuery += ' AND (' + String.join(roleConditions, ' OR ') + ')';
+                    }
+
+                    roleQuery += ' ORDER BY SuccessorAllocation__c DESC NULLS LAST';
+
+                    // Execute dynamic query
+                    List<FinServ__FinancialAccountRole__c> allRoles = Database.query(roleQuery);
+
+                    // Group roles by financial account
+                    for (FinServ__FinancialAccountRole__c role : allRoles) {
+                        if (!rolesByAccount.containsKey(role.FinServ__FinancialAccount__c)) {
+                            rolesByAccount.put(role.FinServ__FinancialAccount__c, new List<FinServ__FinancialAccountRole__c>());
+                        }
+                        rolesByAccount.get(role.FinServ__FinancialAccount__c).add(role);
+                    }
                 }
             }
 
-            // Query financial accounts with full details
-            Map<Id, FinServ__FinancialAccount__c> financialAccountMap = new Map<Id, FinServ__FinancialAccount__c>([
-                SELECT Id, Name, FinServ__Balance__c,
-                       FinServ__FinancialAccountNumber__c,
-                       FinServ__Status__c, FinServ__ProductName__c
-                FROM FinServ__FinancialAccount__c
-                WHERE Id IN :financialAccountIds
-            ]);
-
-            // Query all successor roles for these financial accounts
-            Map<Id, List<FinServ__FinancialAccountRole__c>> successorsByAccount = new Map<Id, List<FinServ__FinancialAccountRole__c>>();
-
-            List<FinServ__FinancialAccountRole__c> allRoles = [
-                SELECT Id, FinServ__FinancialAccount__c, FinServ__RelatedContact__c,
-                       FinServ__RelatedContact__r.Name, FinServ__RelatedContact__r.Email,
-                       FinServ__RelatedContact__r.Phone,
-                       FinServ__Role__c, FinServ__Active__c,
-                       SuccessorAllocation__c
-                FROM FinServ__FinancialAccountRole__c
-                WHERE FinServ__FinancialAccount__c IN :financialAccountIds
-                  AND FinServ__Role__c LIKE '%Successor%'
-                  AND FinServ__Active__c = TRUE
-                ORDER BY SuccessorAllocation__c DESC NULLS LAST
-            ];
-
-            // Group successors by financial account
-            for (FinServ__FinancialAccountRole__c role : allRoles) {
-                if (!successorsByAccount.containsKey(role.FinServ__FinancialAccount__c)) {
-                    successorsByAccount.put(role.FinServ__FinancialAccount__c, new List<FinServ__FinancialAccountRole__c>());
-                }
-                successorsByAccount.get(role.FinServ__FinancialAccount__c).add(role);
-            }
-
-            // Build child case data with successors
+            // Build child case data with account roles
             hierarchyData.childCases = new List<ChildCaseData>();
 
             for (Case childCase : childCases) {
@@ -129,23 +176,23 @@ public with sharing class CaseHierarchyController {
                 if (childCase.FinServ__FinancialAccount__c != null) {
                     childData.financialAccount = financialAccountMap.get(childCase.FinServ__FinancialAccount__c);
 
-                    // Add successors for this financial account
+                    // Add account roles for this financial account
                     childData.successors = new List<SuccessorData>();
-                    List<FinServ__FinancialAccountRole__c> accountSuccessors =
-                        successorsByAccount.get(childCase.FinServ__FinancialAccount__c);
+                    List<FinServ__FinancialAccountRole__c> accountRoles =
+                        rolesByAccount.get(childCase.FinServ__FinancialAccount__c);
 
-                    if (accountSuccessors != null) {
-                        for (FinServ__FinancialAccountRole__c role : accountSuccessors) {
-                            SuccessorData successor = new SuccessorData();
-                            successor.successorName = role.FinServ__RelatedContact__r.Name;
-                            successor.successorEmail = role.FinServ__RelatedContact__r.Email;
-                            successor.successorPhone = role.FinServ__RelatedContact__r.Phone;
-                            successor.allocationPercent = role.SuccessorAllocation__c;
-                            successor.pathway = childCase.Pathway_Confirmed__c;
-                            successor.status = childCase.Status;
-                            successor.caseId = childCase.Id;
+                    if (accountRoles != null) {
+                        for (FinServ__FinancialAccountRole__c role : accountRoles) {
+                            SuccessorData roleData = new SuccessorData();
+                            roleData.successorName = role.FinServ__RelatedContact__r.Name;
+                            roleData.successorEmail = role.FinServ__RelatedContact__r.Email;
+                            roleData.successorPhone = role.FinServ__RelatedContact__r.Phone;
+                            roleData.allocationPercent = role.SuccessorAllocation__c;
+                            roleData.pathway = childCase.Pathway_Confirmed__c;
+                            roleData.status = childCase.Status;
+                            roleData.caseId = childCase.Id;
 
-                            childData.successors.add(successor);
+                            childData.successors.add(roleData);
                         }
                     }
                 }

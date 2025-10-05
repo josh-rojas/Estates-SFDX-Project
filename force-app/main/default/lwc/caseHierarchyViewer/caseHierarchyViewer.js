@@ -3,15 +3,25 @@ import { NavigationMixin } from 'lightning/navigation';
 import getCaseHierarchy from '@salesforce/apex/CaseHierarchyController.getCaseHierarchy';
 
 /**
- * Case Hierarchy Viewer
+ * Generic Case Hierarchy Viewer
  *
- * Displays nested hierarchy for Multi-Account Succession Master cases:
- * Parent Case → Child Cases → Financial Accounts → Successors (with allocations)
+ * Configurable component for displaying Case parent-child hierarchies.
+ * Admins can configure which fields to display via component properties.
  *
- * Usage: Add to Lightning Record Page for Case object (EstateAdministration record type)
+ * Usage: Add to Lightning Record Page for any Case object
  */
 export default class CaseHierarchyViewer extends NavigationMixin(LightningElement) {
     @api recordId; // Parent case ID (automatically passed when on record page)
+
+    // Configurable properties
+    @api cardTitle = 'Case Hierarchy';
+    @api childCaseFields = 'CaseNumber,Status,Contact_Attempt_Count__c,SLA_Status__c,Pathway_Confirmed__c';
+    @api showFinancialAccounts = true;
+    @api showAccountRoles = true;
+    @api accountRoleLabel = 'Designated Successors';
+    @api roleFilter = 'Successor';
+    @api excludeStatuses = '';
+    @api expandFirstChild = true;
 
     hierarchyData;
     error;
@@ -21,14 +31,21 @@ export default class CaseHierarchyViewer extends NavigationMixin(LightningElemen
     /**
      * Wire adapter to fetch case hierarchy data
      */
-    @wire(getCaseHierarchy, { parentCaseId: '$recordId' })
+    @wire(getCaseHierarchy, {
+        parentCaseId: '$recordId',
+        childFieldNames: '$childCaseFields',
+        includeFinancialAccounts: '$showFinancialAccounts',
+        includeAccountRoles: '$showAccountRoles',
+        roleFilterString: '$roleFilter',
+        excludeStatusString: '$excludeStatuses'
+    })
     wiredHierarchy({ error, data }) {
         this.isLoading = false;
         if (data) {
             this.hierarchyData = data;
             this.error = undefined;
-            // Auto-expand first child case by default
-            if (data.childCases && data.childCases.length > 0) {
+            // Auto-expand first child case by default if configured
+            if (this.expandFirstChild && data.childCases && data.childCases.length > 0) {
                 this.expandedSections.add(data.childCases[0].caseRecord.Id);
             }
         } else if (error) {

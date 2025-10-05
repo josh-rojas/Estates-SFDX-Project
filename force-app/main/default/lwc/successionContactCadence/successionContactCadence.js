@@ -21,6 +21,8 @@ export default class SuccessionContactCadence extends LightningElement {
     isLoading = true;
 
     @track editingAttemptId = null; // Which attempt is being edited
+    @track editingAttemptNumber = null; // Attempt number being edited
+    @track highestAttemptStarted = 0; // Highest attempt user has started (locks previous)
     @track contactEstablished = false; // Checkbox state
     @track notes = ''; // Textarea state
 
@@ -35,6 +37,14 @@ export default class SuccessionContactCadence extends LightningElement {
         if (result.data) {
             this.cadenceData = result.data;
             this.error = undefined;
+
+            // Initialize highestAttemptStarted to first incomplete attempt
+            if (this.cadenceData.attempts && this.highestAttemptStarted === 0) {
+                const firstIncomplete = this.cadenceData.attempts.find(a => !a.isCompleted);
+                if (firstIncomplete) {
+                    this.highestAttemptStarted = firstIncomplete.attemptNumber;
+                }
+            }
         } else if (result.error) {
             this.error = result.error;
             this.cadenceData = undefined;
@@ -43,10 +53,27 @@ export default class SuccessionContactCadence extends LightningElement {
     }
 
     /**
+     * Check if record type is invalid
+     */
+    get showInvalidRecordType() {
+        return this.cadenceData && this.cadenceData.isValidRecordType === false;
+    }
+
+    /**
+     * Get invalid record type message
+     */
+    get invalidRecordTypeMessage() {
+        return this.cadenceData?.invalidRecordTypeMessage || '';
+    }
+
+    /**
      * Check if component has data to display
      */
     get hasData() {
-        return this.cadenceData && this.cadenceData.attempts && this.cadenceData.attempts.length > 0;
+        return this.cadenceData &&
+               this.cadenceData.isValidRecordType !== false &&
+               this.cadenceData.attempts &&
+               this.cadenceData.attempts.length > 0;
     }
 
     /**
@@ -92,7 +119,16 @@ export default class SuccessionContactCadence extends LightningElement {
         if (!this.cadenceData || !this.cadenceData.attempts) return [];
 
         return this.cadenceData.attempts.map(attempt => {
-            const isEditing = this.editingAttemptId === attempt.taskRecord?.Id;
+            // Check if this attempt is being edited
+            // Match by task ID if exists, or by attempt number if no task yet
+            const isEditing = (attempt.taskRecord?.Id && this.editingAttemptId === attempt.taskRecord.Id) ||
+                              (this.editingAttemptNumber === attempt.attemptNumber);
+
+            // Determine if this attempt is locked (user has progressed past it)
+            const isLocked = attempt.attemptNumber < this.highestAttemptStarted;
+
+            // Determine if this is the current editable attempt
+            const isCurrentEditable = attempt.attemptNumber === this.highestAttemptStarted && !attempt.isCompleted;
 
             return {
                 ...attempt,
@@ -100,11 +136,12 @@ export default class SuccessionContactCadence extends LightningElement {
                 cardClass: this.getCardClass(attempt),
                 progressNodeClass: this.getProgressNodeClass(attempt),
 
-                // Editing state
+                // Editing state - override isCurrent based on highestAttemptStarted
+                isCurrent: isCurrentEditable,
                 isEditing: isEditing,
-                showEditForm: isEditing,
-                showReadOnly: attempt.isCompleted && !isEditing,
-                showDisabled: attempt.isPending,
+                showEditForm: isEditing && isCurrentEditable, // Only show form if editing AND current
+                showReadOnly: attempt.isCompleted || isLocked, // Read-only if completed OR locked
+                showDisabled: attempt.attemptNumber > this.highestAttemptStarted, // Pending if beyond current
 
                 // Display properties
                 completionIcon: attempt.isCompleted ? '✓' : '',
@@ -154,7 +191,16 @@ export default class SuccessionContactCadence extends LightningElement {
      */
     handleEdit(event) {
         const taskId = event.currentTarget.dataset.taskId;
+        const attemptNumber = parseInt(event.currentTarget.dataset.attemptNumber, 10);
+
         this.editingAttemptId = taskId;
+        this.editingAttemptNumber = attemptNumber;
+
+        // Lock all previous attempts by updating highestAttemptStarted
+        if (attemptNumber > this.highestAttemptStarted) {
+            this.highestAttemptStarted = attemptNumber;
+        }
+
         this.contactEstablished = false;
         this.notes = '';
     }
@@ -164,6 +210,7 @@ export default class SuccessionContactCadence extends LightningElement {
      */
     handleCancel() {
         this.editingAttemptId = null;
+        this.editingAttemptNumber = null;
         this.contactEstablished = false;
         this.notes = '';
     }
@@ -188,24 +235,27 @@ export default class SuccessionContactCadence extends LightningElement {
     handleSaveOutcome(event) {
         const taskId = event.currentTarget.dataset.taskId;
 
-        // Validate notes required
-        if (!this.notes || this.notes.trim() === '') {
-            this.showToast('Error', 'Please enter notes about this contact attempt', 'error');
-            return;
-        }
-
+        // Notes are optional - user can save with or without notes
         this.isLoading = true;
 
         saveAttemptOutcome({
+            caseId: this.recordId,
             taskId: taskId,
+            attemptNumber: this.editingAttemptNumber,
             contactEstablished: this.contactEstablished,
             notes: this.notes
         })
             .then(() => {
                 this.showToast('Success', 'Contact attempt outcome saved', 'success');
 
+                // If contact NOT established and not on last attempt, immediately enable next attempt
+                if (!this.contactEstablished && this.editingAttemptNumber < 5) {
+                    this.highestAttemptStarted = this.editingAttemptNumber + 1;
+                }
+
                 // Reset editing state
                 this.editingAttemptId = null;
+                this.editingAttemptNumber = null;
                 this.contactEstablished = false;
                 this.notes = '';
 

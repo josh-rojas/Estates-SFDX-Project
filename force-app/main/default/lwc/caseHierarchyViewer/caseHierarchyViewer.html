@@ -1,5 +1,5 @@
 <template>
-    <lightning-card title="Multi-Successor Case Hierarchy" icon-name="standard:case">
+    <lightning-card title={cardTitle} icon-name="standard:case">
         <!-- Loading Spinner -->
         <template if:true={isLoading}>
             <lightning-spinner alternative-text="Loading hierarchy..." size="small"></lightning-spinner>
@@ -126,8 +126,9 @@
                                 </div>
 
                                 <!-- Financial Account Information -->
-                                <template if:true={childData.financialAccount}>
-                                    <div class="account-section slds-m-bottom_medium indent-level-1">
+                                <template if:true={showFinancialAccounts}>
+                                    <template if:true={childData.financialAccount}>
+                                        <div class="account-section slds-m-bottom_medium indent-level-1">
                                         <h5 class="slds-text-heading_small slds-m-bottom_small">
                                             <lightning-icon icon-name="standard:account" size="x-small" class="slds-m-right_x-small"></lightning-icon>
                                             Financial Account
@@ -152,16 +153,18 @@
                                                     <p class="slds-text-body_small"><strong>Status:</strong> {childData.financialAccount.FinServ__Status__c}</p>
                                                 </div>
                                             </div>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </template>
                                 </template>
 
-                                <!-- Successors -->
-                                <template if:true={childData.hasSuccessors}>
-                                    <div class="successors-section indent-level-2">
+                                <!-- Account Roles (Configurable Label) -->
+                                <template if:true={showAccountRoles}>
+                                    <template if:true={childData.hasSuccessors}>
+                                        <div class="successors-section indent-level-2">
                                         <h5 class="slds-text-heading_small slds-m-bottom_small">
                                             <lightning-icon icon-name="standard:people" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                                            Designated Successors ({childData.successors.length})
+                                            {accountRoleLabel} ({childData.successors.length})
                                         </h5>
 
                                         <template for:each={childData.successorsWithProps} for:item="successor">
@@ -181,8 +184,9 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                        </template>
-                                    </div>
+                                            </template>
+                                        </div>
+                                    </template>
                                 </template>
 
                             </div>
