@@ -547,9 +547,11 @@ Always test with proper permission sets assigned:
 
 ### SLA Configuration
 Configured in Setup → Entitlement Processes → **Estate Succession SLA**:
-- Initial Response: 24 hours
-- Standard Resolution: 90 days
-- Critical Escalation: 80 days
+- **Verification Complete:** 24 hours (1440 min) - Trigger: `Verification_Status__c = "Complete - Verified"`
+- **Initial Contact Established:** 8 hours (480 min) - Trigger: `Contact_Established__c = true`
+- **Succession Form Sent:** 24 hours (1440 min) - Trigger: `Form_Sent_Date__c IS NOT NULL`
+- **Documentation Complete:** 30 days (43200 min) - Trigger: `Form_Completed_Date__c IS NOT NULL`
+- **Final Resolution:** 60 days (86400 min) - Trigger: `Status = "Closed"`
 
 ## Documentation Reference
 
