@@ -31,16 +31,6 @@
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
-        <field>Case.Last_Contact_Attempt__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
-        <field>Case.Next_Contact_Due__c</field>
-        <editable>true</editable>
-        <readable>true</readable>
-    </fieldPermissions>
-    <fieldPermissions>
         <field>Case.Pathway_Confirmed__c</field>
         <editable>true</editable>
         <readable>true</readable>

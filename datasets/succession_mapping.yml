@@ -80,9 +80,9 @@ Insert FinServ__FinancialAccountRole__c:
     FinServ__FinancialAccount__c:
       table: FinancialAccount
       key_field: id
-    FinServ__RelatedAccount__c:
+    FinServ__RelatedContact__c:
       table: Account
-      key_field: id
+      after: PersonContactId
 
 Insert Case:
   sf_object: Case

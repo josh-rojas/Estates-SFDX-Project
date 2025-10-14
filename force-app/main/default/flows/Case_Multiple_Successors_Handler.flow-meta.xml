@@ -18,6 +18,22 @@
             <targetReference>Count_Successors_Loop</targetReference>
         </connector>
     </assignments>
+    <assignments>
+        <name>Set_First_Successor_Contact_Id</name>
+        <label>Set First Successor Contact Id</label>
+        <locationX>1320</locationX>
+        <locationY>250</locationY>
+        <assignmentItems>
+            <assignToReference>varFirstSuccessorContactId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.ContactId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Loop_Through_Successors</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>Check_If_First_Successor</name>
         <label>Check If First Successor</label>
@@ -32,10 +48,10 @@
             <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference
-        >Loop_Through_Successors.FinServ__RelatedAccount__c</leftValueReference>
+        >Loop_Through_Successors.FinServ__RelatedContact__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference>$Record.ContactId</elementReference>
+                    <elementReference>varFirstSuccessorContactId</elementReference>
                 </rightValue>
             </conditions>
             <connector>
@@ -380,11 +396,11 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Id</field>
+            <field>PersonContactId</field>
             <operator>EqualTo</operator>
             <value>
                 <elementReference
-        >Loop_Add_Case_Team_Members.FinServ__RelatedAccount__c</elementReference>
+        >Loop_Add_Case_Team_Members.FinServ__RelatedContact__c</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -406,11 +422,11 @@
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
-            <field>Id</field>
+            <field>PersonContactId</field>
             <operator>EqualTo</operator>
             <value>
                 <elementReference
-        >Loop_Through_Successors.FinServ__RelatedAccount__c</elementReference>
+        >Loop_Through_Successors.FinServ__RelatedContact__c</elementReference>
             </value>
         </filters>
         <getFirstRecordOnly>true</getFirstRecordOnly>
@@ -426,7 +442,7 @@
         <locationX>1320</locationX>
         <locationY>158</locationY>
         <connector>
-            <targetReference>Loop_Through_Successors</targetReference>
+            <targetReference>Set_First_Successor_Contact_Id</targetReference>
         </connector>
         <inputAssignments>
             <field>ParentId</field>
@@ -494,5 +510,12 @@
         <value>
             <numberValue>0.0</numberValue>
         </value>
+    </variables>
+    <variables>
+        <name>varFirstSuccessorContactId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
     </variables>
 </Flow>

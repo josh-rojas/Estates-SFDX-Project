@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>Estate_Succession_SLA</members>
+        <name>EntitlementProcess</name>
+    </types>
+    <types>
+        <members>Estates_Agent_Presence</members>
+        <name>PresenceUserConfig</name>
+    </types>
+    <types>
+        <members>Estate_Cases_Routing</members>
+        <name>QueueRoutingConfig</name>
+    </types>
+    <types>
+        <members>Estate_Case_Channel</members>
+        <members>Estate_Email_Channel</members>
+        <name>ServiceChannel</name>
+    </types>
+    <types>
+        <members>Estate</members>
+        <members>Estate_Cases</members>
+        <members>Estates_Chat</members>
+        <members>Service_Case</members>
+        <name>Queue</name>
+    </types>
+    <version>65.0</version>
+</Package>

@@ -87,7 +87,7 @@ public with sharing class CaseHierarchyController {
                 'FinServ__FinancialAccount__r.FinServ__Balance__c, ' +
                 'FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c, ' +
                 'Pathway_Confirmed__c, Contact_Established__c, SLA_Status__c, ' +
-                'Contact_Attempt_Count__c, Last_Contact_Attempt__c ' +
+                'Contact_Attempt_Count__c ' +
                 'FROM Case WHERE ParentId = :parentCaseId';
 
             // Add status exclusion filter if provided

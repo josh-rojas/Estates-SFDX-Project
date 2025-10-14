@@ -62,7 +62,7 @@
         <inputParameters>
             <name>emailAddresses</name>
             <value>
-                <elementReference>$Record.Contact.Email</elementReference>
+                <elementReference>fxResolveEmail</elementReference>
             </value>
         </inputParameters>
         <inputParameters>
@@ -117,7 +117,7 @@
     <textTemplates>
         <name>Email_Body_Text</name>
         <isViewedAsPlainText>true</isViewedAsPlainText>
-        <text>Dear {!$Record.Contact.Name},
+        <text>Dear {!fxResolveSuccessorName},
 
 Thank you for speaking with us regarding the Donor-Advised Fund account held by {!$Record.Account.Name}. As discussed during our conversation, we are pleased to provide you with the Succession Recommendation process to formalize your pathway selection.
 
@@ -234,4 +234,26 @@ DAFGiving360</text>
             </value>
         </inputAssignments>
     </subflows>
+
+    <!-- Formula: Resolve Email Address (Person Account vs Business Account) -->
+    <formulas>
+        <name>fxResolveEmail</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    ISBLANK({!$Record.ContactId}),
+    {!$Record.Account.PersonEmail},
+    {!$Record.Contact.Email}
+)</expression>
+    </formulas>
+
+    <!-- Formula: Resolve Successor Name (Person Account vs Business Account) -->
+    <formulas>
+        <name>fxResolveSuccessorName</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    ISBLANK({!$Record.ContactId}),
+    {!$Record.Account.FirstName} &amp; &quot; &quot; &amp; {!$Record.Account.LastName},
+    {!$Record.Contact.Name}
+)</expression>
+    </formulas>
 </Flow>

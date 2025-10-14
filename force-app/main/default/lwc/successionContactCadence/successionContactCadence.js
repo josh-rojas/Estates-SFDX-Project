@@ -1,5 +1,6 @@
 import { LightningElement, api, wire, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+import { NavigationMixin } from 'lightning/navigation';
 import { refreshApex } from '@salesforce/apex';
 import getContactCadence from '@salesforce/apex/ContactCadenceController.getContactCadence';
 import saveAttemptOutcome from '@salesforce/apex/ContactCadenceController.saveAttemptOutcome';
@@ -12,7 +13,7 @@ import saveAttemptOutcome from '@salesforce/apex/ContactCadenceController.saveAt
  *
  * Usage: Add to Succession Management tab on Case record page
  */
-export default class SuccessionContactCadence extends LightningElement {
+export default class SuccessionContactCadence extends NavigationMixin(LightningElement) {
     @api recordId; // Case ID (automatically passed when on record page)
 
     cadenceData;
@@ -23,8 +24,16 @@ export default class SuccessionContactCadence extends LightningElement {
     @track editingAttemptId = null; // Which attempt is being edited
     @track editingAttemptNumber = null; // Attempt number being edited
     @track highestAttemptStarted = 0; // Highest attempt user has started (locks previous)
-    @track contactEstablished = false; // Checkbox state
+    @track contactMadeValue = ''; // Radio button value ('yes' or 'no')
     @track notes = ''; // Textarea state
+    @track pendingEmailAttemptNumber = null; // Stores attempt number for optional email sending
+    @track isNavigatingToEmail = false; // True when opening email composer (prevents double-click)
+
+    // Radio button options for "Was contact made?"
+    contactMadeOptions = [
+        { label: 'Yes', value: 'yes' },
+        { label: 'No', value: 'no' }
+    ];
 
     /**
      * Wire adapter to fetch contact cadence data
@@ -110,6 +119,30 @@ export default class SuccessionContactCadence extends LightningElement {
 
         const current = this.cadenceData.currentAttemptNumber || 0;
         return `Attempt ${current} of 5`;
+    }
+
+    /**
+     * Check if email sending is available (all validation passed)
+     */
+    get canSendEmail() {
+        if (!this.cadenceData) return false;
+        return this.cadenceData.hasEmail &&
+               this.cadenceData.hasValidEmailFormat &&
+               !this.cadenceData.hasOptedOut;
+    }
+
+    /**
+     * Check if there are email warnings to display
+     */
+    get hasEmailWarning() {
+        return this.cadenceData?.emailWarning != null;
+    }
+
+    /**
+     * Get email warning message
+     */
+    get emailWarningMessage() {
+        return this.cadenceData?.emailWarning || '';
     }
 
     /**
@@ -201,7 +234,7 @@ export default class SuccessionContactCadence extends LightningElement {
             this.highestAttemptStarted = attemptNumber;
         }
 
-        this.contactEstablished = false;
+        this.contactMadeValue = '';
         this.notes = '';
     }
 
@@ -211,15 +244,15 @@ export default class SuccessionContactCadence extends LightningElement {
     handleCancel() {
         this.editingAttemptId = null;
         this.editingAttemptNumber = null;
-        this.contactEstablished = false;
+        this.contactMadeValue = '';
         this.notes = '';
     }
 
     /**
-     * Handle checkbox change
+     * Handle radio button change
      */
-    handleCheckboxChange(event) {
-        this.contactEstablished = event.target.checked;
+    handleContactMadeChange(event) {
+        this.contactMadeValue = event.detail.value;
     }
 
     /**
@@ -230,10 +263,19 @@ export default class SuccessionContactCadence extends LightningElement {
     }
 
     /**
+     * Get contact established boolean from radio value
+     */
+    get contactEstablished() {
+        return this.contactMadeValue === 'yes';
+    }
+
+    /**
      * Handle Save Outcome button click
      */
     handleSaveOutcome(event) {
         const taskId = event.currentTarget.dataset.taskId;
+        const attemptNumber = this.editingAttemptNumber;
+        const contactWasEstablished = this.contactEstablished;
 
         // Notes are optional - user can save with or without notes
         this.isLoading = true;
@@ -241,22 +283,26 @@ export default class SuccessionContactCadence extends LightningElement {
         saveAttemptOutcome({
             caseId: this.recordId,
             taskId: taskId,
-            attemptNumber: this.editingAttemptNumber,
-            contactEstablished: this.contactEstablished,
+            attemptNumber: attemptNumber,
+            contactEstablished: contactWasEstablished,
             notes: this.notes
         })
             .then(() => {
-                this.showToast('Success', 'Contact attempt outcome saved', 'success');
-
-                // If contact NOT established and not on last attempt, immediately enable next attempt
-                if (!this.contactEstablished && this.editingAttemptNumber < 5) {
-                    this.highestAttemptStarted = this.editingAttemptNumber + 1;
+                // If contact was NOT established (NO selected), show option to send email
+                if (!contactWasEstablished) {
+                    this.pendingEmailAttemptNumber = attemptNumber;
+                    this.showToastWithEmailOption(attemptNumber);
+                } else {
+                    this.showToast('Success', 'Contact attempt outcome saved', 'success');
                 }
+
+                // Flow Task_Create_Next_Contact_Attempt will auto-create next task
+                // No need to manually enable next attempt
 
                 // Reset editing state
                 this.editingAttemptId = null;
                 this.editingAttemptNumber = null;
-                this.contactEstablished = false;
+                this.contactMadeValue = '';
                 this.notes = '';
 
                 // Refresh data
@@ -269,6 +315,163 @@ export default class SuccessionContactCadence extends LightningElement {
             .finally(() => {
                 this.isLoading = false;
             });
+    }
+
+    /**
+     * Show toast with option to send follow-up email
+     */
+    showToastWithEmailOption(attemptNumber) {
+        const templateMap = {
+            1: 'Day 0 Initial Contact',
+            2: 'Day 5 First Follow-Up',
+            3: 'Day 35 Second Contact',
+            4: 'Day 65 Third Contact',
+            5: 'Day 95 Final Contact'
+        };
+
+        const templateLabel = templateMap[attemptNumber];
+
+        this.showToast(
+            'Outcome Saved',
+            `Next task created. Send ${templateLabel} email? (Optional)`,
+            'success'
+        );
+    }
+
+    /**
+     * Handle Send Email button click
+     * Includes double-click prevention and email validation
+     */
+    handleSendEmail(event) {
+        // Prevent double-click (button already disabled during navigation)
+        if (this.isNavigatingToEmail) {
+            console.log('Email composer already opening, ignoring duplicate click');
+            return;
+        }
+
+        // Validate email is available
+        if (!this.canSendEmail) {
+            this.showToast('Error', this.emailWarningMessage || 'Email sending not available', 'error');
+            return;
+        }
+
+        const attemptNumber = parseInt(event.currentTarget.dataset.attemptNumber, 10);
+        this.openListEmailDialog(attemptNumber);
+    }
+
+    /**
+     * Handle Skip Email button click
+     * This is the ONLY way to dismiss the email prompt (keeps it visible if agent closes composer)
+     */
+    handleSkipEmail() {
+        this.pendingEmailAttemptNumber = null;
+        this.isNavigatingToEmail = false; // Reset navigation state
+        this.showToast('Email Skipped', 'You can process the next case', 'info');
+    }
+
+    /**
+     * Open Send List Email dialog with appropriate template based on attempt number
+     *
+     * NOTE: This handles both Person Accounts and Business Accounts with Contacts.
+     * - Person Account: Uses Account.SendEmail action with AccountId
+     * - Business Account: Uses Contact.SendEmail action with ContactId
+     * Template cannot be pre-selected in Lightning Experience (manual selection required).
+     */
+    openListEmailDialog(attemptNumber) {
+        // Validate cadence data exists
+        if (!this.cadenceData) {
+            this.showToast('Error', 'Cannot open email composer: Case data not loaded', 'error');
+            console.error('Cannot open list email: cadenceData is null or undefined');
+            return;
+        }
+
+        // Determine which record to use based on account type
+        const isPersonAccount = this.cadenceData.isPersonAccount;
+        const accountId = this.cadenceData.accountId;
+        const contactId = this.cadenceData.contactId;
+
+        // Determine recordId and objectApiName based on account type
+        let recordId;
+        let objectApiName;
+
+        if (isPersonAccount) {
+            // Person Account: use AccountId
+            recordId = accountId;
+            objectApiName = 'Account';
+        } else {
+            // Business Account: use ContactId
+            recordId = contactId;
+            objectApiName = 'Contact';
+        }
+
+        // Validate recordId exists
+        if (!recordId) {
+            const errorMsg = isPersonAccount
+                ? 'Cannot open email composer: Account ID not found on case. Ensure Case has an Account.'
+                : 'Cannot open email composer: Contact ID not found on case. Ensure Case has a Contact.';
+            this.showToast('Error', errorMsg, 'error');
+            console.error('Cannot open list email: Record ID not found', {
+                isPersonAccount,
+                accountId,
+                contactId,
+                caseId: this.recordId
+            });
+            return;
+        }
+
+        // Map attempt numbers to email template display names
+        const templateMap = {
+            1: 'Day 0 - Initial Contact',
+            2: 'Day 5 - First Follow-Up',
+            3: 'Day 35 - Second Contact',
+            4: 'Day 65 - Third Contact',
+            5: 'Day 95 - Final Contact'
+        };
+
+        const templateDisplayName = templateMap[attemptNumber];
+
+        // Set navigation state to prevent double-click
+        this.isNavigatingToEmail = true;
+
+        // Navigate to Send Email action
+        // For Person Account: Opens Account.SendEmail with AccountId
+        // For Business Account: Opens Contact.SendEmail with ContactId
+        try {
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordAction',
+                attributes: {
+                    recordId: recordId,
+                    objectApiName: objectApiName,
+                    actionName: `${objectApiName}.SendEmail`
+                }
+            });
+
+            // NOTE: Do NOT clear pendingEmailAttemptNumber here
+            // Keep email prompt visible in case agent closes composer without sending
+            // Only clear when agent explicitly clicks "Skip" button
+
+            // Show reminder about which template to select
+            const recipientType = isPersonAccount ? 'Person Account' : 'Contact';
+            this.showToast(
+                'Email Composer Opening',
+                `${recipientType} email opening. Select template: "${templateDisplayName}"`,
+                'info'
+            );
+
+            // Reset navigation state after short delay (allow composer to open)
+            // eslint-disable-next-line @lwc/lwc/no-async-operation
+            setTimeout(() => {
+                this.isNavigatingToEmail = false;
+            }, 2000);
+        } catch (error) {
+            console.error('Error navigating to email composer:', error);
+            this.isNavigatingToEmail = false; // Reset on error
+            this.showToast(
+                'Error',
+                `Failed to open email composer: ${error.message || 'Unknown error'}`,
+                'error'
+            );
+        }
     }
 
     /**

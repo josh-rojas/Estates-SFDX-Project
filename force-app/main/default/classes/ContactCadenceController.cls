@@ -21,7 +21,10 @@ public with sharing class ContactCadenceController {
         @AuraEnabled public Boolean isCompleted { get; set; }
         @AuraEnabled public Boolean isCurrent { get; set; }
         @AuraEnabled public Boolean isPending { get; set; }
+        @AuraEnabled public Boolean isLocked { get; set; }  // Task exists but date hasn't arrived
         @AuraEnabled public String formattedDueDate { get; set; }
+        @AuraEnabled public Integer daysUntilAvailable { get; set; }  // Days until task can be completed
+        @AuraEnabled public String countdownText { get; set; }  // Human-readable countdown
     }
 
     /**
@@ -35,6 +38,16 @@ public with sharing class ContactCadenceController {
         @AuraEnabled public Integer totalAttempts { get; set; }
         @AuraEnabled public Boolean contactEstablished { get; set; }
         @AuraEnabled public String caseStatus { get; set; }
+        @AuraEnabled public Id contactId { get; set; }  // Contact ID for Business Account + Contact model
+        @AuraEnabled public Id accountId { get; set; }  // Account ID (used for Person Accounts)
+        @AuraEnabled public Boolean isPersonAccount { get; set; }  // True if Case.Account is Person Account
+
+        // Email validation fields
+        @AuraEnabled public String emailAddress { get; set; }  // The actual email address
+        @AuraEnabled public Boolean hasEmail { get; set; }  // True if email exists and is not blank
+        @AuraEnabled public Boolean hasValidEmailFormat { get; set; }  // True if email format is valid
+        @AuraEnabled public Boolean hasOptedOut { get; set; }  // True if recipient opted out of email
+        @AuraEnabled public String emailWarning { get; set; }  // Warning message about email issues
     }
 
     /**
@@ -48,10 +61,12 @@ public with sharing class ContactCadenceController {
         ContactCadenceData cadenceData = new ContactCadenceData();
         cadenceData.attempts = new List<TaskAttemptData>();
 
-        // Query the parent case with record type validation
+        // Query the parent case with record type validation and email fields
         Case parentCase = [
             SELECT Id, RecordType.DeveloperName, Type, Contact_Established__c,
-                   Contact_Attempt_Count__c, Status
+                   Contact_Attempt_Count__c, Status, ContactId, AccountId,
+                   Account.IsPersonAccount, Account.PersonEmail, Account.HasOptedOutOfEmail,
+                   Contact.Email, Contact.HasOptedOutOfEmail
             FROM Case
             WHERE Id = :caseId
             LIMIT 1
@@ -74,9 +89,26 @@ public with sharing class ContactCadenceController {
             return cadenceData;
         }
 
+        // Validate Case has an Account (required for email functionality)
+        if (parentCase.AccountId == null) {
+            cadenceData.isValidRecordType = false;
+            cadenceData.invalidRecordTypeMessage =
+                'This case does not have an associated Account. Please assign an Account to enable email functionality.';
+            return cadenceData;
+        }
+
         cadenceData.isValidRecordType = true;
         cadenceData.contactEstablished = parentCase.Contact_Established__c;
         cadenceData.caseStatus = parentCase.Status;
+        cadenceData.contactId = parentCase.ContactId;  // For Business Account + Contact model
+        cadenceData.accountId = parentCase.AccountId;  // For Person Account model
+
+        // Safely check if Account is Person Account (null-safe)
+        cadenceData.isPersonAccount = (parentCase.Account != null && parentCase.Account.IsPersonAccount);
+
+        // CRITICAL: Validate email existence and opt-out status
+        validateEmailAddress(parentCase, cadenceData);
+
         cadenceData.totalAttempts = 5; // BRD defines 5-attempt cadence
 
         // Query all contact attempt tasks
@@ -137,33 +169,62 @@ public with sharing class ContactCadenceController {
             if (tasksByAttempt.containsKey(i)) {
                 Task t = tasksByAttempt.get(i);
                 attemptData.taskRecord = t;
-                // Mark as completed if task is closed, regardless of whether contact was established
-                // This makes Attempts 1-2 read-only even if they had negative outcomes
                 attemptData.isCompleted = t.IsClosed;
                 attemptData.statusLabel = t.Status;
                 attemptData.formattedDueDate = t.ActivityDate != null
                     ? t.ActivityDate.format()
                     : '';
 
-                // Determine current vs pending vs completed
+                // Date-gating logic: Check if task's ActivityDate has arrived
+                Date today = Date.today();
+                Boolean dateHasArrived = (t.ActivityDate != null && t.ActivityDate <= today);
+
+                // Calculate days until available (if not yet arrived)
+                if (!dateHasArrived && t.ActivityDate != null) {
+                    Integer daysRemaining = today.daysBetween(t.ActivityDate);
+                    attemptData.daysUntilAvailable = daysRemaining;
+                    attemptData.countdownText = 'Available in ' + daysRemaining + ' day' + (daysRemaining == 1 ? '' : 's');
+                } else {
+                    attemptData.daysUntilAvailable = 0;
+                    attemptData.countdownText = '';
+                }
+
+                // Determine current vs locked vs pending vs completed
                 if (t.IsClosed) {
                     // Completed attempts are never editable (read-only)
+                    attemptData.isCompleted = true;
                     attemptData.isCurrent = false;
                     attemptData.isPending = false;
+                    attemptData.isLocked = false;
+                } else if (i == firstIncompleteAttempt) {
+                    // This is the first incomplete attempt
+                    if (dateHasArrived) {
+                        // Date has arrived - agent can complete
+                        attemptData.isCurrent = true;
+                        attemptData.isLocked = false;
+                        attemptData.isPending = false;
+                    } else {
+                        // Date hasn't arrived yet - task is locked
+                        attemptData.isCurrent = false;
+                        attemptData.isLocked = true;
+                        attemptData.isPending = false;
+                    }
                 } else {
-                    // Uncompleted task - is it the first incomplete?
-                    // Only the first incomplete attempt is editable
-                    attemptData.isCurrent = (i == firstIncompleteAttempt);
-                    attemptData.isPending = (i > firstIncompleteAttempt);
+                    // Future attempts (not first incomplete)
+                    attemptData.isCurrent = false;
+                    attemptData.isPending = true;
+                    attemptData.isLocked = false;
                 }
             } else {
-                // No task created yet
+                // No task created yet - waiting for previous attempt to complete
                 attemptData.taskRecord = null;
                 attemptData.isCompleted = false;
-                // If this is the first incomplete, make it current (editable)
-                attemptData.isCurrent = (i == firstIncompleteAttempt);
-                attemptData.isPending = (i > firstIncompleteAttempt);
-                attemptData.statusLabel = attemptData.isCurrent ? 'Ready' : 'Not Scheduled';
+                attemptData.isCurrent = false;
+                attemptData.isPending = true;
+                attemptData.isLocked = false;
+                attemptData.statusLabel = 'Waiting for Previous Attempt';
+                attemptData.countdownText = 'Complete previous attempts first';
+                attemptData.daysUntilAvailable = null;
             }
 
             cadenceData.attempts.add(attemptData);
@@ -231,43 +292,31 @@ public with sharing class ContactCadenceController {
 
             upsert attemptTask;
 
-            // Create ContentNote if notes were provided
+            // Create ContentNote and Chatter post if notes were provided
             if (String.isNotBlank(notes)) {
                 createContactAttemptNote(caseId, attemptNumber, contactEstablished, notes);
+                createChatterPost(caseId, attemptNumber, contactEstablished, notes);
             }
 
             // Update parent case based on outcome
             Case parentCase = [
                 SELECT Id, Contact_Established__c, Contact_Established_Date__c,
-                       Contact_Attempt_Count__c, Next_Contact_Due__c, Next_Task_Scheduled_At__c
+                       Contact_Attempt_Count__c
                 FROM Case
                 WHERE Id = :caseId
                 LIMIT 1
             ];
 
-            Boolean needsCaseUpdate = false;
-
-            if (contactEstablished) {
-                // Contact established - stop cadence
-                if (!parentCase.Contact_Established__c) {
-                    parentCase.Contact_Established__c = true;
-                    parentCase.Contact_Established_Date__c = DateTime.now();
-                    parentCase.Next_Task_Scheduled_At__c = null; // Clear any pending task
-                    needsCaseUpdate = true;
-                }
-            } else if (attemptNumber < 5) {
-                // Negative outcome and not last attempt
-                // Next attempt is immediately available in UI (via LWC state)
-                // But actual Task record will be created 2 minutes later by scheduled flow
-                // This gives agent time to correct mistakes
-
-                parentCase.Next_Task_Scheduled_At__c = DateTime.now().addMinutes(2);
-                needsCaseUpdate = true;
-            }
-
-            if (needsCaseUpdate) {
+            // If contact established, update case
+            // Task_Succession_Contact_Update flow will handle this too, but we update here for immediate feedback
+            if (contactEstablished && !parentCase.Contact_Established__c) {
+                parentCase.Contact_Established__c = true;
+                parentCase.Contact_Established_Date__c = DateTime.now();
                 update parentCase;
             }
+
+            // Flow Task_Create_Next_Contact_Attempt will auto-create next task when this task completes
+            // No manual intervention needed
 
             return 'Success';
         } catch (Exception e) {
@@ -324,5 +373,100 @@ public with sharing class ContactCadenceController {
         cdl.ShareType = 'V'; // Viewer permission
         cdl.Visibility = 'AllUsers'; // Visible to all users with access to the record
         insert cdl;
+    }
+
+    /**
+     * Create a Chatter post on the Case for the contact attempt
+     *
+     * @param caseId - Case record ID
+     * @param attemptNumber - Attempt number (1-5)
+     * @param contactEstablished - Whether contact was established
+     * @param noteContent - Note content
+     */
+    private static void createChatterPost(
+        Id caseId,
+        Integer attemptNumber,
+        Boolean contactEstablished,
+        String noteContent
+    ) {
+        // Format timestamp and outcome
+        DateTime now = DateTime.now();
+        String formattedDateTime = now.format('MM/dd/yyyy HH:mm');
+        String outcomeEmoji = contactEstablished ? '✅' : '❌';
+        String outcomeText = contactEstablished ? 'Contact Established' : 'Contact Not Established';
+
+        // Build Chatter post body
+        String postBody = String.format(
+            '{0} Succession Contact Attempt {1}\n\n' +
+            'Time: {2}\n' +
+            'Outcome: {3}\n\n' +
+            'Agent Notes:\n{4}',
+            new List<String>{
+                outcomeEmoji,
+                String.valueOf(attemptNumber),
+                formattedDateTime,
+                outcomeText,
+                noteContent
+            }
+        );
+
+        // Create FeedItem (Chatter post)
+        FeedItem post = new FeedItem();
+        post.ParentId = caseId;
+        post.Body = postBody;
+        post.Type = 'TextPost';
+        insert post;
+    }
+
+    /**
+     * Validate email address existence, format, and opt-out status
+     *
+     * @param parentCase - Case record with Account and Contact relationships
+     * @param cadenceData - ContactCadenceData to populate with email validation results
+     */
+    private static void validateEmailAddress(Case parentCase, ContactCadenceData cadenceData) {
+        String email = null;
+        Boolean optedOut = false;
+
+        // Determine email address based on account type
+        if (cadenceData.isPersonAccount && parentCase.Account != null) {
+            // Person Account: use PersonEmail field
+            email = parentCase.Account.PersonEmail;
+            optedOut = parentCase.Account.HasOptedOutOfEmail == true;
+        } else if (!cadenceData.isPersonAccount && parentCase.Contact != null) {
+            // Business Account: use Contact.Email field
+            email = parentCase.Contact.Email;
+            optedOut = parentCase.Contact.HasOptedOutOfEmail == true;
+        }
+
+        // Check if email exists and is not blank
+        cadenceData.hasEmail = String.isNotBlank(email);
+        cadenceData.emailAddress = email;
+        cadenceData.hasOptedOut = optedOut;
+
+        // Validate email format using regex (basic RFC 5322 pattern)
+        // Pattern matches: local-part@domain.tld
+        if (cadenceData.hasEmail) {
+            String emailPattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
+            cadenceData.hasValidEmailFormat = Pattern.matches(emailPattern, email);
+        } else {
+            cadenceData.hasValidEmailFormat = false;
+        }
+
+        // Build warning message for UI
+        List<String> warnings = new List<String>();
+
+        if (optedOut) {
+            warnings.add('⚠️ Successor has opted out of email. Contact by phone only.');
+        }
+
+        if (!cadenceData.hasEmail) {
+            warnings.add('No email address on file for this successor.');
+        } else if (!cadenceData.hasValidEmailFormat) {
+            warnings.add('Email address format appears invalid: ' + email);
+        }
+
+        // Set warning message (null if no issues)
+        cadenceData.emailWarning = warnings.isEmpty() ? null : String.join(warnings, ' ');
     }
 }

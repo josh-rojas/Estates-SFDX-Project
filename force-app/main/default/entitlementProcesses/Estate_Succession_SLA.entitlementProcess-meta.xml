@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <EntitlementProcess xmlns="http://soap.sforce.com/2006/04/metadata">
     <SObjectType>Case</SObjectType>
-    <active>false</active>
+    <active>true</active>
     <businessHours>Default</businessHours>
     <description>Service Level Agreements for Estate Administration / Succession Management cases. Tracks key milestones from verification through final resolution.</description>
     <entryStartDateField>CreatedDate</entryStartDateField>

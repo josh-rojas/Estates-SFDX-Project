@@ -60,9 +60,9 @@ Displays parent "Multi-Account Succession Master" cases with all child cases, fi
   ],
   "Successors": [
     {
-      "FinServ__RelatedAccount__r": {
+      "FinServ__RelatedContact__r": {
         "Name": "Amanda Williams",
-        "PersonEmail": "amanda@example.com"
+        "Email": "amanda@example.com"
       },
       "SuccessorAllocation__c": 50,
       "FinServ__Role__c": "Primary Successor"
@@ -382,3 +382,15 @@ For issues or enhancement requests:
 4. Verify all components are Active in OmniStudio
 
 `★ Insight: FlexCards excel at data visualization with minimal code. The real power is in the DataRaptor's hierarchical query structure—once data is properly shaped, FlexCard display is straightforward. The nested repeater pattern allows unlimited depth without additional code.`
+
+---
+
+## Document Change History
+
+**Update 2025-10-14**:
+- Updated DataRaptor example to use `FinServ__RelatedContact__r` instead of `FinServ__RelatedAccount__r` for Person Account successors
+- Changed email field reference from `PersonEmail` to `Email` (Contact object field)
+- **FSC Compliance**: Person Account roles (Successor) now correctly use FinServ__RelatedContact__c field
+
+**Original Date**: Unknown
+**Last Updated**: 2025-10-14

@@ -469,7 +469,7 @@ CASE({!Pathway_Choice},
             <targetReference>Get_Case_Record</targetReference>
         </connector>
     </start>
-    <status>Active</status>
+    <status>Obsolete</status>
 
     <!-- Variables -->
     <variables>

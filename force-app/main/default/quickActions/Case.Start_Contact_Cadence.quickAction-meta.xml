@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Begins succession processing workflow by creating Day 0 contact task. Use when case is ready to process (documents already attached). This starts the 5-attempt contact cadence to reach the successor.</description>
+    <fieldOverrides>
+        <field>Verification_Status__c</field>
+        <literalValue>Complete - Verified</literalValue>
+    </fieldOverrides>
+    <label>✅ Begin Succession Processing</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <quickActionLayout>
+        <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
+        <quickActionLayoutColumns>
+            <quickActionLayoutItems>
+                <field>Verification_Status__c</field>
+                <uiBehavior>Edit</uiBehavior>
+            </quickActionLayoutItems>
+        </quickActionLayoutColumns>
+        <quickActionLayoutColumns/>
+    </quickActionLayout>
+    <standardLabel>Update</standardLabel>
+    <successMessage>Succession processing started! Contact Task #1 (Day 0) has been created. Use the Contact Cadence component below to record call outcomes.</successMessage>
+    <targetObject>Case</targetObject>
+    <targetRecordType>EstateAdministration</targetRecordType>
+    <type>Update</type>
+</QuickAction>

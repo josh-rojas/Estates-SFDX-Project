@@ -7,9 +7,6 @@
         <label>Check Contact Established</label>
         <locationX>0</locationX>
         <locationY>0</locationY>
-        <defaultConnector>
-            <targetReference>Update_Last_Attempt_Only</targetReference>
-        </defaultConnector>
         <defaultConnectorLabel>Contact Not Established</defaultConnectorLabel>
         <rules>
             <name>Contact_Was_Established</name>
@@ -27,7 +24,7 @@
             <label>Contact Was Established</label>
         </rules>
     </decisions>
-    <description>BRD Contact Cadence: Updates parent Case when succession contact tasks are completed. Always updates Last_Contact_Attempt__c timestamp. If agent marks Succession_Contact_Established__c as TRUE, updates Contact_Established__c and Contact_Established_Date__c on parent Case, which stops all scheduled flow paths.</description>
+    <description>BRD Contact Cadence: Updates parent Case when succession contact tasks are completed. If agent marks Succession_Contact_Established__c as TRUE, updates Contact_Established__c and Contact_Established_Date__c on parent Case.</description>
     <environments>Default</environments>
     <interviewLabel>Task: Succession Contact Update {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Task: Succession Contact Update</label>
@@ -94,33 +91,6 @@
             <field>Contact_Established__c</field>
             <value>
                 <booleanValue>true</booleanValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Last_Contact_Attempt__c</field>
-            <value>
-                <elementReference>$Flow.CurrentDateTime</elementReference>
-            </value>
-        </inputAssignments>
-        <object>Case</object>
-    </recordUpdates>
-    <recordUpdates>
-        <name>Update_Last_Attempt_Only</name>
-        <label>Update Last Attempt Only</label>
-        <locationX>0</locationX>
-        <locationY>0</locationY>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>$Record.WhatId</elementReference>
-            </value>
-        </filters>
-        <inputAssignments>
-            <field>Last_Contact_Attempt__c</field>
-            <value>
-                <elementReference>$Flow.CurrentDateTime</elementReference>
             </value>
         </inputAssignments>
         <object>Case</object>

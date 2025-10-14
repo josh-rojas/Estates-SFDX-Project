@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QueueRoutingConfig xmlns="http://soap.sforce.com/2006/04/metadata">
+    <capacityPercentage>100</capacityPercentage>
+    <capacityWeight>1</capacityWeight>
+    <dropAdditionalSkillsTimeout>0</dropAdditionalSkillsTimeout>
+    <isAttributeBased>false</isAttributeBased>
+    <label>Estate Cases Routing</label>
+    <pushTimeout>0</pushTimeout>
+    <queueOverflowAssignee xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+    <routingModel>MostAvailable</routingModel>
+    <routingPriority>1</routingPriority>
+    <userOverflowAssignee xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+</QueueRoutingConfig>

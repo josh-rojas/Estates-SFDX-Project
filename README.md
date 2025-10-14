@@ -12,58 +12,45 @@ Automated succession processing system managing deceased donor account transitio
 ## ✨ Key Features
 
 - ✅ **Multi-Pathway Processing** - Three succession pathways with guided workflows
-- ✅ **Automated Contact Cadence** - Scheduled outreach (Days 0, 5, 35, 65, 95)
-- ✅ **SLA Tracking** - Real-time monitoring with critical escalations
-- ✅ **Secure External Forms** - Token-validated successor form submission
+- ✅ **Task-Based Contact Cadence** - Date-gated task system (Days 0, 5, 35, 65, 95)
+- ✅ **SLA Tracking** - Real-time monitoring via list views
 - ✅ **Hierarchical Case Management** - Multi-successor scenario handling
-- ✅ **Experience Cloud Portal** - Self-service succession form portal
-- ✅ **Comprehensive Error Handling** - Centralized logging and monitoring
+- ✅ **Demo-Optimized** - Simplified architecture for easy live demonstrations
 
 ## 📦 Components
 
-### Apex Classes (8)
+### Apex Classes (2)
 | Class | Purpose |
 |-------|---------|
-| `CaseHierarchyController` | Visualize case hierarchy relationships |
-| `ContactCadenceController` | Track contact attempt history |
-| `SuccessionFormController` | Process external form submissions |
-| `SuccessionFormTokenGenerator` | Generate secure access tokens |
-| `SuccessionFormTokenValidator` | Validate token authenticity |
-| `SuccessionTestDataController` | LWC test data generation |
-| `SuccessionTestDataFactory` | Apex test data factory |
-| `SuccessionTestDataFactory_Test` | Factory unit tests |
+| `CaseHierarchyController` | Visualize multi-successor case hierarchies |
+| `ContactCadenceController` | Manage date-gated contact attempts |
 
-### Flow Automations (9)
+### Flow Automations (6)
 | Flow | Trigger |
 |------|---------|
+| `Case_Create_Initial_Contact_Attempt` | Creates first contact task on case creation |
+| `Task_Create_Next_Contact_Attempt` | Auto-creates next task on completion |
+| `Task_Succession_Contact_Update` | Circuit breaker for contact established |
 | `Case_Multiple_Successors_Handler` | Multi-successor orchestration |
 | `Case_Send_Succession_Form` | Form delivery automation |
-| `Case_Succession_Contact_Cadence` | Contact scheduling |
-| `Case_Succession_Critical_Escalation` | Critical case escalation |
-| `Case_Succession_Processing_Metrics` | Analytics tracking |
 | `Case_Succession_Segment_Transition` | Pathway transitions |
-| `Flow_Error_Handler` | Centralized error handling |
-| `Succession_Pathway_Selection_Flow` | Pathway selection workflow |
-| `Task_Succession_Contact_Update` | Contact attempt tracking |
 
-### Lightning Web Components (13)
-- `caseHierarchyViewer` - Visual case hierarchy tree
+### Lightning Web Components (11)
+Internal agent UI components:
+- `caseHierarchyViewer` - Visual case hierarchy tree for multi-successor cases
 - `recordPathwaySelection` - Quick action pathway selector
 - `successionAccountSummary` - Account details display
-- `successionContactCadence` - Contact attempt tracker
+- `successionContactCadence` - **Primary UI** - Date-gated contact attempt tracker
 - `successionDisclaimDetails` - Disclaim pathway form
 - `successionDocumentUpload` - Document management
 - `successionGrantBeneficiaries` - Beneficiary management
 - `successionNewDafDetails` - New DAF pathway form
-- `successionPathwayForm` - Main form container
 - `successionPathwaySelector` - Pathway selection wizard
 - `successionReviewAndSign` - Final review & signature
 - `successionSuccessorInfo` - Successor information form
-- `successionTestDataGenerator` - Test data generation UI
 
-### Custom Objects (2)
-- `Flow_Error__c` - Flow error logging with severity tracking
-- `Error_Notification__e` - Platform event for error notifications
+### Custom Objects
+**None** - Uses standard Salesforce objects only (Case, Task, Contact, Account, FinancialAccount, FinancialAccountRole)
 
 ## 🚀 Quick Start
 
@@ -96,31 +83,24 @@ Automated succession processing system managing deceased donor account transitio
    sf org assign permset --name Succession_Field_Access
    ```
 
-5. **Configure Experience Cloud** (See [Experience Cloud Setup](docs/EXPERIENCE_CLOUD_DEPLOYMENT.md))
+5. **Load Demo Test Data** (Optional)
+   ```bash
+   cci task run load_demo_ui_showcase
+   ```
 
 ## 📚 Documentation
 
 | Document | Description |
 |----------|-------------|
+| [CLAUDE.md](CLAUDE.md) | **Primary guide** for Claude Code - Commands, architecture, patterns |
 | [Architecture Overview](docs/SUCCESSION_FLOW_ARCHITECTURE.md) | Complete flow architecture and data model |
-| [Experience Cloud Setup](docs/EXPERIENCE_CLOUD_DEPLOYMENT.md) | Portal configuration guide |
 | [Field Documentation](docs/field-documentation-succession.md) | Custom field definitions |
 | [Multi-Successor Guide](docs/MULTI_SUCCESSOR_HIERARCHY_COMPONENT.md) | Hierarchical case management |
 | [Testing Guide](docs/MULTI_SUCCESSOR_TESTING_GUIDE.md) | Testing scenarios and data generation |
-| [Deployment Tasks](docs/ORG_DEPLOYMENT_TASKS.md) | Manual configuration steps |
 
 ## 🧪 Testing
 
-### Generate Test Data
-1. Navigate to **Succession Test Data Generator** tab
-2. Select scenario:
-   - Basic Succession
-   - Multi-Successor
-   - SLA Escalation
-   - Final Grant
-3. Click **Generate Data**
-
-### Using CumulusCI (Optional)
+### Using CumulusCI + Snowfakery
 ```bash
 # Load test data
 cci task run snowfakery --recipe datasets/succession_data.recipe.yml
@@ -134,27 +114,24 @@ cci task run robot --test tests/succession/
 ### Data Model
 ```
 Case (Record Type: Estate Administration)
-├── Succession-specific fields
-├── Contact cadence tracking
-├── SLA management
-└── Pathway selection
+├── Type: "Named Successor Enactment" or "Multi-Account Succession Master"
+├── Succession-specific fields (pathway, contact cadence, SLA)
+└── ParentId (for multi-successor child cases)
 
-Task/Activity
-├── Contact attempt tracking
-└── Succession activity types
+Task (Contact Attempts)
+├── Contact_Attempt_Number__c (1-5)
+├── ActivityDate (date-gating)
+└── Succession_Contact_Established__c (outcome)
 
-Flow_Error__c
-└── Centralized error logging
-
-Error_Notification__e (Platform Event)
-└── Real-time error notifications
+FinancialAccountRole
+├── Role: "Successor"
+└── SuccessorAllocation__c (percentage)
 ```
 
 ### Security Model
 - Permission Sets: `Succession_Management_Access`, `Succession_Field_Access`
 - Field-Level Security on all succession fields
-- Guest user permissions for Experience Cloud portal
-- Token-based authentication for external forms
+- All Apex uses `WITH USER_MODE` for proper security enforcement
 
 ## 🔧 Configuration
 
@@ -198,12 +175,11 @@ All templates located in `Succession_Management` and `Succession_Templates` fold
 ### Project Structure
 ```
 force-app/main/default/
-├── classes/              # Apex classes
-├── flows/                # Flow definitions
+├── classes/              # Apex classes (2)
+├── flows/                # Flow definitions (6)
 ├── email/                # Email templates
-├── lwc/                  # Lightning Web Components
-├── objects/              # Object metadata & fields
-├── experiences/          # Experience Cloud site
+├── lwc/                  # Lightning Web Components (11)
+├── objects/              # Object metadata & fields (standard objects only)
 ├── permissionsets/       # Permission sets
 └── [additional metadata]
 ```

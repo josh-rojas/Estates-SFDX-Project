@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Verification_Status__c</fullName>
-    <description>BRD Phase 1: Tracks MyQ/G360 successor verification status. Used to ensure successors are verified against authoritative source before initial contact per BRD critical rule.</description>
-    <inlineHelpText>Verify successor information against MyQ/G360 system before making contact. Required to complete before sending Succession Recommendation Form.</inlineHelpText>
+    <description>Workflow trigger field controlled by agent via Quick Action. Agent clicks "Begin Succession Processing" button to start workflow when ready. Despite 90%+ of cases arriving with documents, agent maintains control over workflow initiation.</description>
+    <inlineHelpText>Agent uses "Begin Succession Processing" Quick Action button to set this field and start the contact cadence. Provides explicit control point for when case processing begins.</inlineHelpText>
     <label>Verification Status</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>
@@ -19,24 +19,9 @@
                 <label>Not Started</label>
             </value>
             <value>
-                <fullName>In Progress</fullName>
-                <default>false</default>
-                <label>In Progress</label>
-            </value>
-            <value>
                 <fullName>Complete - Verified</fullName>
                 <default>false</default>
                 <label>Complete - Verified</label>
-            </value>
-            <value>
-                <fullName>Discrepancies Found</fullName>
-                <default>false</default>
-                <label>Discrepancies Found</label>
-            </value>
-            <value>
-                <fullName>Awaiting Advisory Firm Resolution</fullName>
-                <default>false</default>
-                <label>Awaiting Advisory Firm Resolution</label>
             </value>
         </valueSetDefinition>
     </valueSet>

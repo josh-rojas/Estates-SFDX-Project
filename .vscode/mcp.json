@@ -1,0 +1,109 @@
+{
+  "servers": {
+    "https://github.com/salesforcecli/mcp": {
+      "autoApprove": [
+        "get_username",
+        "list_all_orgs",
+        "run_soql_query",
+        "deploy_metadata",
+        "retrieve_metadata",
+        "run_apex_test"
+      ],
+      "disabled": false,
+      "timeout": 300,
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/joshsmbp/Library/Application Support/Code/User/globalStorage/salesforce.salesforcedx-einstein-gpt/MCP/a4d-mcp-wrapper.js",
+        "@salesforce/mcp@latest",
+        "--orgs",
+        "ALLOW_ALL_ORGS",
+        "--tools",
+        "get_username,deploy_metadata,retrieve_metadata,run_apex_test,run_soql_query,guide_lwc_development,orchestrate_lwc_component_creation,guide_lwc_accessibility,create_lwc_component,assign_permission_set,list_all_orgs,list_devops_center_projects,list_devops_center_work_items,create_devops_center_pull_request,promote_devops_center_work_item,commit_devops_center_work_item,check_devops_center_commit_status,checkout_devops_center_work_item,run_code_analyzer,describe_code_analyzer_rule,detect_devops_center_merge_conflict,resolve_devops_center_merge_conflict"
+      ]
+    },
+    "github.com/modelcontextprotocol/servers/tree/main/src/filesystem": {
+      "autoApprove": [
+        "read_file",
+        "read_text_file",
+        "read_media_file",
+        "read_multiple_files",
+        "write_file",
+        "edit_file",
+        "create_directory",
+        "list_directory",
+        "list_directory_with_sizes",
+        "directory_tree",
+        "move_file",
+        "search_files",
+        "get_file_info",
+        "list_allowed_directories"
+      ],
+      "disabled": false,
+      "timeout": 600,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/joshsmbp/Schwab Downloads/Estates SFDX Project"
+      ]
+    },
+    "github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking": {
+      "autoApprove": [
+        "sequential_thinking"
+      ],
+      "disabled": false,
+      "timeout": 600,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {
+        "DISABLE_THOUGHT_LOGGING": "false"
+      }
+    },
+    "github.com/zcaceres/fetch-mcp": {
+      "autoApprove": [
+        "fetch_html",
+        "fetch_markdown",
+        "fetch_txt",
+        "fetch_json"
+      ],
+      "disabled": false,
+      "timeout": 600,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-fetch-server"
+      ],
+      "env": {
+        "DEFAULT_LIMIT": "50000"
+      }
+    },
+    "github.com/modelcontextprotocol/servers/tree/main/src/memory": {
+      "autoApprove": [
+        "create_entities",
+        "create_relations",
+        "add_observations",
+        "delete_entities",
+        "delete_observations",
+        "delete_relations",
+        "read_graph",
+        "search_nodes",
+        "open_nodes"
+      ],
+      "disabled": false,
+      "timeout": 600,
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    }
+  }
+}

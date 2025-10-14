@@ -95,6 +95,9 @@
     </layoutSections>
     <quickActionList>
         <quickActionListItems>
+            <quickActionName>Case.Start_Contact_Cadence</quickActionName>
+        </quickActionListItems>
+        <quickActionListItems>
             <quickActionName>Case.SendEmail</quickActionName>
         </quickActionListItems>
         <quickActionListItems>
