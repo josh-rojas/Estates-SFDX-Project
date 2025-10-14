@@ -150,7 +150,18 @@ public with sharing class CaseHierarchyController {
                 }
 
                 if (includeAccountRoles && !financialAccountIds.isEmpty()) {
-                    // Build dynamic query based on role filter
+                    // Prepare role filters for bind variables
+                    List<String> roleFilters = new List<String>();
+                    if (String.isNotBlank(roleFilterString)) {
+                        for (String roleFilter : roleFilterString.split(',')) {
+                            String trimmedRole = roleFilter.trim();
+                            if (String.isNotBlank(trimmedRole)) {
+                                roleFilters.add('%' + trimmedRole + '%');
+                            }
+                        }
+                    }
+
+                    // Build query with proper bind variables
                     String roleQuery = 'SELECT Id, FinServ__FinancialAccount__c, FinServ__RelatedContact__c, ' +
                         'FinServ__RelatedContact__r.Name, FinServ__RelatedContact__r.Email, ' +
                         'FinServ__RelatedContact__r.Phone, FinServ__Role__c, FinServ__Active__c, ' +
@@ -158,23 +169,30 @@ public with sharing class CaseHierarchyController {
                         'WHERE FinServ__FinancialAccount__c IN :financialAccountIds AND FinServ__Active__c = TRUE';
 
                     // Add role filter if provided
-                    if (String.isNotBlank(roleFilterString)) {
-                        // Parse comma-separated roles
-                        List<String> roleFilters = roleFilterString.split(',');
-                        List<String> roleConditions = new List<String>();
-
-                        for (String roleFilter : roleFilters) {
-                            String trimmedRole = roleFilter.trim();
-                            roleConditions.add('FinServ__Role__c LIKE \'%' + String.escapeSingleQuotes(trimmedRole) + '%\'');
-                        }
-
-                        roleQuery += ' AND (' + String.join(roleConditions, ' OR ') + ')';
+                    if (!roleFilters.isEmpty()) {
+                        roleQuery += ' AND FinServ__Role__c LIKE :roleFilters';
                     }
 
                     roleQuery += ' ORDER BY SuccessorAllocation__c DESC NULLS LAST';
 
-                    // Execute dynamic query
-                    List<FinServ__FinancialAccountRole__c> allRoles = Database.query(roleQuery);
+                    // Execute query with bind variables for security
+                    List<FinServ__FinancialAccountRole__c> allRoles;
+                    if (!roleFilters.isEmpty()) {
+                        allRoles = Database.queryWithBinds(roleQuery, 
+                            new Map<String, Object>{
+                                'financialAccountIds' => financialAccountIds,
+                                'roleFilters' => roleFilters
+                            }, 
+                            AccessLevel.USER_MODE
+                        );
+                    } else {
+                        allRoles = Database.queryWithBinds(roleQuery, 
+                            new Map<String, Object>{
+                                'financialAccountIds' => financialAccountIds
+                            }, 
+                            AccessLevel.USER_MODE
+                        );
+                    }
 
                     // Group roles by financial account
                     for (FinServ__FinancialAccountRole__c role : allRoles) {

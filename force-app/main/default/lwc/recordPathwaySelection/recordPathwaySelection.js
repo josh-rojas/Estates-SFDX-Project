@@ -18,6 +18,9 @@ export default class RecordPathwaySelection extends LightningElement {
 
     selectedPathway = '';
     isLoading = false;
+    
+    // Store timeout reference for cleanup
+    closeTimeout;
     errorMessage = '';
 
     // Wire to get current Case field values
@@ -81,7 +84,7 @@ export default class RecordPathwaySelection extends LightningElement {
             );
 
             // Auto-close the Quick Action after 1.5 seconds
-            setTimeout(() => {
+            this.closeTimeout = setTimeout(() => {
                 this.handleClose();
             }, 1500);
 
@@ -106,6 +109,19 @@ export default class RecordPathwaySelection extends LightningElement {
      * Close the Quick Action modal
      */
     handleClose() {
+        // Clear any pending timeout
+        if (this.closeTimeout) {
+            clearTimeout(this.closeTimeout);
+            this.closeTimeout = null;
+        }
         this.dispatchEvent(new CloseActionScreenEvent());
+    }
+
+    disconnectedCallback() {
+        // Cleanup timeout when component is destroyed
+        if (this.closeTimeout) {
+            clearTimeout(this.closeTimeout);
+            this.closeTimeout = null;
+        }
     }
 }

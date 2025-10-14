@@ -28,6 +28,9 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
     @track notes = ''; // Textarea state
     @track pendingEmailAttemptNumber = null; // Stores attempt number for optional email sending
     @track isNavigatingToEmail = false; // True when opening email composer (prevents double-click)
+    
+    // Store timeout reference for cleanup
+    emailNavigationTimeout;
 
     // Radio button options for "Was contact made?"
     contactMadeOptions = [
@@ -460,7 +463,7 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
 
             // Reset navigation state after short delay (allow composer to open)
             // eslint-disable-next-line @lwc/lwc/no-async-operation
-            setTimeout(() => {
+            this.emailNavigationTimeout = setTimeout(() => {
                 this.isNavigatingToEmail = false;
             }, 2000);
         } catch (error) {
@@ -485,5 +488,13 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
                 variant: variant
             })
         );
+    }
+
+    disconnectedCallback() {
+        // Cleanup timeout when component is destroyed
+        if (this.emailNavigationTimeout) {
+            clearTimeout(this.emailNavigationTimeout);
+            this.emailNavigationTimeout = null;
+        }
     }
 }

@@ -24,6 +24,7 @@ public with sharing class SuccessionPublicFormController {
                 SELECT Id, CaseNumber, Subject, Status, Type,
                        AccountId, Account.Name, Account.PersonEmail, Account.Phone,
                        Account.FirstName, Account.LastName, Account.IsPersonAccount,
+                       Account.PersonContactId, // Include PersonContactId to avoid additional query
                        ContactId, Contact.Name, Contact.Email, Contact.Phone,
                        FinServ__FinancialAccount__c,
                        FinServ__FinancialAccount__r.Name,
@@ -49,15 +50,8 @@ public with sharing class SuccessionPublicFormController {
             Boolean isPersonAccount = (c.Account != null && c.Account.IsPersonAccount);
 
             if (isPersonAccount) {
-                // Person Account: Query using Account.PersonContactId
-                List<Account> successorAccounts = [
-                    SELECT PersonContactId
-                    FROM Account
-                    WHERE Id = :c.AccountId
-                    WITH USER_MODE
-                    LIMIT 1
-                ];
-                successorLookupId = !successorAccounts.isEmpty() ? successorAccounts[0].PersonContactId : null;
+                // Person Account: Use PersonContactId from the main query (no additional query needed)
+                successorLookupId = c.Account.PersonContactId;
             } else {
                 // Business Account: Use Case.ContactId
                 successorLookupId = c.ContactId;
@@ -155,14 +149,35 @@ public with sharing class SuccessionPublicFormController {
 
             // Parse additional form data if provided
             if (String.isNotBlank(formData)) {
-                Map<String, Object> formFields = (Map<String, Object>) JSON.deserializeUntyped(formData);
+                try {
+                    // Validate JSON structure before deserialization
+                    if (formData.length() > 10000) { // Reasonable limit for form data
+                        throw new AuraHandledException('Form data too large');
+                    }
+                    
+                    Map<String, Object> formFields = (Map<String, Object>) JSON.deserializeUntyped(formData);
 
-                // Map form fields to Case fields
-                if (formFields.containsKey('additionalNotes')) {
-                    c.Description = (String) formFields.get('additionalNotes');
+                    // Map form fields to Case fields with validation
+                    if (formFields.containsKey('additionalNotes')) {
+                        Object notesObj = formFields.get('additionalNotes');
+                        if (notesObj instanceof String) {
+                            String notes = (String) notesObj;
+                            // Sanitize and limit length
+                            if (notes.length() > 1000) {
+                                notes = notes.substring(0, 1000);
+                            }
+                            c.Description = notes;
+                        }
+                    }
+
+                    // Add more field mappings as needed based on pathway-specific requirements
+                } catch (JSONException je) {
+                    System.debug('Invalid JSON in form data: ' + je.getMessage());
+                    // Continue without form data rather than failing
+                } catch (Exception e) {
+                    System.debug('Error processing form data: ' + e.getMessage());
+                    // Continue without form data rather than failing
                 }
-
-                // Add more field mappings as needed based on pathway-specific requirements
             }
 
             update as user c;
