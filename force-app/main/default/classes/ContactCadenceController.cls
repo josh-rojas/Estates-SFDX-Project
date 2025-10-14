@@ -350,44 +350,54 @@ public with sharing class ContactCadenceController {
         Boolean contactEstablished,
         String noteContent
     ) {
-        // Format timestamp for note title and content
-        DateTime now = DateTime.now();
-        String formattedDate = now.format('yyyy-MM-dd HH:mm:ss');
-        String dateOnly = now.format('yyyy-MM-dd');
+        try {
+            // Format timestamp for note title and content
+            DateTime now = DateTime.now();
+            String formattedDate = now.format('yyyy-MM-dd HH:mm:ss');
+            String dateOnly = now.format('yyyy-MM-dd');
 
-        // Determine outcome label
-        String outcomeLabel = contactEstablished ? 'Contact Established' : 'Contact Not Established';
+            // Determine outcome label
+            String outcomeLabel = contactEstablished ? 'Contact Established' : 'Contact Not Established';
 
-        // Create note title
-        String noteTitle = 'Succession Contact Attempt ' + attemptNumber + ' - ' + dateOnly;
+            // Create note title
+            String noteTitle = 'Succession Contact Attempt ' + attemptNumber + ' - ' + dateOnly;
 
-        // Create note body with structured format
-        String noteBody = '========================================\n';
-        noteBody += 'SUCCESSION CONTACT ATTEMPT #' + attemptNumber + '\n';
-        noteBody += '========================================\n\n';
-        noteBody += 'Date/Time: ' + formattedDate + '\n';
-        noteBody += 'Outcome: ' + outcomeLabel + '\n\n';
-        noteBody += '----------------------------------------\n';
-        noteBody += 'NOTES:\n';
-        noteBody += '----------------------------------------\n\n';
-        noteBody += noteContent;
+            // Create note body with structured format
+            String noteBody = '========================================\n';
+            noteBody += 'SUCCESSION CONTACT ATTEMPT #' + attemptNumber + '\n';
+            noteBody += '========================================\n\n';
+            noteBody += 'Date/Time: ' + formattedDate + '\n';
+            noteBody += 'Outcome: ' + outcomeLabel + '\n\n';
+            noteBody += '----------------------------------------\n';
+            noteBody += 'NOTES:\n';
+            noteBody += '----------------------------------------\n\n';
+            noteBody += noteContent;
 
-        // Create ContentNote
-        ContentNote note = new ContentNote();
-        note.Title = noteTitle;
-        note.Content = Blob.valueOf(noteBody);
-        insert note;
+            // Create ContentNote
+            ContentNote note = new ContentNote();
+            note.Title = noteTitle;
+            note.Content = Blob.valueOf(noteBody);
+            insert note;
 
-        // Link note to Case
-        // Query ContentDocument using LatestPublishedVersionId (ContentNote is a version)
-        ContentDocument doc = [SELECT Id FROM ContentDocument WHERE LatestPublishedVersionId = :note.Id LIMIT 1];
+            // Link note to Case - Use try-catch to handle potential governor limits
+            try {
+                // Query ContentDocument using LatestPublishedVersionId (ContentNote is a version)
+                ContentDocument doc = [SELECT Id FROM ContentDocument WHERE LatestPublishedVersionId = :note.Id LIMIT 1];
 
-        ContentDocumentLink cdl = new ContentDocumentLink();
-        cdl.ContentDocumentId = doc.Id;
-        cdl.LinkedEntityId = caseId;
-        cdl.ShareType = 'V'; // Viewer permission
-        cdl.Visibility = 'AllUsers'; // Visible to all users with access to the record
-        insert cdl;
+                ContentDocumentLink cdl = new ContentDocumentLink();
+                cdl.ContentDocumentId = doc.Id;
+                cdl.LinkedEntityId = caseId;
+                cdl.ShareType = 'V'; // Viewer permission
+                cdl.Visibility = 'AllUsers'; // Visible to all users with access to the record
+                insert cdl;
+            } catch (Exception linkEx) {
+                // Log but don't fail - ContentNote creation is supplementary
+                System.debug('ContentDocumentLink creation failed: ' + linkEx.getMessage());
+            }
+        } catch (Exception noteEx) {
+            // Log but don't fail - ContentNote creation is supplementary
+            System.debug('ContentNote creation failed: ' + noteEx.getMessage());
+        }
     }
 
     /**

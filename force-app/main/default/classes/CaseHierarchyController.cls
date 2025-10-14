@@ -90,19 +90,40 @@ public with sharing class CaseHierarchyController {
                 'Contact_Attempt_Count__c ' +
                 'FROM Case WHERE ParentId = :parentCaseId';
 
-            // Add status exclusion filter if provided
+            // Prepare excluded statuses list for bind variables
+            List<String> excludedStatuses = new List<String>();
             if (String.isNotBlank(excludeStatusString)) {
-                List<String> excludedStatuses = excludeStatusString.split(',');
-                List<String> escapedStatuses = new List<String>();
-                for (String status : excludedStatuses) {
-                    escapedStatuses.add('\'' + String.escapeSingleQuotes(status.trim()) + '\'');
+                for (String status : excludeStatusString.split(',')) {
+                    String trimmedStatus = status.trim();
+                    if (String.isNotBlank(trimmedStatus)) {
+                        excludedStatuses.add(trimmedStatus);
+                    }
                 }
-                childQuery += ' AND Status NOT IN (' + String.join(escapedStatuses, ',') + ')';
+                if (!excludedStatuses.isEmpty()) {
+                    childQuery += ' AND Status NOT IN :excludedStatuses';
+                }
             }
 
             childQuery += ' ORDER BY CreatedDate ASC';
 
-            List<Case> childCases = Database.query(childQuery);
+            // Execute query with bind variables for security
+            List<Case> childCases;
+            if (!excludedStatuses.isEmpty()) {
+                childCases = Database.queryWithBinds(childQuery, 
+                    new Map<String, Object>{
+                        'parentCaseId' => parentCaseId,
+                        'excludedStatuses' => excludedStatuses
+                    }, 
+                    AccessLevel.USER_MODE
+                );
+            } else {
+                childCases = Database.queryWithBinds(childQuery, 
+                    new Map<String, Object>{
+                        'parentCaseId' => parentCaseId
+                    }, 
+                    AccessLevel.USER_MODE
+                );
+            }
 
             // Conditionally query financial accounts and account roles
             Map<Id, FinServ__FinancialAccount__c> financialAccountMap = new Map<Id, FinServ__FinancialAccount__c>();

@@ -359,6 +359,12 @@
     </recordCreates>
 
     <!-- Formula: Calculate Day 5 Date -->
+    <!-- BUG FIX NEEDED: These formulas calculate dates from parent case creation date,
+         but should calculate from current task completion date for proper cadence timing.
+         Current logic: DATEVALUE({!Get_Parent_Case.CreatedDate}) + 5
+         Should be: DATEVALUE({!$Record.CompletedDateTime}) + 5 (or similar)
+         This ensures tasks are scheduled relative to when the previous attempt was completed,
+         not when the case was originally created. -->
     <formulas>
         <name>fxCalculateDay5</name>
         <dataType>Date</dataType>
