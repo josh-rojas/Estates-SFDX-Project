@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Disclaimer_Disposition__c</fullName>
-    <description>BRD Phase 4 - Disclaim Pathway: Tracks how disclaimed assets are routed and processed. Assets may go to contingent beneficiaries, Phil Fund, or per original donor instructions.</description>
-    <inlineHelpText>Only applicable when Pathway = Disclaim Assets. Documents final disposition of disclaimed assets per fund bylaws and original instructions.</inlineHelpText>
+    <description
+  >BRD Phase 4 - Disclaim Pathway: Tracks how disclaimed assets are routed and processed. Assets may go to contingent beneficiaries, Phil Fund, or per original donor instructions.</description>
+    <inlineHelpText
+  >Only applicable when Pathway = Disclaim Assets. Documents final disposition of disclaimed assets per fund bylaws and original instructions.</inlineHelpText>
     <label>Disclaimer Disposition</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

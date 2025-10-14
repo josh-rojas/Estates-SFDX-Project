@@ -25,6 +25,7 @@
 A multi-successor scenario occurs when a deceased donor's Donor-Advised Fund (DAF) assets are divided among **two or more successors** with specific allocation percentages.
 
 **Key Characteristics**:
+
 - Multiple `FinancialAccountRole` records with `Role = 'Successor'`
 - Each successor has a `SuccessorAllocation__c` percentage (must sum to 100%)
 - All successors must be responsive (have contact information)
@@ -33,6 +34,7 @@ A multi-successor scenario occurs when a deceased donor's Donor-Advised Fund (DA
 ### Business Context
 
 **Example**: Patricia Williams passes away with a $3.5M DAF account. Her will specifies:
+
 - 50% to granddaughter Amanda Williams
 - 50% to grandson Brandon Williams
 
@@ -71,7 +73,7 @@ Account (Deceased Donor: Patricia Williams)
 
 ```apex
 // This creates EVERYTHING including 2 multi-successor scenarios
-SuccessionTestDataFactory.SuccessionTestData dataset = 
+SuccessionTestDataFactory.SuccessionTestData dataset =
     SuccessionTestDataFactory.generateCompleteDataset();
 
 // Dataset includes:
@@ -83,7 +85,7 @@ SuccessionTestDataFactory.SuccessionTestData dataset =
 
 ```apex
 // Generates Patricia Williams with 2 successors (50/50 split)
-SuccessionTestDataFactory.SuccessionScenarioData scenario = 
+SuccessionTestDataFactory.SuccessionScenarioData scenario =
     SuccessionTestDataFactory.generateMultipleSuccessorsScenario();
 
 // Access the data
@@ -106,7 +108,7 @@ Account donor = new SuccessionTestDataFactory.DeceasedDonorBuilder()
     .buildAndInsert();
 
 // Step 2: Create financial account
-FinServ__FinancialAccount__c daf = 
+FinServ__FinancialAccount__c daf =
     new SuccessionTestDataFactory.FinancialAccountBuilder(donor.Id)
         .withName('Williams Family Foundation Fund')
         .withProgram('ASDAF')
@@ -143,7 +145,7 @@ new SuccessionTestDataFactory.FinancialAccountRoleBuilder(daf.Id)
     .buildAndInsert();
 
 // Step 6: Create case (links to first successor)
-Account amandaWithContact = [SELECT Id, PersonContactId 
+Account amandaWithContact = [SELECT Id, PersonContactId
                              FROM Account WHERE Id = :amanda.Id];
 
 Case successionCase = new SuccessionTestDataFactory.SuccessionCaseBuilder(
@@ -166,6 +168,7 @@ Case successionCase = new SuccessionTestDataFactory.SuccessionCaseBuilder(
 **Persona**: Patricia Williams → Amanda & Brandon Williams
 
 **Details**:
+
 - Deceased: Patricia Williams (Age 88, Premier Donor)
 - Financial Account: $3.5M ASDAF
 - Successors:
@@ -175,6 +178,7 @@ Case successionCase = new SuccessionTestDataFactory.SuccessionCaseBuilder(
 - Status: Contact Established
 
 **Test Coverage**:
+
 - ✅ Both successors created
 - ✅ Both have 50% allocation
 - ✅ Total allocation = 100%
@@ -183,8 +187,9 @@ Case successionCase = new SuccessionTestDataFactory.SuccessionCaseBuilder(
 - ✅ Tasks created for Amanda
 
 **Generate**:
+
 ```apex
-SuccessionTestDataFactory.SuccessionScenarioData scenario = 
+SuccessionTestDataFactory.SuccessionScenarioData scenario =
     SuccessionTestDataFactory.generateMultipleSuccessorsScenario();
 ```
 
@@ -193,6 +198,7 @@ SuccessionTestDataFactory.SuccessionScenarioData scenario =
 **Persona**: Harold Miller → Jessica, Andrew & Lauren
 
 **Details**:
+
 - Deceased: Harold Miller (Age 92, Premier Donor)
 - Financial Account: $5.2M PMA
 - Successors:
@@ -203,6 +209,7 @@ SuccessionTestDataFactory.SuccessionScenarioData scenario =
 - Status: Contact Established
 
 **Test Coverage**:
+
 - ✅ Three successors created
 - ✅ Allocations: 40%, 35%, 25%
 - ✅ Total allocation = 100%
@@ -211,21 +218,23 @@ SuccessionTestDataFactory.SuccessionScenarioData scenario =
 - ✅ Case links to Jessica (first successor)
 
 **Generate**:
+
 ```apex
 // This is included in generateCompleteDataset()
-SuccessionTestDataFactory.SuccessionTestData dataset = 
+SuccessionTestDataFactory.SuccessionTestData dataset =
     SuccessionTestDataFactory.generateCompleteDataset();
 
 // Find Harold Miller scenario
-Account harold = [SELECT Id, FirstName, LastName 
-                  FROM Account 
-                  WHERE FirstName = 'Harold' AND LastName = 'Miller' 
+Account harold = [SELECT Id, FirstName, LastName
+                  FROM Account
+                  WHERE FirstName = 'Harold' AND LastName = 'Miller'
                   LIMIT 1];
 ```
 
 ### Scenario 3: Unequal Split (70/30)
 
 **Custom Test Case**:
+
 - Deceased: John Anderson
 - Financial Account: $2M ASDAF
 - Successors:
@@ -233,6 +242,7 @@ Account harold = [SELECT Id, FirstName, LastName
   - Secondary beneficiary: 30%
 
 **Generate**:
+
 ```apex
 // Use custom generation pattern (see Method 3 above)
 // Set allocations to 70 and 30
@@ -257,12 +267,14 @@ Before generating multi-successor test data, verify:
 After generating test data, verify:
 
 #### Deceased Donor
+
 - [ ] `Deceased__c = TRUE`
 - [ ] `Date_of_Death__c` is populated
 - [ ] `IsPersonAccount = TRUE`
 - [ ] Net worth is realistic (2-3x DAF balance)
 
 #### Successors
+
 - [ ] Exactly N successors created (where N = expected count)
 - [ ] All have `Deceased__c = FALSE`
 - [ ] All have `PersonEmail` populated
@@ -270,12 +282,14 @@ After generating test data, verify:
 - [ ] All have correct first/last names
 
 #### Financial Account
+
 - [ ] Balance matches expected amount
 - [ ] Program matches expected program (ASDAF, PMA, etc.)
 - [ ] `FinServ__PrimaryOwner__c` links to deceased donor
 - [ ] `FinServ__JointOwner__c` is null
 
 #### Financial Account Roles
+
 - [ ] Exactly (N+1) roles created (N successors + 1 owner)
 - [ ] One role with `FinServ__Role__c = 'Primary Owner'`
 - [ ] N roles with `FinServ__Role__c = 'Successor'`
@@ -283,6 +297,7 @@ After generating test data, verify:
 - [ ] Sum of all `SuccessorAllocation__c` = 100
 
 #### Case
+
 - [ ] `Type = 'Named Successor Enactment'`
 - [ ] `RecordType = 'Estate Administration'`
 - [ ] `AccountId` links to deceased donor
@@ -292,6 +307,7 @@ After generating test data, verify:
 - [ ] `Pathway_Confirmed__c` is populated
 
 #### Tasks
+
 - [ ] Contact attempt tasks created
 - [ ] All tasks link to case
 - [ ] All tasks link to first successor
@@ -307,22 +323,25 @@ After generating test data, verify:
 **Steps**:
 
 1. **Generate Data**
+
    ```apex
-   SuccessionTestDataFactory.SuccessionScenarioData scenario = 
+   SuccessionTestDataFactory.SuccessionScenarioData scenario =
        SuccessionTestDataFactory.generateMultipleSuccessorsScenario();
    ```
 
 2. **Verify Deceased Donor**
+
    ```apex
-   System.debug('Deceased Donor: ' + scenario.deceasedDonor.FirstName + ' ' + 
+   System.debug('Deceased Donor: ' + scenario.deceasedDonor.FirstName + ' ' +
                 scenario.deceasedDonor.LastName);
    System.debug('Deceased: ' + scenario.deceasedDonor.Deceased__c);
    System.debug('Date of Death: ' + scenario.deceasedDonor.Date_of_Death__c);
    ```
-   
+
    **Expected**: Patricia Williams, Deceased=TRUE, Date populated
 
 3. **Verify Successors**
+
    ```apex
    System.debug('Successor Count: ' + scenario.successors.size());
    for (Account s : scenario.successors) {
@@ -331,19 +350,21 @@ After generating test data, verify:
        System.debug('    Phone: ' + s.PersonMobilePhone);
    }
    ```
-   
+
    **Expected**: 2 successors (Amanda, Brandon), both with email and phone
 
 4. **Verify Financial Account**
+
    ```apex
    System.debug('Account Name: ' + scenario.financialAccount.Name);
    System.debug('Balance: ' + scenario.financialAccount.FinServ__Balance__c);
    System.debug('Program: ' + scenario.financialAccount.Program__c);
    ```
-   
+
    **Expected**: Williams Family Foundation Fund, $3.5M, ASDAF
 
 5. **Verify Roles & Allocations**
+
    ```apex
    System.debug('Total Roles: ' + scenario.roles.size());
    Decimal totalAllocation = 0;
@@ -356,24 +377,25 @@ After generating test data, verify:
    }
    System.debug('Total Allocation: ' + totalAllocation + '%');
    ```
-   
+
    **Expected**: 3 roles, 2 successors with 50% each, total = 100%
 
 6. **Verify Case**
+
    ```apex
    System.debug('Case Type: ' + scenario.successionCase.Type);
    System.debug('Pathway: ' + scenario.successionCase.Pathway_Confirmed__c);
-   System.debug('Contact Established: ' + 
+   System.debug('Contact Established: ' +
                 scenario.successionCase.Contact_Established__c);
-   
+
    // Check which successor is linked
    Account primaryContact = [SELECT Id, FirstName, LastName, PersonContactId
-                             FROM Account 
+                             FROM Account
                              WHERE PersonContactId = :scenario.successionCase.ContactId];
-   System.debug('Primary Contact: ' + primaryContact.FirstName + ' ' + 
+   System.debug('Primary Contact: ' + primaryContact.FirstName + ' ' +
                 primaryContact.LastName);
    ```
-   
+
    **Expected**: Estate Administration, Final Grant, Contact=TRUE, Contact=Amanda
 
 7. **Run Assertions**
@@ -391,12 +413,14 @@ After generating test data, verify:
 **Steps**:
 
 1. **Generate Complete Dataset**
+
    ```apex
-   SuccessionTestDataFactory.SuccessionTestData dataset = 
+   SuccessionTestDataFactory.SuccessionTestData dataset =
        SuccessionTestDataFactory.generateCompleteDataset();
    ```
 
 2. **Verify Counts**
+
    ```apex
    System.debug('Deceased Donors: ' + dataset.deceasedDonors.size());
    System.debug('Successors: ' + dataset.successors.size());
@@ -404,24 +428,25 @@ After generating test data, verify:
    System.debug('Roles: ' + dataset.roles.size());
    System.debug('Cases: ' + dataset.successionCases.size());
    ```
-   
+
    **Expected**: 15 donors, 20 successors, 15 accounts, 54+ roles, 15 cases
 
 3. **Find Multi-Successor Accounts**
+
    ```apex
-   Map<Id, List<FinServ__FinancialAccountRole__c>> accountToSuccessors = 
+   Map<Id, List<FinServ__FinancialAccountRole__c>> accountToSuccessors =
        new Map<Id, List<FinServ__FinancialAccountRole__c>>();
-   
+
    for (FinServ__FinancialAccountRole__c role : dataset.roles) {
        if (role.FinServ__Role__c == 'Successor') {
            if (!accountToSuccessors.containsKey(role.FinServ__FinancialAccount__c)) {
-               accountToSuccessors.put(role.FinServ__FinancialAccount__c, 
+               accountToSuccessors.put(role.FinServ__FinancialAccount__c,
                    new List<FinServ__FinancialAccountRole__c>());
            }
            accountToSuccessors.get(role.FinServ__FinancialAccount__c).add(role);
        }
    }
-   
+
    Integer multiSuccessorCount = 0;
    for (Id accountId : accountToSuccessors.keySet()) {
        if (accountToSuccessors.get(accountId).size() > 1) {
@@ -432,26 +457,27 @@ After generating test data, verify:
    }
    System.debug('Total Multi-Successor Accounts: ' + multiSuccessorCount);
    ```
-   
+
    **Expected**: At least 2 multi-successor accounts (Patricia Williams, Harold Miller)
 
 4. **Validate Allocations**
+
    ```apex
    for (Id accountId : accountToSuccessors.keySet()) {
-       List<FinServ__FinancialAccountRole__c> successorRoles = 
+       List<FinServ__FinancialAccountRole__c> successorRoles =
            accountToSuccessors.get(accountId);
-       
+
        if (successorRoles.size() > 1) {
            Decimal total = 0;
            for (FinServ__FinancialAccountRole__c role : successorRoles) {
                total += role.SuccessorAllocation__c;
            }
-           System.assert(total == 100, 
+           System.assert(total == 100,
                'Account ' + accountId + ' allocation != 100%: ' + total);
        }
    }
    ```
-   
+
    **Expected**: All multi-successor accounts have allocations summing to 100%
 
 ---
@@ -465,6 +491,7 @@ The following test methods are already implemented in `SuccessionTestDataFactory
 #### 1. `testMultipleSuccessorsScenario_TwoWaySplit()`
 
 **Coverage**:
+
 - ✅ Generates Patricia Williams scenario
 - ✅ Verifies 2 successors created
 - ✅ Verifies correct names (Amanda, Brandon)
@@ -479,6 +506,7 @@ The following test methods are already implemented in `SuccessionTestDataFactory
 #### 2. `testMultipleSuccessors_AllocationValidation()`
 
 **Coverage**:
+
 - ✅ Generates complete dataset
 - ✅ Finds all multi-successor accounts
 - ✅ Validates each successor has allocation > 0
@@ -490,6 +518,7 @@ The following test methods are already implemented in `SuccessionTestDataFactory
 #### 3. `testMultipleSuccessors_AllResponsive()`
 
 **Coverage**:
+
 - ✅ Generates multi-successor scenario
 - ✅ Verifies all successors have email
 - ✅ Verifies all successors have mobile phone
@@ -500,6 +529,7 @@ The following test methods are already implemented in `SuccessionTestDataFactory
 #### 4. `testGenerateCompleteDataset()` (Updated)
 
 **Coverage**:
+
 - ✅ Verifies complete dataset includes multi-successor scenarios
 - ✅ Validates Patricia Williams present
 - ✅ Validates Harold Miller present
@@ -527,12 +557,12 @@ sf apex test run --test-name SuccessionTestDataFactory_Test.testMultipleSuccesso
 
 ### Expected Test Results
 
-| Test Method | Expected Result | Code Coverage |
-|-------------|----------------|---------------|
-| `testMultipleSuccessorsScenario_TwoWaySplit` | ✅ PASS | 95%+ |
-| `testMultipleSuccessors_AllocationValidation` | ✅ PASS | 90%+ |
-| `testMultipleSuccessors_AllResponsive` | ✅ PASS | 85%+ |
-| `testGenerateCompleteDataset` | ✅ PASS | 98%+ |
+| Test Method                                   | Expected Result | Code Coverage |
+| --------------------------------------------- | --------------- | ------------- |
+| `testMultipleSuccessorsScenario_TwoWaySplit`  | ✅ PASS         | 95%+          |
+| `testMultipleSuccessors_AllocationValidation` | ✅ PASS         | 90%+          |
+| `testMultipleSuccessors_AllResponsive`        | ✅ PASS         | 85%+          |
+| `testGenerateCompleteDataset`                 | ✅ PASS         | 98%+          |
 
 ---
 
@@ -543,6 +573,7 @@ sf apex test run --test-name SuccessionTestDataFactory_Test.testMultipleSuccesso
 **Symptom**: Test data generation fails with validation errors
 
 **Root Causes**:
+
 1. `ChooseProspectTypeOnly` blocks deceased donor creation
 2. `PrimaryAndJointOwnerCannotBeSame` has null=null bug
 3. Missing `GroupRecordTypeMapper` custom metadata
@@ -556,6 +587,7 @@ sf apex test run --test-name SuccessionTestDataFactory_Test.testMultipleSuccesso
 **Root Cause**: Manual allocation percentages provided don't sum to 100
 
 **Solution**:
+
 ```apex
 // BAD: 50 + 40 = 90%
 List<Decimal> allocations = new List<Decimal>{50, 40};
@@ -574,6 +606,7 @@ List<Decimal> allocations = new List<Decimal>{40, 35, 25};
 **Root Cause**: Need to query `PersonContactId` after Account creation
 
 **Solution**:
+
 ```apex
 // WRONG: PersonContactId not available on insert result
 Account successor = new SuccessorBuilder().buildAndInsert();
@@ -583,7 +616,7 @@ Case c = new SuccessionCaseBuilder(donor.Id, daf.Id)
 
 // CORRECT: Query PersonContactId after insert
 Account successor = new SuccessorBuilder().buildAndInsert();
-Account successorWithContact = [SELECT Id, PersonContactId 
+Account successorWithContact = [SELECT Id, PersonContactId
                                 FROM Account WHERE Id = :successor.Id];
 Case c = new SuccessionCaseBuilder(donor.Id, daf.Id)
     .withSuccessor(successorWithContact.PersonContactId)  // ✅ Correct!
@@ -597,6 +630,7 @@ Case c = new SuccessionCaseBuilder(donor.Id, daf.Id)
 **Root Cause**: Used `.asUnresponsive()` or forgot to set contact info
 
 **Solution**:
+
 ```apex
 // WRONG: Unresponsive successors
 Account successor = new SuccessorBuilder()
@@ -617,6 +651,7 @@ Account successor = new SuccessorBuilder()
 **Root Cause**: Forgot to create successor roles or primary owner role
 
 **Solution**:
+
 ```apex
 // Ensure ALL roles are created:
 
@@ -653,14 +688,16 @@ new FinancialAccountRoleBuilder(daf.Id)
 ### Quick Start
 
 **Generate multi-successor test data in 1 line**:
+
 ```apex
-SuccessionTestDataFactory.SuccessionScenarioData scenario = 
+SuccessionTestDataFactory.SuccessionScenarioData scenario =
     SuccessionTestDataFactory.generateMultipleSuccessorsScenario();
 ```
 
 **Or include in complete dataset**:
+
 ```apex
-SuccessionTestDataFactory.SuccessionTestData dataset = 
+SuccessionTestDataFactory.SuccessionTestData dataset =
     SuccessionTestDataFactory.generateCompleteDataset();
 ```
 

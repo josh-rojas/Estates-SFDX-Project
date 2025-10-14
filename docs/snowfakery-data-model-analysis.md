@@ -159,9 +159,9 @@ Account (Advisor Firm - Business Account)
 - `FinServ__RelatedContact__c` - **REQUIRED for Person Account roles** Lookup to Contact (PersonContactId for Person Accounts)
 - `FinServ__RelatedAccount__c` - **REQUIRED for Business Account roles** Lookup to Account (Business Accounts only)
 - `FinServ__Role__c` - **REQUIRED** Role type:
-  - "Primary Owner" - Deceased donor (Person Account → uses FinServ__RelatedContact__c)
-  - "Successor" - Living successor (Person Account → uses FinServ__RelatedContact__c)
-  - "Advisor" - Advisor firm (Business Account → uses FinServ__RelatedAccount__c)
+  - "Primary Owner" - Deceased donor (Person Account → uses FinServ**RelatedContact**c)
+  - "Successor" - Living successor (Person Account → uses FinServ**RelatedContact**c)
+  - "Advisor" - Advisor firm (Business Account → uses FinServ**RelatedAccount**c)
 - `FinServ__Active__c` = true - Active status
 - `FinServ__StartDate__c` - Role start date
 - `SuccessorAllocation__c` - Percentage allocation (for Successor roles only)
@@ -169,8 +169,8 @@ Account (Advisor Firm - Business Account)
 **Relationships**:
 
 - Child of `FinServ__FinancialAccount__c`
-- References `Contact` (for Person Account roles via FinServ__RelatedContact__c)
-- References `Account` (for Business Account roles via FinServ__RelatedAccount__c)
+- References `Contact` (for Person Account roles via FinServ**RelatedContact**c)
+- References `Account` (for Business Account roles via FinServ**RelatedAccount**c)
 
 **FSC Best Practices**:
 
@@ -332,9 +332,9 @@ Account (Advisor Firm - Business Account)
    - Optional `Advisor__c` = Advisor Firm Id
 
 4. **Create Financial Account Roles** (depends on Financial Account + Accounts):
-   - Primary Owner Role: Links Financial Account → Deceased Donor PersonContactId (via FinServ__RelatedContact__c)
-   - Successor Role: Links Financial Account → Living Successor PersonContactId (via FinServ__RelatedContact__c)
-   - Advisor Role: Links Financial Account → Advisor Firm Account Id (via FinServ__RelatedAccount__c)
+   - Primary Owner Role: Links Financial Account → Deceased Donor PersonContactId (via FinServ**RelatedContact**c)
+   - Successor Role: Links Financial Account → Living Successor PersonContactId (via FinServ**RelatedContact**c)
+   - Advisor Role: Links Financial Account → Advisor Firm Account Id (via FinServ**RelatedAccount**c)
 
 5. **Create Case** (depends on Accounts + Financial Account + Contact):
    - Requires `AccountId` = Deceased Donor Id
@@ -362,7 +362,7 @@ Account (Advisor Firm - Business Account)
 1. **PersonContactId Auto-Creation and FSC Field Mapping**:
    - Person Accounts auto-create Contact records with PersonContactId field
    - PersonContactId is NOT available immediately in Snowfakery during creation
-   - **CRITICAL**: FinancialAccountRole for Person Accounts must use `FinServ__RelatedContact__c` field (not FinServ__RelatedAccount__c)
+   - **CRITICAL**: FinancialAccountRole for Person Accounts must use `FinServ__RelatedContact__c` field (not FinServ**RelatedAccount**c)
    - **Solution**: Snowfakery mapping file uses `after: PersonContactId` to reference the auto-created Contact
    - Example mapping:
      ```yaml
@@ -493,6 +493,7 @@ After Snowfakery loads Accounts, run SOQL to get PersonContactIds, then load Cas
 ## Document Change History
 
 **Version 2.0** - 2025-10-14:
+
 - Updated FinancialAccountRole field documentation to reflect FSC best practices
 - Changed from `FinServ__RelatedAccount__c` to `FinServ__RelatedContact__c` for Person Account roles
 - Added FSC Best Practices section clarifying field usage for Person vs. Business Accounts
@@ -500,6 +501,7 @@ After Snowfakery loads Accounts, run SOQL to get PersonContactIds, then load Cas
 - Enhanced Snowfakery implementation notes with PersonContactId mapping example
 
 **Version 1.0** - 2025-01-31:
+
 - Initial documentation
 
 ---

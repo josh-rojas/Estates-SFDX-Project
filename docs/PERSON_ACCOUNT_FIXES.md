@@ -12,32 +12,37 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
 
 ### Fixes Implemented
 
-| # | Component | Severity | Status |
-|---|-----------|----------|--------|
-| 1 | SuccessionPublicFormController.cls | 🔴 CRITICAL | ✅ **FIXED** |
-| 2 | Case_Send_Succession_Form.flow | 🔴 CRITICAL | ✅ **FIXED** |
-| 3 | Case_Multiple_Successors_Handler.flow | 🟡 MEDIUM | ✅ **FIXED** |
-| 4 | Snowfakery Test Data Mapping | 🟡 MEDIUM | ✅ **FIXED** |
+| #   | Component                             | Severity    | Status       |
+| --- | ------------------------------------- | ----------- | ------------ |
+| 1   | SuccessionPublicFormController.cls    | 🔴 CRITICAL | ✅ **FIXED** |
+| 2   | Case_Send_Succession_Form.flow        | 🔴 CRITICAL | ✅ **FIXED** |
+| 3   | Case_Multiple_Successors_Handler.flow | 🟡 MEDIUM   | ✅ **FIXED** |
+| 4   | Snowfakery Test Data Mapping          | 🟡 MEDIUM   | ✅ **FIXED** |
 
 ---
 
 ## Fix #1: SuccessionPublicFormController.cls
 
 ### Problem
+
 - Used wrong object/field names (`FinancialAccountRole__c` instead of `FinServ__FinancialAccountRole__c`)
 - Queried `ContactId` which is NULL for Person Accounts
 - Displayed `Contact.Name/Email/Phone` which are NULL for Person Accounts
 
 ### Solution
+
 **File:** `force-app/main/default/classes/SuccessionPublicFormController.cls`
 
 **Changes:**
+
 1. Added Person Account fields to Case query (lines 26):
+
    ```apex
    Account.FirstName, Account.LastName, Account.IsPersonAccount
    ```
 
 2. Added Person Account detection logic (lines 47-64):
+
    ```apex
    Boolean isPersonAccount = (c.Account != null && c.Account.IsPersonAccount);
 
@@ -58,6 +63,7 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
    ```
 
 3. Fixed FinancialAccountRole query (lines 67-77):
+
    ```apex
    List<FinServ__FinancialAccountRole__c> successorRoles = [  // ← FIXED: was FinancialAccountRole__c
        SELECT Id, FinServ__Role__c, SuccessorAllocation__c,
@@ -86,6 +92,7 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
    ```
 
 ### Impact
+
 ✅ Public succession form now loads correctly for Person Account cases
 ✅ Successor data displays properly (name, email, phone)
 ✅ Form submission works for both account types
@@ -95,15 +102,19 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
 ## Fix #2: Case_Send_Succession_Form Flow
 
 ### Problem
+
 - Email address used `$Record.Contact.Email` (NULL for Person Accounts)
 - Email body used `{!$Record.Contact.Name}` (NULL for Person Accounts)
 - Result: Emails failed to send for 90%+ of cases
 
 ### Solution
+
 **File:** `force-app/main/default/flows/Case_Send_Succession_Form.flow-meta.xml`
 
 **Changes:**
+
 1. Changed email address reference (line 65):
+
    ```xml
    <!-- BEFORE -->
    <elementReference>$Record.Contact.Email</elementReference>
@@ -113,6 +124,7 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
    ```
 
 2. Changed successor name reference (line 120):
+
    ```xml
    <!-- BEFORE -->
    Dear {!$Record.Contact.Name},
@@ -122,6 +134,7 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
    ```
 
 3. Added email resolution formula (lines 239-247):
+
    ```xml
    <formulas>
        <name>fxResolveEmail</name>
@@ -148,6 +161,7 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
    ```
 
 ### Impact
+
 ✅ Automated pathway form invitation emails now send successfully for Person Accounts
 ✅ Email body displays correct successor name
 ✅ Works for both Person Accounts and Business Accounts
@@ -157,15 +171,19 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
 ## Fix #3: Case_Multiple_Successors_Handler Flow
 
 ### Problem
+
 - Used `FinServ__RelatedAccount__c` field for successors
 - **FSC Standard:** Person roles should use `FinServ__RelatedContact__c` (pointing to Contact via PersonContactId)
 - Violated Financial Services Cloud best practices
 
 ### Solution
+
 **File:** `force-app/main/default/flows/Case_Multiple_Successors_Handler.flow-meta.xml`
 
 **Changes:**
+
 1. Changed successor comparison field (lines 34-39):
+
    ```xml
    <!-- BEFORE -->
    <leftValueReference>Loop_Through_Successors.FinServ__RelatedAccount__c</leftValueReference>
@@ -181,6 +199,7 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
    ```
 
 2. Changed Account query filters (lines 383-389, 409-415):
+
    ```xml
    <!-- BEFORE -->
    <filters>
@@ -202,6 +221,7 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
    ```
 
 3. Added variable to track first successor Contact ID (lines 498-504):
+
    ```xml
    <variables>
        <name>varFirstSuccessorContactId</name>
@@ -233,6 +253,7 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
    ```
 
 ### Impact
+
 ✅ Flow now follows FSC best practices for Person Account roles
 ✅ Multi-successor cases work correctly with Person Accounts
 ✅ Compatible with CaseHierarchyController (which already used correct field)
@@ -242,15 +263,18 @@ All 4 critical Person Account incompatibilities have been **successfully fixed**
 ## Fix #4: Snowfakery Test Data Mapping
 
 ### Problem
+
 - Test data populated `FinServ__RelatedAccount__c` for person successors
 - **FSC Standard:** Should populate `FinServ__RelatedContact__c` with PersonContactId
 - Created FSC non-compliant test data
 
 ### Solution
+
 **File:** `datasets/succession_mapping.yml`
 
 **Changes:**
 Changed FinancialAccountRole lookup mapping (lines 83-85):
+
 ```yaml
 # BEFORE
 FinServ__RelatedAccount__c:
@@ -264,6 +288,7 @@ FinServ__RelatedContact__c:
 ```
 
 ### Impact
+
 ✅ Test data now populates FSC-compliant `FinServ__RelatedContact__c` field
 ✅ Uses `PersonContactId` from Person Account records
 ✅ Compatible with all Apex classes, LWCs, and flows
@@ -275,6 +300,7 @@ FinServ__RelatedContact__c:
 ### Manual Testing Checklist
 
 **Person Account Scenario:**
+
 - [ ] Create Person Account successor
 - [ ] Create succession case (Type: "Named Successor Enactment")
 - [ ] Click "Begin Succession Processing" Quick Action
@@ -287,6 +313,7 @@ FinServ__RelatedContact__c:
 - [ ] Verify Case updates with pathway selection
 
 **Business Account Scenario:**
+
 - [ ] Create Business Account with Contact successor
 - [ ] Create succession case
 - [ ] Complete same workflow as Person Account
@@ -294,6 +321,7 @@ FinServ__RelatedContact__c:
 - [ ] Verify form pre-fills with Contact data
 
 **Multi-Successor Scenario:**
+
 - [ ] Create Person Account with 2+ successors (FinancialAccountRole records)
 - [ ] Create succession case
 - [ ] Verify parent "Multi-Account Succession Master" case created
@@ -319,16 +347,19 @@ sf data query --query "SELECT Id, FinServ__Role__c, FinServ__RelatedContact__c, 
 ### FinancialAccountRole Field Usage
 
 **For Person Roles (Successors, Beneficiaries, Individual Owners):**
+
 - ✅ **USE:** `FinServ__RelatedContact__c` → `Account.PersonContactId`
 - ❌ **DO NOT USE:** `FinServ__RelatedAccount__c`
 
 **For Business/Organization Roles (Advisor Firms, Banks, Trustees):**
+
 - ✅ **USE:** `FinServ__RelatedAccount__c` → `Account.Id`
 - ❌ **DO NOT USE:** `FinServ__RelatedContact__c` (unless specific contact within org)
 
 ### Person Account vs Business Account
 
 **Person Account:**
+
 - `Account.IsPersonAccount = true`
 - No separate Contact record (auto-created by Salesforce)
 - Use `Account.PersonContactId` (read-only) to get related Contact
@@ -337,6 +368,7 @@ sf data query --query "SELECT Id, FinServ__Role__c, FinServ__RelatedContact__c, 
 - Name fields: `Account.FirstName`, `Account.LastName`
 
 **Business Account:**
+
 - `Account.IsPersonAccount = false`
 - Separate Contact records linked via `Contact.AccountId`
 - Email field: `Contact.Email`
@@ -347,36 +379,39 @@ sf data query --query "SELECT Id, FinServ__Role__c, FinServ__RelatedContact__c, 
 
 ## Components Now Fully Compatible
 
-| Component | Person Account | Business Account |
-|-----------|----------------|------------------|
-| ContactCadenceController.cls | ✅ YES | ✅ YES |
-| CaseHierarchyController.cls | ✅ YES | ✅ YES |
-| SuccessionPublicFormController.cls | ✅ YES | ✅ YES |
-| successionContactCadence.js | ✅ YES | ✅ YES |
-| Case_Send_Succession_Form flow | ✅ YES | ✅ YES |
-| Case_Create_Initial_Contact_Attempt flow | ✅ YES | ✅ YES |
-| Task_Create_Next_Contact_Attempt flow | ✅ YES | ✅ YES |
-| Task_Succession_Contact_Update flow | ✅ YES | ✅ YES |
-| Case_Multiple_Successors_Handler flow | ✅ YES | ✅ YES |
-| Case_Succession_Segment_Transition flow | ✅ YES | ✅ YES |
-| Snowfakery test data | ✅ YES | ✅ YES |
+| Component                                | Person Account | Business Account |
+| ---------------------------------------- | -------------- | ---------------- |
+| ContactCadenceController.cls             | ✅ YES         | ✅ YES           |
+| CaseHierarchyController.cls              | ✅ YES         | ✅ YES           |
+| SuccessionPublicFormController.cls       | ✅ YES         | ✅ YES           |
+| successionContactCadence.js              | ✅ YES         | ✅ YES           |
+| Case_Send_Succession_Form flow           | ✅ YES         | ✅ YES           |
+| Case_Create_Initial_Contact_Attempt flow | ✅ YES         | ✅ YES           |
+| Task_Create_Next_Contact_Attempt flow    | ✅ YES         | ✅ YES           |
+| Task_Succession_Contact_Update flow      | ✅ YES         | ✅ YES           |
+| Case_Multiple_Successors_Handler flow    | ✅ YES         | ✅ YES           |
+| Case_Succession_Segment_Transition flow  | ✅ YES         | ✅ YES           |
+| Snowfakery test data                     | ✅ YES         | ✅ YES           |
 
 ---
 
 ## Deployment Steps
 
 1. **Deploy Apex Class:**
+
    ```bash
    sf project deploy start --source-dir force-app/main/default/classes/SuccessionPublicFormController.cls --target-org schwab-sandbox
    ```
 
 2. **Deploy Flows:**
+
    ```bash
    sf project deploy start --source-dir force-app/main/default/flows/Case_Send_Succession_Form.flow-meta.xml --target-org schwab-sandbox
    sf project deploy start --source-dir force-app/main/default/flows/Case_Multiple_Successors_Handler.flow-meta.xml --target-org schwab-sandbox
    ```
 
 3. **Update Test Data Generation:**
+
    ```bash
    # Updated mapping file is already in place
    # Next CumulusCI data load will use FinServ__RelatedContact__c
@@ -384,6 +419,7 @@ sf data query --query "SELECT Id, FinServ__Role__c, FinServ__RelatedContact__c, 
    ```
 
 4. **Verify Deployment:**
+
    ```bash
    # Check flow versions
    sf data query --query "SELECT Id, DeveloperName, VersionNumber, Status FROM Flow WHERE DeveloperName IN ('Case_Send_Succession_Form', 'Case_Multiple_Successors_Handler')" --use-tooling-api --target-org schwab-sandbox
@@ -404,7 +440,7 @@ sf data query --query "SELECT Id, FinServ__Role__c, FinServ__RelatedContact__c, 
 
 1. ✅ **Deploy fixes to schwab-sandbox org**
 2. ✅ **Run manual test scenarios** (Person Account + Business Account + Multi-Successor)
-3. ✅ **Generate test data with CumulusCI** to verify FinServ__RelatedContact__c population
+3. ✅ **Generate test data with CumulusCI** to verify FinServ**RelatedContact**c population
 4. ✅ **Update CLAUDE.md** with Person Account compatibility notes
 5. ✅ **Remove old test data** with incorrect `FinServ__RelatedAccount__c` mappings
 

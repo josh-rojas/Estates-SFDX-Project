@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Mark that verbal contact has been established with the successor. This will stop the automated contact cadence and update the contact established date.</description>
+    <description
+  >Mark that verbal contact has been established with the successor. This will stop the automated contact cadence and update the contact established date.</description>
     <label>✓ Mark Contact Established</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
@@ -26,7 +27,8 @@
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
     </quickActionLayout>
-    <successMessage>Contact established! Automated contact cadence stopped. Don't forget to send the Succession Recommendation Form.</successMessage>
+    <successMessage
+  >Contact established! Automated contact cadence stopped. Don't forget to send the Succession Recommendation Form.</successMessage>
     <targetObject>Case</targetObject>
     <type>Update</type>
 </QuickAction>

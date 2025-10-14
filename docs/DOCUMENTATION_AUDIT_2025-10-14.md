@@ -138,6 +138,7 @@ Comprehensive audit of all documentation files in the Succession Management Syst
 ## Structural Issues
 
 ### Issue #1: No Clear Documentation Hierarchy
+
 - CLAUDE.md is comprehensive but very long (1200+ lines)
 - No clear separation between:
   - Developer quick start
@@ -146,16 +147,19 @@ Comprehensive audit of all documentation files in the Succession Management Syst
   - Testing guide
 
 ### Issue #2: Redundant Documentation
+
 - 3 Experience Cloud docs (915 lines total) - likely overlap
 - 2 CumulusCI docs - likely duplicate
 - Multiple testing guides - likely overlap
 
 ### Issue #3: Missing Documentation
+
 - No automated API documentation for Apex classes
 - No LWC component JSDoc generation
 - No visual architecture diagrams (only text-based)
 
 ### Issue #4: INDEX.md is Broken
+
 - References non-existent files
 - No longer serves as useful navigation
 - Should either be deleted or completely regenerated
@@ -165,9 +169,11 @@ Comprehensive audit of all documentation files in the Succession Management Syst
 ## Recommendations
 
 ### Option A: Consolidate into CLAUDE.md (Recommended)
+
 **Rationale:** CLAUDE.md is already comprehensive and well-maintained. Add missing content there.
 
 **Actions:**
+
 1. **DELETE** these 12-15 files (consolidate into CLAUDE.md):
    - INDEX.md (broken)
    - AUTOMATION-CONTROL-GUIDE.md
@@ -195,9 +201,11 @@ Comprehensive audit of all documentation files in the Succession Management Syst
 **Result:** 8 well-maintained files instead of 20 scattered docs
 
 ### Option B: Create New Documentation Structure
+
 **Rationale:** Build proper doc site with organized sections
 
 **Structure:**
+
 ```
 docs/
 ├── index.md (new - clear navigation)
@@ -230,22 +238,26 @@ docs/
 ## Immediate Actions (Option A)
 
 ### Phase 1: Verify & Delete (30 min)
+
 1. Read first 50 lines of each "LIKELY OBSOLETE" file
 2. Confirm content is in CLAUDE.md
 3. Delete redundant files
 4. Update git status
 
 ### Phase 2: Consolidate Experience Cloud Docs (30 min)
+
 1. Merge 3 Experience Cloud docs into single comprehensive guide
 2. Remove token-based auth references
 3. Update to URL parameter approach
 
 ### Phase 3: Update Core Docs (15 min)
+
 1. Update README.md component counts
 2. Verify datasets/README.md references Snowfakery
 3. Update CLAUDE.md documentation reference section
 
 ### Phase 4: Test Documentation (15 min)
+
 1. Verify all links work
 2. Verify no broken references
 3. Update this audit with final status
@@ -257,6 +269,7 @@ docs/
 ## Decision Required
 
 **User:** Which option do you prefer?
+
 - **Option A:** Consolidate into CLAUDE.md (90 min, simpler)
 - **Option B:** Build new doc structure with MkDocs (4-6 hours, more professional)
 

@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Execution_Status__c</fullName>
-    <description>BRD Phase 4: Tracks the execution and settlement status of the chosen succession pathway. Different execution steps apply based on Pathway Confirmed (Final Grant, New DAF, Disclaim).</description>
-    <inlineHelpText>Current status of pathway execution. Progression: Not Started → In Progress → Settlement Pending → Completed. See Execution Notes for detailed progress tracking.</inlineHelpText>
+    <description
+  >BRD Phase 4: Tracks the execution and settlement status of the chosen succession pathway. Different execution steps apply based on Pathway Confirmed (Final Grant, New DAF, Disclaim).</description>
+    <inlineHelpText
+  >Current status of pathway execution. Progression: Not Started → In Progress → Settlement Pending → Completed. See Execution Notes for detailed progress tracking.</inlineHelpText>
     <label>Execution Status</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

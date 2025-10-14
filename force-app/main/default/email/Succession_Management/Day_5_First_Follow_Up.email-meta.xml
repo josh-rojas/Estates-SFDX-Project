@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Day 5 - First Follow-Up</name>
     <style>none</style>
-    <subject>Follow-up: DAF Account Succession - Case {!Case.CaseNumber}</subject>
+    <subject
+  >Follow-up: DAF Account Succession - Case {!Case.CaseNumber}</subject>
     <textOnly>Dear {!Case.ContactName},
 
 We previously reached out to you on {!Case.CreatedDate} regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360.

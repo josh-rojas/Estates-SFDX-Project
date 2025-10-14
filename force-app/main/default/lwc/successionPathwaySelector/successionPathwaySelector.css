@@ -3,62 +3,62 @@
  */
 
 .pathway-card {
-    border: 2px solid #dddbda;
-    border-radius: 0.25rem;
-    padding: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  border: 2px solid #dddbda;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .pathway-card:hover {
-    border-color: #0176d3;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-color: #0176d3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .pathway-card[data-selected="true"] {
-    border-color: #04844b;
-    border-width: 3px;
-    background-color: #f3f9f3;
+  border-color: #04844b;
+  border-width: 3px;
+  background-color: #f3f9f3;
 }
 
 .pathway-title {
-    font-size: 1.125rem;
-    font-weight: 600;
+  font-size: 1.125rem;
+  font-weight: 600;
 }
 
 .details-section {
-    background-color: #f3f3f3;
-    border-top: 1px solid #dddbda;
-    margin-top: 0.5rem;
+  background-color: #f3f3f3;
+  border-top: 1px solid #dddbda;
+  margin-top: 0.5rem;
 }
 
 .slds-list_dotted {
-    list-style-type: disc;
+  list-style-type: disc;
 }
 
 .slds-list_dotted li {
-    margin-bottom: 0.5rem;
-    color: #3e3e3c;
+  margin-bottom: 0.5rem;
+  color: #3e3e3c;
 }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    .pathway-card {
-        padding: 0.75rem;
-    }
+  .pathway-card {
+    padding: 0.75rem;
+  }
 
-    .pathway-title {
-        font-size: 1rem;
-    }
+  .pathway-title {
+    font-size: 1rem;
+  }
 }
 
 /* Accessibility: Focus states */
 .pathway-card:focus {
-    outline: 2px solid #0176d3;
-    outline-offset: 2px;
+  outline: 2px solid #0176d3;
+  outline-offset: 2px;
 }
 
 lightning-button-icon:focus {
-    outline: 2px solid #0176d3;
-    outline-offset: 2px;
+  outline: 2px solid #0176d3;
+  outline-offset: 2px;
 }

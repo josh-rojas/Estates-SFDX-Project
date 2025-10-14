@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>true</isExposed>
@@ -8,7 +8,12 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightningCommunity__Default">
-            <property name="caseId" type="String" label="Case ID (from URL)" description="Case ID will be read from URL parameter" />
+            <property
+        name="caseId"
+        type="String"
+        label="Case ID (from URL)"
+        description="Case ID will be read from URL parameter"
+      />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

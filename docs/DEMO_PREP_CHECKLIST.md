@@ -13,6 +13,7 @@
 Sandbox orgs **ONLY** send emails to verified email addresses.
 
 **Steps:**
+
 1. Go to **Setup** → **Email Administration** → **Deliverability**
 2. Verify **Access Level** is set to allow email sending
 3. Add all demo email addresses to **verified email addresses list**:
@@ -21,6 +22,7 @@ Sandbox orgs **ONLY** send emails to verified email addresses.
    - Test data email addresses (if using real addresses)
 
 **Test:**
+
 ```bash
 # Send test email from sandbox to verify deliverability
 # Navigate to any Contact/Account → Send Email → Send to verified address
@@ -35,6 +37,7 @@ Sandbox orgs **ONLY** send emails to verified email addresses.
 Verify all 5 contact cadence email templates exist and are accessible.
 
 **Steps:**
+
 1. Go to **Setup** → **Email Templates**
 2. Navigate to **Succession_Management** folder
 3. Verify these templates exist:
@@ -45,10 +48,12 @@ Verify all 5 contact cadence email templates exist and are accessible.
    - `Day 95 - Final Contact`
 
 **Verify Template Names Match Code:**
+
 - Template **Display Name** (what agent sees) must match toast message in code
 - Check [successionContactCadence.js:408-414](../force-app/main/default/lwc/successionContactCadence/successionContactCadence.js) for exact names
 
 **Verify Folder Permissions:**
+
 - Go to **Setup** → **Public Groups** or **Permission Sets**
 - Ensure **Succession_Management_Access** permission set includes access to `Succession_Management` folder
 - Test: Log in as demo user → Open email composer → Search for templates → All 5 visible
@@ -60,6 +65,7 @@ Verify all 5 contact cadence email templates exist and are accessible.
 ### 3. Demo User Setup
 
 **Create/Verify Demo User:**
+
 ```bash
 # Assign required permission sets
 sf org assign permset --name Succession_Management_Access --target-org schwab-sandbox
@@ -67,12 +73,14 @@ sf org assign permset --name Succession_Field_Access --target-org schwab-sandbox
 ```
 
 **Verify Demo User Has:**
+
 - Read/Write access to Case, Account, Contact, Task, FinancialAccount objects
 - Access to Email Templates folder
 - "Send Email" action enabled on Account and Contact objects
 - Lightning Experience enabled (NOT Salesforce Classic)
 
 **Test Login:**
+
 - Log in as demo user
 - Open a test Succession case
 - Verify `successionContactCadence` component loads
@@ -83,6 +91,7 @@ sf org assign permset --name Succession_Field_Access --target-org schwab-sandbox
 ### 4. Test Data Generation
 
 **Load Demo Data:**
+
 ```bash
 # Option 1: Complete demo dataset
 cci task run load_demo_ui_showcase
@@ -102,12 +111,14 @@ sf data query --query "SELECT Id, Name, PersonEmail FROM Account WHERE IsPersonA
 ```
 
 **Fix Invalid Emails:**
+
 ```bash
 # Update any NULL or invalid emails
 sf data update record --sobject Account --record-id <ID> --values "PersonEmail=test@schwabcharitable.org" --target-org schwab-sandbox
 ```
 
 **Email Format Validation:**
+
 - All emails must have format: `name@domain.tld`
 - No typos: `test@@example.com`, `test.example.com` (missing @), `test @example.com` (space)
 - Use faker.email() in Snowfakery recipes for valid format
@@ -117,6 +128,7 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=t
 ### 5. Public Form URL Verification (If Demonstrating Form Workflow)
 
 **If using Experience Cloud Site:**
+
 1. Go to **Setup** → **Digital Experiences** → **All Sites**
 2. Verify site is **Active** and **Published**
 3. Copy public URL
@@ -126,10 +138,12 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=t
    ```
 
 **If NOT demonstrating public form:**
+
 - Clarify to PM that public form is placeholder/future enhancement
 - Show form component in internal Salesforce only
 
 **Update Email Template:**
+
 - If using public site, update `Pathway_Form_Invitation` email template with actual form URL
 - If NOT using public site, skip this step (template shows placeholder URL)
 
@@ -140,12 +154,14 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=t
 ### 6. Browser & Environment Setup
 
 **Browser Requirements:**
+
 - Use **Chrome**, **Firefox**, or **Edge** (latest version)
 - **NOT Internet Explorer** (Lightning Web Components require modern browser)
 - Disable browser pop-up blocker for `*.salesforce.com`
 - Clear browser cache if experiencing issues
 
 **Test Environment:**
+
 ```bash
 # Verify sandbox org is accessible
 sf org open --target-org schwab-sandbox
@@ -161,22 +177,26 @@ sf data query --query "SELECT COUNT() FROM Case WHERE RecordType.DeveloperName =
 **Prepare 2-3 Demo Cases:**
 
 **Case 1: Happy Path - Contact Established on Attempt 1**
+
 - Person Account with valid email
 - No opt-out flag
 - Complete workflow: Record Outcome (YES) → Automated email sends → Show pathway form
 
 **Case 2: No Contact Established - Multiple Attempts**
+
 - Person Account with valid email
 - Record Outcome (NO) → Email prompt appears → Click "Send Email" → Composer opens → Select template → Skip for demo
 - Repeat for Attempt 2
 
 **Case 3: Edge Case - Email Warning**
+
 - Person Account with `HasOptedOutOfEmail = true`
 - OR Person Account with NULL `PersonEmail`
 - Show email warning alert
 - Show "Send Email" button disabled
 
 **Multi-Successor Case (Optional):**
+
 - Parent case with 2+ child cases
 - Show `caseHierarchyViewer` component
 - Show each child has independent contact cadence
@@ -186,12 +206,14 @@ sf data query --query "SELECT COUNT() FROM Case WHERE RecordType.DeveloperName =
 ### 8. Component Pre-Flight Check
 
 **Open Demo Case in Lightning:**
+
 1. Navigate to Case record page
 2. Verify `successionContactCadence` component displays
 3. Check progress bar renders correctly
 4. Verify all 5 attempt cards visible
 
 **Test Button Interactions:**
+
 - Click "Record Outcome" → Inline form appears
 - Select YES/NO radio → No errors
 - Enter notes → No errors
@@ -210,6 +232,7 @@ sf data query --query "SELECT COUNT() FROM Case WHERE RecordType.DeveloperName =
 **Cause:** Demo user doesn't have access to `Succession_Management` folder
 
 **Fix:**
+
 1. Go to **Setup** → **Email Templates**
 2. Click **Succession_Management** folder → **Folder Sharing**
 3. Add demo user's profile or public group
@@ -222,6 +245,7 @@ sf data query --query "SELECT COUNT() FROM Case WHERE RecordType.DeveloperName =
 **Cause:** PersonEmail or Contact.Email is NULL
 
 **Fix:**
+
 1. Query the Account/Contact:
    ```bash
    sf data query --query "SELECT Id, PersonEmail FROM Account WHERE Id = '<ACCOUNT_ID>'" --target-org schwab-sandbox
@@ -239,6 +263,7 @@ sf data query --query "SELECT COUNT() FROM Case WHERE RecordType.DeveloperName =
 **Cause:** `HasOptedOutOfEmail = true` on Account or Contact
 
 **Fix (if unintended):**
+
 ```bash
 sf data update record --sobject Account --record-id <ID> --values "HasOptedOutOfEmail=false"
 ```
@@ -252,6 +277,7 @@ sf data update record --sobject Account --record-id <ID> --values "HasOptedOutOf
 **Cause:** Case RecordType is not `EstateAdministration` or Case Type is not `Named Successor Enactment`
 
 **Fix:**
+
 1. Verify case record type:
    ```bash
    sf data query --query "SELECT Id, RecordType.DeveloperName, Type FROM Case WHERE Id = '<CASE_ID>'"
@@ -265,6 +291,7 @@ sf data update record --sobject Account --record-id <ID> --values "HasOptedOutOf
 **Cause:** Email has invalid format (missing @, double @@, etc.)
 
 **Fix:**
+
 ```bash
 # Update to valid format
 sf data update record --sobject Account --record-id <ID> --values "PersonEmail=valid.email@domain.com"
@@ -277,6 +304,7 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=v
 **Cause:** Double-click prevention timeout not reset
 
 **Fix:**
+
 - Refresh page
 - Or wait 2 seconds (auto-resets)
 - This is expected behavior (prevents multiple composer windows)
@@ -286,11 +314,13 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=v
 ## 📊 DEMO SCRIPT RECOMMENDATION
 
 **Opening (2 minutes):**
+
 - "This demo shows the 5-attempt contact cadence workflow"
 - "Handles both Person Accounts (typical) and Business Accounts"
 - "Email sending is optional and scalable for high-volume agents"
 
 **Main Demo (5 minutes):**
+
 1. Open Case → Show progress bar (0% complete)
 2. Click "Record Outcome" → Show inline form
 3. Select "NO" → Click "Save Outcome"
@@ -301,11 +331,13 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=v
 8. Click "Skip" → Prompt dismisses
 
 **Edge Cases (3 minutes):**
+
 1. Show case with opt-out flag → Email warning appears
 2. Show case with NULL email → "Send Email" disabled
 3. Show multi-successor case → Parent + child hierarchy
 
 **Q&A (5 minutes):**
+
 - Clarify email sending is OPTIONAL (agent choice)
 - Confirm scalability for 50+ cases/day (no auto-opening)
 - Discuss public form deployment (future/optional)
@@ -315,6 +347,7 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=v
 ## ✅ FINAL PRE-DEMO CHECKLIST
 
 **30 Minutes Before Demo:**
+
 - [ ] Sandbox email deliverability verified (test email sent and received)
 - [ ] All 5 email templates exist and are accessible to demo user
 - [ ] Demo user has both permission sets assigned
@@ -327,6 +360,7 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=v
 - [ ] Public form URL tested (if demonstrating form workflow)
 
 **Backup Plan:**
+
 - If email composer fails → Show screenshot/video of working email flow
 - If public form site not deployed → Explain it's optional enhancement for production
 - If templates missing → Manually compose email to demonstrate concept
@@ -336,11 +370,13 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=v
 ## 📞 CONTACTS & SUPPORT
 
 **If issues during setup:**
+
 - Check [CLAUDE.md](../CLAUDE.md) for full project documentation
 - Review [README.md](../README.md) for deployment commands
 - Test in sandbox before demo (NEVER test live during PM presentation)
 
 **Demo Day Emergency:**
+
 - Have backup screenshots of working workflow
 - Prepare to explain concepts verbally if technical issues occur
 - Emphasize this is DEMO/SANDBOX (not production-ready)

@@ -1,4 +1,5 @@
 # DAF Account Succession Management - Field Documentation
+
 **Generated**: January 31, 2025  
 **BRD Reference**: `/docs/product/daf-account-succession-brd.md`
 
@@ -12,14 +13,17 @@ This document provides comprehensive help text and descriptions for all successi
 
 ## Account Object Fields
 
-### 1. Date_of_Death__c
+### 1. Date_of_Death\_\_c
+
 **Field Type**: Date  
 **Object**: Account (Person Account)
 
 **Description** (Admin-facing):
+
 > BRD Phase 1: Captures the date when a donor Person Account holder passed away. This field initiates the DAF Account Succession Management workflow as defined in the BRD. Used by succession flows to calculate processing timelines and trigger Phase 1: Verification activities.
 
 **Inline Help Text** (User-facing):
+
 > Enter the date of death for the account holder. This will trigger the succession process. Format: MM/DD/YYYY. Required for Phase 1: Verification per BRD succession requirements.
 
 **BRD Reference**: Section 3.1 - Phase 1: Initial Contact and Verification  
@@ -27,14 +31,17 @@ This document provides comprehensive help text and descriptions for all successi
 
 ---
 
-### 2. Deceased__c
+### 2. Deceased\_\_c
+
 **Field Type**: Checkbox  
 **Object**: Account (Person Account)
 
 **Description** (Admin-facing):
-> BRD Phase 1: Boolean indicator that marks a Person Account as deceased. When set to TRUE, triggers the DAF Account Succession Management workflow automation. This field works in conjunction with Date_of_Death__c to initiate succession case creation and beneficiary notification processes per BRD requirements.
+
+> BRD Phase 1: Boolean indicator that marks a Person Account as deceased. When set to TRUE, triggers the DAF Account Succession Management workflow automation. This field works in conjunction with Date_of_Death\_\_c to initiate succession case creation and beneficiary notification processes per BRD requirements.
 
 **Inline Help Text** (User-facing):
+
 > Check this box to mark the account holder as deceased and begin the succession process. This will trigger Phase 1: Verification activities as defined in the BRD.
 
 **BRD Reference**: Section 3.1 - Phase 1: Initial Contact and Verification  
@@ -42,16 +49,19 @@ This document provides comprehensive help text and descriptions for all successi
 
 ---
 
-## Error_Notification__e Platform Event Fields
+## Error_Notification\_\_e Platform Event Fields
 
-### 3. Error_Message__c
+### 3. Error_Message\_\_c
+
 **Field Type**: Text (255)  
-**Object**: Error_Notification__e (Platform Event)
+**Object**: Error_Notification\_\_e (Platform Event)
 
 **Description** (Admin-facing):
+
 > BRD Error Handling: Contains the detailed error message text from succession workflow failures. This field captures the error summary for platform events generated during DAF Account Succession Management processes. Used by administrators to diagnose and resolve issues in succession automation flows.
 
 **Inline Help Text** (User-facing):
+
 > System-generated error message. Review this text to understand what went wrong in the succession workflow. Contact your administrator if this error persists.
 
 **BRD Reference**: Section 8.1 - Technical Constraints (Error Handling)  
@@ -59,14 +69,17 @@ This document provides comprehensive help text and descriptions for all successi
 
 ---
 
-### 4. Flow_Name__c
+### 4. Flow_Name\_\_c
+
 **Field Type**: Text (255)  
-**Object**: Error_Notification__e (Platform Event)
+**Object**: Error_Notification\_\_e (Platform Event)
 
 **Description** (Admin-facing):
+
 > BRD Error Handling: Identifies the specific Flow or Process Builder that generated the error during succession workflow execution. This field helps administrators trace errors back to their source within the DAF Account Succession Management automation framework.
 
 **Inline Help Text** (User-facing):
+
 > The name of the automation flow where the error occurred. Use this to identify which succession workflow phase encountered an issue.
 
 **BRD Reference**: Section 8.1 - Technical Constraints (Error Handling)  
@@ -74,14 +87,17 @@ This document provides comprehensive help text and descriptions for all successi
 
 ---
 
-### 5. Record_Id__c
+### 5. Record_Id\_\_c
+
 **Field Type**: Text (18)  
-**Object**: Error_Notification__e (Platform Event)
+**Object**: Error_Notification\_\_e (Platform Event)
 
 **Description** (Admin-facing):
+
 > BRD Error Handling: Stores the Salesforce record ID of the Account, Case, or related object that encountered an error during succession processing. This field provides context for debugging succession workflow failures by linking the error to specific donor accounts or succession cases.
 
 **Inline Help Text** (User-facing):
+
 > The ID of the record that caused the error. Click to navigate to the affected account or succession case for troubleshooting.
 
 **BRD Reference**: Section 8.1 - Technical Constraints (Error Handling)  
@@ -89,14 +105,17 @@ This document provides comprehensive help text and descriptions for all successi
 
 ---
 
-### 6. Severity__c
+### 6. Severity\_\_c
+
 **Field Type**: Text (20)  
-**Object**: Error_Notification__e (Platform Event)
+**Object**: Error_Notification\_\_e (Platform Event)
 
 **Description** (Admin-facing):
+
 > BRD Error Handling: Classifies the error severity level for succession workflow failures. Values include Critical (blocks succession processing), High (requires immediate attention), Medium (impacts functionality), and Low (informational). Used to prioritize error resolution in DAF Account Succession Management processes.
 
 **Inline Help Text** (User-facing):
+
 > Error priority level: Critical = Succession process blocked, High = Immediate action required, Medium = Review within 24 hours, Low = Informational only.
 
 **BRD Reference**: Section 8.1 - Technical Constraints (Error Handling)  
@@ -108,14 +127,14 @@ This document provides comprehensive help text and descriptions for all successi
 
 ### Fields Updated (6 total)
 
-| Object | Field | Previous State | Update Type |
-|--------|-------|---------------|-------------|
-| Account | Date_of_Death__c | No description or help text | Added both |
-| Account | Deceased__c | No description or help text | Added both |
-| Error_Notification__e | Error_Message__c | Basic description only | Enhanced both |
-| Error_Notification__e | Flow_Name__c | Basic description only | Enhanced both |
-| Error_Notification__e | Record_Id__c | Basic description only | Enhanced both |
-| Error_Notification__e | Severity__c | Basic description only | Enhanced both |
+| Object                  | Field              | Previous State              | Update Type   |
+| ----------------------- | ------------------ | --------------------------- | ------------- |
+| Account                 | Date_of_Death\_\_c | No description or help text | Added both    |
+| Account                 | Deceased\_\_c      | No description or help text | Added both    |
+| Error_Notification\_\_e | Error_Message\_\_c | Basic description only      | Enhanced both |
+| Error_Notification\_\_e | Flow_Name\_\_c     | Basic description only      | Enhanced both |
+| Error_Notification\_\_e | Record_Id\_\_c     | Basic description only      | Enhanced both |
+| Error_Notification\_\_e | Severity\_\_c      | Basic description only      | Enhanced both |
 
 ---
 
@@ -124,6 +143,7 @@ This document provides comprehensive help text and descriptions for all successi
 The following succession-specific fields already had comprehensive BRD-aligned documentation and did not require updates:
 
 ### Case Object (10 fields)
+
 - `Contact_Established__c`
 - `Pathway_Confirmed__c`
 - `Verification_Status__c`
@@ -136,10 +156,12 @@ The following succession-specific fields already had comprehensive BRD-aligned d
 - `Next_Contact_Due__c`
 
 ### Task/Activity Objects (2 fields)
+
 - `Contact_Attempt_Number__c`
 - `Succession_Contact_Established__c`
 
-### Flow_Error__c Custom Object (8 fields)
+### Flow_Error\_\_c Custom Object (8 fields)
+
 - `Error_Message__c`
 - `Error_Timestamp__c`
 - `Error_Type__c`
@@ -163,12 +185,12 @@ The following succession-specific fields already had comprehensive BRD-aligned d
 
 ## Deployment Checklist
 
-- [x] Update Account.Date_of_Death__c metadata
-- [x] Update Account.Deceased__c metadata
-- [x] Update Error_Notification__e.Error_Message__c metadata
-- [x] Update Error_Notification__e.Flow_Name__c metadata
-- [x] Update Error_Notification__e.Record_Id__c metadata
-- [x] Update Error_Notification__e.Severity__c metadata
+- [x] Update Account.Date_of_Death\_\_c metadata
+- [x] Update Account.Deceased\_\_c metadata
+- [x] Update Error_Notification**e.Error_Message**c metadata
+- [x] Update Error_Notification**e.Flow_Name**c metadata
+- [x] Update Error_Notification**e.Record_Id**c metadata
+- [x] Update Error_Notification**e.Severity**c metadata
 - [ ] Deploy to sandbox for testing
 - [ ] Validate help text displays correctly in UI
 - [ ] Update training materials
@@ -184,4 +206,4 @@ The following succession-specific fields already had comprehensive BRD-aligned d
 
 ---
 
-*End of Documentation*
+_End of Documentation_

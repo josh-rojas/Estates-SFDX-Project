@@ -50,17 +50,12 @@
       ]
     },
     "github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking": {
-      "autoApprove": [
-        "sequential_thinking"
-      ],
+      "autoApprove": ["sequential_thinking"],
       "disabled": false,
       "timeout": 600,
       "type": "stdio",
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
       "env": {
         "DISABLE_THOUGHT_LOGGING": "false"
       }
@@ -76,10 +71,7 @@
       "timeout": 600,
       "type": "stdio",
       "command": "npx",
-      "args": [
-        "-y",
-        "mcp-fetch-server"
-      ],
+      "args": ["-y", "mcp-fetch-server"],
       "env": {
         "DEFAULT_LIMIT": "50000"
       }
@@ -100,10 +92,7 @@
       "timeout": 600,
       "type": "stdio",
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ]
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
     }
   }
 }

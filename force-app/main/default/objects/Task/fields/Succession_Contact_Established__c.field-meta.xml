@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Succession_Contact_Established__c</fullName>
     <defaultValue>false</defaultValue>
-    <description>BRD Phase 1-2: Agent marks this checkbox when verbal contact is successfully made during this specific task attempt. Used by Flow to determine whether to create next attempt task or stop cadence. If checked, Flow updates Case.Contact_Established__c and stops scheduling future attempts.</description>
+    <description
+  >BRD Phase 1-2: Agent marks this checkbox when verbal contact is successfully made during this specific task attempt. Used by Flow to determine whether to create next attempt task or stop cadence. If checked, Flow updates Case.Contact_Established__c and stops scheduling future attempts.</description>
     <externalId>false</externalId>
-    <inlineHelpText>Check this box if you successfully spoke with the successor during this contact attempt. This will stop the automated contact cadence and update the case status.</inlineHelpText>
+    <inlineHelpText
+  >Check this box if you successfully spoke with the successor during this contact attempt. This will stop the automated contact cadence and update the case status.</inlineHelpText>
     <label>Succession Contact Established</label>
     <trackFeedHistory>false</trackFeedHistory>
     <trackHistory>false</trackHistory>

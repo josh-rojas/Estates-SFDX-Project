@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Verification_Status__c</fullName>
-    <description>Workflow trigger field controlled by agent via Quick Action. Agent clicks "Begin Succession Processing" button to start workflow when ready. Despite 90%+ of cases arriving with documents, agent maintains control over workflow initiation.</description>
-    <inlineHelpText>Agent uses "Begin Succession Processing" Quick Action button to set this field and start the contact cadence. Provides explicit control point for when case processing begins.</inlineHelpText>
+    <description
+  >Workflow trigger field controlled by agent via Quick Action. Agent clicks "Begin Succession Processing" button to start workflow when ready. Despite 90%+ of cases arriving with documents, agent maintains control over workflow initiation.</description>
+    <inlineHelpText
+  >Agent uses "Begin Succession Processing" Quick Action button to set this field and start the contact cadence. Provides explicit control point for when case processing begins.</inlineHelpText>
     <label>Verification Status</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

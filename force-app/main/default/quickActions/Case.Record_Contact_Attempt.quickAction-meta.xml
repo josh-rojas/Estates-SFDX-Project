@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Create a contact attempt task for successor outreach. Use this to manually log contact attempts outside of automated cadence.</description>
+    <description
+  >Create a contact attempt task for successor outreach. Use this to manually log contact attempts outside of automated cadence.</description>
     <label>Log Contact Attempt</label>
     <optionsCreateFeedItem>true</optionsCreateFeedItem>
     <quickActionLayout>

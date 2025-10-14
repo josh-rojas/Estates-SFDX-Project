@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
-    <description>BRD Phase 2: Automatically sends Pathway Form Invitation email when contact is established with successor. Updates Form_Sent_Date__c timestamp. Triggered when Contact_Established__c changes from FALSE to TRUE on Named Successor Enactment cases.</description>
+    <description
+  >BRD Phase 2: Automatically sends Pathway Form Invitation email when contact is established with successor. Updates Form_Sent_Date__c timestamp. Triggered when Contact_Established__c changes from FALSE to TRUE on Named Successor Enactment cases.</description>
     <environments>Default</environments>
-    <interviewLabel>Case: Send Succession Form {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Case: Send Succession Form {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Case: Send Succession Form</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -68,7 +70,8 @@
         <inputParameters>
             <name>emailSubject</name>
             <value>
-                <stringValue>Succession Pathway Information for {!$Record.Account.Name}'s Donor-Advised Fund</stringValue>
+                <stringValue
+        >Succession Pathway Information for {!$Record.Account.Name}'s Donor-Advised Fund</stringValue>
             </value>
         </inputParameters>
         <inputParameters>

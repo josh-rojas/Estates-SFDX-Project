@@ -5,6 +5,7 @@ Complete succession management solution for Schwab Charitable Fund, built on Sal
 ## 🎯 Overview
 
 Automated succession processing system managing deceased donor account transitions through three distinct pathways:
+
 - **Disclaim** - Successor declines account ownership
 - **New DAF** - Open new DAF account for successor
 - **Final Grant** - Distribute funds to designated charities
@@ -20,23 +21,27 @@ Automated succession processing system managing deceased donor account transitio
 ## 📦 Components
 
 ### Apex Classes (2)
-| Class | Purpose |
-|-------|---------|
-| `CaseHierarchyController` | Visualize multi-successor case hierarchies |
-| `ContactCadenceController` | Manage date-gated contact attempts |
+
+| Class                      | Purpose                                    |
+| -------------------------- | ------------------------------------------ |
+| `CaseHierarchyController`  | Visualize multi-successor case hierarchies |
+| `ContactCadenceController` | Manage date-gated contact attempts         |
 
 ### Flow Automations (6)
-| Flow | Trigger |
-|------|---------|
+
+| Flow                                  | Trigger                                     |
+| ------------------------------------- | ------------------------------------------- |
 | `Case_Create_Initial_Contact_Attempt` | Creates first contact task on case creation |
-| `Task_Create_Next_Contact_Attempt` | Auto-creates next task on completion |
-| `Task_Succession_Contact_Update` | Circuit breaker for contact established |
-| `Case_Multiple_Successors_Handler` | Multi-successor orchestration |
-| `Case_Send_Succession_Form` | Form delivery automation |
-| `Case_Succession_Segment_Transition` | Pathway transitions |
+| `Task_Create_Next_Contact_Attempt`    | Auto-creates next task on completion        |
+| `Task_Succession_Contact_Update`      | Circuit breaker for contact established     |
+| `Case_Multiple_Successors_Handler`    | Multi-successor orchestration               |
+| `Case_Send_Succession_Form`           | Form delivery automation                    |
+| `Case_Succession_Segment_Transition`  | Pathway transitions                         |
 
 ### Lightning Web Components (11)
+
 Internal agent UI components:
+
 - `caseHierarchyViewer` - Visual case hierarchy tree for multi-successor cases
 - `recordPathwaySelection` - Quick action pathway selector
 - `successionAccountSummary` - Account details display
@@ -50,11 +55,13 @@ Internal agent UI components:
 - `successionSuccessorInfo` - Successor information form
 
 ### Custom Objects
+
 **None** - Uses standard Salesforce objects only (Case, Task, Contact, Account, FinancialAccount, FinancialAccountRole)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Salesforce Financial Services Cloud
 - System Administrator access
 - Salesforce CLI (`sf`) installed
@@ -62,22 +69,26 @@ Internal agent UI components:
 ### Installation
 
 1. **Clone Repository**
+
    ```bash
    git clone <repository-url>
    cd "Estates SFDX Project"
    ```
 
 2. **Authenticate to Org**
+
    ```bash
    sf org login web --alias succession-org
    ```
 
 3. **Deploy Metadata**
+
    ```bash
    sf project deploy start --manifest manifest/package.xml
    ```
 
 4. **Assign Permission Sets**
+
    ```bash
    sf org assign permset --name Succession_Management_Access
    sf org assign permset --name Succession_Field_Access
@@ -90,17 +101,18 @@ Internal agent UI components:
 
 ## 📚 Documentation
 
-| Document | Description |
-|----------|-------------|
-| [CLAUDE.md](CLAUDE.md) | **Primary guide** for Claude Code - Commands, architecture, patterns |
-| [Architecture Overview](docs/SUCCESSION_FLOW_ARCHITECTURE.md) | Complete flow architecture and data model |
-| [Field Documentation](docs/field-documentation-succession.md) | Custom field definitions |
-| [Multi-Successor Guide](docs/MULTI_SUCCESSOR_HIERARCHY_COMPONENT.md) | Hierarchical case management |
-| [Testing Guide](docs/MULTI_SUCCESSOR_TESTING_GUIDE.md) | Testing scenarios and data generation |
+| Document                                                             | Description                                                          |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| [CLAUDE.md](CLAUDE.md)                                               | **Primary guide** for Claude Code - Commands, architecture, patterns |
+| [Architecture Overview](docs/SUCCESSION_FLOW_ARCHITECTURE.md)        | Complete flow architecture and data model                            |
+| [Field Documentation](docs/field-documentation-succession.md)        | Custom field definitions                                             |
+| [Multi-Successor Guide](docs/MULTI_SUCCESSOR_HIERARCHY_COMPONENT.md) | Hierarchical case management                                         |
+| [Testing Guide](docs/MULTI_SUCCESSOR_TESTING_GUIDE.md)               | Testing scenarios and data generation                                |
 
 ## 🧪 Testing
 
 ### Using CumulusCI + Snowfakery
+
 ```bash
 # Load test data
 cci task run snowfakery --recipe datasets/succession_data.recipe.yml
@@ -112,6 +124,7 @@ cci task run robot --test tests/succession/
 ## 🏗️ Architecture
 
 ### Data Model
+
 ```
 Case (Record Type: Estate Administration)
 ├── Type: "Named Successor Enactment" or "Multi-Account Succession Master"
@@ -129,6 +142,7 @@ FinancialAccountRole
 ```
 
 ### Security Model
+
 - Permission Sets: `Succession_Management_Access`, `Succession_Field_Access`
 - Field-Level Security on all succession fields
 - All Apex uses `WITH USER_MODE` for proper security enforcement
@@ -136,15 +150,19 @@ FinancialAccountRole
 ## 🔧 Configuration
 
 ### SLA Rules
+
 Configure in Setup → Entitlement Processes → **Estate Succession SLA**
+
 - Initial Response: 24 hours
 - Standard Resolution: 90 days
 - Critical Escalation: 80 days
 
 ### Email Templates
+
 All templates located in `Succession_Management` and `Succession_Templates` folders
 
 ### Contact Cadence Schedule
+
 - Day 0: Initial contact attempt
 - Day 5: First follow-up
 - Day 35: Second contact
@@ -154,11 +172,13 @@ All templates located in `Succession_Management` and `Succession_Templates` fold
 ## 📊 Monitoring
 
 ### Flow Errors
+
 - Navigate to **Flow Errors** tab
 - Review errors by severity: Critical, Warning, Info
 - Track resolution status
 
 ### SLA Dashboard
+
 - Use list views: "SLA At Risk", "SLA Critical Escalate"
 - Monitor case age and contact attempt counts
 
@@ -173,6 +193,7 @@ All templates located in `Succession_Management` and `Succession_Templates` fold
 ## 🛠️ Development
 
 ### Project Structure
+
 ```
 force-app/main/default/
 ├── classes/              # Apex classes (2)
@@ -185,6 +206,7 @@ force-app/main/default/
 ```
 
 ### Build Commands
+
 ```bash
 # Deploy to sandbox
 sf project deploy start --target-org sandbox
@@ -207,6 +229,7 @@ sf project deploy validate --manifest manifest/package.xml
 ## 👥 Support
 
 For questions or issues:
+
 1. Check documentation in `/docs`
 2. Review Flow Error logs
 3. Contact: [support contact]

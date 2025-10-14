@@ -5,6 +5,7 @@
 Displays parent "Multi-Account Succession Master" cases with all child cases, financial accounts, and successors in a nested, indented hierarchy.
 
 **Visual Structure:**
+
 ```
 ┌─ Parent Case ─────────────────────────────────┐
 │ 🔵 Multi-Successor Coordination - Patricia   │
@@ -26,14 +27,17 @@ Displays parent "Multi-Account Succession Master" cases with all child cases, fi
 ## Components Created
 
 ### 1. DataRaptor Extract: `SuccessionCaseHierarchy`
+
 **File**: `force-app/main/default/omniDataTransforms/SuccessionCaseHierarchy.json`
 
 **Purpose**: Fetches hierarchical data in a single query
 
 **Input**:
+
 - `ParentCaseId` (String, required) - Case ID where Type = "Multi-Account Succession Master"
 
 **Output Structure**:
+
 ```json
 {
   "ParentCase": {
@@ -74,16 +78,19 @@ Displays parent "Multi-Account Succession Master" cases with all child cases, fi
 ```
 
 **Queries Executed**:
+
 1. Parent Case with Financial Account
 2. All Child Cases (via ParentId relationship)
 3. All Financial Account Roles with Role containing "Successor"
 
 ### 2. FlexCard: `MultiSuccessorCaseHierarchy`
+
 **File**: `force-app/main/default/omniUiCard/MultiSuccessorCaseHierarchy.json`
 
 **Purpose**: Displays nested hierarchy with collapsible sections
 
 **Features**:
+
 - ✅ Collapsible accordion for child cases
 - ✅ Visual indentation (SLDS left padding)
 - ✅ Icons for each level (🔵 parent, child, 📊 FA, 👤 successors)
@@ -92,6 +99,7 @@ Displays parent "Multi-Account Succession Master" cases with all child cases, fi
 - ✅ Real-time refresh capability
 
 **Display Fields**:
+
 - **Parent**: Subject, Status, DAF Name, Balance, Owner
 - **Child Cases**: Subject, Status, Verification Status, SLA Status, Contact
 - **Financial Account**: Name, Balance
@@ -102,6 +110,7 @@ Displays parent "Multi-Account Succession Master" cases with all child cases, fi
 ### Step 1: Deploy Metadata (5 minutes)
 
 #### Option A: Deploy via Salesforce CLI (Recommended)
+
 ```bash
 # Navigate to project directory
 cd "/Users/joshsmbp/Schwab Downloads/Estates SFDX Project"
@@ -114,6 +123,7 @@ sf project deploy start \
 ```
 
 #### Option B: Deploy via Package Manifest
+
 ```bash
 # Use focused manifest for OmniStudio components
 sf project deploy start \
@@ -126,6 +136,7 @@ sf project deploy start \
 ### Step 2: Activate in OmniStudio (UI - Required for some orgs)
 
 #### Activate DataRaptor
+
 1. Setup → OmniStudio → DataRaptors
 2. Find "SuccessionCaseHierarchy"
 3. Click Edit → Activate
@@ -138,6 +149,7 @@ sf project deploy start \
 5. Verify output shows ParentCase, ChildCases, and Successors
 
 #### Activate FlexCard
+
 1. Setup → OmniStudio → FlexCards
 2. Find "MultiSuccessorCaseHierarchy"
 3. Click Edit → Preview
@@ -145,6 +157,7 @@ sf project deploy start \
 5. Click Activate when satisfied
 
 **Alternative: Import via UI (if deployment doesn't work)**
+
 1. Setup → OmniStudio → DataRaptors → Import
 2. Upload `SuccessionCaseHierarchy.json`
 3. Setup → OmniStudio → FlexCards → Import
@@ -179,6 +192,7 @@ sf project deploy start \
 ### Step 4: Test with Multi-Successor Data (10 minutes)
 
 #### Create Test Data via Apex
+
 ```apex
 // Execute in Developer Console
 SuccessionTestDataFactory.SuccessionScenarioData scenario =
@@ -190,6 +204,7 @@ System.debug('Parent Case ID: ' + scenario.successionCase.Id);
 **Expected Result**: Creates Patricia Williams (donor) with Amanda & Brandon as 50/50 successors
 
 #### Verify Component Display
+
 1. Navigate to the Parent Case created above
 2. Open "Succession Hierarchy" tab (or wherever you placed the FlexCard)
 3. Verify you see:
@@ -200,10 +215,12 @@ System.debug('Parent Case ID: ' + scenario.successionCase.Id);
    - ✅ Successor details with 50% allocations
 
 #### Test Collapsible Sections
+
 - Click accordion header to collapse/expand child cases
 - Verify data persists when toggling
 
 #### Test with Different Scenarios
+
 ```apex
 // 3 successors (33.33% each)
 // Manually create or modify test data
@@ -215,15 +232,18 @@ System.debug('Parent Case ID: ' + scenario.successionCase.Id);
 ## Troubleshooting
 
 ### DataRaptor Not Returning Data
+
 **Symptoms**: FlexCard shows "No data" or blank
 
 **Check**:
+
 1. Parent Case Type must be "Multi-Account Succession Master"
 2. Child Cases must have ParentId pointing to parent
-3. Financial Account Roles must have FinServ__Active__c = TRUE
+3. Financial Account Roles must have FinServ**Active**c = TRUE
 4. Role field must contain "Successor" (case-insensitive)
 
 **Debug**:
+
 ```bash
 # Test DataRaptor directly in OmniStudio UI
 Setup → OmniStudio → DataRaptors → SuccessionCaseHierarchy → Preview
@@ -235,15 +255,18 @@ Setup → OmniStudio → DataRaptors → SuccessionCaseHierarchy → Preview
 ```
 
 ### FlexCard Not Displaying on Record Page
+
 **Symptoms**: Component doesn't appear
 
 **Check**:
+
 1. FlexCard is Active (not Draft)
 2. Component visibility filter matches case Type
 3. recordId is correctly mapped (should be automatic)
 4. User has OmniStudio permissions
 
 **Verify Permissions**:
+
 ```sql
 -- Query user's OmniStudio access
 SELECT Id, Name, PermissionSet.Name
@@ -253,23 +276,31 @@ WHERE AssigneeId = :$User.Id
 ```
 
 ### Styling Issues (Indentation Not Showing)
+
 **Symptoms**: All text appears flat without nesting
 
 **Fix**:
+
 1. Edit FlexCard in OmniStudio Designer
 2. Verify custom CSS in stylingConfiguration:
    ```css
-   .slds-p-left_large { padding-left: 2rem !important; }
-   .slds-p-left_x-large { padding-left: 3rem !important; }
+   .slds-p-left_large {
+     padding-left: 2rem !important;
+   }
+   .slds-p-left_x-large {
+     padding-left: 3rem !important;
+   }
    ```
 3. Ensure child blocks have correct class assignments
 
 ### Successor Data Not Matching Child Case
+
 **Symptoms**: Successors appear multiple times or under wrong child
 
 **Issue**: DataRaptor returns all successors, not filtered per child
 
 **Fix**: The FlexCard repeater has a filter property:
+
 ```json
 "filter": "$item.FinServ__FinancialAccount__c == $parent.FinServ__FinancialAccount__c"
 ```
@@ -279,9 +310,11 @@ Verify this is present in the JSON. If not, add manually in FlexCard Designer.
 ## Customization Options
 
 ### Add More Fields
+
 Edit `SuccessionCaseHierarchy.json` to add fields to queryFields arrays:
 
 **Example - Add Pathway to Child Cases**:
+
 ```json
 {
   "name": "Extract_Child_Cases",
@@ -295,6 +328,7 @@ Edit `SuccessionCaseHierarchy.json` to add fields to queryFields arrays:
 ```
 
 Then update FlexCard JSON to display:
+
 ```json
 {
   "type": "text",
@@ -304,6 +338,7 @@ Then update FlexCard JSON to display:
 ```
 
 ### Add Action Buttons
+
 In FlexCard JSON, add buttons to navigate or trigger actions:
 
 ```json
@@ -325,6 +360,7 @@ In FlexCard JSON, add buttons to navigate or trigger actions:
 ```
 
 ### Change Color Coding
+
 Modify styling based on field values:
 
 ```json
@@ -339,35 +375,42 @@ Modify styling based on field values:
 ## Performance Considerations
 
 **Data Volume**:
+
 - DataRaptor executes 3 queries per load
 - FlexCard caches results for session
 - Recommended: Max 10 child cases per parent for optimal UX
 
 **Large Orgs**:
+
 - Add LIMIT clause to Extract_Child_Cases if needed
 - Consider pagination for 20+ child cases
 
 ## Maintenance
 
 ### When to Update DataRaptor
+
 - New fields added to Case, Financial Account, or Financial Account Role
 - Business rules change (e.g., different Role values for successors)
 - Performance optimization needed
 
 ### When to Update FlexCard
+
 - Layout changes (new sections, reordering)
 - Field display changes
 - New actions/buttons needed
 - Styling updates
 
 ### Version Control
+
 Both components are JSON files in source control:
+
 - DataRaptor: `force-app/main/default/omniDataTransforms/`
 - FlexCard: `force-app/main/default/omniUiCard/`
 
 Always commit changes to git after modifications.
 
 ## Related Documentation
+
 - BRD: `~/Downloads/daf_succession_augmented_final_brd.md`
 - Multi-Successor Flow: `Case_Multiple_Successors_Handler.flow-meta.xml`
 - Test Data Factory: `SuccessionTestDataFactory.cls`
@@ -376,6 +419,7 @@ Always commit changes to git after modifications.
 ## Support
 
 For issues or enhancement requests:
+
 1. Check Troubleshooting section above
 2. Review OmniStudio documentation
 3. Test with `SuccessionTestDataFactory` generated data
@@ -388,9 +432,10 @@ For issues or enhancement requests:
 ## Document Change History
 
 **Update 2025-10-14**:
+
 - Updated DataRaptor example to use `FinServ__RelatedContact__r` instead of `FinServ__RelatedAccount__r` for Person Account successors
 - Changed email field reference from `PersonEmail` to `Email` (Contact object field)
-- **FSC Compliance**: Person Account roles (Successor) now correctly use FinServ__RelatedContact__c field
+- **FSC Compliance**: Person Account roles (Successor) now correctly use FinServ**RelatedContact**c field
 
 **Original Date**: Unknown
 **Last Updated**: 2025-10-14

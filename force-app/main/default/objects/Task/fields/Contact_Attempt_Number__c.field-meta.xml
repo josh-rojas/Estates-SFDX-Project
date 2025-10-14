@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Contact_Attempt_Number__c</fullName>
-    <description>BRD Contact Cadence: Which contact attempt this task represents (1-5). Maps to BRD Day 0, 5, 35, 65, 95 cadence. Used by Flow to determine next steps and populate Case.Contact_Attempt_Count__c upon completion.</description>
+    <description
+  >BRD Contact Cadence: Which contact attempt this task represents (1-5). Maps to BRD Day 0, 5, 35, 65, 95 cadence. Used by Flow to determine next steps and populate Case.Contact_Attempt_Count__c upon completion.</description>
     <externalId>false</externalId>
-    <inlineHelpText>Auto-populated by Flow. Indicates which attempt this is (1=Day 0, 2=Day 5, 3=Day 35, 4=Day 65, 5=Day 95).</inlineHelpText>
+    <inlineHelpText
+  >Auto-populated by Flow. Indicates which attempt this is (1=Day 0, 2=Day 5, 3=Day 35, 4=Day 65, 5=Day 95).</inlineHelpText>
     <label>Contact Attempt Number</label>
     <precision>1</precision>
     <required>false</required>

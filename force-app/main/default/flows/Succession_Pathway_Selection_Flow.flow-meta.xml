@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
 
     <!-- Choice Options -->
     <choices>
         <name>Choice_Disclaim</name>
-        <choiceText>Disclaim Assets - Successor declines the account, assets handled per fund bylaws</choiceText>
+        <choiceText
+    >Disclaim Assets - Successor declines the account, assets handled per fund bylaws</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Disclaim Assets</stringValue>
@@ -13,7 +14,8 @@
     </choices>
     <choices>
         <name>Choice_Final_Grant</name>
-        <choiceText>Final Grant - Successor directs account balance as final charitable grant</choiceText>
+        <choiceText
+    >Final Grant - Successor directs account balance as final charitable grant</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>Final Grant</stringValue>
@@ -21,7 +23,8 @@
     </choices>
     <choices>
         <name>Choice_New_DAF</name>
-        <choiceText>New DAF Account - Successor becomes new donor, account transferred to their name</choiceText>
+        <choiceText
+    >New DAF Account - Successor becomes new donor, account transferred to their name</choiceText>
         <dataType>String</dataType>
         <value>
             <stringValue>New DAF Account</stringValue>
@@ -49,7 +52,8 @@
             <name>Contact_Confirmed</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Confirm_Contact_Checkbox</leftValueReference>
+                <leftValueReference
+        >Confirm_Contact_Checkbox</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -99,7 +103,8 @@
             <name>Contact_Already_Established</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>Get_Case_Record.Contact_Established__c</leftValueReference>
+                <leftValueReference
+        >Get_Case_Record.Contact_Established__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
@@ -112,7 +117,8 @@
         </rules>
     </decisions>
 
-    <description>Agent-guided Screen Flow for recording succession pathway selection. Supports verbal conversations, paper form processing, and document upload. More comprehensive than Quick Action for complex scenarios. BRD-aligned.</description>
+    <description
+  >Agent-guided Screen Flow for recording succession pathway selection. Supports verbal conversations, paper form processing, and document upload. More comprehensive than Quick Action for complex scenarios. BRD-aligned.</description>
     <environments>Default</environments>
 
     <!-- Formulas -->
@@ -137,7 +143,8 @@
     <formulas>
         <name>Formula_Task_Description</name>
         <dataType>String</dataType>
-        <expression>"Successor has selected: " &amp; {!Pathway_Choice} &amp; BR() &amp; BR() &amp;
+        <expression
+    >"Successor has selected: " &amp; {!Pathway_Choice} &amp; BR() &amp; BR() &amp;
 "Required documents based on pathway:" &amp; BR() &amp;
 CASE({!Pathway_Choice},
   "Final Grant",
@@ -159,10 +166,12 @@ CASE({!Pathway_Choice},
     <formulas>
         <name>Formula_Task_Subject</name>
         <dataType>String</dataType>
-        <expression>"Collect Documents: " &amp; {!Pathway_Choice} &amp; " Pathway"</expression>
+        <expression
+    >"Collect Documents: " &amp; {!Pathway_Choice} &amp; " Pathway"</expression>
     </formulas>
 
-    <interviewLabel>Succession Pathway Selection {!$Flow.CurrentDateTime}</interviewLabel>
+    <interviewLabel
+  >Succession Pathway Selection {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Succession Pathway Selection Flow</label>
 
     <processMetadataValues>
@@ -243,7 +252,8 @@ CASE({!Pathway_Choice},
         <label>Get Case Record</label>
         <locationX>50</locationX>
         <locationY>134</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <assignNullValuesIfNoRecordsFound
+    >false</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Verify_Contact_Established</targetReference>
         </connector>
@@ -324,13 +334,15 @@ CASE({!Pathway_Choice},
         </connector>
         <fields>
             <name>Warning_Text</name>
-            <fieldText>&lt;p&gt;&lt;strong style="color: rgb(194, 57, 52);"&gt;⚠️ IMPORTANT: Contact Not Yet Established&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Per BRD requirements, you must have direct verbal contact with the successor before recording their pathway selection.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Please confirm you have:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Spoken directly with the successor&lt;/li&gt;&lt;li&gt;Explained all three pathway options&lt;/li&gt;&lt;li&gt;Received their confirmed selection&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;If you have NOT had this conversation, please use the &lt;strong&gt;Quick Action&lt;/strong&gt; after the call instead.&lt;/p&gt;</fieldText>
+            <fieldText
+      >&lt;p&gt;&lt;strong style="color: rgb(194, 57, 52);"&gt;⚠️ IMPORTANT: Contact Not Yet Established&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Per BRD requirements, you must have direct verbal contact with the successor before recording their pathway selection.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Please confirm you have:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Spoken directly with the successor&lt;/li&gt;&lt;li&gt;Explained all three pathway options&lt;/li&gt;&lt;li&gt;Received their confirmed selection&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;If you have NOT had this conversation, please use the &lt;strong&gt;Quick Action&lt;/strong&gt; after the call instead.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <fields>
             <name>Confirm_Contact_Checkbox</name>
             <dataType>Boolean</dataType>
-            <fieldText>I confirm I have had direct verbal contact with the successor and explained all pathway options</fieldText>
+            <fieldText
+      >I confirm I have had direct verbal contact with the successor and explained all pathway options</fieldText>
             <fieldType>InputField</fieldType>
             <isRequired>true</isRequired>
         </fields>
@@ -350,7 +362,8 @@ CASE({!Pathway_Choice},
         </connector>
         <fields>
             <name>Upload_Instructions</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Document Upload (Optional)&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;If you have paper forms, signed documents, or other supporting files, you can upload them here. Documents will be attached to the Case record.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Common documents:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Signed succession recommendation form&lt;/li&gt;&lt;li&gt;Death certificate copy&lt;/li&gt;&lt;li&gt;ID verification documents&lt;/li&gt;&lt;li&gt;Handwritten notes from conversation&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;You can also upload documents later from the Case record page.&lt;/p&gt;</fieldText>
+            <fieldText
+      >&lt;p&gt;&lt;strong&gt;Document Upload (Optional)&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;If you have paper forms, signed documents, or other supporting files, you can upload them here. Documents will be attached to the Case record.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;Common documents:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Signed succession recommendation form&lt;/li&gt;&lt;li&gt;Death certificate copy&lt;/li&gt;&lt;li&gt;ID verification documents&lt;/li&gt;&lt;li&gt;Handwritten notes from conversation&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;You can also upload documents later from the Case record page.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <fields>
@@ -375,7 +388,8 @@ CASE({!Pathway_Choice},
                     <elementReference>recordId</elementReference>
                 </value>
             </inputParameters>
-            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <inputsOnNextNavToAssocScrn
+      >UseStoredValues</inputsOnNextNavToAssocScrn>
             <isRequired>false</isRequired>
             <storeOutputAutomatically>true</storeOutputAutomatically>
         </fields>
@@ -392,7 +406,8 @@ CASE({!Pathway_Choice},
         <allowPause>false</allowPause>
         <fields>
             <name>Error_Message</name>
-            <fieldText>&lt;p style="text-align: center;"&gt;&lt;span style="font-size: 18px; color: rgb(194, 57, 52);"&gt;⚠️ Error Occurred&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;An error occurred while processing the pathway selection. Please try again or contact your Salesforce administrator if the problem persists.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Error Details:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
+            <fieldText
+      >&lt;p style="text-align: center;"&gt;&lt;span style="font-size: 18px; color: rgb(194, 57, 52);"&gt;⚠️ Error Occurred&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;An error occurred while processing the pathway selection. Please try again or contact your Salesforce administrator if the problem persists.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Error Details:&lt;/strong&gt;&lt;/p&gt;&lt;p&gt;{!$Flow.FaultMessage}&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>
@@ -411,12 +426,14 @@ CASE({!Pathway_Choice},
         </connector>
         <fields>
             <name>Screen_Title</name>
-            <fieldText>&lt;p style="text-align: center;"&gt;&lt;strong style="font-size: 18px;"&gt;Record Succession Pathway Selection&lt;/strong&gt;&lt;/p&gt;</fieldText>
+            <fieldText
+      >&lt;p style="text-align: center;"&gt;&lt;strong style="font-size: 18px;"&gt;Record Succession Pathway Selection&lt;/strong&gt;&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <fields>
             <name>Instructions_Text</name>
-            <fieldText>&lt;p&gt;&lt;strong&gt;Agent Instructions:&lt;/strong&gt; Use this flow to record the successor's pathway choice after a verbal conversation or when processing paper forms.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;This flow supports:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Complex verbal conversations requiring guidance&lt;/li&gt;&lt;li&gt;Paper form transcription and upload&lt;/li&gt;&lt;li&gt;Additional documentation capture&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;For simple, straightforward selections, use the &lt;strong&gt;Quick Action&lt;/strong&gt; instead.&lt;/p&gt;</fieldText>
+            <fieldText
+      >&lt;p&gt;&lt;strong&gt;Agent Instructions:&lt;/strong&gt; Use this flow to record the successor's pathway choice after a verbal conversation or when processing paper forms.&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;This flow supports:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Complex verbal conversations requiring guidance&lt;/li&gt;&lt;li&gt;Paper form transcription and upload&lt;/li&gt;&lt;li&gt;Additional documentation capture&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;For simple, straightforward selections, use the &lt;strong&gt;Quick Action&lt;/strong&gt; instead.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <fields>
@@ -433,14 +450,16 @@ CASE({!Pathway_Choice},
             <name>Additional_Notes</name>
             <fieldText>Additional Notes (optional)</fieldText>
             <fieldType>LargeTextArea</fieldType>
-            <helpText>Capture any additional context from the conversation or paper form that may be relevant for processing.</helpText>
+            <helpText
+      >Capture any additional context from the conversation or paper form that may be relevant for processing.</helpText>
         </fields>
         <fields>
             <name>Paper_Form_Received</name>
             <dataType>Boolean</dataType>
             <fieldText>Paper form received and processed</fieldText>
             <fieldType>InputField</fieldType>
-            <helpText>Check this if you are transcribing from a physical paper form</helpText>
+            <helpText
+      >Check this if you are transcribing from a physical paper form</helpText>
         </fields>
         <showFooter>true</showFooter>
         <showHeader>true</showHeader>
@@ -455,7 +474,8 @@ CASE({!Pathway_Choice},
         <allowPause>false</allowPause>
         <fields>
             <name>Success_Message</name>
-            <fieldText>&lt;p style="text-align: center;"&gt;&lt;span style="font-size: 18px; color: rgb(11, 130, 71);"&gt;✓ Succession Pathway Recorded Successfully&lt;/span&gt;&lt;/p&gt;&lt;p style="text-align: center;"&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Pathway Selected:&lt;/strong&gt; {!Pathway_Choice}&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Contact Established:&lt;/strong&gt; Yes&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Next Phase:&lt;/strong&gt; Document Collection (Phase 3)&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;A follow-up task has been created for document collection. The contact cadence automation has been stopped.&lt;/p&gt;</fieldText>
+            <fieldText
+      >&lt;p style="text-align: center;"&gt;&lt;span style="font-size: 18px; color: rgb(11, 130, 71);"&gt;✓ Succession Pathway Recorded Successfully&lt;/span&gt;&lt;/p&gt;&lt;p style="text-align: center;"&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Pathway Selected:&lt;/strong&gt; {!Pathway_Choice}&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Contact Established:&lt;/strong&gt; Yes&lt;/p&gt;&lt;p&gt;&lt;strong&gt;Next Phase:&lt;/strong&gt; Document Collection (Phase 3)&lt;/p&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;&lt;p&gt;A follow-up task has been created for document collection. The contact cadence automation has been stopped.&lt;/p&gt;</fieldText>
             <fieldType>DisplayText</fieldType>
         </fields>
         <showFooter>true</showFooter>

@@ -4,64 +4,64 @@
 
 /* Definition list styling */
 .slds-dl_horizontal dt {
-    font-weight: 600;
-    color: #3e3e3c;
-    margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #3e3e3c;
+  margin-bottom: 0.5rem;
 }
 
 .slds-dl_horizontal dd {
-    margin-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Summary boxes */
 .slds-theme_shade {
-    background-color: #f3f3f3;
-    border: 1px solid #dddbda;
+  background-color: #f3f3f3;
+  border: 1px solid #dddbda;
 }
 
 /* E-signature section */
 .slds-theme_warning {
-    background-color: #fff9e6;
-    border-left: 4px solid #fe9339;
-    padding: 1.5rem;
+  background-color: #fff9e6;
+  border-left: 4px solid #fe9339;
+  padding: 1.5rem;
 }
 
 /* Grant beneficiaries table */
 .slds-table thead th {
-    background-color: #e6e6e6;
-    font-weight: 600;
+  background-color: #e6e6e6;
+  font-weight: 600;
 }
 
 .slds-table tbody td {
-    padding: 0.75rem;
+  padding: 0.75rem;
 }
 
 /* Privacy notice */
 .slds-theme_info {
-    background-color: #d8edff;
-    border-left: 4px solid #0176d3;
-    padding: 1rem;
+  background-color: #d8edff;
+  border-left: 4px solid #0176d3;
+  padding: 1rem;
 }
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-    .slds-dl_horizontal dt,
-    .slds-dl_horizontal dd {
-        width: 100%;
-        margin-left: 0;
-    }
+  .slds-dl_horizontal dt,
+  .slds-dl_horizontal dd {
+    width: 100%;
+    margin-left: 0;
+  }
 
-    .slds-table {
-        font-size: 0.875rem;
-    }
+  .slds-table {
+    font-size: 0.875rem;
+  }
 }
 
 /* List styling */
 .slds-list_ordered {
-    list-style-type: decimal;
+  list-style-type: decimal;
 }
 
 .slds-list_ordered li,
 .slds-list_dotted li {
-    margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }

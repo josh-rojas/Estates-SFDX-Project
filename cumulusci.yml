@@ -54,7 +54,7 @@ tasks:
 
 flows:
   # ========== DEPLOYMENT FLOWS ==========
-  
+
   deploy_succession:
     description: Complete succession deployment - metadata + permissions + test data
     steps:
@@ -123,7 +123,7 @@ flows:
           destructive_changes: manifest/destructiveChanges.xml
 
   # ========== CI/CD FLOWS ==========
-  
+
   ci_succession_feature:
     description: CI pipeline for feature branches - deploy and test
     steps:
@@ -166,7 +166,7 @@ flows:
         ignore_failure: True
 
   # ========== QA/STAGING FLOWS ==========
-  
+
   qa_full_setup:
     description: Complete QA environment setup with all test scenarios
     steps:
@@ -194,7 +194,7 @@ flows:
         task: load_demo_ui_showcase
 
   # ========== TEST DATA FLOWS ==========
-  
+
   succession_test_setup:
     description: Complete succession test data setup
     steps:

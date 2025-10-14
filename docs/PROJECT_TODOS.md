@@ -12,6 +12,7 @@
 **Status:** ❌ NOT COMPLETED
 
 **Required Steps:**
+
 ```bash
 # Deploy Service Cloud metadata
 sf project deploy start --manifest manifest/package-service-cloud-features.xml --target-org schwab-sandbox
@@ -20,6 +21,7 @@ sf project deploy start --manifest manifest/package-service-cloud-features.xml -
 **Manual Configuration Steps (Cannot be automated):**
 
 #### **A. Enable Email-to-Case**
+
 - [ ] Setup → Feature Settings → Service → Email-to-Case → Enable
 - [ ] Setup → Email-to-Case → Enable On-Demand Service
 - [ ] Create routing address: `estates@[orgid].emailtocase.salesforce.com`
@@ -33,6 +35,7 @@ sf project deploy start --manifest manifest/package-service-cloud-features.xml -
 ---
 
 #### **B. Enable Omni-Channel**
+
 - [ ] Setup → Feature Settings → Service → Omni-Channel → Enable Omni-Channel
 - [ ] Setup → Presence Configurations → Assign users to "Estates Agent Presence"
 - [ ] Setup → Queues → Estate Cases → Add Service Channels:
@@ -44,6 +47,7 @@ sf project deploy start --manifest manifest/package-service-cloud-features.xml -
 ---
 
 #### **C. Create Entitlements (Required for SLA Tracking)**
+
 - [ ] Setup → Entitlements → New
 - [ ] Link to test accounts
 - [ ] Associate with "Estate Succession SLA" entitlement process
@@ -58,6 +62,7 @@ sf project deploy start --manifest manifest/package-service-cloud-features.xml -
 **Status:** ❌ NOT COMPLETED
 
 **Required Steps:**
+
 - [ ] Setup → Email Administration → Deliverability → Set to "All Email"
 - [ ] Add all demo email addresses to verified email list:
   - Your email
@@ -65,6 +70,7 @@ sf project deploy start --manifest manifest/package-service-cloud-features.xml -
   - Test data email addresses
 
 **Test Verification:**
+
 ```bash
 # Send test email from sandbox
 # Navigate to Contact → Send Email → Send to verified address
@@ -82,6 +88,7 @@ sf project deploy start --manifest manifest/package-service-cloud-features.xml -
 **Status:** ❌ NOT COMPLETED
 
 **Required Steps:**
+
 - [ ] Setup → Email Templates → Verify folder `Succession_Management` exists
 - [ ] Verify all 5 templates exist:
   - Day 0 - Initial Contact
@@ -104,6 +111,7 @@ sf project deploy start --manifest manifest/package-service-cloud-features.xml -
 **Status:** ❌ NOT COMPLETED
 
 **Required Steps:**
+
 ```bash
 # Load demo data
 cci task run load_demo_ui_showcase
@@ -116,6 +124,7 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=t
 ```
 
 **Email Format Requirements:**
+
 - Must have format: `name@domain.tld`
 - No typos: `test@@example.com`, `test.example.com` (missing @)
 - Use faker.email() in Snowfakery recipes
@@ -131,6 +140,7 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=t
 **Status:** ⚠️ PARTIALLY CONFIGURED
 
 **Current State:**
+
 - Site exists: https://schwabcharitablefund--fscjosh.sandbox.my.site.com/succession
 - Status: "UnderConstruction" (org query shows)
 - Metadata shows: `status: Live` (conflicting state)
@@ -138,16 +148,18 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=t
 - Guest profile: "Succession Portal Profile" exists in org (not source-controlled)
 
 **Required Steps:**
+
 - [ ] Setup → Digital Experiences → All Sites → Succession Portal
 - [ ] Activate site (change from "UnderConstruction" to "Live")
 - [ ] Add `successionPublicForm` LWC component to site page
 - [ ] Configure guest user profile:
-  - Read access to: Case, Account, Contact, FinServ__FinancialAccount__c, FinServ__FinancialAccountRole__c
+  - Read access to: Case, Account, Contact, FinServ**FinancialAccount**c, FinServ**FinancialAccountRole**c
   - Execute `SuccessionPublicFormController` Apex class
 - [ ] Test form URL: `https://yoursite.com/succession-form?caseId=500...&accountId=001...`
 - [ ] Update email template `Pathway_Form_Invitation` with actual form URL
 
 **Alternative:**
+
 - **Skip public site for demo** - Use internal form component only
 - Clarify to PM that public form is placeholder/future enhancement
 
@@ -164,6 +176,7 @@ sf data update record --sobject Account --record-id <ID> --values "PersonEmail=t
 **Issue:** Project has 9 Case layouts, but only 1 is actively used for succession workflow.
 
 **Layouts Present:**
+
 ```
 Case-Case Layout Template v1.layout-meta.xml
 Case-Case Layout.layout-meta.xml
@@ -177,6 +190,7 @@ CaseParticipant-Case Participant Layout.layout-meta.xml
 ```
 
 **Action Needed:**
+
 - [ ] Verify which layouts are assigned to Estate Administration record type
 - [ ] Remove unused layouts (if not referenced by record type assignments)
 - [ ] Document which layouts are required for demo
@@ -192,6 +206,7 @@ CaseParticipant-Case Participant Layout.layout-meta.xml
 **Components Present:** 12 LWC components
 
 **Usage Analysis Needed:**
+
 - [ ] `recordPathwaySelection` - Used as Quick Action? Still needed?
 - [ ] `successionAccountSummary` - Where is this displayed?
 - [ ] `successionDisclaimDetails` - Part of deprecated Succession_Pathway_Selection_Flow?
@@ -202,6 +217,7 @@ CaseParticipant-Case Participant Layout.layout-meta.xml
 - [ ] `successionSuccessorInfo` - Part of deprecated Succession_Pathway_Selection_Flow?
 
 **Action Needed:**
+
 - [ ] Review CLAUDE.md flow inventory (lines 221-242)
 - [ ] Determine if components 3-8 above are used in active workflows
 - [ ] Consider removing unused components (or document their purpose)
@@ -216,9 +232,10 @@ CaseParticipant-Case Participant Layout.layout-meta.xml
 
 **Issue:** CLAUDE.md line 496 says "Always call `Flow_Error_Handler` subflow for error handling"
 
-**But:** CLAUDE.md line 596 says "No error handling infrastructure: Removed custom error logging (Flow_Error__c object, Error_Notification__e event, Flow_Error_Handler flow)"
+**But:** CLAUDE.md line 596 says "No error handling infrastructure: Removed custom error logging (Flow_Error**c object, Error_Notification**e event, Flow_Error_Handler flow)"
 
 **Action Needed:**
+
 - [ ] Verify if Flow_Error_Handler flow still exists in org
 - [ ] Update CLAUDE.md to remove conflicting guidance (line 496)
 - [ ] Confirm flows use native Salesforce error logging only
@@ -232,6 +249,7 @@ CaseParticipant-Case Participant Layout.layout-meta.xml
 **Status:** ⚠️ DOCUMENTATION vs METADATA MISMATCH
 
 **CLAUDE.md line 524-527 states:**
+
 ```
 SLA Configuration
 Configured in Setup → Entitlement Processes → Estate Succession SLA:
@@ -241,6 +259,7 @@ Configured in Setup → Entitlement Processes → Estate Succession SLA:
 ```
 
 **But entitlement process metadata shows:**
+
 ```xml
 <milestoneName>Verification Complete</milestoneName>
 <minutesToComplete>1440</minutesToComplete>  <!-- 24 hours = 1 day -->
@@ -259,6 +278,7 @@ Configured in Setup → Entitlement Processes → Estate Succession SLA:
 ```
 
 **Action Needed:**
+
 - [ ] Update CLAUDE.md lines 524-527 to match actual milestone configuration
 - [ ] Verify milestones align with business requirements (or update metadata if incorrect)
 
@@ -275,6 +295,7 @@ Configured in Setup → Entitlement Processes → Estate Succession SLA:
 **Note:** Comprehensive testing guide exists at `docs/MULTI_SUCCESSOR_TESTING_GUIDE.md` (677 lines)
 
 **Action Needed:**
+
 - [ ] Execute test scenarios before demo
 - [ ] Verify `caseHierarchyViewer` component displays correctly
 - [ ] Load test data: `cci task run load_multi_successor_scenario`
@@ -290,6 +311,7 @@ Configured in Setup → Entitlement Processes → Estate Succession SLA:
 **Note:** Person Account fixes documented at `docs/PERSON_ACCOUNT_FIXES.md`
 
 **Verification Needed:**
+
 - [ ] Confirm all flows handle Person Account vs Business Account correctly
 - [ ] Verify email sending uses Account.SendEmail for Person Accounts
 - [ ] Test with both Person Account and Business Account cases
@@ -305,6 +327,7 @@ Configured in Setup → Entitlement Processes → Estate Succession SLA:
 **Note:** Complete data model documented at `docs/snowfakery-data-model-analysis.md`
 
 **Action Needed:**
+
 - [ ] Run all Snowfakery recipes to generate test data
 - [ ] Verify test data quality (valid emails, correct record types)
 - [ ] Load demo scenarios: `cci task run load_demo_ui_showcase`
@@ -320,11 +343,13 @@ Configured in Setup → Entitlement Processes → Estate Succession SLA:
 **Status:** ✅ READY
 
 **Deployment Manifests Available:**
+
 - `manifest/package.xml` - Complete deployment
 - `manifest/package-service-cloud-features.xml` - Service Cloud metadata only
 - `manifest/package-succession-*.xml` - Targeted deployments
 
 **Pre-Deployment Checklist:**
+
 - [x] Backup files removed
 - [x] Deprecated flow set to Obsolete
 - [x] Unused profiles removed (26 files)
@@ -333,6 +358,7 @@ Configured in Setup → Entitlement Processes → Estate Succession SLA:
 - [x] LWC components have metadata files
 
 **Deployment Command:**
+
 ```bash
 sf project deploy start --manifest manifest/package.xml --target-org schwab-sandbox
 ```
@@ -344,10 +370,12 @@ sf project deploy start --manifest manifest/package.xml --target-org schwab-sand
 **Status:** ✅ CONFIGURED
 
 **Permission Sets Available:**
+
 - `Succession_Management_Access` - Full access to succession features
 - `Succession_Field_Access` - Field-level access
 
 **Assignment Command:**
+
 ```bash
 sf org assign permset --name Succession_Management_Access --target-org schwab-sandbox
 sf org assign permset --name Succession_Field_Access --target-org schwab-sandbox
@@ -360,11 +388,13 @@ sf org assign permset --name Succession_Field_Access --target-org schwab-sandbox
 **Status:** ✅ PASSING
 
 **Test Classes:**
+
 - `CaseHierarchyController_Test.cls` ✅
 - `ContactCadenceController_Test.cls` ✅
 - `SuccessionPublicFormController_Test.cls` ✅
 
 **Run Tests:**
+
 ```bash
 sf apex run test --test-level RunLocalTests --code-coverage --target-org schwab-sandbox
 ```
@@ -442,36 +472,40 @@ sf apex run test --test-level RunLocalTests --code-coverage --target-org schwab-
 
 ## 📊 **SUMMARY STATISTICS**
 
-| Category | Count | Status |
-|----------|-------|--------|
-| **HIGH PRIORITY Tasks** | 5 | ❌ NOT STARTED |
-| **MEDIUM PRIORITY Tasks** | 4 | ⚠️ NEEDS REVIEW |
-| **LOW PRIORITY Tasks** | 3 | ✅ DOCUMENTED |
-| **Deployment Tasks** | 3 | ✅ READY |
-| **Demo-Specific Tasks** | 3 | ⏳ PENDING |
-| **Known Issues** | 3 | ℹ️ DOCUMENTED |
-| **TOTAL ITEMS** | 21 | |
+| Category                  | Count | Status          |
+| ------------------------- | ----- | --------------- |
+| **HIGH PRIORITY Tasks**   | 5     | ❌ NOT STARTED  |
+| **MEDIUM PRIORITY Tasks** | 4     | ⚠️ NEEDS REVIEW |
+| **LOW PRIORITY Tasks**    | 3     | ✅ DOCUMENTED   |
+| **Deployment Tasks**      | 3     | ✅ READY        |
+| **Demo-Specific Tasks**   | 3     | ⏳ PENDING      |
+| **Known Issues**          | 3     | ℹ️ DOCUMENTED   |
+| **TOTAL ITEMS**           | 21    |                 |
 
 ---
 
 ## 🚀 **RECOMMENDED ACTION PLAN**
 
 ### **Week Before Demo:**
+
 1. Complete items #1-5 (HIGH PRIORITY) - 4-6 hours
 2. Review items #6-9 (MEDIUM PRIORITY) - 1-2 hours
 3. Execute items #10-12 (LOW PRIORITY) - 1 hour
 
 ### **Day Before Demo:**
+
 1. Complete item #16 (24-hour checklist)
 2. Run full test of demo flow
 3. Verify all emails deliver correctly
 
 ### **Hour Before Demo:**
+
 1. Complete item #17 (1-hour checklist)
 2. Final test of all components
 3. Prepare backup materials
 
 ### **During Demo:**
+
 1. Follow item #18 checklist
 2. Reference known issues (#19-21) if needed
 
@@ -480,12 +514,14 @@ sf apex run test --test-level RunLocalTests --code-coverage --target-org schwab-
 ## 📞 **SUPPORT & REFERENCES**
 
 **Primary Documentation:**
+
 - `docs/DEMO_PREP_CHECKLIST.md` - Pre-demo setup steps
 - `docs/SERVICE_CLOUD_DEMO_GUIDE.md` - 15-minute demo script
 - `docs/EMAIL_TO_CASE_SETUP.md` - Email-to-Case configuration
 - `CLAUDE.md` - Complete project reference
 
 **Emergency Contacts:**
+
 - Demo Owner: Josh Rojas (josh.rojas.charfsc@schwab.com.fscjosh)
 - Target Org: schwab-sandbox
 

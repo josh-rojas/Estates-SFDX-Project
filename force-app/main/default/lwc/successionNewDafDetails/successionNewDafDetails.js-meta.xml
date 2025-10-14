@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <isExposed>false</isExposed>
     <masterLabel>Succession New DAF Details</masterLabel>
-    <description>Step 5 (New DAF): Email and terms acknowledgment for new DAF account</description>
+    <description
+  >Step 5 (New DAF): Email and terms acknowledgment for new DAF account</description>
 </LightningComponentBundle>
