@@ -147,8 +147,9 @@ public with sharing class SuccessionPublicFormController {
             Case c = cases[0];
 
             // Update case with pathway selection
-            c.Pathway_Selection__c = pathwaySelection;
-            c.Pathway_Confirmed__c = true;
+            // Pathway_Confirmed__c is a picklist that stores the pathway choice
+            // Valid values: "Not Selected", "Final Grant", "New DAF Account", "Disclaim Assets"
+            c.Pathway_Confirmed__c = pathwaySelection;
             c.Form_Completed_Date__c = System.now();
             c.Status = 'Pathway Selection Received';
 
