@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
-    <description>Creates Attempt 1 task when agent clicks "Begin Succession Processing" Quick Action button. Triggered by Verification Status changing to "Complete - Verified". Provides explicit agent control over workflow start.</description>
+    <description
+  >Creates Attempt 1 task when case is created with Verification_Status__c='Complete - Verified' OR when agent clicks "Begin Succession Processing" Quick Action. Supports dual entry points: automatic (case creation) and manual (Quick Action). Prevents duplicate task creation via Contact_Attempt_Count__c check.</description>
     <label>Case - Create Initial Contact Attempt</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -14,7 +15,7 @@
         <locationX>50</locationX>
         <locationY>0</locationY>
         <connector>
-            <targetReference>Create_Attempt_1_Task</targetReference>
+            <targetReference>Check_Should_Start_Workflow</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -31,24 +32,43 @@
                 <stringValue>Named Successor Enactment</stringValue>
             </value>
         </filters>
-        <filters>
-            <field>Verification_Status__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>Complete - Verified</stringValue>
-            </value>
-        </filters>
-        <filters>
-            <field>Verification_Status__c</field>
-            <operator>IsChanged</operator>
-            <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </filters>
         <object>Case</object>
-        <recordTriggerType>Update</recordTriggerType>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
+    
+    <!-- Decision: Should Start Workflow? -->
+    <decisions>
+        <name>Check_Should_Start_Workflow</name>
+        <label>Should Start Workflow?</label>
+        <locationX>50</locationX>
+        <locationY>50</locationY>
+        <defaultConnectorLabel>No - Exit</defaultConnectorLabel>
+        <rules>
+            <name>Start_Workflow</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference
+        >$Record.Verification_Status__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Complete - Verified</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference
+        >$Record.Contact_Attempt_Count__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_Attempt_1_Task</targetReference>
+            </connector>
+            <label>Yes - Start Workflow</label>
+        </rules>
+    </decisions>
     <status>Active</status>
 
     <!-- Create Attempt 1 Task (Day 0 - Immediate) -->
@@ -69,7 +89,8 @@
         <inputAssignments>
             <field>Subject</field>
             <value>
-                <stringValue>Succession Contact - Attempt 1 (Day 0)</stringValue>
+                <stringValue
+        >Succession Contact - Attempt 1 (Day 0)</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -99,7 +120,8 @@
         <inputAssignments>
             <field>Description</field>
             <value>
-                <stringValue>Initial contact attempt (Day 0). Agent can complete this task immediately.</stringValue>
+                <stringValue
+        >Initial contact attempt (Day 0). Agent can complete this task immediately.</stringValue>
             </value>
         </inputAssignments>
         <object>Task</object>

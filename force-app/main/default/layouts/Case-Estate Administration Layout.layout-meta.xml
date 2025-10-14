@@ -122,6 +122,13 @@
             <quickActionName>NewTask</quickActionName>
         </quickActionListItems>
     </quickActionList>
+    <relatedList>
+        <fields>Name</fields>
+        <fields>ActionPlanStatus</fields>
+        <fields>StartDate</fields>
+        <fields>CompletionPercentage</fields>
+        <relatedList>RelatedActionPlans</relatedList>
+    </relatedList>
     <relatedObjects>ContactId</relatedObjects>
     <relatedObjects>AccountId</relatedObjects>
     <runAssignmentRulesDefault>false</runAssignmentRulesDefault>
