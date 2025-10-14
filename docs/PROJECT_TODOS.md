@@ -265,7 +265,7 @@ CaseParticipant-Case Participant Layout.layout-meta.xml
 
 **Action Needed:**
 
-- [ ] **LOW PRIORITY:** Update CLAUDE.md SLA description to match actual milestones (lines 524-527)
+- [x] **COMPLETED:** Update CLAUDE.md SLA description to match actual milestones (lines 548-554)
 
 **Impact:** Documentation accuracy - does not block demo
 
