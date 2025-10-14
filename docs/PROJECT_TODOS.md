@@ -7,9 +7,11 @@
 
 # Pathway Action Plan Automation
 
-- [x] Create pathway-specific Action Plan templates (Final Grant, New DAF, Disclaim)
-- [x] Build `Case_Assign_Pathway_Action_Plan` flow to auto-create plans when `Form_Completed_Date__c` changes
-- [x] Surface Action Plans related list on `Case-Estate Administration` layout for demo visibility
+- [x] Create pathway-specific Action Plan templates (Final Grant, New DAF, Disclaim) - **DEPLOYED & VERIFIED** (IDs: 0PRDg0000008WkWOAU, 0PRDg0000008WkXOAU, 0PRDg0000008WkVOAU)
+- [ ] **BLOCKED:** Build `Case_Assign_Pathway_Action_Plan` flow to auto-create plans when `Form_Completed_Date__c` changes - Requires manual creation in Flow Builder (Action Plan API limitations prevent metadata deployment)
+- [ ] **BLOCKED:** Surface Action Plans related list on `Case-Estate Administration` layout for demo visibility - Requires manual addition in Setup (RelatedActionPlans not available in org)
+
+**Note:** Action Plan templates successfully deployed. Flow and layout require manual configuration in org. See manual setup instructions in `.cursor/plans/pathway-action-c23fa090.plan.md`
 
 ## 🚀 **HIGH PRIORITY** - Pre-Demo Setup Required
 
@@ -486,7 +488,10 @@ sf apex run test --test-level RunLocalTests --code-coverage --target-org schwab-
 | **Deployment Tasks**      | 3     | ✅ READY        |
 | **Demo-Specific Tasks**   | 3     | ⏳ PENDING      |
 | **Known Issues**          | 3     | ℹ️ DOCUMENTED   |
-| **TOTAL ITEMS**           | 21    |                 |
+| **Action Plan Items**     | 3     | ⚠️ PARTIAL      |
+| **TOTAL ITEMS**           | 24    |                 |
+
+**Action Plan Status:** ✅ Templates deployed, ❌ Flow & layout require manual setup
 
 ---
 
