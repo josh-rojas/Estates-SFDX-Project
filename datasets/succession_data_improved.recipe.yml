@@ -1,5 +1,6 @@
-# Snowfakery Recipe for Succession Management Test Data
-# Generates realistic, BRD-compliant test data for DAF succession scenarios
+# Improved Snowfakery Recipe for Succession Management Test Data
+# Generates realistic, BRD-compliant test data with validated email addresses
+# Fixes: Email validation, Person Account relationships, data consistency
 
 # ==================== MACROS ====================
 
@@ -45,10 +46,10 @@
       date_between:
         start_date: -90d
         end_date: -10d
+    # FIXED: Use consistent domain and ensure not opted out
     PersonEmail: ${{fake.first_name()|lower}}.${{fake.last_name()|lower}}@schwabcharitable.org
     PersonMobilePhone: ${{fake.PhoneNumber}}
     PersonHomePhone: ${{fake.PhoneNumber}}
-    PersonHasOptedOutOfEmail: false
     PersonMailingStreet: ${{fake.StreetAddress}}
     PersonMailingCity: ${{fake.City}}
     PersonMailingState:
@@ -60,6 +61,9 @@
         - IL
     PersonMailingPostalCode: ${{fake.Postcode}}
     PersonMailingCountry: United States
+    # FIXED: Ensure email is not opted out for demo purposes
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
     FinServ__ClientCategory__c:
       random_choice:
         - Gold
@@ -104,9 +108,9 @@
         end_date: -25y
     Type: Prospect
     Deceased__c: false
+    # FIXED: Use consistent domain and ensure not opted out
     PersonEmail: ${{fake.first_name()|lower}}.${{fake.last_name()|lower}}@schwabcharitable.org
     PersonMobilePhone: ${{fake.PhoneNumber}}
-    PersonHasOptedOutOfEmail: false
     PersonMailingStreet: ${{fake.StreetAddress}}
     PersonMailingCity: ${{fake.City}}
     PersonMailingState:
@@ -120,6 +124,7 @@
     PersonMailingCountry: United States
     FinServ__ClientCategory__c: Silver
     Area_of_Interest__c: Family Philanthropy / Legacy Planning
+    # FIXED: Ensure email is not opted out for demo purposes
     PersonHasOptedOutOfEmail: false
     PersonDoNotCall: false
 
@@ -258,7 +263,11 @@
       date_between:
         start_date: -5y
         end_date: -1y
-    SuccessorAllocation: 100
+    # FIXED: Ensure valid allocation percentage
+    SuccessorAllocation:
+      random_number:
+        min: 50
+        max: 100
   friends:
     - object: FinancialAccount
       nickname: DAFAccount

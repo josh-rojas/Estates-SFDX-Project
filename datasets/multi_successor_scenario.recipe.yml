@@ -32,7 +32,8 @@
       date_between:
         start_date: -40d
         end_date: -40d
-    PersonEmail: patricia.williams@legacy-estate.example.com
+    PersonEmail: patricia.williams@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 000-3001
     PersonHomePhone: (555) 001-3001
     PersonMailingStreet: 789 Legacy Boulevard
@@ -60,7 +61,8 @@
     PersonBirthdate: 1978-06-10
     Type: Prospect
     Deceased__c: false
-    PersonEmail: amanda.williams@email.example.com
+    PersonEmail: amanda.williams@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-3001
     PersonMailingStreet: 123 First Street
     PersonMailingCity: Portland
@@ -82,7 +84,8 @@
     PersonBirthdate: 1980-09-15
     Type: Prospect
     Deceased__c: false
-    PersonEmail: brandon.williams@email.example.com
+    PersonEmail: brandon.williams@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-3002
     PersonMailingStreet: 456 Second Avenue
     PersonMailingCity: San Diego

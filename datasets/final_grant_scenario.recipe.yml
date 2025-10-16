@@ -32,7 +32,8 @@
       date_between:
         start_date: -30d
         end_date: -30d
-    PersonEmail: margaret.thompson@legacy-estate.example.com
+    PersonEmail: margaret.thompson@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 000-1001
     PersonHomePhone: (555) 001-1001
     PersonMailingStreet: 123 Estate Lane
@@ -60,7 +61,8 @@
     PersonBirthdate: 1975-03-20
     Type: Prospect
     Deceased__c: false
-    PersonEmail: jennifer.thompson@email.example.com
+    PersonEmail: jennifer.thompson@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-2001
     PersonMailingStreet: 456 Successor Ave
     PersonMailingCity: Los Angeles

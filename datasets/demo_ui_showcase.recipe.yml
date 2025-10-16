@@ -39,7 +39,8 @@
       date_between:
         start_date: -5d
         end_date: -5d
-    PersonEmail: robert.chen@legacy.example.com
+    PersonEmail: robert.chen@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     FinServ__NetWorth__c: 1000000
     FinServ__Status__c: Closed
 
@@ -51,7 +52,8 @@
     LastName: Chen_Successor0
     Type: Prospect
     Deceased__c: false
-    PersonEmail: lisa.chen@email.example.com
+    PersonEmail: lisa.chen@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-0001
 
 - object: FinancialAccount
@@ -161,7 +163,8 @@
       date_between:
         start_date: -25d
         end_date: -25d
-    PersonEmail: sarah.johnson@legacy.example.com
+    PersonEmail: sarah.johnson@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     FinServ__NetWorth__c: 1500000
     FinServ__Status__c: Closed
 
@@ -173,7 +176,8 @@
     LastName: Johnson_Successor1
     Type: Prospect
     Deceased__c: false
-    PersonEmail: michael.johnson@email.example.com
+    PersonEmail: michael.johnson@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-0002
 
 - object: FinancialAccount
@@ -308,7 +312,8 @@
       date_between:
         start_date: -45d
         end_date: -45d
-    PersonEmail: david.martinez@legacy.example.com
+    PersonEmail: david.martinez@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     FinServ__NetWorth__c: 2000000
     FinServ__Status__c: Closed
 
@@ -320,7 +325,8 @@
     LastName: Martinez_Successor3
     Type: Prospect
     Deceased__c: false
-    PersonEmail: carlos.martinez@email.example.com
+    PersonEmail: carlos.martinez@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-0003
 
 - object: FinancialAccount
@@ -495,7 +501,8 @@
       date_between:
         start_date: -30d
         end_date: -30d
-    PersonEmail: margaret.thompson@legacy.example.com
+    PersonEmail: margaret.thompson@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     FinServ__NetWorth__c: 5000000
     FinServ__Status__c: Closed
     FinServ__ClientCategory__c: Platinum
@@ -509,7 +516,8 @@
     LastName: Thompson_SuccessorEstablished
     Type: Prospect
     Deceased__c: false
-    PersonEmail: jennifer.thompson@email.example.com
+    PersonEmail: jennifer.thompson@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-0004
 
 - object: FinancialAccount
@@ -653,7 +661,8 @@
       date_between:
         start_date: -40d
         end_date: -40d
-    PersonEmail: patricia.williams@legacy.example.com
+    PersonEmail: patricia.williams@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     FinServ__NetWorth__c: 7000000
     FinServ__Status__c: Closed
     FinServ__ClientCategory__c: Platinum
@@ -667,7 +676,8 @@
     LastName: Williams_SuccessorA
     Type: Prospect
     Deceased__c: false
-    PersonEmail: amanda.williams@email.example.com
+    PersonEmail: amanda.williams@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-0005
 
 - object: Account
@@ -678,7 +688,8 @@
     LastName: Williams_SuccessorB
     Type: Prospect
     Deceased__c: false
-    PersonEmail: brandon.williams@email.example.com
+    PersonEmail: brandon.williams@schwabcharitable.org
+    PersonHasOptedOutOfEmail: false
     PersonMobilePhone: (555) 100-0006
 
 - object: FinancialAccount
