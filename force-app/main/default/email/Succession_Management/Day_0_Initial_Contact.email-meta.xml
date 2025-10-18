@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Day 0 - Initial Contact</name>
     <style>none</style>
-    <subject>Information Regarding {!Case.Account.Name}&apos;s Donor-Advised Fund Account</subject>
+    <subject
+  >Information Regarding {!Case.Account.Name}&apos;s Donor-Advised Fund Account</subject>
     <textOnly>Dear {!Case.ContactName},
 
 We are reaching out to you regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360 (Account Number: {!Case.FinancialAccount__r.Name}).

@@ -1,0 +1,8 @@
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#FFFFFF", "primaryBorderColor": "#D0D5DA", "primaryTextColor": "#3E3E3C", "lineColor": "#D0D5DA", "tertiaryColor": "#F3F2F2", "fontFamily":"Salesforce Sans, Helvetica Neue, Arial, sans-serif", "clusterBkg":"#FFFFFF", "clusterBorder":"#D0D5DA"}, "themeCSS": ".mermaid { background-color: white; }"} }%%
+stateDiagram-v2
+  [*] --> New
+  New --> In_Progress: Verification_Status__c = "Complete - Verified"
+  In_Progress --> Awaiting_Response: Contact_Established__c && Form_Sent_Date__c
+  Awaiting_Response --> In_Review: Form_Completed_Date__c
+  In_Review --> In_Progress: Pathway_Confirmed__c != "Not Selected"
+  In_Progress --> Closed: Execution_Status__c = "Completed"

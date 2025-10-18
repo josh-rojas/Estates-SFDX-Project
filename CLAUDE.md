@@ -171,6 +171,7 @@ Account (Deceased Donor)
    - Each child case gets independent contact cadence and SLA tracking
 3. **Allocation Validation:** All `SuccessorAllocation__c` percentages must sum to 100%
 4. **Hierarchy Component:** `caseHierarchyViewer` displays parent + all child cases in nested tree view
+5. **Parent Case Auto-Closure:** Flow `Case_Parent_Closure_Handler` automatically closes parent case when ALL child cases reach terminal status (Closed OR Canceled)
 
 **Flow Trigger:**
 ```apex
@@ -180,6 +181,28 @@ Entry Criteria:
 - Type = "Named Successor Enactment"
 - Count of FinancialAccountRole (Role = "Successor") > 1
 ```
+
+### Status Coordination Flow
+
+**Automatic Status Updates** - The `Case_Status_Coordination` flow automatically updates the Case.Status field based on workflow phase progression:
+
+**Flow**: `force-app/main/default/flows/Case_Status_Coordination.flow-meta.xml`
+
+**Status Transitions**:
+- Phase 1→2: `Verification_Status__c = "Complete - Verified"` → Status = "In Progress"
+- Phase 2→3: `Contact_Established__c = TRUE` AND `Form_Sent_Date__c != NULL` → Status = "Awaiting Response"
+- Phase 3→4: `Form_Completed_Date__c != NULL` → Status = "In Review"
+- Phase 4→5: `Pathway_Confirmed__c != "Not Selected"` → Status = "In Progress" (pathway execution)
+- Phase 5→Complete: `Execution_Status__c = "Completed"` → Status = "Closed"
+
+**Benefits**:
+- ✅ Automatic status updates (no manual agent updates needed)
+- ✅ Status always reflects current workflow phase
+- ✅ Better list view filtering and reporting
+- ✅ Version-controlled and deployable via CLI
+- ✅ Works with existing phase-tracking fields
+
+**Note**: Initially considered Salesforce Stage Management, but it's not available in Metadata API for programmatic deployment. See `docs/STAGE_MANAGEMENT_API_LIMITATION.md` for details.
 
 ### Flow Architecture Pattern
 
@@ -221,8 +244,19 @@ Entry Criteria:
 - **Form Submission:** Apex saves `Pathway_Selection__c`, sets `Pathway_Confirmed__c=TRUE`, updates `Form_Completed_Date__c`, changes Status to "Pathway Selection Received"
 - **Agent Cannot Override:** Pathway selection MUST come from online form. Phone conversations are informational only.
 
-**Flow Inventory (6 active flows):**
-1. **`Case_Create_Initial_Contact_Attempt`** - Creates Attempt 1 task via dual entry points (CREATE or UPDATE)
+**Flow Inventory (9 active flows):**
+1. **`Case_Estate_Administration_Defaults`** - Auto-populates standard Case fields on creation
+   - **Trigger:** Case CREATE (BEFORE SAVE), `RecordType=EstateAdministration`
+   - **Action:** Sets Subject, Description, Priority, Origin, Type, Status, Verification_Status__c
+   - **Person Account Support:** Auto-sets ContactId = PersonContactId for Person Accounts
+   - **Status:** Active
+   - **Purpose:** One-click case creation with all defaults, Person Account compatibility
+2. **`Case_Status_Coordination`** - Automatic Case.Status field coordination
+   - **Trigger:** Case UPDATE, `RecordType=EstateAdministration`, `IsClosed=FALSE`
+   - **Action:** Updates Status based on 5 phase-tracking field changes
+   - **Status:** Draft (test before activating)
+   - **Purpose:** Eliminates manual status updates, ensures Status reflects workflow phase
+3. **`Case_Create_Initial_Contact_Attempt`** - Creates Attempt 1 task via dual entry points (CREATE or UPDATE)
    - **Trigger:** Case CREATE or UPDATE, `RecordType=EstateAdministration`, `Type=Named Successor Enactment`
    - **Entry Criteria:** `Verification_Status__c = "Complete - Verified"` AND `Contact_Attempt_Count__c` is NULL
    - **Dual Entry Points:**
@@ -231,24 +265,30 @@ Entry Criteria:
    - **Action:** Creates Task with `Contact_Attempt_Number__c=1`, `ActivityDate=TODAY`, `Priority=High`
    - **Updates:** Sets `Contact_Attempt_Count__c=1` on Case
    - **Duplicate Prevention:** `Contact_Attempt_Count__c` check prevents re-triggering if field changes again
-2. **`Task_Create_Next_Contact_Attempt`** - Creates next task when current attempt completed
+4. **`Task_Create_Next_Contact_Attempt`** - Creates next task when current attempt completed
    - **Trigger:** Task Update, `Status=Completed`, `Contact_Attempt_Number__c NOT NULL`
    - **Gate Check:** `Contact_Established__c=FALSE` (stops creating tasks if contact made)
    - **Action:** Creates next task (Attempt 2-5) with ActivityDate calculated from Case.CreatedDate
    - **Date Formulas:** Day 5 = CreatedDate + 5, Day 35 = +35, Day 65 = +65, Day 95 = +95
    - **Priority:** Attempts 2-3 = High, Attempts 4-5 = Urgent
-3. **`Task_Succession_Contact_Update`** - Circuit breaker flow
+5. **`Task_Succession_Contact_Update`** - Circuit breaker flow
    - **Trigger:** Task Update, `Status ISCHANGED to 'Completed'`, `Contact_Attempt_Number__c NOT NULL`
    - **Action:** Updates parent Case `Contact_Established__c=TRUE` if `Task.Succession_Contact_Established__c=TRUE`
    - **Cascade Effect:** Setting `Contact_Established__c=TRUE` triggers `Case_Send_Succession_Form` flow
-4. **`Case_Multiple_Successors_Handler`** - Multi-successor orchestration (creates parent + child cases)
-5. **`Case_Send_Succession_Form`** - Email delivery automation with public form link
+6. **`Case_Multiple_Successors_Handler`** - Multi-successor orchestration (creates parent + child cases)
+7. **`Case_Parent_Closure_Handler`** - Parent case auto-closure when all children complete
+   - **Trigger:** Case UPDATE, child case `Status ISCHANGED to 'Closed' OR 'Canceled'`, `ParentId NOT NULL`
+   - **Action:** Queries all sibling child cases, checks if ALL have terminal status (Closed/Canceled)
+   - **If all complete:** Updates parent case Status = "Closed", Execution_Status__c = "Completed"
+   - **Purpose:** Automatically closes "Multi-Account Succession Master" parent case when all child "Named Successor Enactment" cases reach terminal status
+   - **Design:** Early loop exit for performance, idempotent (no-op if parent already closed)
+8. **`Case_Send_Succession_Form`** - Email delivery automation with public form link
    - **Trigger:** Case Update, `Contact_Established__c ISCHANGED to TRUE`
    - **Action:** Sends email with form URL (includes caseId parameter), updates `Form_Sent_Date__c`
    - **Email Content:** Notifies successor, explains 3 pathways, includes form link, clarifies phone calls are informational only
-6. **`Case_Succession_Segment_Transition`** - Pathway transitions after form submission
-7. **`Succession_Pathway_Selection_Flow`** - (DEPRECATED - pathway selection now handled by public form)
-8. **`Case_Assign_Pathway_Action_Plan`** - Auto-creates pathway-specific Action Plan when `Form_Completed_Date__c` changes (public form submission)
+9. **`Case_Succession_Segment_Transition`** - Pathway transitions after form submission
+10. **`Succession_Pathway_Selection_Flow`** - (DEPRECATED - pathway selection now handled by public form)
+11. **`Case_Assign_Pathway_Action_Plan`** - Auto-creates pathway-specific Action Plan when `Form_Completed_Date__c` changes (public form submission)
 
 ### Component Architecture
 
@@ -530,6 +570,7 @@ To bypass (not recommended): `git commit --no-verify`
 - **Required:** Use `@AuraEnabled(cacheable=true)` for read operations
 - **Required:** Use `try/catch` and proper error handling
 - **Email Validation:** Always validate opt-out status before sending emails (compliance requirement)
+- **Class Documentation:** ✅ **COMPLETE** - All 3 Apex classes now have comprehensive descriptions (updated 2025-10-14)
 
 ### LWC Patterns
 - Use `@wire` for data retrieval when possible
@@ -538,6 +579,7 @@ To bypass (not recommended): `git commit --no-verify`
 - Follow naming: `succession<FeatureName>` pattern
 - **Email Validation:** Use computed properties (`canSendEmail`, `hasEmailWarning`) for validation logic
 - **Double-Click Prevention:** Use state variables and button disable logic to prevent duplicate actions
+- **Component Documentation:** ✅ **COMPLETE** - All 12+ LWC components now have comprehensive descriptions (updated 2025-10-14)
 
 ### Permission Sets
 Always test with proper permission sets assigned:
@@ -566,7 +608,7 @@ Configured in Setup → Entitlement Processes → **Estate Succession SLA**:
 **Component & Testing Guides:**
 - `MULTI_SUCCESSOR_HIERARCHY_COMPONENT.md` - OmniStudio case hierarchy component guide
 - `MULTI_SUCCESSOR_TESTING_GUIDE.md` - Comprehensive multi-successor testing scenarios (677 lines)
-- `field-documentation-succession.md` - All custom field definitions with help text and BRD references
+- `field-documentation-succession.md` - ✅ **COMPLETE** - All 22+ custom fields with descriptions and helper text (updated 2025-10-14)
 
 **Implementation Guides:**
 - `AUTOMATION-CONTROL-GUIDE.md` - CumulusCI automation control during data loading

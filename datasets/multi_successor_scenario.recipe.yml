@@ -251,19 +251,131 @@
       date_between:
         start_date: -5d
         end_date: -5d
-    NextContactDue: null
-    LastContactAttempt:
-      date_between:
-        start_date: -15d
-        end_date: -15d
+    Execution_Status__c: In Progress
+    Asset_Transfer_Status__c: Transfer Initiated
     NotificationSource: Financial Advisor
-    Description: Multiple successors scenario - 50/50 split between Amanda and Brandon Williams. Case_Multiple_Successors_Handler flow will create parent case and child case for second successor per BRD Appendix B.
+    Description: "Complex multi-successor coordination scenario demonstrating BRD Appendix B requirements. Parent case oversees two child cases with different pathways: Amanda selected Final Grant ($1.75M to National Education Foundation), Brandon selected New DAF ($1.75M transfer). 50/50 allocation split validated. Parallel processing timelines require careful coordination to ensure both successors' preferences are honored while maintaining compliance."
     IsEscalated: false
   friends:
     - object: Account
       nickname: DeceasedDonor_Williams
     - object: FinancialAccount
       nickname: DAF_Williams
+
+# ==================== CHILD CASES WITH DIFFERENT PATHWAYS ====================
+
+# Child Case 1: Amanda Williams - Final Grant ($1.75M)
+- object: Case
+  nickname: Case_Amanda_FinalGrant
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Succession - Amanda Williams (50% - Final Grant)
+    ParentId: Case_Williams_MultiSuccessor.Id
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 2
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -10d
+        end_date: -10d
+    PathwayConfirmed: Final Grant
+    FormSentDate:
+      date_between:
+        start_date: -8d
+        end_date: -8d
+    FormCompletedDate:
+      date_between:
+        start_date: -5d
+        end_date: -5d
+    Execution_Status__c: Completed
+    Execution_Completed_Date__c:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    Asset_Transfer_Status__c: Completed
+    Grant_Settlement_Status__c: Funds Disbursed
+    Charity_Account__c: Charity_NationalEducation.Id
+    Charity_Contact__c: Contact_CharityEd.Id
+    NotificationSource: Financial Advisor
+    Description: "Child case for Amanda Williams - Elder sibling, 50% allocation ($1.75M). Selected Final Grant pathway to National Education Foundation. Amanda is a physician with strong interest in STEM education. Grant will support college scholarships and research programs. Contact established promptly, form submitted within 72 hours. Demonstrates independent successor decision-making within multi-successor framework."
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Successor_Amanda
+
+# Child Case 2: Brandon Williams - New DAF ($1.75M)
+- object: Case
+  nickname: Case_Brandon_NewDAF
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Succession - Brandon Williams (50% - New DAF)
+    ParentId: Case_Williams_MultiSuccessor.Id
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 2
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -10d
+        end_date: -10d
+    PathwayConfirmed: New DAF Account
+    FormSentDate:
+      date_between:
+        start_date: -8d
+        end_date: -8d
+    FormCompletedDate:
+      date_between:
+        start_date: -5d
+        end_date: -5d
+    Execution_Status__c: Settlement Pending
+    Asset_Transfer_Status__c: Transfer Completed
+    Grant_Settlement_Status__c: Pending Review
+    New_DAF_Account_Number__c:
+      fake.Numerify:
+        text: DAF-########
+    NotificationSource: Financial Advisor
+    Description: "Child case for Brandon Williams - Younger sibling, 50% allocation ($1.75M). Selected New DAF pathway to establish Brandon Williams Family Fund. Brandon is an environmental lawyer interested in conservation causes. New DAF account will allow continued philanthropic activity while maintaining tax advantages. Transfer completed successfully, account fully operational. Illustrates New DAF pathway complexity in multi-successor scenarios."
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Successor_Brandon
+
+# ==================== CROSS-SIBLING COORDINATION CHATTER ====================
+
+- object: FeedItem
+  fields:
+    ParentId: Case_Williams_MultiSuccessor.Id
+    Type: TextPost
+    Body: "📊 Status Update: Amanda completed Final Grant ($1.75M disbursed to National Education Foundation). Brandon's New DAF transfer in progress (est. completion: [Date]). Different pathways create parallel processing timelines."
+    Visibility: InternalUsers
+
+- object: FeedItem
+  fields:
+    ParentId: Case_Williams_MultiSuccessor.Id
+    Type: TextPost
+    Body: "@[Compliance Team] Multi-successor allocation validation: Amanda (50%) + Brandon (50%) = 100%. Separate charity selections require independent compliance reviews per BRD Appendix B."
+    Visibility: InternalUsers
+
+- object: FeedItem
+  fields:
+    ParentId: Case_Amanda_FinalGrant.Id
+    Type: TextPost
+    Body: "✅ Amanda's case closed - $1,750,000 grant disbursed to National Education Foundation. 8-year relationship with donor family continues through final grant."
+    Visibility: InternalUsers
+
+- object: FeedItem
+  fields:
+    ParentId: Case_Brandon_NewDAF.Id
+    Type: TextPost
+    Body: "New DAF account created for Brandon - DAF-[NewAccountNumber]. $1,750,000 transferred. Account setup complete, ready for ongoing grantmaking."
+    Visibility: InternalUsers
 
 # ==================== CONTACT ATTEMPT TASKS ====================
 

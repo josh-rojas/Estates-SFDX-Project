@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Grant_Settlement_Status__c</fullName>
-    <description>BRD Phase 4 - Final Grant Pathway: Tracks the settlement process for final grants. Includes MyQ coordination, trading/liquidation, grant entry in Charities Profile, and INSF approval.</description>
-    <inlineHelpText>Only applicable when Pathway = Final Grant. Tracks grant processing from MyQ coordination through settlement (typically T+1) to distribution confirmation.</inlineHelpText>
+    <description
+  >BRD Phase 4 - Final Grant Pathway: Tracks the settlement process for final grants. Includes MyQ coordination, trading/liquidation, grant entry in Charities Profile, and INSF approval.</description>
+    <inlineHelpText
+  >Only applicable when Pathway = Final Grant. Tracks grant processing from MyQ coordination through settlement (typically T+1) to distribution confirmation.</inlineHelpText>
     <label>Grant Settlement Status</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

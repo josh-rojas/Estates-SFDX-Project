@@ -1,9 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Execution_Started_Date__c</fullName>
-    <description>BRD Phase 4: Timestamp when execution began for the chosen pathway. Typically set when Execution Status changes to &quot;In Progress&quot; after documents are approved.</description>
+    <description
+  >BRD Phase 4: Timestamp when execution began for the chosen pathway. Typically set when Execution Status changes to &quot;In Progress&quot; after documents are approved.</description>
     <encryptionScheme>None</encryptionScheme>
-    <inlineHelpText>Date when pathway execution started. Marks transition from Phase 3 (Document Collection) to Phase 4 (Execution).</inlineHelpText>
+    <inlineHelpText
+  >Date when pathway execution started. Marks transition from Phase 3 (Document Collection) to Phase 4 (Execution).</inlineHelpText>
     <label>Execution Started Date</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

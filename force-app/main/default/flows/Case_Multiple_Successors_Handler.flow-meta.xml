@@ -51,7 +51,8 @@
         >Loop_Through_Successors.FinServ__RelatedContact__c</leftValueReference>
                 <operator>NotEqualTo</operator>
                 <rightValue>
-                    <elementReference>varFirstSuccessorContactId</elementReference>
+                    <elementReference
+          >varFirstSuccessorContactId</elementReference>
                 </rightValue>
             </conditions>
             <connector>

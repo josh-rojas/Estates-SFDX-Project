@@ -1,0 +1,20 @@
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#FFFFFF", "primaryBorderColor": "#D0D5DA", "primaryTextColor": "#3E3E3C", "lineColor": "#D0D5DA", "tertiaryColor": "#F3F2F2", "fontFamily":"Salesforce Sans, Helvetica Neue, Arial, sans-serif", "clusterBkg":"#FFFFFF", "clusterBorder":"#D0D5DA"}, "themeCSS": ".mermaid { background-color: white; }"} }%%
+graph TD
+  A[Account: Patricia Williams]
+  FA[Financial Account: $3.5M]
+  R1[Successor: Amanda (50%)]
+  R2[Successor: Brandon (50%)]
+  P[Parent Case: Multi-Account Succession Master]
+  C1[Child Case: Amanda Williams]
+  C2[Child Case: Brandon Williams]
+
+  A --> FA
+  FA --> R1
+  FA --> R2
+  P --> C1
+  P --> C2
+
+  note right of P
+  Parent auto-closes when all child cases
+  reach Status = "Closed"
+  end note

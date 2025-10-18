@@ -1,8 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Asset_Transfer_Status__c</fullName>
-    <description>BRD Phase 4 - New DAF Pathway: Tracks the asset transfer process from deceased donor&apos;s account to new successor DAF account. Includes journal entry, transfer execution, and relationship linking.</description>
-    <inlineHelpText>Only applicable when Pathway = New DAF Account. Tracks transfer from journal entry creation through asset transfer to relationship establishment.</inlineHelpText>
+    <description
+  >BRD Phase 4 - New DAF Pathway: Tracks the asset transfer process from deceased donor&apos;s account to new successor DAF account. Includes journal entry, transfer execution, and relationship linking.</description>
+    <inlineHelpText
+  >Only applicable when Pathway = New DAF Account. Tracks transfer from journal entry creation through asset transfer to relationship establishment.</inlineHelpText>
     <label>Asset Transfer Status</label>
     <required>false</required>
     <trackFeedHistory>false</trackFeedHistory>

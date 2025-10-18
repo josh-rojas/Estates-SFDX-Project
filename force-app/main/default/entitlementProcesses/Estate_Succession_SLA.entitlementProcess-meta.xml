@@ -1,11 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <EntitlementProcess xmlns="http://soap.sforce.com/2006/04/metadata">
     <SObjectType>Case</SObjectType>
     <active>true</active>
     <businessHours>Default</businessHours>
-    <description>Service Level Agreements for Estate Administration / Succession Management cases. Tracks key milestones from verification through final resolution.</description>
+    <description
+  >Service Level Agreements for Estate Administration / Succession Management cases. Tracks key milestones from verification through final resolution.</description>
     <entryStartDateField>CreatedDate</entryStartDateField>
-    <exitCriteriaBooleanFilter></exitCriteriaBooleanFilter>
+    <exitCriteriaBooleanFilter />
     <exitCriteriaFilterItems>
         <field>Case.Status</field>
         <operation>equals</operation>
@@ -26,13 +27,13 @@
             <value>Complete - Verified</value>
         </milestoneCriteriaFilterItems>
         <milestoneName>Verification Complete</milestoneName>
-        <minutesCustomClass></minutesCustomClass>
+        <minutesCustomClass />
         <minutesToComplete>1440</minutesToComplete>
         <successActions>
             <name>Update_Case_Milestone_Status</name>
             <type>FieldUpdate</type>
         </successActions>
-        <timeTriggers></timeTriggers>
+        <timeTriggers />
         <useCriteriaStartTime>false</useCriteriaStartTime>
     </milestones>
     <milestones>
@@ -43,9 +44,9 @@
             <value>true</value>
         </milestoneCriteriaFilterItems>
         <milestoneName>Initial Contact Established</milestoneName>
-        <minutesCustomClass></minutesCustomClass>
+        <minutesCustomClass />
         <minutesToComplete>480</minutesToComplete>
-        <timeTriggers></timeTriggers>
+        <timeTriggers />
         <useCriteriaStartTime>false</useCriteriaStartTime>
     </milestones>
     <milestones>
@@ -53,12 +54,12 @@
         <milestoneCriteriaFilterItems>
             <field>Case.Form_Sent_Date__c</field>
             <operation>notEqual</operation>
-            <value></value>
+            <value />
         </milestoneCriteriaFilterItems>
         <milestoneName>Succession Form Sent</milestoneName>
-        <minutesCustomClass></minutesCustomClass>
+        <minutesCustomClass />
         <minutesToComplete>1440</minutesToComplete>
-        <timeTriggers></timeTriggers>
+        <timeTriggers />
         <useCriteriaStartTime>false</useCriteriaStartTime>
     </milestones>
     <milestones>
@@ -66,12 +67,12 @@
         <milestoneCriteriaFilterItems>
             <field>Case.Form_Completed_Date__c</field>
             <operation>notEqual</operation>
-            <value></value>
+            <value />
         </milestoneCriteriaFilterItems>
         <milestoneName>Documentation Complete</milestoneName>
-        <minutesCustomClass></minutesCustomClass>
+        <minutesCustomClass />
         <minutesToComplete>43200</minutesToComplete>
-        <timeTriggers></timeTriggers>
+        <timeTriggers />
         <useCriteriaStartTime>false</useCriteriaStartTime>
     </milestones>
     <milestones>
@@ -82,9 +83,9 @@
             <value>Closed</value>
         </milestoneCriteriaFilterItems>
         <milestoneName>Final Resolution</milestoneName>
-        <minutesCustomClass></minutesCustomClass>
+        <minutesCustomClass />
         <minutesToComplete>86400</minutesToComplete>
-        <timeTriggers></timeTriggers>
+        <timeTriggers />
         <useCriteriaStartTime>false</useCriteriaStartTime>
     </milestones>
     <name>Estate Succession SLA</name>

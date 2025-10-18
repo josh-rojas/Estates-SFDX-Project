@@ -196,22 +196,79 @@
     PathwayConfirmed: Not Selected
     FormSentDate: null
     FormCompletedDate: null
-    NextContactDue:
-      date_between:
-        start_date: +5d
-        end_date: +5d
-    LastContactAttempt:
-      date_between:
-        start_date: -5d
-        end_date: -5d
     NotificationSource: Financial Advisor
-    Description: SLA escalation scenario - unresponsive successor after 4 contact attempts per BRD Section 3.2. Escalated for manager review and certified mail per Day 95 protocol.
+    Description: "Critical SLA escalation scenario demonstrating BRD Section 3.2 unresponsive successor protocol. Sean OConnor completely unresponsive after 4 contact attempts (Days 0, 5, 35, 65) - no phone contact, opted out of email, no forwarding address. Case escalated per Day 95 protocol requiring manager review. Certified mail notice sent to last known address. If no response within 30 days, account will be liquidated per default provisions. Demonstrates full escalation workflow and compliance requirements for difficult successor contact scenarios."
     IsEscalated: true
   friends:
     - object: Account
       nickname: DeceasedDonor_OConnor
     - object: FinancialAccount
       nickname: DAF_OConnor
+
+# ==================== MANAGER ESCALATION EVENT ====================
+
+- object: Event
+  fields:
+    Subject: "Manager Review: Escalated Succession Case - OConnor Estate"
+    StartDateTime:
+      date_between:
+        start_date: +2d
+        end_date: +2d
+    DurationInMinutes: 60
+    Location: Virtual - Zoom
+    Type: Meeting, Internal
+    ShowAs: Busy
+    Description: "Escalation review per BRD Section 3.2 after 4 unsuccessful contact attempts. Discuss next steps: certified mail, legal notice, or account liquidation. Successor Sean OConnor unreachable - no phone, no email, opted out of contact."
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
+
+# ==================== CERTIFIED MAIL DOCUMENT ====================
+
+- object: ContentVersion
+  nickname: Doc_CertifiedMail_OConnor
+  fields:
+    Title: Certified Mail Notice - OConnor Succession Case
+    PathOnClient: certified_mail_oconnor_succession.pdf
+    FileExtension: pdf
+    ContentLocation: S
+    VersionData: Q2VydGlmaWVkIE1haWwgTm90aWNlIC0gT0Nvbm5vciBTdWNjZXNzaW9uIENhc2U6IEFmdGVyIDQgZmFpbGVkIGNvbnRhY3QgYXR0ZW1wdHMsIHNlbmRpbmcgZm9ybWFsIG5vdGljZSB2aWEgY2VydGlmaWVkIG1haWwgcGVyIEJSRCBTZWN0aW9uIDMuMi4gQWNjb3VudCB3aWxsIGJlIGxpcXVpZGF0ZWQgaWYgbm8gcmVzcG9uc2Ugd2l0aGluIDMwIGRheXM=
+
+- object: ContentDocumentLink
+  fields:
+    LinkedEntityId: Case_OConnor_Escalated.Id
+    ShareType: V
+    Visibility: AllUsers
+    ContentDocumentId: Doc_CertifiedMail_OConnor.ContentDocumentId
+
+# ==================== ESCALATION CHATTER THREAD ====================
+
+- object: FeedItem
+  fields:
+    Type: TextPost
+    Body: "🔴 CRITICAL ESCALATION: Case escalated after 4 failed contact attempts per BRD Section 3.2. Successor Sean OConnor completely unresponsive - no phone, no email, opted out of all contact. Certified mail notice prepared and scheduled. Manager review meeting scheduled for [Date]."
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
+
+- object: FeedItem
+  fields:
+    Type: TextPost
+    Body: "@Estates_Manager @Legal_Team Escalated case ready for review. Sean OConnor has explicitly opted out of all email contact and is unreachable by phone. No forwarding address available through postal records. Recommend proceeding with certified mail per Day 95 protocol, followed by account liquidation if no response within 30 days per BRD Section 3.2. $2.8M DAF account requires careful handling of default distribution provisions."
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
+
+- object: FeedItem
+  fields:
+    Type: TextPost
+    Body: "📬 Certified mail sent to Sean OConnor's last known address in Boston, MA. Tracking number: 9405511899223345678901. 30-day response window begins per BRD Section 3.2. If no response, $2.8M DAF account will be liquidated and proceeds distributed according to default provisions (50% to Schwab Charitable unrestricted fund, 50% to state unclaimed property per Massachusetts law). Legal team notified of potential escheat requirements."
+    Visibility: InternalUsers
+  friends:
+    - object: Case
+      nickname: Case_OConnor_Escalated
 
 # ==================== CONTACT ATTEMPT TASKS (BRD CADENCE) ====================
 

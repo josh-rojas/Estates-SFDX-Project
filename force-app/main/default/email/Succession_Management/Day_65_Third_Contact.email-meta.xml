@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <EmailTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Day 65 - Third Contact (Time-Sensitive)</name>
     <style>none</style>
-    <subject>Third Contact Regarding DAF Account {!Case.FinancialAccount__r.Name}</subject>
+    <subject
+  >Third Contact Regarding DAF Account {!Case.FinancialAccount__r.Name}</subject>
     <textOnly>Dear {!Case.ContactName},
 
 This is our third attempt to reach you regarding the Donor-Advised Fund account held by {!Case.Account.Name}.

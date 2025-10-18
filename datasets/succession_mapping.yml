@@ -97,11 +97,9 @@ Insert Case:
     Contact_Attempt_Count__c: ContactAttemptCount
     Contact_Established__c: ContactEstablished
     Pathway_Confirmed__c: PathwayConfirmed
-    Next_Contact_Due__c: NextContactDue
     Notification_Source__c: NotificationSource
     Description: Description
     IsEscalated: IsEscalated
-    Last_Contact_Attempt__c: LastContactAttempt
     Contact_Established_Date__c: ContactEstablishedDate
     Form_Sent_Date__c: FormSentDate
     Form_Completed_Date__c: FormCompletedDate
@@ -137,3 +135,25 @@ Insert Task:
     WhatId:
       table: Case
       key_field: id
+
+Insert ContentVersion:
+  sf_object: ContentVersion
+  table: ContentVersion
+  fields:
+    Title: Title
+    PathOnClient: PathOnClient
+    FileExtension: FileExtension
+    ContentLocation: ContentLocation
+    VersionData: VersionData
+
+Insert ContentDocumentLink:
+  sf_object: ContentDocumentLink
+  table: ContentDocumentLink
+  fields:
+    LinkedEntityId: LinkedEntityId
+    ShareType: ShareType
+    Visibility: Visibility
+  lookups:
+    ContentDocumentId:
+      table: ContentVersion
+      after: ContentDocumentId

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Grants read and edit access to all Succession Management fields on Case and Task objects. Assign this to Estates team members who work with Named Successor Enactment cases. Includes access to Quick Actions and the Succession Pathway Selection Flow.</description>
+    <description>Grants read and edit access to core Succession Management fields. DEMO-OPTIMIZED: Maximum permissions. Updated Oct 2025.</description>
     <hasActivationRequired>false</hasActivationRequired>
     <label>Succession Management Access</label>
 

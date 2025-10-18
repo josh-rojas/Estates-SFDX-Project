@@ -1,0 +1,61 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam DefaultFontName "Salesforce Sans","Helvetica Neue","Arial","Sans-Serif"
+skinparam DefaultFontSize 14
+skinparam DefaultFontColor #3E3E3C
+skinparam LineColor #D0D5DA
+skinparam ArrowColor #0176D3
+skinparam ArrowThickness 1
+skinparam NoteBackgroundColor #F3F2F2
+skinparam NoteBorderColor #D0D5DA
+skinparam NoteFontColor #3E3E3C
+skinparam ComponentBackgroundColor #FFFFFF
+skinparam ComponentBorderColor #D0D5DA
+skinparam ComponentFontColor #3E3E3C
+left to right direction
+skinparam linetype ortho
+title CI/CD Pipeline – Succession Management
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+
+actor Developer
+
+node "GitHub" as GH {
+  component "Repository\nBranches:\n- feature/*\n- main\n- tags v*.*.*" as Repo
+  component "Workflow: feature-ci.yml" as WFeature
+  component "Workflow: main-ci.yml" as WMain
+  component "Workflow: release.yml" as WRelease
+}
+
+cloud "Salesforce Orgs" as Orgs {
+  [Dev Hub]
+  [Scratch Org (feature/PR)] as ScratchPR
+  [QA Scratch Org (main)] as ScratchQA
+  [Schwab Sandbox]
+  [Production]
+}
+
+Developer --> Repo : push / open PR
+Repo --> WFeature : PR to main
+Repo --> WMain : push to main
+Repo --> WRelease : tag v*.*.*
+
+WFeature --> ScratchPR : create org, deploy & test\n(ci_succession_feature)
+WFeature --> Repo : status checks + artifacts
+
+WMain --> ScratchQA : full deploy + tests
+WMain --> "Schwab Sandbox" : deploy on success
+WMain --> Repo : status + release notes
+
+WRelease --> Production : validate (check-only)\n+ approval gate (2)
+WRelease --> Production : deploy + tests + permsets
+WRelease --> Repo : GitHub Release + artifacts
+
+note bottom of Orgs
+All deployments use sf/cci commands.
+Tests must meet 75% coverage.
+end note
+
+@enduml

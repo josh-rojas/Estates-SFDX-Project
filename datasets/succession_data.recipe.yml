@@ -345,26 +345,6 @@
                 end_date: -1d
         - choice:
             pick: null
-    NextContactDue:
-      if:
-        - choice:
-            when: ${{ContactEstablished == false}}
-            pick:
-              date_between:
-                start_date: +1d
-                end_date: +30d
-        - choice:
-            pick: null
-    LastContactAttempt:
-      if:
-        - choice:
-            when: ${{ContactAttemptCount > 0}}
-            pick:
-              date_between:
-                start_date: -10d
-                end_date: -1d
-        - choice:
-            pick: null
     NotificationSource: Financial Advisor
     Description: Succession case created for estate settlement.
     IsEscalated:
@@ -460,6 +440,2051 @@
   friends:
     - object: Case
       nickname: SuccessionCase
+
+# ==================== EMAIL VALIDATION TEST SCENARIOS ====================
+
+# Scenario 1: Invalid Email Format (missing TLD)
+- object: Account
+  nickname: DeceasedDonor_InvalidEmail
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Richard
+    LastName: Chen_InvalidEmail
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -25d
+        end_date: -25d
+    PersonEmail: richard.chen@legacy-estate.example.com
+    FinServ__NetWorth__c: 800000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_InvalidEmail
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Lisa
+    LastName: Chen_InvalidEmail
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: lisa.chen@invaliddomain
+    PersonMobilePhone: (555) 900-0001
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+- object: FinancialAccount
+  nickname: DAF_InvalidEmail
+  fields:
+    Name: Chen Fund - Invalid Email Test
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 400000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -6y
+        end_date: -6y
+    FirstContributionDate: ${{OpenDate}}
+    Ownership: Individual
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_InvalidEmail
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -6y
+        end_date: -6y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_InvalidEmail
+    - object: Account
+      nickname: DeceasedDonor_InvalidEmail
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -6y
+        end_date: -6y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_InvalidEmail
+    - object: Account
+      nickname: Successor_InvalidEmail
+
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Email Test - Invalid Email Format
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: false
+    PathwayConfirmed: Not Selected
+    NotificationSource: Financial Advisor
+    Description: Email validation test case - successor email missing TLD. Email warning should appear, Send Email button disabled.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_InvalidEmail
+    - object: FinancialAccount
+      nickname: DAF_InvalidEmail
+
+# Scenario 2: No Email Address
+- object: Account
+  nickname: DeceasedDonor_NoEmail
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Michael
+    LastName: Rodriguez_NoEmail
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -30d
+        end_date: -30d
+    PersonEmail: michael.rodriguez@legacy-estate.example.com
+    FinServ__NetWorth__c: 950000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_NoEmail
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Sarah
+    LastName: Rodriguez_NoEmail
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: null
+    PersonMobilePhone: (555) 900-0002
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+- object: FinancialAccount
+  nickname: DAF_NoEmail
+  fields:
+    Name: Rodriguez Fund - No Email Test
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ISDAF
+    Status: Active
+    Balance: 550000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -7y
+        end_date: -7y
+    FirstContributionDate: ${{OpenDate}}
+    Ownership: Individual
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_NoEmail
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -7y
+        end_date: -7y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_NoEmail
+    - object: Account
+      nickname: DeceasedDonor_NoEmail
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -7y
+        end_date: -7y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_NoEmail
+    - object: Account
+      nickname: Successor_NoEmail
+
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Email Test - No Email Address
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: false
+    PathwayConfirmed: Not Selected
+    NotificationSource: Financial Advisor
+    Description: Email validation test case - successor has no email address. Email warning should appear, Send Email button disabled.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_NoEmail
+    - object: FinancialAccount
+      nickname: DAF_NoEmail
+
+# Scenario 3: Opted Out of Email
+- object: Account
+  nickname: DeceasedDonor_OptedOut
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Thomas
+    LastName: Anderson_OptedOut
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -20d
+        end_date: -20d
+    PersonEmail: thomas.anderson@legacy-estate.example.com
+    FinServ__NetWorth__c: 1200000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_OptedOut
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Emily
+    LastName: Anderson_OptedOut
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: emily.anderson@email.example.com
+    PersonMobilePhone: (555) 900-0003
+    PersonHasOptedOutOfEmail: true
+    PersonDoNotCall: false
+
+- object: FinancialAccount
+  nickname: DAF_OptedOut
+  fields:
+    Name: Anderson Fund - Opted Out Test
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 650000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+    FirstContributionDate: ${{OpenDate}}
+    Ownership: Individual
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_OptedOut
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_OptedOut
+    - object: Account
+      nickname: DeceasedDonor_OptedOut
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_OptedOut
+    - object: Account
+      nickname: Successor_OptedOut
+
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Email Test - Opted Out of Email
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: false
+    PathwayConfirmed: Not Selected
+    NotificationSource: Financial Advisor
+    Description: Email validation test case - successor opted out of email (compliance test). Email warning should appear, Send Email button disabled.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_OptedOut
+    - object: FinancialAccount
+      nickname: DAF_OptedOut
+
+# Scenario 4: "Not Started" Workflow Test
+- object: Account
+  nickname: DeceasedDonor_NotStarted
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Jennifer
+    LastName: Taylor_NotStarted
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -15d
+        end_date: -15d
+    PersonEmail: jennifer.taylor@legacy-estate.example.com
+    FinServ__NetWorth__c: 1100000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_NotStarted
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Ryan
+    LastName: Taylor_NotStarted
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: ryan.taylor@email.example.com
+    PersonMobilePhone: (555) 900-0004
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+- object: FinancialAccount
+  nickname: DAF_NotStarted
+  fields:
+    Name: Taylor Fund - Not Started Test
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 700000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -5y
+        end_date: -5y
+    FirstContributionDate: ${{OpenDate}}
+    Ownership: Individual
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_NotStarted
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -5y
+        end_date: -5y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_NotStarted
+    - object: Account
+      nickname: DeceasedDonor_NotStarted
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -5y
+        end_date: -5y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_NotStarted
+    - object: Account
+      nickname: Successor_NotStarted
+
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Workflow Test - Not Started (Manual Entry)
+    Status: New
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Not Started
+    ContactAttemptCount: null
+    ContactEstablished: false
+    PathwayConfirmed: Not Selected
+    NotificationSource: Financial Advisor
+    Description: Workflow entry point test - Verification Status is Not Started. Agent must click Quick Action to begin processing. No contact tasks should exist until agent clicks Begin Succession Processing button.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_NotStarted
+    - object: FinancialAccount
+      nickname: DAF_NotStarted
+
+# ==================== CHARITY ACCOUNTS ====================
+
+# Large National Charity (Education Focus)
+- object: Account
+  nickname: Charity_NationalEducation
+  fields:
+    RecordType.DeveloperName: IndustriesBusiness
+    Name: National Education Foundation
+    Type: Nonprofit
+    Phone: (555) 800-1000
+    Website: www.nationaleducation.org
+    BillingStreet: 1000 Learning Way
+    BillingCity: Washington
+    BillingState: DC
+    BillingPostalCode: 20001
+    BillingCountry: United States
+    Industry: Nonprofit Organization
+    AnnualRevenue: 50000000
+    NumberOfEmployees: 150
+    Description: "National 501(c)(3) focused on K-12 education reform and scholarship programs. EIN: 12-3456789. Has received grants from Wilson family DAF for 8+ years."
+
+# Regional Arts Organization
+- object: Account
+  nickname: Charity_RegionalArts
+  fields:
+    RecordType.DeveloperName: IndustriesBusiness
+    Name: Bay Area Arts Collective
+    Type: Nonprofit
+    Phone: (415) 555-2000
+    Website: www.bayareaarts.org
+    BillingStreet: 450 Mission Street
+    BillingCity: San Francisco
+    BillingState: CA
+    BillingPostalCode: 94105
+    BillingCountry: United States
+    Industry: Nonprofit Organization
+    AnnualRevenue: 2500000
+    NumberOfEmployees: 25
+    Description: "Regional 501(c)(3) supporting local artists and community art programs. EIN: 23-4567890. Long-standing relationship with Thompson family."
+
+# Health Research Institute
+- object: Account
+  nickname: Charity_HealthResearch
+  fields:
+    RecordType.DeveloperName: IndustriesBusiness
+    Name: Pacific Medical Research Institute
+    Type: Nonprofit
+    Phone: (650) 555-3000
+    Website: www.pacificmedical.org
+    BillingStreet: 500 Research Parkway
+    BillingCity: Palo Alto
+    BillingState: CA
+    BillingPostalCode: 94304
+    BillingCountry: United States
+    Industry: Healthcare
+    AnnualRevenue: 85000000
+    NumberOfEmployees: 400
+    Description: "Leading 501(c)(3) research institution focused on cancer and heart disease. EIN: 34-5678901. New relationship established through succession case."
+
+# Environmental Conservation Group
+- object: Account
+  nickname: Charity_Environmental
+  fields:
+    RecordType.DeveloperName: IndustriesBusiness
+    Name: Sierra Conservation Fund
+    Type: Nonprofit
+    Phone: (916) 555-4000
+    Website: www.sierraconservation.org
+    BillingStreet: 200 Nature Way
+    BillingCity: Sacramento
+    BillingState: CA
+    BillingPostalCode: 95814
+    BillingCountry: United States
+    Industry: Environmental Services
+    AnnualRevenue: 12000000
+    NumberOfEmployees: 80
+    Description: "California 501(c)(3) dedicated to wilderness preservation and habitat restoration. EIN: 45-6789012."
+
+# Human Services - Local Food Bank
+- object: Account
+  nickname: Charity_FoodBank
+  fields:
+    RecordType.DeveloperName: IndustriesBusiness
+    Name: Central Valley Food Bank
+    Type: Nonprofit
+    Phone: (559) 555-5000
+    Website: www.centralvalleyfood.org
+    BillingStreet: 100 Community Drive
+    BillingCity: Fresno
+    BillingState: CA
+    BillingPostalCode: 93721
+    BillingCountry: United States
+    Industry: Nonprofit Organization
+    AnnualRevenue: 8000000
+    NumberOfEmployees: 50
+    Description: "Regional 501(c)(3) addressing food insecurity. EIN: 56-7890123. Partner organization recommended by successor."
+
+# International Charity (Referenced in International Scenario)
+- object: Account
+  nickname: Charity_International
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: Global Health Alliance
+    Type: Nonprofit
+    Phone: +44-20-7123-4567
+    Website: www.globalhealthalliance.org
+    BillingStreet: 123 Oxford Street
+    BillingCity: London
+    BillingState: England
+    BillingPostalCode: W1D 1BS
+    BillingCountry: United Kingdom
+    Industry: Healthcare
+    AnnualRevenue: 25000000
+    NumberOfEmployees: 150
+    Description: "International health organization working in developing countries. EIN equivalent: GB-CR-12345678. Supports global health initiatives."
+
+# ==================== CHARITY CONTACTS ====================
+
+# Program Director at National Education Foundation
+- object: Contact
+  nickname: Contact_CharityEd
+  fields:
+    FirstName: Robert
+    LastName: Chen
+    Title: Senior Program Director
+    Email: r.chen@nationaleducation.org
+    Phone: (555) 800-1001
+    AccountId: Charity_NationalEducation.Id
+    Description: Primary contact for grant processing. Oversees scholarship program receiving final grant distributions.
+
+# Executive Director at Bay Area Arts
+- object: Contact
+  nickname: Contact_CharityArts
+  fields:
+    FirstName: Maria
+    LastName: Rodriguez
+    Title: Executive Director
+    Email: m.rodriguez@bayareaarts.org
+    Phone: (415) 555-2001
+    AccountId: Charity_RegionalArts.Id
+    Description: Leadership contact for major gifts. Has worked with Thompson family for 5+ years.
+
+# Executive Director at Global Health Alliance
+- object: Contact
+  nickname: Contact_International
+  fields:
+    FirstName: Dr. Elena
+    LastName: Rodriguez
+    Title: Executive Director
+    Email: e.rodriguez@globalhealthalliance.org
+    Phone: +44-20-7123-4568
+    AccountId: Charity_International.Id
+    Description: "International NGO executive. Coordinates with donors for global health initiatives and international grant processing."
+
+# Research Director at Pacific Medical Research Institute
+- object: Contact
+  nickname: Contact_CharityResearch
+  fields:
+    FirstName: Dr. Michael
+    LastName: Chen
+    Title: Director of Research
+    Email: m.chen@pacificmedical.org
+    Phone: (650) 555-3001
+    AccountId: Charity_HealthResearch.Id
+    Description: "Medical research director. Oversees cancer and heart disease research programs receiving grant disbursements."
+
+# ==================== EXECUTION STATUS SCENARIOS ====================
+
+# Scenario: Settlement Pending Case
+- object: Account
+  nickname: DeceasedDonor_SettlementPending
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Elizabeth
+    LastName: Johnson_SettlementPending
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -45d
+        end_date: -45d
+    PersonEmail: elizabeth.johnson@legacy-estate.example.com
+    FinServ__NetWorth__c: 1800000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_SettlementPending
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Michael
+    LastName: Johnson_SettlementPending
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: michael.johnson@email.example.com
+    PersonMobilePhone: (555) 900-0005
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+- object: FinancialAccount
+  nickname: DAF_SettlementPending
+  fields:
+    Name: Johnson Fund - Settlement Pending
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 1800000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+    FirstContributionDate: ${{OpenDate}}
+    Most_Recent_Grant_Date__c: -30d
+    MostRecentGrantAmount__c: 75000
+    Arts_Culture_Humanities_Lifetime__c: 250000
+    Education_Lifetime__c: 450000
+    Health_Lifetime__c: 180000
+    Human_Services_Lifetime__c: 320000
+    Religion_Related_Lifetime__c: 150000
+    Environmental_and_Animals_Lifetime__c: 80000
+    Ownership: Individual
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_SettlementPending
+    - object: Account
+      nickname: DeceasedDonor_SettlementPending
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_SettlementPending
+    - object: Account
+      nickname: Successor_SettlementPending
+
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Execution Status - Settlement Pending
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -20d
+        end_date: -20d
+    PathwayConfirmed: Final Grant
+    FormSentDate:
+      date_between:
+        start_date: -18d
+        end_date: -18d
+    FormCompletedDate:
+      date_between:
+        start_date: -15d
+        end_date: -15d
+    Execution_Status__c: Settlement Pending
+    Asset_Transfer_Status__c: Transfer Completed
+    Grant_Settlement_Status__c: Pending Review
+    Charity_Account__c: Charity_NationalEducation.Id
+    Charity_Contact__c: Contact_CharityEd.Id
+    NotificationSource: Financial Advisor
+    Description: Execution status test case - Final Grant pathway selected, funds transferred, awaiting settlement approval. Shows case in Settlement Pending status.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_SettlementPending
+    - object: FinancialAccount
+      nickname: DAF_SettlementPending
+
+# Scenario: New DAF In Progress
+- object: Account
+  nickname: DeceasedDonor_NewDAF
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: David
+    LastName: Martinez_NewDAF
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -35d
+        end_date: -35d
+    PersonEmail: david.martinez@legacy-estate.example.com
+    FinServ__NetWorth__c: 2200000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_NewDAF
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Carlos
+    LastName: Martinez_NewDAF
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: carlos.martinez@email.example.com
+    PersonMobilePhone: (555) 900-0006
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+- object: FinancialAccount
+  nickname: DAF_NewDAF
+  fields:
+    Name: Martinez Fund - New DAF Transfer
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ISDAF
+    Status: Active
+    Balance: 2200000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+    FirstContributionDate: ${{OpenDate}}
+    Ownership: Individual
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_NewDAF
+    - object: Account
+      nickname: DeceasedDonor_NewDAF
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -8y
+        end_date: -8y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_NewDAF
+    - object: Account
+      nickname: Successor_NewDAF
+
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Execution Status - New DAF In Progress
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -25d
+        end_date: -25d
+    PathwayConfirmed: New DAF Account
+    FormSentDate:
+      date_between:
+        start_date: -23d
+        end_date: -23d
+    FormCompletedDate:
+      date_between:
+        start_date: -20d
+        end_date: -20d
+    Execution_Status__c: In Progress
+    Asset_Transfer_Status__c: Transfer Initiated
+    New_DAF_Account_Number__c:
+      fake.Numerify:
+        text: DAF-########
+    NotificationSource: Financial Advisor
+    Description: Execution status test case - New DAF Account pathway selected, transfer initiated but not completed. Shows case in In Progress status.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_NewDAF
+    - object: FinancialAccount
+      nickname: DAF_NewDAF
+
+# Scenario: Disclaim Assets On Hold
+- object: Account
+  nickname: DeceasedDonor_Disclaim
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Jennifer
+    LastName: Davis_Disclaim
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -50d
+        end_date: -50d
+    PersonEmail: jennifer.davis@legacy-estate.example.com
+    FinServ__NetWorth__c: 950000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_Disclaim
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Sarah
+    LastName: Davis_Disclaim
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: sarah.davis@email.example.com
+    PersonMobilePhone: (555) 900-0007
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+- object: FinancialAccount
+  nickname: DAF_Disclaim
+  fields:
+    Name: Davis Fund - Disclaim Scenario
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 950000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+    FirstContributionDate: ${{OpenDate}}
+    Ownership: Individual
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Disclaim
+    - object: Account
+      nickname: DeceasedDonor_Disclaim
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Disclaim
+    - object: Account
+      nickname: Successor_Disclaim
+
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Execution Status - Disclaim Assets On Hold
+    Status: In Progress
+    Priority: High
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -30d
+        end_date: -30d
+    PathwayConfirmed: Disclaim Assets
+    FormSentDate:
+      date_between:
+        start_date: -28d
+        end_date: -28d
+    FormCompletedDate:
+      date_between:
+        start_date: -25d
+        end_date: -25d
+    Execution_Status__c: On Hold
+    Asset_Transfer_Status__c: Documentation Required
+    NotificationSource: Financial Advisor
+    Description: Execution status test case - Disclaim Assets pathway selected, but legal documentation required before processing can continue. Shows case in On Hold status.
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: DeceasedDonor_Disclaim
+    - object: FinancialAccount
+      nickname: DAF_Disclaim
+
+# ==================== FAMILY RELATIONSHIP NETWORK ====================
+
+# Wilson Family Multi-Generational Scenario
+# Grandparent (Deceased - Original DAF Owner)
+- object: Account
+  nickname: Grandparent_Wilson
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Robert
+    LastName: Wilson_Family
+    Salutation: Mr.
+    PersonBirthdate: 1920-03-15
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    PersonEmail: robert.wilson@legacy-archives.example.com
+    FinServ__NetWorth__c: 3000000
+    FinServ__Status__c: Closed
+    FinServ__ClientCategory__c: Platinum
+    FinServ__InvestmentObjectives__c: Conservative Income;Income
+    FinServ__RiskTolerance__c: Conservative
+    DAF_Accounts__c: 1
+    Self_Qualified_Premier__c: true
+
+# Parent (Deceased - Inherited DAF, Current Succession)
+- object: Account
+  nickname: Parent_Wilson
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Patricia
+    LastName: Wilson_Family
+    Salutation: Mrs.
+    PersonBirthdate: 1950-07-22
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c: -40d
+    PersonEmail: patricia.wilson@legacy-estate.example.com
+    PersonMobilePhone: (555) 000-4001
+    PersonHomePhone: (555) 001-4001
+    PersonMailingStreet: 123 Heritage Lane
+    PersonMailingCity: San Francisco
+    PersonMailingState: CA
+    PersonMailingPostalCode: 94102
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Platinum
+    FinServ__NetWorth__c: 5000000
+    FinServ__Status__c: Closed
+    FinServ__InvestmentObjectives__c: Conservative Income;Income
+    FinServ__RiskTolerance__c: Conservative
+    DAF_Accounts__c: 1
+    Self_Qualified_Premier__c: true
+
+# Children (Successors - Siblings)
+- object: Account
+  nickname: Successor_Amanda_Wilson
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Amanda
+    LastName: Wilson_Family
+    Salutation: Ms.
+    PersonBirthdate: 1978-06-10
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: amanda.wilson@email.example.com
+    PersonMobilePhone: (555) 100-4001
+    PersonMailingStreet: 456 First Street
+    PersonMailingCity: Portland
+    PersonMailingState: OR
+    PersonMailingPostalCode: 97201
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Silver
+    Area_of_Interest__c: Family Philanthropy / Legacy Planning
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+- object: Account
+  nickname: Successor_Brandon_Wilson
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Brandon
+    LastName: Wilson_Family
+    Salutation: Mr.
+    PersonBirthdate: 1980-09-15
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: brandon.wilson@email.example.com
+    PersonMobilePhone: (555) 100-4002
+    PersonMailingStreet: 789 Second Avenue
+    PersonMailingCity: Seattle
+    PersonMailingState: WA
+    PersonMailingPostalCode: 98101
+    PersonMailingCountry: United States
+    FinServ__ClientCategory__c: Silver
+    Area_of_Interest__c: Family Philanthropy / Legacy Planning
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+
+# Shared Advisor (3-generation relationship)
+- object: Account
+  nickname: Advisor_WilsonFamily
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: Wilson Family Advisors
+    Type: Advisor
+    Phone: (415) 555-6000
+    BillingStreet: 1000 Financial District
+    BillingCity: San Francisco
+    BillingState: CA
+    BillingPostalCode: 94105
+    BillingCountry: United States
+    AS_Segment__c: Star
+    AS_Region__c: SO. CALIFORNIA
+    FinServ__Status__c: Active
+
+# Wilson's DAF Account (Multi-generational)
+- object: FinancialAccount
+  nickname: DAF_WilsonFamily
+  fields:
+    Name: Wilson Family Foundation Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 3200000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    FirstContributionDate: ${{OpenDate}}
+    Most_Recent_Grant_Date__c: -60d
+    MostRecentGrantAmount__c: 100000
+    Arts_Culture_Humanities_Lifetime__c: 500000
+    Education_Lifetime__c: 850000
+    Health_Lifetime__c: 350000
+    Human_Services_Lifetime__c: 600000
+    Religion_Related_Lifetime__c: 250000
+    Environmental_and_Animals_Lifetime__c: 200000
+    Ownership: Individual
+  friends:
+    - object: Account
+      nickname: Parent_Wilson
+
+# Financial Account Roles - Multi-generational
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: false
+    StartDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    EndDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_WilsonFamily
+    - object: Account
+      nickname: Grandparent_Wilson
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: false
+    StartDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    EndDate: -40d
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_WilsonFamily
+    - object: Account
+      nickname: Parent_Wilson
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    SuccessorAllocation: 50
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_WilsonFamily
+    - object: Account
+      nickname: Successor_Amanda_Wilson
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    SuccessorAllocation: 50
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_WilsonFamily
+    - object: Account
+      nickname: Successor_Brandon_Wilson
+
+- object: FinancialAccountRole
+  fields:
+    Role: Advisor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_WilsonFamily
+    - object: Account
+      nickname: Advisor_WilsonFamily
+
+# ==================== ADVISOR NETWORK SCENARIO ====================
+
+# Pacific Wealth Advisors (Manages 5 Client Accounts)
+- object: Account
+  nickname: AdvisorFirm_PacificWealth
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: Pacific Wealth Advisors
+    Type: Advisor
+    Phone: (650) 555-7000
+    BillingStreet: 2000 Financial Plaza
+    BillingCity: Palo Alto
+    BillingState: CA
+    BillingPostalCode: 94301
+    BillingCountry: United States
+    AS_Segment__c: Premium
+    AS_Region__c: SO. CALIFORNIA
+    FinServ__Status__c: Active
+
+# Client 1: Active DAF (No Succession)
+- object: Account
+  nickname: Client1_Pacific
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Susan
+    LastName: Mitchell_Pacific
+    Type: Donor
+    Deceased__c: false
+    PersonEmail: susan.mitchell@email.example.com
+    FinServ__NetWorth__c: 2000000
+    FinServ__Status__c: Active
+
+- object: FinancialAccount
+  nickname: DAF_Client1_Pacific
+  fields:
+    Name: Mitchell Family Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 1500000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -10y
+        end_date: -10y
+    FirstContributionDate: ${{OpenDate}}
+    Ownership: Individual
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -10y
+        end_date: -10y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Client1_Pacific
+    - object: Account
+      nickname: Client1_Pacific
+
+- object: FinancialAccountRole
+  fields:
+    Role: Advisor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -10y
+        end_date: -10y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Client1_Pacific
+    - object: Account
+      nickname: AdvisorFirm_PacificWealth
+
+# ==================== MULTIPLE DAF ACCOUNTS PER DONOR ====================
+
+# Scenario: Donor with 3 separate DAF accounts (different purposes)
+- object: Account
+  nickname: Donor_MultipleDAFs
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Margaret
+    LastName: Harrington_MultiDAF
+    Salutation: Dr.
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -60d
+        end_date: -60d
+    PersonEmail: margaret.harrington@legacy-estate.example.com
+    FinServ__NetWorth__c: 15000000
+    FinServ__Status__c: Closed
+    DAF_Accounts__c: 3
+    Description: "Philanthropic physician with three specialized DAF accounts: Medical Research, Education, Environmental Conservation"
+
+# Harrington Medical Research Fund
+- object: FinancialAccount
+  nickname: DAF_Harrington_Medical
+  fields:
+    Name: Harrington Medical Research Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ISDAF
+    Status: Active
+    Balance: 2500000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -20y
+        end_date: -20y
+    FirstContributionDate: ${{OpenDate}}
+    Most_Recent_Grant_Date__c: -45d
+    MostRecentGrantAmount__c: 125000
+    Health_Lifetime__c: 800000
+    Description: "Dedicated to cancer and heart disease research. Established after losing spouse to cancer."
+    Ownership: Individual
+
+# Harrington Education Excellence Fund
+- object: FinancialAccount
+  nickname: DAF_Harrington_Education
+  fields:
+    Name: Harrington Education Excellence Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 1800000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -18y
+        end_date: -18y
+    FirstContributionDate: ${{OpenDate}}
+    Most_Recent_Grant_Date__c: -30d
+    MostRecentGrantAmount__c: 95000
+    Education_Lifetime__c: 650000
+    Description: "Supporting STEM education and teacher development programs."
+    Ownership: Individual
+
+# Harrington Environmental Fund
+- object: FinancialAccount
+  nickname: DAF_Harrington_Environmental
+  fields:
+    Name: Harrington Environmental Conservation Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 1200000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+    FirstContributionDate: ${{OpenDate}}
+    Most_Recent_Grant_Date__c: -60d
+    MostRecentGrantAmount__c: 75000
+    Environmental_and_Animals_Lifetime__c: 450000
+    Description: "Protecting biodiversity and supporting climate change mitigation efforts."
+    Ownership: Individual
+
+# Single Successor for All 3 Accounts
+- object: Account
+  nickname: Successor_Harrington_Single
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: James
+    LastName: Harrington_Single
+    Salutation: Mr.
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: james.harrington@email.example.com
+    PersonMobilePhone: (555) 900-0008
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    Description: "Only child and successor for all three specialized DAF accounts"
+
+# Financial Account Roles for 3 DAFs
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: false
+    StartDate:
+      date_between:
+        start_date: -20y
+        end_date: -20y
+    EndDate: -60d
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Harrington_Medical
+    - object: Account
+      nickname: Donor_MultipleDAFs
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: false
+    StartDate:
+      date_between:
+        start_date: -18y
+        end_date: -18y
+    EndDate: -60d
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Harrington_Education
+    - object: Account
+      nickname: Donor_MultipleDAFs
+
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: false
+    StartDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+    EndDate: -60d
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Harrington_Environmental
+    - object: Account
+      nickname: Donor_MultipleDAFs
+
+# Successor Roles for All 3 Accounts
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -20y
+        end_date: -20y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Harrington_Medical
+    - object: Account
+      nickname: Successor_Harrington_Single
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -18y
+        end_date: -18y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Harrington_Education
+    - object: Account
+      nickname: Successor_Harrington_Single
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Harrington_Environmental
+    - object: Account
+      nickname: Successor_Harrington_Single
+
+# Succession Case for Multiple DAFs
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Succession - Harrington Multiple DAF Scenario
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -25d
+        end_date: -25d
+    PathwayConfirmed: New DAF Account
+    FormSentDate:
+      date_between:
+        start_date: -23d
+        end_date: -23d
+    FormCompletedDate:
+      date_between:
+        start_date: -20d
+        end_date: -20d
+    Execution_Status__c: In Progress
+    Asset_Transfer_Status__c: Transfer Initiated
+    NotificationSource: Financial Advisor
+    Description: "Complex succession case - Single successor inheriting three specialized DAF accounts ($2.5M Medical, $1.8M Education, $1.2M Environmental). Tests multiple account coordination and pathway consolidation."
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_MultipleDAFs
+    - object: FinancialAccount
+      nickname: DAF_Harrington_Medical
+
+# ==================== TRUST-BASED SUCCESSION SCENARIO ====================
+
+# Corporate Trustee Account (Bank/Trust Company)
+- object: Account
+  nickname: Trustee_Corporate
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: Pacific Trust & Investment Company
+    Type: Trustee
+    Phone: (415) 555-8000
+    BillingStreet: One Trust Plaza
+    BillingCity: San Francisco
+    BillingState: CA
+    BillingPostalCode: 94105
+    BillingCountry: United States
+    Industry: Finance
+    AnnualRevenue: 500000000
+    NumberOfEmployees: 500
+    Description: "Full-service trust company managing $50B in client assets. Specialized in DAF administration and succession planning."
+
+# Trust-Based Donor (Assets Held in Trust)
+- object: Account
+  nickname: Donor_TrustBased
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Elizabeth
+    LastName: Thornton_Trust
+    Salutation: Mrs.
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -45d
+        end_date: -45d
+    PersonEmail: elizabeth.thornton@legacy-estate.example.com
+    FinServ__NetWorth__c: 25000000
+    FinServ__Status__c: Closed
+    Description: "Estate planning attorney who established revocable trust holding DAF assets. Trust provides additional layer of privacy and estate tax planning."
+
+# Trust-Held DAF Account
+- object: FinancialAccount
+  nickname: DAF_TrustHeld
+  fields:
+    Name: Thornton Family Trust DAF
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 3500000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+    FirstContributionDate: ${{OpenDate}}
+    Most_Recent_Grant_Date__c: -25d
+    MostRecentGrantAmount__c: 150000
+    Arts_Culture_Humanities_Lifetime__c: 400000
+    Education_Lifetime__c: 600000
+    Health_Lifetime__c: 300000
+    Human_Services_Lifetime__c: 500000
+    Environmental_and_Animals_Lifetime__c: 200000
+    Description: "DAF established within revocable trust structure. Trust provides asset protection and estate tax benefits."
+    Ownership: Trust
+
+# Trustee Role (Corporate Trustee)
+- object: FinancialAccountRole
+  fields:
+    Role: Trustee
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_TrustHeld
+    - object: Account
+      nickname: Trustee_Corporate
+
+# Trust Beneficiaries (Multiple Successors)
+- object: Account
+  nickname: Beneficiary_Primary_Trust
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Sarah
+    LastName: Thornton_Beneficiary
+    Salutation: Ms.
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: sarah.thornton@email.example.com
+    PersonMobilePhone: (555) 900-0009
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    Description: "Primary beneficiary - receives 60% of trust assets including DAF"
+
+- object: Account
+  nickname: Beneficiary_Contingent_Trust
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Michael
+    LastName: Thornton_Beneficiary
+    Salutation: Mr.
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: michael.thornton@email.example.com
+    PersonMobilePhone: (555) 900-0010
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    Description: "Contingent beneficiary - receives 40% of trust assets if primary predeceases"
+
+# Beneficiary Roles
+- object: FinancialAccountRole
+  fields:
+    Role: Beneficiary
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+    SuccessorAllocation: 60
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_TrustHeld
+    - object: Account
+      nickname: Beneficiary_Primary_Trust
+
+- object: FinancialAccountRole
+  fields:
+    Role: Beneficiary
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+    SuccessorAllocation: 40
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_TrustHeld
+    - object: Account
+      nickname: Beneficiary_Contingent_Trust
+
+# Trust-Based Succession Case
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Trust-Based Succession - Thornton Estate
+    Status: In Progress
+    Priority: High
+    Origin: Legal
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -20d
+        end_date: -20d
+    PathwayConfirmed: Final Grant
+    FormSentDate:
+      date_between:
+        start_date: -18d
+        end_date: -18d
+    FormCompletedDate:
+      date_between:
+        start_date: -15d
+        end_date: -15d
+    Execution_Status__c: Settlement Pending
+    Asset_Transfer_Status__c: Transfer Completed
+    Grant_Settlement_Status__c: Pending Review
+    Charity_Account__c: Charity_HealthResearch.Id
+    Charity_Contact__c: Contact_CharityResearch.Id
+    NotificationSource: Trust Company
+    Description: "Trust-based succession - DAF held within revocable trust structure. Corporate trustee (Pacific Trust) coordinates with beneficiaries. Tests trust administration workflows and beneficiary notifications."
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_TrustBased
+    - object: FinancialAccount
+      nickname: DAF_TrustHeld
+
+# ==================== INTERNATIONAL SUCCESSOR SCENARIO ====================
+
+# International Successor (Non-US Resident)
+- object: Account
+  nickname: Successor_International
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Isabelle
+    LastName: Dubois_International
+    Salutation: Mme.
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: isabelle.dubois@email.example.com
+    PersonMobilePhone: +33-6-12-34-56-78
+    PersonMailingStreet: 15 Rue de la Paix
+    PersonMailingCity: Paris
+    PersonMailingState: Île-de-France
+    PersonMailingPostalCode: 75002
+    PersonMailingCountry: France
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__ClientCategory__c: International
+    Area_of_Interest__c: Global Philanthropy
+    Description: "French citizen and international successor. Requires tax treaty considerations and international wire instructions."
+
+# International Donor
+- object: Account
+  nickname: Donor_International
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Robert
+    LastName: Dubois_International
+    Salutation: Mr.
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -90d
+        end_date: -90d
+    PersonEmail: robert.dubois@legacy-estate.example.com
+    PersonMobilePhone: (555) 900-0011
+    PersonMailingStreet: 123 Silicon Valley Drive
+    PersonMailingCity: Palo Alto
+    PersonMailingState: CA
+    PersonMailingPostalCode: 94301
+    PersonMailingCountry: United States
+    FinServ__NetWorth__c: 8000000
+    FinServ__Status__c: Closed
+    Description: "Dual US/French citizen who established DAF during tech career in Silicon Valley. International succession requires tax treaty compliance."
+
+# International DAF Account
+- object: FinancialAccount
+  nickname: DAF_International
+  fields:
+    Name: Dubois International Philanthropy Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ISDAF
+    Status: Active
+    Balance: 2000000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    FirstContributionDate: ${{OpenDate}}
+    Most_Recent_Grant_Date__c: -90d
+    MostRecentGrantAmount__c: 100000
+    Arts_Culture_Humanities_Lifetime__c: 300000
+    Education_Lifetime__c: 500000
+    Health_Lifetime__c: 200000
+    Human_Services_Lifetime__c: 400000
+    International_Lifetime__c: 300000
+    Description: "DAF established by French-American donor. Grants support both US and international causes. International succession requires tax treaty compliance."
+    Ownership: Individual
+
+# Financial Account Roles
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: false
+    StartDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    EndDate: -90d
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_International
+    - object: Account
+      nickname: Donor_International
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -25y
+        end_date: -25y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_International
+    - object: Account
+      nickname: Successor_International
+
+# International Succession Case
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: International Succession - Dubois Estate
+    Status: In Progress
+    Priority: High
+    Origin: Email
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 3
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -45d
+        end_date: -45d
+    PathwayConfirmed: Final Grant
+    FormSentDate:
+      date_between:
+        start_date: -43d
+        end_date: -43d
+    FormCompletedDate:
+      date_between:
+        start_date: -35d
+        end_date: -35d
+    Execution_Status__c: Settlement Pending
+    Asset_Transfer_Status__c: Transfer Completed
+    Grant_Settlement_Status__c: Pending Review
+    Charity_Account__c: Charity_International.Id
+    Charity_Contact__c: Contact_International.Id
+    NotificationSource: Estate Attorney
+    Description: "International succession case - French citizen inheriting US-based DAF. Requires US-France tax treaty compliance, international wire instructions, and cross-border grant processing."
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_International
+    - object: FinancialAccount
+      nickname: DAF_International
+
+# ==================== PROFESSIONAL EXECUTOR INVOLVEMENT ====================
+
+# Professional Executor (Law Firm)
+- object: Account
+  nickname: Executor_Professional
+  fields:
+    RecordType.DeveloperName: ${{BusinessAccountRecordType}}
+    Name: Sterling & Associates Estate Law
+    Type: Legal
+    Phone: (212) 555-9000
+    BillingStreet: 100 Wall Street, Suite 2500
+    BillingCity: New York
+    BillingState: NY
+    BillingPostalCode: 10005
+    BillingCountry: United States
+    Industry: Legal Services
+    AnnualRevenue: 10000000
+    NumberOfEmployees: 50
+    Description: "Full-service estate planning and administration firm. Handles complex successions involving DAF accounts."
+
+# Executor Contact
+- object: Contact
+  nickname: Contact_Executor
+  fields:
+    FirstName: Jennifer
+    LastName: Sterling
+    Title: Senior Estate Administrator
+    Email: j.sterling@sterling-law.com
+    Phone: (212) 555-9001
+    AccountId: Executor_Professional.Id
+    Description: "Professional executor overseeing DAF succession for high-net-worth client. Coordinates with Schwab Charitable on technical DAF administration."
+
+# Client with Professional Executor
+- object: Account
+  nickname: Donor_Executor
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: William
+    LastName: Kensington_Executor
+    Salutation: Mr.
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c:
+      date_between:
+        start_date: -30d
+        end_date: -30d
+    PersonEmail: william.kensington@legacy-estate.example.com
+    FinServ__NetWorth__c: 50000000
+    FinServ__Status__c: Closed
+    Description: "High-net-worth client who named professional executor in will. Complex estate with multiple DAF accounts and international assets."
+
+# Multiple DAF Accounts for Executor Client
+- object: FinancialAccount
+  nickname: DAF_Executor_Primary
+  fields:
+    Name: Kensington Family Foundation - Primary
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ASDAF
+    Status: Active
+    Balance: 5000000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+    FirstContributionDate: ${{OpenDate}}
+    Description: "Primary DAF account - professional executor has authority to make grant recommendations"
+    Ownership: Individual
+
+- object: FinancialAccount
+  nickname: DAF_Executor_Secondary
+  fields:
+    Name: Kensington Charitable Trust Fund
+    FinancialAccountNumber:
+      fake.Numerify:
+        text: DAF-########
+    FinancialAccountType: DAF/Donor Advised Fund
+    Program: ISDAF
+    Status: Active
+    Balance: 3000000
+    BalanceAsOf:
+      date_between:
+        start_date: -2d
+        end_date: -2d
+    OpenDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+    FirstContributionDate: ${{OpenDate}}
+    Description: "Secondary DAF held in trust - executor serves as trustee"
+    Ownership: Trust
+
+# Successor with Professional Executor Involvement
+- object: Account
+  nickname: Successor_Executor
+  fields:
+    RecordType.DeveloperName: ${{PersonAccountRecordType}}
+    FirstName: Alexandra
+    LastName: Kensington_Successor
+    Salutation: Ms.
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: alexandra.kensington@email.example.com
+    PersonMobilePhone: (555) 900-0012
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    Description: "Beneficiary working with professional executor. Executor has authority to make DAF grant decisions per trust document."
+
+# Financial Account Roles
+- object: FinancialAccountRole
+  fields:
+    Role: Primary Owner
+    Active: false
+    StartDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+    EndDate: -30d
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Executor_Primary
+    - object: Account
+      nickname: Donor_Executor
+
+- object: FinancialAccountRole
+  fields:
+    Role: Successor
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -15y
+        end_date: -15y
+    SuccessorAllocation: 100
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Executor_Primary
+    - object: Account
+      nickname: Successor_Executor
+
+- object: FinancialAccountRole
+  fields:
+    Role: Trustee
+    Active: true
+    StartDate:
+      date_between:
+        start_date: -12y
+        end_date: -12y
+  friends:
+    - object: FinancialAccount
+      nickname: DAF_Executor_Secondary
+    - object: Account
+      nickname: Executor_Professional
+
+# Professional Executor Succession Case
+- object: Case
+  fields:
+    RecordType.DeveloperName: ${{EstateAdministrationRecordType}}
+    Type: Named Successor Enactment
+    Subject: Professional Executor Succession - Kensington Estate
+    Status: In Progress
+    Priority: High
+    Origin: Legal
+    VerificationStatus: Complete - Verified
+    ContactAttemptCount: 1
+    ContactEstablished: true
+    ContactEstablishedDate:
+      date_between:
+        start_date: -15d
+        end_date: -15d
+    PathwayConfirmed: Final Grant
+    FormSentDate:
+      date_between:
+        start_date: -13d
+        end_date: -13d
+    FormCompletedDate:
+      date_between:
+        start_date: -10d
+        end_date: -10d
+    Execution_Status__c: Settlement Pending
+    Asset_Transfer_Status__c: Transfer Completed
+    Grant_Settlement_Status__c: Pending Review
+    Charity_Account__c: Charity_NationalEducation.Id
+    Charity_Contact__c: Contact_CharityEd.Id
+    NotificationSource: Professional Executor
+    Description: "Professional executor succession - Estate attorney (Sterling & Associates) has fiduciary authority to make DAF grant decisions. Tests coordination between legal executor and DAF administrator."
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_Executor
+    - object: FinancialAccount
+      nickname: DAF_Executor_Primary
 
 # ==================== CHATTER POSTS ====================
 

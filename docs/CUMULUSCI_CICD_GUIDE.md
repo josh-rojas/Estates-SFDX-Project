@@ -14,11 +14,13 @@ Complete guide for deploying Succession Management using CumulusCI and GitHub Ac
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - CumulusCI installed (`pip install cumulusci`)
 - Dev Hub org authenticated
 - GitHub repository access (for CI/CD)
 
 ### Basic Deployment
+
 ```bash
 # Connect to your org
 cci org connect my-sandbox
@@ -34,36 +36,36 @@ cci flow run deploy_succession_no_data --org my-sandbox
 
 ### Deployment Flows
 
-| Flow | Description | Use Case |
-|------|-------------|----------|
-| `deploy_succession` | Full deployment with test data | Development/QA environments |
-| `deploy_succession_no_data` | Metadata + permissions only | Production/Staging |
-| `deploy_succession_incremental` | Fast incremental updates | Quick iterations |
-| `uninstall_succession` | Remove all components | Cleanup/reset |
+| Flow                            | Description                    | Use Case                    |
+| ------------------------------- | ------------------------------ | --------------------------- |
+| `deploy_succession`             | Full deployment with test data | Development/QA environments |
+| `deploy_succession_no_data`     | Metadata + permissions only    | Production/Staging          |
+| `deploy_succession_incremental` | Fast incremental updates       | Quick iterations            |
+| `uninstall_succession`          | Remove all components          | Cleanup/reset               |
 
 ### CI/CD Flows
 
-| Flow | Description | Triggered By |
-|------|-------------|--------------|
+| Flow                    | Description               | Triggered By        |
+| ----------------------- | ------------------------- | ------------------- |
 | `ci_succession_feature` | Feature branch validation | PR/feature branches |
-| `ci_succession_main` | Main branch full test | Merge to main |
-| `ci_succession_release` | Release validation | Version tags |
+| `ci_succession_main`    | Main branch full test     | Merge to main       |
+| `ci_succession_release` | Release validation        | Version tags        |
 
 ### QA/Staging Flows
 
-| Flow | Description | Use Case |
-|------|-------------|----------|
-| `qa_full_setup` | Complete QA with all scenarios | Full QA environment |
-| `staging_deploy` | Staging with smoke tests | Pre-production validation |
+| Flow             | Description                    | Use Case                  |
+| ---------------- | ------------------------------ | ------------------------- |
+| `qa_full_setup`  | Complete QA with all scenarios | Full QA environment       |
+| `staging_deploy` | Staging with smoke tests       | Pre-production validation |
 
 ### Test Data Flows
 
-| Flow | Description | Data Loaded |
-|------|-------------|-------------|
-| `succession_test_setup` | Standard test data | Basic succession cases |
-| `final_grant_test_setup` | Final grant scenario | Complete pathway |
-| `demo_setup` | UI demo data | LWC component testing |
-| `load_all_scenarios` | All test scenarios | Comprehensive testing |
+| Flow                     | Description          | Data Loaded            |
+| ------------------------ | -------------------- | ---------------------- |
+| `succession_test_setup`  | Standard test data   | Basic succession cases |
+| `final_grant_test_setup` | Final grant scenario | Complete pathway       |
+| `demo_setup`             | UI demo data         | LWC component testing  |
+| `load_all_scenarios`     | All test scenarios   | Comprehensive testing  |
 
 ## 🔄 CI/CD Pipelines
 
@@ -74,6 +76,7 @@ cci flow run deploy_succession_no_data --org my-sandbox
 **Workflow:** `.github/workflows/feature-ci.yml`
 
 **Steps:**
+
 1. ✅ Checkout code
 2. ✅ Setup Python & CumulusCI
 3. ✅ Create scratch org (7 days)
@@ -91,6 +94,7 @@ cci flow run deploy_succession_no_data --org my-sandbox
 **Workflow:** `.github/workflows/main-ci.yml`
 
 **Steps:**
+
 1. ✅ Create QA scratch org (30 days)
 2. ✅ Full deployment with test data
 3. ✅ Run comprehensive tests
@@ -100,6 +104,7 @@ cci flow run deploy_succession_no_data --org my-sandbox
 7. ✅ Comment deployment status on commit
 
 **Environments:**
+
 - `qa-main`: Scratch org for validation
 - `schwab-sandbox`: Persistent sandbox
 
@@ -110,6 +115,7 @@ cci flow run deploy_succession_no_data --org my-sandbox
 **Workflow:** `.github/workflows/release.yml`
 
 **Steps:**
+
 1. ✅ Create GitHub Release
 2. ✅ Validate deployment (check-only)
 3. ⚠️ **Request approval** (2 approvers required)
@@ -120,6 +126,7 @@ cci flow run deploy_succession_no_data --org my-sandbox
 8. ✅ Notify success/failure
 
 **Environments:**
+
 - `production`: Production org
 - `uat`: User acceptance testing
 - `staging`: Pre-production
@@ -132,15 +139,16 @@ Navigate to **Settings → Secrets and variables → Actions**
 
 #### Required Secrets
 
-| Secret | Description | How to Generate |
-|--------|-------------|-----------------|
-| `DEVHUB_AUTH_URL` | Dev Hub authentication | `sf org display --verbose --json` |
-| `SANDBOX_AUTH_URL` | Sandbox authentication | `sf org display --verbose --json` |
-| `PROD_AUTH_URL` | Production authentication | `sf org display --verbose --json` |
-| `UAT_AUTH_URL` | UAT authentication | `sf org display --verbose --json` |
-| `PROD_APPROVERS` | Production approvers | `user1,user2` |
+| Secret             | Description               | How to Generate                   |
+| ------------------ | ------------------------- | --------------------------------- |
+| `DEVHUB_AUTH_URL`  | Dev Hub authentication    | `sf org display --verbose --json` |
+| `SANDBOX_AUTH_URL` | Sandbox authentication    | `sf org display --verbose --json` |
+| `PROD_AUTH_URL`    | Production authentication | `sf org display --verbose --json` |
+| `UAT_AUTH_URL`     | UAT authentication        | `sf org display --verbose --json` |
+| `PROD_APPROVERS`   | Production approvers      | `user1,user2`                     |
 
 #### Generate Auth URL
+
 ```bash
 # Authenticate to org
 sf org login web --alias my-org
@@ -154,16 +162,19 @@ sf org display --target-org my-org --verbose --json
 ### 2. Configure GitHub Environments
 
 #### Sandbox Environment
+
 - **Protection rules:** None
 - **Secrets:** `SANDBOX_AUTH_URL`
 
 #### Production Environment
-- **Protection rules:** 
+
+- **Protection rules:**
   - ✅ Required reviewers (2 minimum)
   - ✅ Wait timer (5 minutes)
 - **Secrets:** `PROD_AUTH_URL`, `PROD_APPROVERS`
 
 #### UAT Environment
+
 - **Protection rules:** Required reviewers (1)
 - **Secrets:** `UAT_AUTH_URL`
 
@@ -291,6 +302,7 @@ cci flow run load_all_scenarios --org my-org
 ### Issue: Deployment Fails
 
 **Solution:**
+
 ```bash
 # Check deployment status
 cci task info deploy
@@ -305,6 +317,7 @@ cci flow run deploy_succession --org my-org --debug
 ### Issue: Test Coverage Below 75%
 
 **Solution:**
+
 ```bash
 # Run tests locally
 cci task run run_tests --org my-org
@@ -318,6 +331,7 @@ cci task run run_tests --org my-org --coverage
 ### Issue: Scratch Org Creation Fails
 
 **Solution:**
+
 ```bash
 # Verify Dev Hub
 cci org info devhub
@@ -332,6 +346,7 @@ cci org scratch dev my-dev --config config/project-scratch-def.json
 ### Issue: Permission Assignment Fails
 
 **Solution:**
+
 ```bash
 # Assign manually
 sf org assign permset --name Succession_Management_Access
@@ -345,6 +360,7 @@ cci task run assign_permission_sets \
 ### Issue: CI/CD Pipeline Fails
 
 **Check:**
+
 1. ✅ GitHub Secrets configured correctly
 2. ✅ SFDX Auth URLs are valid
 3. ✅ Dev Hub has scratch org capacity
@@ -352,6 +368,7 @@ cci task run assign_permission_sets \
 5. ✅ Required approvers configured
 
 **View Logs:**
+
 - GitHub Actions → Workflow run → Job → Step logs
 
 ## 📊 Monitoring

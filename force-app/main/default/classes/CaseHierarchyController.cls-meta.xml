@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <ApexClass xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>62.0</apiVersion>
+    <description>Controller for case hierarchy viewer component. Manages parent-child case relationships for multi-successor succession scenarios, providing data for hierarchical display of succession cases and related financial accounts.</description>
     <status>Active</status>
 </ApexClass>

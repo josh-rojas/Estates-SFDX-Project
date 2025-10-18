@@ -1,74 +1,101 @@
 <template>
-    <div class="slds-box">
-        <h2 class="slds-text-heading_small slds-m-bottom_medium">Account Summary</h2>
+  <div class="slds-box">
+    <h2 class="slds-text-heading_small slds-m-bottom_medium">
+      Account Summary
+    </h2>
 
-        <!-- Deceased Donor Information -->
-        <div class="slds-form slds-form_stacked slds-m-bottom_large">
-            <h3 class="slds-text-heading_x-small slds-m-bottom_small">Deceased Donor</h3>
+    <!-- Deceased Donor Information -->
+    <div class="slds-form slds-form_stacked slds-m-bottom_large">
+      <h3 class="slds-text-title slds-m-bottom_small">
+        Deceased Donor
+      </h3>
 
-            <div class="slds-grid slds-gutters slds-wrap">
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                    <div class="slds-form-element">
-                        <label class="slds-form-element__label slds-text-body_small">Name</label>
-                        <div class="slds-form-element__control">
-                            <p class="slds-text-body_regular"><strong>{caseContext.deceasedDonorName}</strong></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                    <div class="slds-form-element">
-                        <label class="slds-form-element__label slds-text-body_small">Date of Death</label>
-                        <div class="slds-form-element__control">
-                            <p class="slds-text-body_regular">{formattedDateOfDeath}</p>
-                        </div>
-                    </div>
-                </div>
+      <div class="slds-grid slds-gutters slds-wrap">
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label slds-text-body_small"
+              >Name</label
+            >
+            <div class="slds-form-element__control">
+              <p class="slds-text-body_regular">
+                <strong>{caseContext.deceasedDonorName}</strong>
+              </p>
             </div>
+          </div>
         </div>
 
-        <!-- Financial Account Information -->
-        <div class="slds-form slds-form_stacked">
-            <h3 class="slds-text-heading_x-small slds-m-bottom_small">Donor-Advised Fund Account</h3>
-
-            <div class="slds-grid slds-gutters slds-wrap">
-                <div class="slds-col slds-size_1-of-1">
-                    <div class="slds-form-element">
-                        <label class="slds-form-element__label slds-text-body_small">Account Name</label>
-                        <div class="slds-form-element__control">
-                            <p class="slds-text-body_regular"><strong>{caseContext.financialAccountName}</strong></p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                    <div class="slds-form-element">
-                        <label class="slds-form-element__label slds-text-body_small">Account Balance</label>
-                        <div class="slds-form-element__control">
-                            <p class="slds-text-body_regular slds-text-heading_medium slds-text-color_success">
-                                {formattedBalance}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
-                    <div class="slds-form-element">
-                        <label class="slds-form-element__label slds-text-body_small">Account Status</label>
-                        <div class="slds-form-element__control">
-                            <p class="slds-text-body_regular">{caseContext.accountStatus}</p>
-                        </div>
-                    </div>
-                </div>
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label slds-text-body_small"
+              >Date of Death</label
+            >
+            <div class="slds-form-element__control">
+              <p class="slds-text-body_regular">{formattedDateOfDeath}</p>
             </div>
+          </div>
         </div>
-
-        <div class="slds-box slds-theme_shade slds-m-top_large">
-            <p class="slds-text-body_small">
-                <lightning-icon icon-name="utility:info" size="x-small" class="slds-m-right_x-small"></lightning-icon>
-                <strong>Important:</strong> The account balance shown is as of the last update and may change slightly
-                due to market fluctuations before final settlement.
-            </p>
-        </div>
+      </div>
     </div>
+
+    <!-- Financial Account Information -->
+    <div class="slds-form slds-form_stacked">
+      <h3 class="slds-text-title slds-m-bottom_small">
+        Donor-Advised Fund Account
+      </h3>
+
+      <div class="slds-grid slds-gutters slds-wrap">
+        <div class="slds-col slds-size_1-of-1">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label slds-text-body_small"
+              >Account Name</label
+            >
+            <div class="slds-form-element__control">
+              <p class="slds-text-body_regular">
+                <strong>{caseContext.financialAccountName}</strong>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label slds-text-body_small"
+              >Account Balance</label
+            >
+            <div class="slds-form-element__control">
+              <p
+                class="slds-text-body_regular slds-text-heading_medium slds-text-color_success"
+              >
+                {formattedBalance}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+          <div class="slds-form-element">
+            <label class="slds-form-element__label slds-text-body_small"
+              >Account Status</label
+            >
+            <div class="slds-form-element__control">
+              <p class="slds-text-body_regular">{caseContext.accountStatus}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="slds-box slds-theme_shade slds-m-top_large">
+      <p class="slds-text-body_small">
+        <lightning-icon
+          icon-name="utility:info"
+          size="x-small"
+          class="slds-m-right_x-small"
+        ></lightning-icon>
+        <strong>Important:</strong> The account balance shown is as of the last
+        update and may change slightly due to market fluctuations before final
+        settlement.
+      </p>
+    </div>
+  </div>
 </template>

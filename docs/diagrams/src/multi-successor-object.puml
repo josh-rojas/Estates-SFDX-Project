@@ -1,0 +1,39 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam DefaultFontName "Salesforce Sans","Helvetica Neue","Arial","Sans-Serif"
+skinparam DefaultFontSize 14
+skinparam DefaultFontColor #3E3E3C
+skinparam LineColor #D0D5DA
+skinparam ArrowColor #0176D3
+skinparam ArrowThickness 1
+skinparam NoteBackgroundColor #F3F2F2
+skinparam NoteBorderColor #D0D5DA
+skinparam NoteFontColor #3E3E3C
+skinparam ObjectBackgroundColor #FFFFFF
+skinparam ObjectBorderColor #D0D5DA
+left to right direction
+skinparam linetype ortho
+title Multi-Successor Case Hierarchy
+object "Account: Patricia Williams" as Ac
+object "FinancialAccount: $3.5M" as FAc
+object "FAR: Amanda (50%)" as R1
+object "FAR: Brandon (50%)" as R2
+object "Case (Parent): Multi-Account Succession Master" as CP
+object "Case (Child): Amanda Williams" as C1
+object "Case (Child): Brandon Williams" as C2
+
+Ac -- FAc
+FAc -- R1
+FAc -- R2
+CP -- C1
+CP -- C2
+
+note right of CP
+Flow: Case_Multiple_Successors_Handler
+1) Create parent case
+2) Create one child per successor
+3) Link via ParentId
+end note
+@enduml

@@ -118,13 +118,30 @@ Pathway-specific task templates auto-assigned when successors select their pathw
 
 ## 📚 Documentation
 
-| Document                                                             | Description                                                          |
-| -------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| [CLAUDE.md](CLAUDE.md)                                               | **Primary guide** for Claude Code - Commands, architecture, patterns |
-| [Architecture Overview](docs/SUCCESSION_FLOW_ARCHITECTURE.md)        | Complete flow architecture and data model                            |
-| [Field Documentation](docs/field-documentation-succession.md)        | Custom field definitions                                             |
-| [Multi-Successor Guide](docs/MULTI_SUCCESSOR_HIERARCHY_COMPONENT.md) | Hierarchical case management                                         |
-| [Testing Guide](docs/MULTI_SUCCESSOR_TESTING_GUIDE.md)               | Testing scenarios and data generation                                |
+### Core Documentation
+
+| Document                                                | Description                                                          |
+| ------------------------------------------------------- | -------------------------------------------------------------------- |
+| [AGENTS.md](AGENTS.md)                                  | **Primary guide** - Commands, architecture, patterns                 |
+| [CLAUDE.md](CLAUDE.md)                                  | Legacy guide retained for reference                                  |
+| [docs/01-SYSTEM-ARCHITECTURE.md](docs/01-SYSTEM-ARCHITECTURE.md) | Complete system architecture and data model               |
+| [docs/02-DEPLOYMENT-AND-CICD.md](docs/02-DEPLOYMENT-AND-CICD.md) | Deployment procedures and CI/CD with CumulusCI            |
+| [docs/03-ADMIN-RUNBOOK.md](docs/03-ADMIN-RUNBOOK.md)   | Service Cloud setup, Email-to-Case, demo preparation                 |
+| [docs/04-FIELD-REFERENCE.md](docs/04-FIELD-REFERENCE.md) | Custom field definitions with Person Account notes                 |
+| [docs/05-TESTING-AND-DATA.md](docs/05-TESTING-AND-DATA.md) | Multi-successor testing and Snowfakery data generation         |
+| [docs/06-SECURITY.md](docs/06-SECURITY.md)              | Security audit, permissions, email compliance                        |
+
+### Diagrams
+
+- Curated index: `docs/00 - INDEX.md#🗺️-diagrams-index`
+- Images folder: `docs/diagrams/images` (PlantUML, Mermaid, ERD)
+- Re-render all: `scripts/render_diagrams.sh`
+
+### Additional Resources
+
+- [Architecture Overview](docs/SUCCESSION_FLOW_ARCHITECTURE.md) - Legacy flow documentation
+- [Field Documentation](docs/field-documentation-succession.md) - Detailed field specifications
+- [docs/archive/2025-10-14/](docs/archive/2025-10-14/) - Historical documentation and audit reports
 
 ## 🧪 Testing
 

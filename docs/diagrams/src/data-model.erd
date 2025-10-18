@@ -1,0 +1,45 @@
+[Account]
+*Id
+Name
+IsPersonAccount
+PersonContactId
+PersonEmail
+
+[Contact]
+*Id
+Email
+
+[FinancialAccount]
+*Id
+Name
+
+[FinancialAccountRole]
+*Id
+Role
+SuccessorAllocation__c
+FinServ__RelatedContact__c
+FinServ__RelatedAccount__c
+
+[Case]
+*Id
+Type
+ParentId
+Pathway_Confirmed__c
+Verification_Status__c
+Contact_Established__c
+Execution_Status__c
+
+[Task]
+*Id
+Contact_Attempt_Number__c
+ActivityDate
+Succession_Contact_Established__c
+
+Account ||--o{ Case : primary account
+Case ||--o{ Task : contact attempts
+FinancialAccount ||--o{ FinancialAccountRole : roles
+Account ||--o{ FinancialAccount : owns
+FinancialAccountRole }o--|| Contact : person role
+FinancialAccountRole }o--|| Account : org role
+Case }o--o{ Case : parent-child
+

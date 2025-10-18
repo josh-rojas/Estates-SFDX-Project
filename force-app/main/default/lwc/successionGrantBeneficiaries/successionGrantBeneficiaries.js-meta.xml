@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
-    <isExposed>false</isExposed>
-    <masterLabel>Succession Grant Beneficiaries</masterLabel>
-    <description>Step 5 (Final Grant): Dynamic table for grant beneficiaries with real-time balance validation</description>
-</LightningComponentBundle>

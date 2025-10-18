@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description
+  >Fast pathway recording after phone conversation. Allows agent to record successor's pathway selection (Final Grant, New DAF Account, or Disclaim Assets) after informational phone call. Auto-sets Contact_Established__c if not already established.</description>
+    <label>📋 Record Pathway Selection</label>
+    <lightningComponent>recordPathwaySelection</lightningComponent>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <targetObject>Case</targetObject>
+    <targetRecordType>EstateAdministration</targetRecordType>
+    <type>LightningComponent</type>
+</QuickAction>

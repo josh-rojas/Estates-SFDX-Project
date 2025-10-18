@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Marks verification as complete and begins the succession processing workflow. Sets Verification_Status__c to 'Complete - Verified' which triggers contact cadence automation.</description>
+    <fieldOverrides>
+        <field>Verification_Status__c</field>
+        <formula>"Complete - Verified"</formula>
+    </fieldOverrides>
+    <label>✅ Begin Succession Processing</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <quickActionLayout>
+        <layoutSectionStyle>TwoColumnsLeftToRight</layoutSectionStyle>
+        <quickActionLayoutColumns>
+            <quickActionLayoutItems>
+                <field>Verification_Status__c</field>
+            </quickActionLayoutItems>
+        </quickActionLayoutColumns>
+        <quickActionLayoutColumns />
+    </quickActionLayout>
+    <standardLabel>LogACall</standardLabel>
+    <successMessage>Verification marked complete. Succession processing has begun.</successMessage>
+    <targetObject>Case</targetObject>
+    <targetRecordType>Case.EstateAdministration</targetRecordType>
+    <type>Update</type>
+</QuickAction>
+
