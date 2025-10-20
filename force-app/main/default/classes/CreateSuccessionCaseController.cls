@@ -77,6 +77,19 @@ public with sharing class CreateSuccessionCaseController {
 
       // Get FinancialAccount name for subject
       String financialAccountName = getFinancialAccountName(financialAccountId);
+      
+      // Determine ContactId - use RelatedContact if available, otherwise get PersonContactId from Account
+      Id contactId = firstSuccessor.FinServ__RelatedContact__c;
+      if (contactId == null && firstSuccessor.FinServ__RelatedAccount__c != null) {
+        Account successorAccount = [
+          SELECT PersonContactId 
+          FROM Account 
+          WHERE Id = :firstSuccessor.FinServ__RelatedAccount__c 
+          WITH USER_MODE 
+          LIMIT 1
+        ];
+        contactId = successorAccount.PersonContactId;
+      }
 
       // Create seed case
       Case seedCase = new Case(
@@ -87,7 +100,7 @@ public with sharing class CreateSuccessionCaseController {
         Origin = 'Financial Account',
         Priority = 'Medium',
         AccountId = deceasedOwnerAccountId, // Deceased donor (NOT successor)
-        ContactId = firstSuccessor.FinServ__RelatedContact__c, // Direct Contact ID
+        ContactId = contactId, // Direct Contact ID or PersonContactId
         FinServ__FinancialAccount__c = financialAccountId,
         Verification_Status__c = 'Complete - Verified', // Auto-starts workflow
         Description = 'Succession case created from Financial Account. ' +
@@ -167,10 +180,10 @@ public with sharing class CreateSuccessionCaseController {
    */
   private static List<FinServ__FinancialAccountRole__c> getSuccessors(Id financialAccountId) {
     List<FinServ__FinancialAccountRole__c> successors = [
-      SELECT Id, FinServ__RelatedContact__c, SuccessorAllocation__c
+      SELECT Id, FinServ__RelatedContact__c, FinServ__RelatedAccount__c, SuccessorAllocation__c
       FROM FinServ__FinancialAccountRole__c
       WHERE FinServ__FinancialAccount__c = :financialAccountId
-      AND FinServ__Role__c = 'Successor'
+      AND FinServ__Role__c LIKE '%Successor%'
       AND FinServ__Active__c = true
       ORDER BY CreatedDate ASC
     ];

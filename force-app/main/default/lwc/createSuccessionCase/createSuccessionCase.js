@@ -30,13 +30,6 @@ export default class CreateSuccessionCase extends NavigationMixin(
   }
 
   /**
-   * Create succession case on component initialization
-   */
-  connectedCallback() {
-    this.createCase();
-  }
-
-  /**
    * Call Apex method to create succession case
    */
   createCase() {
