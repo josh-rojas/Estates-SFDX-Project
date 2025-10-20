@@ -1,0 +1,77 @@
+/**
+ * Create Succession Case Quick Action Component Styles
+ * 
+ * Lightning Web Component styling for FinancialAccount Quick Action.
+ * Provides visual feedback for loading, error, and success states.
+ */
+
+/* Loading spinner positioning */
+.create-succession-case-loading {
+  position: relative;
+}
+
+.create-succession-case-spinner {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  height: 100px;
+}
+
+/* Success and error alert styling */
+.create-succession-case-alert {
+  border-radius: 0.25rem;
+}
+
+.create-succession-case-success {
+  background-color: #4bca81;
+  color: #ffffff;
+}
+
+.create-succession-case-error {
+  background-color: #ea001e;
+  color: #ffffff;
+}
+
+/* Box styling for success message */
+.create-succession-case-box {
+  border-radius: 0.25rem;
+}
+
+.create-succession-case-shade {
+  background-color: #f3f3f3;
+}
+
+/* Text styling */
+.create-succession-case-weak-text {
+  color: #706e6b;
+}
+
+/* Button styling */
+.create-succession-case-button {
+  background-color: #ffffff;
+  border-color: #dddbda;
+  color: #080707;
+}
+
+.create-succession-case-button:hover {
+  background-color: #f3f2f2;
+  border-color: #dddbda;
+}
+
+/* Icon container styling */
+.create-succession-case-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .slds-var-p-around_medium {
+    padding: 0.75rem;
+  }
+
+  .slds-var-m-top_medium {
+    margin-top: 0.75rem;
+  }
+}

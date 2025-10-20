@@ -10,7 +10,7 @@
 
     <!-- Error Message -->
     <template if:true={error}>
-      <div class="slds-m-around_medium">
+      <div class="slds-var-m-around_medium">
         <div
           class="slds-notify slds-notify_alert slds-alert_error"
           role="alert"
@@ -24,7 +24,7 @@
     <!-- No Data Message -->
     <template if:false={hasData}>
       <template if:false={isLoading}>
-        <div class="slds-m-around_medium slds-text-color_weak">
+        <div class="slds-var-m-around_medium slds-text-color_weak">
           <p>
             No child cases found. This component is designed for Multi-Account
             Succession Master cases with multiple successors.
@@ -37,14 +37,14 @@
     <template if:true={hasData}>
       <div class="slds-card__body slds-card__body_inner">
         <!-- Parent Case Header -->
-        <div class="parent-case-header slds-m-bottom_medium">
+        <div class="parent-case-header slds-var-m-bottom_medium">
           <div class="slds-grid slds-grid_align-spread slds-wrap">
             <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
-              <h3 class="slds-text-heading_small slds-m-bottom_x-small">
+              <h3 class="slds-text-heading_small slds-var-m-bottom_x-small">
                 <lightning-icon
                   icon-name="standard:case"
                   size="small"
-                  class="slds-m-right_x-small"
+                  class="slds-var-m-right_x-small"
                 ></lightning-icon>
                 {parentCaseTitle}
               </h3>
@@ -67,9 +67,11 @@
           </div>
         </div>
 
-        <div class="slds-border_top slds-m-top_medium slds-p-top_medium">
+        <div
+          class="slds-border_top slds-var-m-top_medium slds-var-p-top_medium"
+        >
           <p
-            class="slds-text-body_small slds-text-color_weak slds-m-bottom_medium"
+            class="slds-text-body_small slds-text-color_weak slds-var-m-bottom_medium"
           >
             {childCaseCountText}
           </p>
@@ -79,11 +81,11 @@
         <template for:each={childCasesWithProps} for:item="childData">
           <div
             key={childData.caseRecord.Id}
-            class="child-case-section slds-m-bottom_medium"
+            class="child-case-section slds-var-m-bottom_medium"
           >
             <!-- Child Case Header (Collapsible) -->
             <div
-              class="child-case-header slds-p-around_medium slds-box"
+              class="child-case-header slds-var-p-around_medium slds-box"
               data-case-id={childData.caseRecord.Id}
               onclick={handleToggleSection}
             >
@@ -116,7 +118,7 @@
                         </a>
                         - {childData.contactName}
                       </h4>
-                      <div class="slds-m-top_xx-small">
+                      <div class="slds-var-m-top_xx-small">
                         <span class={childData.slaClass}
                           >{childData.caseRecord.SLA_Status__c}</span
                         >
@@ -148,17 +150,17 @@
             <!-- Expanded Content -->
             <template if:true={childData.isExpanded}>
               <div
-                class="expanded-content slds-p-around_medium slds-box slds-box_x-small slds-m-top_x-small"
+                class="expanded-content slds-var-p-around_medium slds-box slds-box_x-small slds-var-m-top_x-small"
               >
                 <!-- Contact Information -->
                 <div
-                  class="contact-section slds-m-bottom_medium indent-level-1"
+                  class="contact-section slds-var-m-bottom_medium indent-level-1"
                 >
-                  <h5 class="slds-text-heading_small slds-m-bottom_small">
+                  <h5 class="slds-text-heading_small slds-var-m-bottom_small">
                     <lightning-icon
                       icon-name="standard:contact"
                       size="x-small"
-                      class="slds-m-right_x-small"
+                      class="slds-var-m-right_x-small"
                     ></lightning-icon>
                     Successor Contact
                   </h5>
@@ -185,18 +187,20 @@
                 <template if:true={showFinancialAccounts}>
                   <template if:true={childData.financialAccount}>
                     <div
-                      class="account-section slds-m-bottom_medium indent-level-1"
+                      class="account-section slds-var-m-bottom_medium indent-level-1"
                     >
-                      <h5 class="slds-text-heading_small slds-m-bottom_small">
+                      <h5
+                        class="slds-text-heading_small slds-var-m-bottom_small"
+                      >
                         <lightning-icon
                           icon-name="standard:account"
                           size="x-small"
-                          class="slds-m-right_x-small"
+                          class="slds-var-m-right_x-small"
                         ></lightning-icon>
                         Financial Account
                       </h5>
                       <div
-                        class="slds-box slds-box_x-small slds-p-around_small"
+                        class="succession-box slds-box_x-small slds-var-p-around_small"
                       >
                         <div class="slds-grid slds-wrap slds-gutters_small">
                           <div class="slds-col slds-size_1-of-2">
@@ -239,11 +243,13 @@
                 <template if:true={showAccountRoles}>
                   <template if:true={childData.hasSuccessors}>
                     <div class="successors-section indent-level-2">
-                      <h5 class="slds-text-heading_small slds-m-bottom_small">
+                      <h5
+                        class="slds-text-heading_small slds-var-m-bottom_small"
+                      >
                         <lightning-icon
                           icon-name="standard:people"
                           size="x-small"
-                          class="slds-m-right_x-small"
+                          class="slds-var-m-right_x-small"
                         ></lightning-icon>
                         {accountRoleLabel} ({childData.successors.length})
                       </h5>
@@ -254,7 +260,7 @@
                       >
                         <div
                           key={successor.successorName}
-                          class="successor-item slds-box slds-box_x-small slds-p-around_small slds-m-bottom_x-small"
+                          class="successor-item slds-box slds-box_x-small slds-var-p-around_small slds-var-m-bottom_x-small"
                         >
                           <div class="slds-grid slds-wrap slds-gutters_small">
                             <div class="slds-col slds-size_1-of-1">

@@ -13,11 +13,6 @@ describe("c-succession-public-form", () => {
     window.location = { search: "" };
   });
 
-  // Helper function to wait for async updates
-  async function flushPromises() {
-    return new Promise((resolve) => setTimeout(resolve, 0));
-  }
-
   it("renders without errors", () => {
     // Mock URL parameter
     delete window.location;
@@ -44,7 +39,7 @@ describe("c-succession-public-form", () => {
     expect(componentText).toContain("Succession Pathway Selection Form");
   });
 
-  it("shows error when caseId URL parameter missing", async () => {
+  it("shows error when caseId URL parameter missing", () => {
     // Mock URL without caseId parameter
     delete window.location;
     window.location = { search: "" };
@@ -53,8 +48,6 @@ describe("c-succession-public-form", () => {
       is: SuccessionPublicForm
     });
     document.body.appendChild(element);
-
-    await flushPromises();
 
     // Verify error message is displayed in DOM
     const errorText = element.shadowRoot.textContent;

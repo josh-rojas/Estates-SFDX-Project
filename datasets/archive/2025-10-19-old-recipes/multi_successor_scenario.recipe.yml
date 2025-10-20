@@ -252,7 +252,6 @@
         start_date: -5d
         end_date: -5d
     Execution_Status__c: In Progress
-    Asset_Transfer_Status__c: Transfer Initiated
     NotificationSource: Financial Advisor
     Description: "Complex multi-successor coordination scenario demonstrating BRD Appendix B requirements. Parent case oversees two child cases with different pathways: Amanda selected Final Grant ($1.75M to National Education Foundation), Brandon selected New DAF ($1.75M transfer). 50/50 allocation split validated. Parallel processing timelines require careful coordination to ensure both successors' preferences are honored while maintaining compliance."
     IsEscalated: false
@@ -292,12 +291,6 @@
         start_date: -5d
         end_date: -5d
     Execution_Status__c: Completed
-    Execution_Completed_Date__c:
-      date_between:
-        start_date: -2d
-        end_date: -2d
-    Asset_Transfer_Status__c: Completed
-    Grant_Settlement_Status__c: Funds Disbursed
     Charity_Account__c: Charity_NationalEducation.Id
     Charity_Contact__c: Contact_CharityEd.Id
     NotificationSource: Financial Advisor
@@ -335,8 +328,6 @@
         start_date: -5d
         end_date: -5d
     Execution_Status__c: Settlement Pending
-    Asset_Transfer_Status__c: Transfer Completed
-    Grant_Settlement_Status__c: Pending Review
     New_DAF_Account_Number__c:
       fake.Numerify:
         text: DAF-########

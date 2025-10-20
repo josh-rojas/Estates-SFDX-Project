@@ -171,7 +171,7 @@ export default class SuccessionContactCadence extends NavigationMixin(
       // Match by task ID if exists, or by attempt number if no task yet
       const isEditing =
         (attempt.taskRecord?.Id &&
-          this.editingAttemptId === attempt.taskRecord.Id) ||
+          this.editingAttemptId === attempt.taskRecord?.Id) ||
         this.editingAttemptNumber === attempt.attemptNumber;
 
       // Determine if this attempt is locked (user has progressed past it)
@@ -213,7 +213,7 @@ export default class SuccessionContactCadence extends NavigationMixin(
    */
   getCardClass(attempt) {
     let baseClass =
-      "attempt-card slds-box slds-p-around_medium slds-m-bottom_small";
+      "attempt-card slds-box slds-var-p-around_medium slds-var-m-bottom_small";
 
     if (attempt.isCompleted) {
       return baseClass + " card-completed";

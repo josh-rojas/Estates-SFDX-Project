@@ -6,109 +6,113 @@
 
 /* Parent Case Header */
 .parent-case-header {
-  background-color: #f3f2f2;
-  padding: 1rem;
-  border-radius: 0.25rem;
+  background-color: var(--slds-g-color-neutral-base-50);
+  padding: var(--slds-g-spacing-6);
+  border-radius: var(--slds-g-radius-border-2);
 }
 
 /* Child Case Sections */
 .child-case-section {
-  border-left: 3px solid #0176d3;
-  padding-left: 0.5rem;
+  border-left: var(--slds-g-border-width-thick) solid
+    var(--slds-g-color-brand-base-60);
+  padding-left: var(--slds-g-spacing-3);
 }
 
 .child-case-header {
-  background-color: #ffffff;
-  border: 1px solid #dddbda;
+  background-color: var(--slds-g-color-neutral-base-95);
+  border: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-border-base-1);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color var(--slds-g-duration-1) ease;
 }
 
 .child-case-header:hover {
-  background-color: #f3f2f2;
+  background-color: var(--slds-g-color-neutral-base-50);
 }
 
 /* Expanded Content */
 .expanded-content {
-  background-color: #fafaf9;
-  border: 1px solid #dddbda;
+  background-color: var(--slds-g-color-neutral-base-95);
+  border: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-border-base-1);
   border-top: none;
 }
 
 /* Indentation Levels */
 .indent-level-1 {
-  margin-left: 1rem;
+  margin-left: var(--slds-g-varSpacingMedium);
 }
 
 .indent-level-2 {
-  margin-left: 2rem;
+  margin-left: var(--slds-g-varSpacingLarge);
 }
 
 /* SLA Status Badges */
 .sla-critical {
-  background-color: #ea001e;
-  color: white;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-error-base-60);
+  color: var(--slds-g-color-neutral-inverse-100);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 .sla-at-risk {
-  background-color: #fe9339;
-  color: white;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-warning-base-60);
+  color: var(--slds-g-color-neutral-inverse-100);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 .sla-attention {
-  background-color: #ffb75d;
-  color: #181818;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-warning-base-40);
+  color: var(--slds-g-color-neutral-base-10);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 .sla-on-track {
-  background-color: #2e844a;
-  color: white;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-success-base-60);
+  color: var(--slds-g-color-neutral-inverse-100);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 .sla-complete {
-  background-color: #04844b;
-  color: white;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-success-base-40);
+  color: var(--slds-g-color-neutral-inverse-100);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 /* Pathway Badges */
 .pathway-final-grant {
-  background-color: #0176d3;
-  color: white;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-brand-base-60);
+  color: var(--slds-g-color-neutral-inverse-100);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 .pathway-new-daf {
-  background-color: #0d9dda;
-  color: white;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-brand-base-40);
+  color: var(--slds-g-color-neutral-inverse-100);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 .pathway-disclaim {
-  background-color: #706e6b;
-  color: white;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-neutral-base-30);
+  color: var(--slds-g-color-neutral-inverse-100);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 .pathway-not-selected {
-  background-color: #dddbda;
-  color: #181818;
-  margin-right: 0.5rem;
+  background-color: var(--slds-g-color-neutral-base-40);
+  color: var(--slds-g-color-neutral-base-10);
+  margin-right: var(--slds-g-spacing-3);
 }
 
 /* Financial Account Section */
-.account-section .slds-box {
-  background-color: #ffffff;
+.account-section .succession-box {
+  background-color: var(--slds-g-color-neutral-inverse-100);
 }
 
 /* Successor Items */
 .successor-item {
-  background-color: #ffffff;
-  border-left: 2px solid #0176d3;
+  background-color: var(--slds-g-color-neutral-inverse-100);
+  border-left: var(--slds-g-border-width-thick) solid
+    var(--slds-g-color-brand-base-60);
 }
 
 .successor-item:hover {
@@ -118,10 +122,10 @@
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .indent-level-1 {
-    margin-left: 0.5rem;
+    margin-left: var(--slds-g-varSpacingXxSmall);
   }
 
   .indent-level-2 {
-    margin-left: 1rem;
+    margin-left: var(--slds-g-varSpacingXSmall);
   }
 }

@@ -1145,8 +1145,6 @@
         start_date: -15d
         end_date: -15d
     Execution_Status__c: Settlement Pending
-    Asset_Transfer_Status__c: Transfer Completed
-    Grant_Settlement_Status__c: Pending Review
     Charity_Account__c: Charity_NationalEducation.Id
     Charity_Contact__c: Contact_CharityEd.Id
     NotificationSource: Financial Advisor
@@ -1264,7 +1262,6 @@
         start_date: -20d
         end_date: -20d
     Execution_Status__c: In Progress
-    Asset_Transfer_Status__c: Transfer Initiated
     New_DAF_Account_Number__c:
       fake.Numerify:
         text: DAF-########
@@ -1383,7 +1380,6 @@
         start_date: -25d
         end_date: -25d
     Execution_Status__c: On Hold
-    Asset_Transfer_Status__c: Documentation Required
     NotificationSource: Financial Advisor
     Description: Execution status test case - Disclaim Assets pathway selected, but legal documentation required before processing can continue. Shows case in On Hold status.
     IsEscalated: false
@@ -1941,7 +1937,6 @@
         start_date: -20d
         end_date: -20d
     Execution_Status__c: In Progress
-    Asset_Transfer_Status__c: Transfer Initiated
     NotificationSource: Financial Advisor
     Description: "Complex succession case - Single successor inheriting three specialized DAF accounts ($2.5M Medical, $1.8M Education, $1.2M Environmental). Tests multiple account coordination and pathway consolidation."
     IsEscalated: false
@@ -2124,8 +2119,6 @@
         start_date: -15d
         end_date: -15d
     Execution_Status__c: Settlement Pending
-    Asset_Transfer_Status__c: Transfer Completed
-    Grant_Settlement_Status__c: Pending Review
     Charity_Account__c: Charity_HealthResearch.Id
     Charity_Contact__c: Contact_CharityResearch.Id
     NotificationSource: Trust Company
@@ -2275,8 +2268,6 @@
         start_date: -35d
         end_date: -35d
     Execution_Status__c: Settlement Pending
-    Asset_Transfer_Status__c: Transfer Completed
-    Grant_Settlement_Status__c: Pending Review
     Charity_Account__c: Charity_International.Id
     Charity_Contact__c: Contact_International.Id
     NotificationSource: Estate Attorney
@@ -2473,8 +2464,6 @@
         start_date: -10d
         end_date: -10d
     Execution_Status__c: Settlement Pending
-    Asset_Transfer_Status__c: Transfer Completed
-    Grant_Settlement_Status__c: Pending Review
     Charity_Account__c: Charity_NationalEducation.Id
     Charity_Contact__c: Contact_CharityEd.Id
     NotificationSource: Professional Executor

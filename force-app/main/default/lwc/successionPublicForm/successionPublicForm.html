@@ -1,15 +1,15 @@
 <template>
   <div class="succession-scope">
     <!-- Header -->
-    <div class="slds-page-header slds-m-bottom_medium">
+    <div class="succession-page-header slds-var-m-bottom_medium">
       <div class="slds-page-header__row">
         <div class="slds-page-header__col-title">
           <div class="slds-media">
             <div class="slds-media__body">
-              <h1 class="slds-page-header__title slds-text-heading_large">
+              <h1 class="succession-page-header__title slds-text-heading_large">
                 Succession Pathway Selection Form
               </h1>
-              <p class="slds-text-body_regular slds-m-top_x-small">
+              <p class="succession-text-body-regular slds-var-m-top_x-small">
                 Please complete this form to make your succession pathway
                 selection
               </p>
@@ -21,7 +21,7 @@
 
     <!-- Loading Spinner -->
     <template if:true={loading}>
-      <div class="slds-align_absolute-center slds-m-vertical_xx-large">
+      <div class="slds-align_absolute-center slds-var-m-vertical_xx-large">
         <lightning-spinner
           alternative-text="Loading form..."
           size="large"
@@ -31,7 +31,7 @@
 
     <!-- Error State -->
     <template if:true={hasError}>
-      <div class="slds-m-around_medium">
+      <div class="slds-var-m-around_medium">
         <div
           class="slds-notify slds-notify_alert slds-alert_error"
           role="alert"
@@ -44,13 +44,13 @@
 
     <!-- Form Submitted Success -->
     <template if:true={formSubmitted}>
-      <div class="slds-m-around_medium">
+      <div class="slds-var-m-around_medium">
         <div
           class="slds-notify slds-notify_alert slds-theme_success"
           role="alert"
         >
           <span class="slds-assistive-text">Success</span>
-          <h2 class="slds-text-heading_medium slds-m-bottom_small">
+          <h2 class="slds-text-heading_medium slds-var-m-bottom_small">
             Thank You!
           </h2>
           <p class="slds-text-body_regular">
@@ -58,7 +58,7 @@
             Administration team will review your submission and contact you
             regarding next steps.
           </p>
-          <p class="slds-text-body_regular slds-m-top_small">
+          <p class="slds-text-body_regular slds-var-m-top_small">
             <strong>Case Number:</strong> {formData.caseNumber}
           </p>
         </div>
@@ -67,29 +67,30 @@
 
     <!-- Form Content -->
     <template if:true={isFormReady}>
-      <div class="slds-m-around_medium">
+      <div class="slds-var-m-around_medium">
         <!-- Pre-filled Information Section -->
         <lightning-card
           title="Account Information"
           icon-name="standard:account"
+          class="succession-card"
         >
-          <div class="slds-p-around_medium">
+          <div class="slds-var-p-around_x-large">
             <div class="slds-grid slds-wrap slds-gutters">
               <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                 <dl class="slds-dl_horizontal">
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Deceased Account Holder:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
                     <p class="slds-truncate">{formData.accountName}</p>
                   </dd>
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Financial Account:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
                     <p class="slds-truncate">{formData.financialAccountName}</p>
                   </dd>
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Account Number:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
@@ -101,23 +102,23 @@
               </div>
               <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
                 <dl class="slds-dl_horizontal">
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Account Balance:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
-                    <p class="slds-truncate slds-text-heading_small">
+                    <p class="slds-truncate succession-text-heading-small">
                       {accountBalanceFormatted}
                     </p>
                   </dd>
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Your Allocation:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
-                    <p class="slds-truncate slds-text-heading_small">
+                    <p class="slds-truncate succession-text-heading-small">
                       {allocationPercentageFormatted}
                     </p>
                   </dd>
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Case Number:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
@@ -133,13 +134,13 @@
         <lightning-card
           title="Your Information"
           icon-name="standard:contact"
-          class="slds-m-top_medium"
+          class="slds-var-m-top_medium succession-card"
         >
-          <div class="slds-p-around_medium">
+          <div class="slds-var-p-around_x-large">
             <div class="slds-grid slds-wrap slds-gutters">
               <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
                 <dl class="slds-dl_horizontal">
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Name:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
@@ -149,7 +150,7 @@
               </div>
               <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
                 <dl class="slds-dl_horizontal">
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Email:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
@@ -159,7 +160,7 @@
               </div>
               <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-3">
                 <dl class="slds-dl_horizontal">
-                  <dt class="slds-dl_horizontal__label">
+                  <dt class="succession-dl-label">
                     <p class="slds-truncate">Phone:</p>
                   </dt>
                   <dd class="slds-dl_horizontal__detail slds-tile__meta">
@@ -175,9 +176,9 @@
         <lightning-card
           title="Select Your Pathway"
           icon-name="standard:opportunity"
-          class="slds-m-top_medium"
+          class="slds-var-m-top_medium succession-card"
         >
-          <div class="slds-p-around_medium">
+          <div class="slds-var-p-around_x-large">
             <div class="slds-form" role="list">
               <lightning-radio-group
                 name="pathwaySelection"
@@ -190,8 +191,8 @@
               >
               </lightning-radio-group>
 
-              <div class="slds-m-top_large">
-                <p class="slds-text-body_small slds-m-bottom_small">
+              <div class="slds-var-m-top_large">
+                <p class="slds-text-body_small slds-var-m-bottom_small">
                   <strong>Option Descriptions:</strong>
                 </p>
                 <ul class="slds-list_dotted slds-text-body_small">
@@ -218,9 +219,9 @@
         <lightning-card
           title="Additional Information (Optional)"
           icon-name="standard:note"
-          class="slds-m-top_medium"
+          class="slds-var-m-top_medium succession-card"
         >
-          <div class="slds-p-around_medium">
+          <div class="slds-var-p-around_x-large">
             <lightning-textarea
               name="additionalNotes"
               label="Notes or Special Instructions"
@@ -233,12 +234,12 @@
         </lightning-card>
 
         <!-- Form Actions -->
-        <div class="slds-m-top_large slds-text-align_center">
+        <div class="slds-var-m-top_large slds-text-align_center">
           <lightning-button
             variant="neutral"
             label="Cancel"
             onclick={handleCancel}
-            class="slds-m-right_small"
+            class="slds-var-m-right_small"
           >
           </lightning-button>
           <lightning-button
@@ -251,7 +252,7 @@
         </div>
 
         <!-- Support Information -->
-        <div class="slds-box slds-m-top_large slds-theme_shade">
+        <div class="slds-box slds-var-m-top_large slds-theme_shade">
           <p class="slds-text-body_small">
             <strong>Need Help?</strong><br />
             If you have questions or need assistance, please contact our Estate

@@ -214,12 +214,6 @@
         start_date: -3d
         end_date: -3d
     Execution_Status__c: Completed
-    Execution_Completed_Date__c:
-      date_between:
-        start_date: -1d
-        end_date: -1d
-    Asset_Transfer_Status__c: Completed
-    Grant_Settlement_Status__c: Funds Disbursed
     New_DAF_Account_Number__c: null
     Charity_Account__c: Charity_RegionalArts.Id
     Charity_Contact__c: Contact_CharityArts.Id

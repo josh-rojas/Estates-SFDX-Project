@@ -1,0 +1,81 @@
+# Simplified Succession Management Mapping
+# Only includes fields actively used by flows and LWCs (9 Case fields)
+
+Insert Account:
+  sf_object: Account
+  table: Account
+  fields:
+    RecordTypeId: RecordTypeId
+    FirstName: FirstName
+    LastName: LastName
+    Type: Type
+    Deceased__c: Deceased__c
+    Date_of_Death__c: Date_of_Death__c
+    PersonEmail: PersonEmail
+    PersonMobilePhone: PersonMobilePhone
+    PersonHasOptedOutOfEmail: PersonHasOptedOutOfEmail
+    PersonDoNotCall: PersonDoNotCall
+    FinServ__NetWorth__c: FinServ__NetWorth__c
+    FinServ__Status__c: FinServ__Status__c
+
+Insert FinServ__FinancialAccount__c:
+  sf_object: FinServ__FinancialAccount__c
+  table: FinancialAccount
+  fields:
+    Name: Name
+    FinServ__FinancialAccountNumber__c: FinancialAccountNumber
+    FinServ__FinancialAccountType__c: FinancialAccountType
+    Program__c: Program
+    FinServ__Status__c: Status
+    FinServ__Balance__c: Balance
+    FinServ__PrimaryOwner__c: PrimaryOwnerId
+
+Insert FinServ__FinancialAccountRole__c:
+  sf_object: FinServ__FinancialAccountRole__c
+  table: FinancialAccountRole
+  fields:
+    FinServ__Role__c: Role
+    FinServ__Active__c: Active
+    FinServ__FinancialAccount__c: FinancialAccountId
+    FinServ__RelatedContact__c: RelatedContactId
+    SuccessorAllocation__c: SuccessorAllocation
+
+Insert Case:
+  sf_object: Case
+  table: Case
+  fields:
+    RecordTypeId: RecordTypeId
+    AccountId: AccountId
+    Type: Type
+    Subject: Subject
+    Status: Status
+    Priority: Priority
+    Origin: Origin
+    Description: Description
+    # 9 Active Succession Fields
+    Verification_Status__c: VerificationStatus
+    Contact_Attempt_Count__c: ContactAttemptCount
+    Contact_Established__c: ContactEstablished
+    Contact_Established_Date__c: ContactEstablishedDate
+    Form_Sent_Date__c: FormSentDate
+    Form_Completed_Date__c: FormCompletedDate
+    Pathway_Confirmed__c: PathwayConfirmed
+    Execution_Status__c: ExecutionStatus
+    New_DAF_Account_Number__c: NewDAFAccountNumber
+    # Other fields
+    FinServ__FinancialAccount__c: FinancialAccountId
+    IsEscalated: IsEscalated
+
+Insert Task:
+  sf_object: Task
+  table: Task
+  fields:
+    WhatId: WhatId
+    Subject: Subject
+    Status: Status
+    Priority: Priority
+    Type: Type
+    ActivityDate: ActivityDate
+    Description: Description
+    Contact_Attempt_Number__c: ContactAttemptNumber
+    Succession_Contact_Established__c: SuccessionContactEstablished

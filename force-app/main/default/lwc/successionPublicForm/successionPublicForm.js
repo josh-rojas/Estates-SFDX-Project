@@ -1,11 +1,11 @@
-import { LightningElement, wire, api } from "lwc";
+import { LightningElement, wire } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import getFormData from "@salesforce/apex/SuccessionPublicFormController.getFormData";
 import savePathwaySelection from "@salesforce/apex/SuccessionPublicFormController.savePathwaySelection";
 
 export default class SuccessionPublicForm extends LightningElement {
-  // URL parameters
-  @api caseId = null;
+  // URL parameters (private)
+  _caseId = null;
 
   // Form data from Apex
   formData = null;
@@ -27,15 +27,15 @@ export default class SuccessionPublicForm extends LightningElement {
   connectedCallback() {
     // Extract caseId from URL parameters
     const params = new URLSearchParams(window.location.search);
-    this.caseId = params.get("caseId");
+    this._caseId = params.get("caseId");
 
-    if (!this.caseId) {
+    if (!this._caseId) {
       this.error = "Invalid URL: Case ID parameter is missing";
       this.loading = false;
     }
   }
 
-  @wire(getFormData, { caseId: "$caseId" })
+  @wire(getFormData, { caseId: "$_caseId" })
   wiredFormData({ error, data }) {
     this.loading = false;
 
@@ -98,7 +98,7 @@ export default class SuccessionPublicForm extends LightningElement {
 
       // Call Apex to save pathway selection
       const result = await savePathwaySelection({
-        caseId: this.caseId,
+        caseId: this._caseId,
         pathwaySelection: this.selectedPathway,
         formData: formDataJson
       });

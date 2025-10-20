@@ -1,0 +1,613 @@
+# Simplified Succession Demo Data Recipe
+# Generated: October 19, 2025
+# Focus: 5 core test scenarios with clear labeling
+
+# ==================== SCENARIO 1: HAPPY PATH - FINAL GRANT ====================
+
+- object: Account
+  nickname: Donor_HappyPath
+  fields:
+    RecordType: PersonAccount
+    FirstName: Margaret
+    LastName: Thompson [HAPPY PATH - Final Grant]
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c: 2025-09-15
+    PersonEmail: margaret.thompson@legacy.example.com
+    PersonMobilePhone: (415) 555-0001
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 3500000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_HappyPath
+  fields:
+    RecordType: PersonAccount
+    FirstName: Jennifer
+    LastName: Thompson [SUCCESSOR - Happy Path]
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: jennifer.thompson@email.example.com
+    PersonMobilePhone: (415) 555-0002
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 750000
+    FinServ__Status__c: Active
+
+- object: FinServ__FinancialAccount__c
+  nickname: FA_HappyPath
+  fields:
+    Name: Thompson Family Fund [HAPPY PATH]
+    FinServ__FinancialAccountNumber__c: DAF-12345001
+    FinServ__FinancialAccountType__c: DAF/Donor Advised Fund
+    Program__c: ASDAF
+    FinServ__Status__c: Active
+    FinServ__Balance__c: 2500000
+  friends:
+    - object: Account
+      nickname: Donor_HappyPath
+
+- object: Case
+  nickname: Case_HappyPath
+  fields:
+    RecordType: EstateAdministration  # EstateAdministration
+    Type: Named Successor Enactment
+    Subject: "[DEMO 1] Happy Path - Thompson Estate - Final Grant Completed"
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    Description: "SCENARIO: Happy path - Contact established Day 0, Final Grant pathway selected, execution in progress. Tests: Contact cadence success, pathway selection, form completion."
+    Verification_Status__c: Complete - Verified
+    Contact_Attempt_Count__c: 1
+    Contact_Established__c: true
+    Contact_Established_Date__c: 2025-10-10T14:30:00Z
+    Form_Sent_Date__c: 2025-10-10T15:00:00Z
+    Form_Completed_Date__c: 2025-10-12T10:00:00Z
+    Pathway_Confirmed__c: Final Grant
+    Execution_Status__c: In Progress
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_HappyPath
+    - object: FinServ__FinancialAccount__c
+      nickname: FA_HappyPath
+
+- object: Task
+  fields:
+    Subject: "[DEMO 1] Contact Attempt 1 - Success on First Try"
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    ActivityDate: 2025-10-10
+    Description: "Day 0 - Reached Jennifer Thompson, explained options, contact established"
+    Contact_Attempt_Number__c: 1
+    Succession_Contact_Established__c: true
+  friends:
+    - object: Case
+      nickname: Case_HappyPath
+
+# ==================== SCENARIO 2: MANUAL ENTRY - NOT STARTED ====================
+
+- object: Account
+  nickname: Donor_ManualEntry
+  fields:
+    RecordType: PersonAccount
+    FirstName: Robert
+    LastName: Wilson [MANUAL ENTRY TEST]
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c: 2025-10-01
+    PersonEmail: robert.wilson@legacy.example.com
+    PersonMobilePhone: (650) 555-0003
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 1200000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_ManualEntry
+  fields:
+    RecordType: PersonAccount
+    FirstName: Sarah
+    LastName: Wilson [SUCCESSOR - Manual Entry]
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: sarah.wilson@email.example.com
+    PersonMobilePhone: (650) 555-0004
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 500000
+    FinServ__Status__c: Active
+
+- object: FinServ__FinancialAccount__c
+  nickname: FA_ManualEntry
+  fields:
+    Name: Wilson Charitable Fund [MANUAL ENTRY TEST]
+    FinServ__FinancialAccountNumber__c: DAF-12345002
+    FinServ__FinancialAccountType__c: DAF/Donor Advised Fund
+    Program__c: ISDAF
+    FinServ__Status__c: Active
+    FinServ__Balance__c: 950000
+  friends:
+    - object: Account
+      nickname: Donor_ManualEntry
+
+- object: Case
+  nickname: Case_ManualEntry
+  fields:
+    RecordType: EstateAdministration
+    Type: Named Successor Enactment
+    Subject: "[DEMO 2] Manual Entry Test - Wilson Estate - Click Quick Action to Start"
+    Status: New
+    Priority: Medium
+    Origin: Phone
+    Description: "SCENARIO: Manual entry point test. Verification = Not Started. Agent must click 'Begin Succession Processing' Quick Action to trigger workflow. Tests: Quick Action functionality, dual entry point."
+    Verification_Status__c: Not Started
+    Contact_Attempt_Count__c: 0
+    Contact_Established__c: false
+    Contact_Established_Date__c: null
+    Form_Sent_Date__c: null
+    Form_Completed_Date__c: null
+    Pathway_Confirmed__c: Not Selected
+    Execution_Status__c: Not Started
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_ManualEntry
+    - object: FinServ__FinancialAccount__c
+      nickname: FA_ManualEntry
+
+# ==================== SCENARIO 3: EMAIL VALIDATION - OPTED OUT ====================
+
+- object: Account
+  nickname: Donor_OptedOut
+  fields:
+    RecordType: PersonAccount
+    FirstName: David
+    LastName: Martinez [EMAIL OPTED OUT TEST]
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c: 2025-09-20
+    PersonEmail: david.martinez@legacy.example.com
+    PersonMobilePhone: (408) 555-0005
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 850000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_OptedOut
+  fields:
+    RecordType: PersonAccount
+    FirstName: Maria
+    LastName: Martinez [SUCCESSOR - OPTED OUT]
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: maria.martinez@email.example.com
+    PersonMobilePhone: (408) 555-0006
+    PersonHasOptedOutOfEmail: true  # COMPLIANCE TEST
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 400000
+    FinServ__Status__c: Active
+
+- object: FinServ__FinancialAccount__c
+  nickname: FA_OptedOut
+  fields:
+    Name: Martinez Family Fund [EMAIL OPTED OUT TEST]
+    FinServ__FinancialAccountNumber__c: DAF-12345003
+    FinServ__FinancialAccountType__c: DAF/Donor Advised Fund
+    Program__c: ASDAF
+    FinServ__Status__c: Active
+    FinServ__Balance__c: 650000
+  friends:
+    - object: Account
+      nickname: Donor_OptedOut
+
+- object: Case
+  nickname: Case_OptedOut
+  fields:
+    RecordType: EstateAdministration
+    Type: Named Successor Enactment
+    Subject: "[DEMO 3] Email Validation - Martinez Estate - Opted Out Compliance Test"
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    Description: "SCENARIO: Email compliance test. Successor opted out of email. Email warning should display, Send Email button disabled. Tests: Email validation, compliance enforcement, phone-only contact."
+    Verification_Status__c: Complete - Verified
+    Contact_Attempt_Count__c: 1
+    Contact_Established__c: true
+    Contact_Established_Date__c: 2025-10-05T09:00:00Z
+    Form_Sent_Date__c: null  # Cannot send - opted out
+    Form_Completed_Date__c: null
+    Pathway_Confirmed__c: Not Selected
+    Execution_Status__c: On Hold
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_OptedOut
+    - object: FinServ__FinancialAccount__c
+      nickname: FA_OptedOut
+
+- object: Task
+  fields:
+    Subject: "[DEMO 3] Contact Attempt 1 - Phone Only (Opted Out)"
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    ActivityDate: 2025-10-05
+    Description: "Contacted via phone - successor opted out of email, cannot send form electronically"
+    Contact_Attempt_Number__c: 1
+    Succession_Contact_Established__c: true
+  friends:
+    - object: Case
+      nickname: Case_OptedOut
+
+# ==================== SCENARIO 4: CONTACT CADENCE - MULTIPLE ATTEMPTS ====================
+
+- object: Account
+  nickname: Donor_MultipleAttempts
+  fields:
+    RecordType: PersonAccount
+    FirstName: James
+    LastName: Anderson [CONTACT CADENCE TEST]
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c: 2025-09-05
+    PersonEmail: james.anderson@legacy.example.com
+    PersonMobilePhone: (510) 555-0007
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 1800000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_MultipleAttempts
+  fields:
+    RecordType: PersonAccount
+    FirstName: Emily
+    LastName: Anderson [SUCCESSOR - Multiple Attempts]
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: emily.anderson@email.example.com
+    PersonMobilePhone: (510) 555-0008
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 600000
+    FinServ__Status__c: Active
+
+- object: FinServ__FinancialAccount__c
+  nickname: FA_MultipleAttempts
+  fields:
+    Name: Anderson Education Fund [CONTACT CADENCE TEST]
+    FinServ__FinancialAccountNumber__c: DAF-12345004
+    FinServ__FinancialAccountType__c: DAF/Donor Advised Fund
+    Program__c: ISDAF
+    FinServ__Status__c: Active
+    FinServ__Balance__c: 1300000
+  friends:
+    - object: Account
+      nickname: Donor_MultipleAttempts
+
+- object: Case
+  nickname: Case_MultipleAttempts
+  fields:
+    RecordType: EstateAdministration
+    Type: Named Successor Enactment
+    Subject: "[DEMO 4] Contact Cadence - Anderson Estate - 3 Attempts No Contact"
+    Status: In Progress
+    Priority: High
+    Origin: Phone
+    Description: "SCENARIO: Contact cadence progression. 3 attempts completed, no contact yet. Tests: successionContactCadence LWC progress display, attempt tracking, date-gating."
+    Verification_Status__c: Complete - Verified
+    Contact_Attempt_Count__c: 3
+    Contact_Established__c: false
+    Contact_Established_Date__c: null
+    Form_Sent_Date__c: null
+    Form_Completed_Date__c: null
+    Pathway_Confirmed__c: Not Selected
+    Execution_Status__c: Not Started
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_MultipleAttempts
+    - object: FinServ__FinancialAccount__c
+      nickname: FA_MultipleAttempts
+
+- object: Task
+  fields:
+    Subject: "[DEMO 4] Contact Attempt 1 - No Answer"
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    ActivityDate: 2025-10-01
+    Description: "Day 0 - No answer, left voicemail"
+    Contact_Attempt_Number__c: 1
+    Succession_Contact_Established__c: false
+  friends:
+    - object: Case
+      nickname: Case_MultipleAttempts
+
+- object: Task
+  fields:
+    Subject: "[DEMO 4] Contact Attempt 2 - Left Voicemail"
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    ActivityDate: 2025-10-06
+    Description: "Day 5 - Left voicemail, no callback"
+    Contact_Attempt_Number__c: 2
+    Succession_Contact_Established__c: false
+  friends:
+    - object: Case
+      nickname: Case_MultipleAttempts
+
+- object: Task
+  fields:
+    Subject: "[DEMO 4] Contact Attempt 3 - Still No Contact"
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    ActivityDate: 2025-10-15
+    Description: "Day 35 - Left urgent voicemail"
+    Contact_Attempt_Number__c: 3
+    Succession_Contact_Established__c: false
+  friends:
+    - object: Case
+      nickname: Case_MultipleAttempts
+
+# ==================== SCENARIO 5: NEW DAF PATHWAY ====================
+
+- object: Account
+  nickname: Donor_NewDAF
+  fields:
+    RecordType: PersonAccount
+    FirstName: Patricia
+    LastName: Davis [NEW DAF PATHWAY]
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c: 2025-08-25
+    PersonEmail: patricia.davis@legacy.example.com
+    PersonMobilePhone: (916) 555-0009
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 2200000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_NewDAF
+  fields:
+    RecordType: PersonAccount
+    FirstName: Michael
+    LastName: Davis [SUCCESSOR - New DAF]
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: michael.davis@email.example.com
+    PersonMobilePhone: (916) 555-0010
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 800000
+    FinServ__Status__c: Active
+
+- object: FinServ__FinancialAccount__c
+  nickname: FA_NewDAF
+  fields:
+    Name: Davis Philanthropic Fund [NEW DAF PATHWAY]
+    FinServ__FinancialAccountNumber__c: DAF-12345005
+    FinServ__FinancialAccountType__c: DAF/Donor Advised Fund
+    Program__c: ISDAF
+    FinServ__Status__c: Active
+    FinServ__Balance__c: 1750000
+  friends:
+    - object: Account
+      nickname: Donor_NewDAF
+
+- object: Case
+  nickname: Case_NewDAF
+  fields:
+    RecordType: EstateAdministration
+    Type: Named Successor Enactment
+    Subject: "[DEMO 5] New DAF Pathway - Davis Estate - Account Created"
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    Description: "SCENARIO: New DAF pathway. Contact established, form completed, new account created. Tests: New DAF workflow, account number tracking."
+    Verification_Status__c: Complete - Verified
+    Contact_Attempt_Count__c: 1
+    Contact_Established__c: true
+    Contact_Established_Date__c: 2025-09-15T11:00:00Z
+    Form_Sent_Date__c: 2025-09-15T11:30:00Z
+    Form_Completed_Date__c: 2025-09-18T16:00:00Z
+    Pathway_Confirmed__c: New DAF Account
+    Execution_Status__c: In Progress
+    New_DAF_Account_Number__c: DAF-98765001
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_NewDAF
+    - object: FinServ__FinancialAccount__c
+      nickname: FA_NewDAF
+
+- object: Task
+  fields:
+    Subject: "[DEMO 5] Contact Attempt 1 - New DAF Discussion"
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    ActivityDate: 2025-09-15
+    Description: "Reached Michael Davis, discussed New DAF continuation option"
+    Contact_Attempt_Number__c: 1
+    Succession_Contact_Established__c: true
+  friends:
+    - object: Case
+      nickname: Case_NewDAF
+
+# ==================== SCENARIO 6: NO EMAIL - PHONE ONLY ====================
+
+- object: Account
+  nickname: Donor_NoEmail
+  fields:
+    RecordType: PersonAccount
+    FirstName: Thomas
+    LastName: Rodriguez [NO EMAIL TEST]
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c: 2025-09-10
+    PersonEmail: thomas.rodriguez@legacy.example.com
+    PersonMobilePhone: (619) 555-0011
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 950000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_NoEmail
+  fields:
+    RecordType: PersonAccount
+    FirstName: Carlos
+    LastName: Rodriguez [SUCCESSOR - NO EMAIL]
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: null  # NO EMAIL - validation test
+    PersonMobilePhone: (619) 555-0012
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 350000
+    FinServ__Status__c: Active
+
+- object: FinServ__FinancialAccount__c
+  nickname: FA_NoEmail
+  fields:
+    Name: Rodriguez Fund [NO EMAIL TEST]
+    FinServ__FinancialAccountNumber__c: DAF-12345006
+    FinServ__FinancialAccountType__c: DAF/Donor Advised Fund
+    Program__c: ASDAF
+    FinServ__Status__c: Active
+    FinServ__Balance__c: 720000
+  friends:
+    - object: Account
+      nickname: Donor_NoEmail
+
+- object: Case
+  nickname: Case_NoEmail
+  fields:
+    RecordType: EstateAdministration
+    Type: Named Successor Enactment
+    Subject: "[DEMO 6] Email Validation - Rodriguez Estate - No Email Address"
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    Description: "SCENARIO: Email validation test. Successor has no email address. Warning should display, Send Email disabled. Tests: Email validation, missing email handling."
+    Verification_Status__c: Complete - Verified
+    Contact_Attempt_Count__c: 1
+    Contact_Established__c: true
+    Contact_Established_Date__c: 2025-10-01T13:00:00Z
+    Form_Sent_Date__c: null  # Cannot send - no email
+    Form_Completed_Date__c: null
+    Pathway_Confirmed__c: Not Selected
+    Execution_Status__c: On Hold
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_NoEmail
+    - object: FinServ__FinancialAccount__c
+      nickname: FA_NoEmail
+
+- object: Task
+  fields:
+    Subject: "[DEMO 6] Contact Attempt 1 - Phone Only (No Email)"
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    ActivityDate: 2025-10-01
+    Description: "Reached Carlos Rodriguez via phone - no email on file for form delivery"
+    Contact_Attempt_Number__c: 1
+    Succession_Contact_Established__c: true
+  friends:
+    - object: Case
+      nickname: Case_NoEmail
+
+# ==================== SCENARIO 7: DISCLAIM PATHWAY ====================
+
+- object: Account
+  nickname: Donor_Disclaim
+  fields:
+    RecordType: PersonAccount
+    FirstName: Elizabeth
+    LastName: Chen [DISCLAIM PATHWAY]
+    Type: Donor
+    Deceased__c: true
+    Date_of_Death__c: 2025-08-15
+    PersonEmail: elizabeth.chen@legacy.example.com
+    PersonMobilePhone: (925) 555-0013
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 650000
+    FinServ__Status__c: Closed
+
+- object: Account
+  nickname: Successor_Disclaim
+  fields:
+    RecordType: PersonAccount
+    FirstName: Lisa
+    LastName: Chen [SUCCESSOR - Disclaim]
+    Type: Prospect
+    Deceased__c: false
+    PersonEmail: lisa.chen@email.example.com
+    PersonMobilePhone: (925) 555-0014
+    PersonHasOptedOutOfEmail: false
+    PersonDoNotCall: false
+    FinServ__NetWorth__c: 300000
+    FinServ__Status__c: Active
+
+- object: FinServ__FinancialAccount__c
+  nickname: FA_Disclaim
+  fields:
+    Name: Chen Charitable Fund [DISCLAIM PATHWAY]
+    FinServ__FinancialAccountNumber__c: DAF-12345007
+    FinServ__FinancialAccountType__c: DAF/Donor Advised Fund
+    Program__c: ASDAF
+    FinServ__Status__c: Active
+    FinServ__Balance__c: 550000
+  friends:
+    - object: Account
+      nickname: Donor_Disclaim
+
+- object: Case
+  nickname: Case_Disclaim
+  fields:
+    RecordType: EstateAdministration
+    Type: Named Successor Enactment
+    Subject: "[DEMO 7] Disclaim Pathway - Chen Estate - Assets Disclaimed"
+    Status: In Progress
+    Priority: Medium
+    Origin: Phone
+    Description: "SCENARIO: Disclaim Assets pathway. Successor chose to disclaim inheritance. Tests: Disclaim pathway selection, execution tracking."
+    Verification_Status__c: Complete - Verified
+    Contact_Attempt_Count__c: 1
+    Contact_Established__c: true
+    Contact_Established_Date__c: 2025-09-01T10:00:00Z
+    Form_Sent_Date__c: 2025-09-01T10:30:00Z
+    Form_Completed_Date__c: 2025-09-05T14:00:00Z
+    Pathway_Confirmed__c: Disclaim Assets
+    Execution_Status__c: In Progress
+    IsEscalated: false
+  friends:
+    - object: Account
+      nickname: Donor_Disclaim
+    - object: FinServ__FinancialAccount__c
+      nickname: FA_Disclaim
+
+- object: Task
+  fields:
+    Subject: "[DEMO 7] Contact Attempt 1 - Disclaim Discussion"
+    Status: Completed
+    Priority: Normal
+    Type: Call
+    ActivityDate: 2025-09-01
+    Description: "Reached Lisa Chen, discussed disclaimer option"
+    Contact_Attempt_Number__c: 1
+    Succession_Contact_Established__c: true
+  friends:
+    - object: Case
+      nickname: Case_Disclaim

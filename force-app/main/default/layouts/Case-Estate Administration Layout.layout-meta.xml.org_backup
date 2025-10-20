@@ -95,28 +95,13 @@
     </layoutSections>
     <quickActionList>
         <quickActionListItems>
-            <quickActionName>Case.Begin_Succession_Processing</quickActionName>
-        </quickActionListItems>
-        <quickActionListItems>
-            <quickActionName>Case.Record_Contact_Attempt</quickActionName>
-        </quickActionListItems>
-        <quickActionListItems>
-            <quickActionName>Case.Mark_Contact_Established</quickActionName>
-        </quickActionListItems>
-        <quickActionListItems>
-            <quickActionName>Case.Send_Succession_Form</quickActionName>
-        </quickActionListItems>
-        <quickActionListItems>
-            <quickActionName>Case.Record_Pathway_Selection</quickActionName>
+            <quickActionName>FeedItem.TextPost</quickActionName>
         </quickActionListItems>
         <quickActionListItems>
             <quickActionName>LogACall</quickActionName>
         </quickActionListItems>
         <quickActionListItems>
             <quickActionName>NewTask</quickActionName>
-        </quickActionListItems>
-        <quickActionListItems>
-            <quickActionName>FeedItem.TextPost</quickActionName>
         </quickActionListItems>
     </quickActionList>
     <relatedObjects>ContactId</relatedObjects>
@@ -151,5 +136,6 @@
             <posX>2</posX>
             <posY>1</posY>
         </summaryLayoutItems>
+        <summaryLayoutStyle>Default</summaryLayoutStyle>
     </summaryLayout>
 </Layout>

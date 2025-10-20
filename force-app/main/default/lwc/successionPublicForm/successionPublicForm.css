@@ -1,35 +1,521 @@
+/**
+ * Succession Public Form Styles
+ *
+ * Styling for the public succession pathway selection form
+ */
+
+/* Base container */
 .succession-scope {
-  font-family: "Salesforce Sans", Arial, sans-serif;
-  background-color: #f3f3f3;
-  padding: 2rem;
-  min-height: 100vh;
+  max-width: 800px;
+  margin: var(--slds-g-spacing-none) auto;
 }
 
-.slds-page-header {
-  background: linear-gradient(135deg, #1b5297 0%, #0070d2 100%);
-  color: white;
-  padding: 2rem;
-  border-radius: 0.25rem;
+/* Page header */
+.succession-page-header {
+  background-color: var(--slds-g-color-neutral-base-95);
+  border-radius: var(--slds-g-radius-border-2);
+  padding: var(--slds-g-spacing-6);
 }
 
-.slds-page-header__title {
-  color: white;
+/* Succession card */
+.succession-card {
+  border-radius: var(--slds-g-radius-border-2);
+  box-shadow: var(--slds-g-shadow-1);
 }
 
-.slds-text-body_regular {
-  color: rgba(255, 255, 255, 0.9);
+/* Horizontal definition list */
+.succession-dl-label {
+  font-weight: var(--slds-g-font-weight-bold);
+  color: var(--slds-g-color-neutral-base-10);
 }
 
-.slds-card {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Text styles */
+.succession-text-body-regular {
+  font-size: var(--slds-g-font-size-3);
+  line-height: var(--slds-g-line-height-text);
 }
 
-.slds-dl_horizontal__label {
-  font-weight: 600;
-  color: #3e3e3c;
+.succession-text-heading-small {
+  font-size: var(--slds-g-font-size-2);
+  font-weight: var(--slds-g-font-weight-semibold);
+  color: var(--slds-g-color-neutral-base-10);
 }
 
-.slds-text-heading_small {
-  font-weight: 700;
-  color: #0070d2;
+/* Form elements */
+.succession-form-element__label {
+  font-size: var(--slds-g-font-size-2);
+  font-weight: var(--slds-g-font-weight-semibold);
+}
+
+/* Succession alert */
+.succession-notify_alert {
+  border-radius: var(--slds-g-radius-border-2);
+}
+
+/* Succession spinner */
+.succession-spinner {
+  width: 100%;
+  height: 100%;
+}
+
+/* Succession button */
+.succession-button {
+  border-radius: var(--slds-g-radius-border-1);
+}
+
+/* Succession card header */
+.succession-card__header {
+  border-bottom: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-border-base-1);
+  padding: var(--slds-g-spacing-4) var(--slds-g-spacing-6);
+}
+
+/* Succession card body */
+.succession-card__body {
+  padding: var(--slds-g-spacing-6);
+}
+
+/* Succession grid */
+.succession-grid {
+  gap: var(--slds-g-spacing-4);
+}
+
+/* Succession box */
+.succession-box {
+  border-radius: var(--slds-g-radius-border-1);
+  border: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-border-base-1);
+}
+
+/* Succession theme shade */
+.succession-theme_shade {
+  background-color: var(--slds-g-color-neutral-base-95);
+  border: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-border-base-1);
+}
+
+/* Succession theme success */
+.succession-theme_success {
+  background-color: var(--slds-g-color-success-base-95);
+  border: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-success-base-60);
+}
+
+/* Succession alert error */
+.succession-alert_error {
+  background-color: var(--slds-g-color-error-base-95);
+  border: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-error-base-60);
+}
+
+/* Succession alert warning */
+.succession-alert_warning {
+  background-color: var(--slds-g-color-warning-base-95);
+  border: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-warning-base-60);
+}
+
+/* Succession alert info */
+.slds-alert_info {
+  background-color: var(--slds-g-color-info-base-95);
+  border: var(--slds-g-border-width-thin) solid var(--slds-g-color-info-base-60);
+}
+
+/* Succession text color success */
+.succession-text-color-success {
+  color: var(--slds-g-color-success-base-60);
+}
+
+/* Succession text color weak */
+.succession-text-color_weak {
+  color: var(--slds-g-color-neutral-base-30);
+}
+
+/* Succession text heading large */
+.succession-text-heading_large {
+  font-size: var(--slds-g-font-size-5);
+  font-weight: var(--slds-g-font-weight-bold);
+  line-height: var(--slds-g-line-height-heading);
+}
+
+/* Succession text heading medium */
+.succession-text-heading_medium {
+  font-size: var(--slds-g-font-size-4);
+  font-weight: var(--slds-g-font-weight-bold);
+  line-height: var(--slds-g-line-height-heading);
+}
+
+/* Succession text body regular */
+.succession-text-body_regular {
+  font-size: var(--slds-g-font-size-3);
+  line-height: var(--slds-g-line-height-text);
+}
+
+/* Succession text body small */
+.succession-text-body_small {
+  font-size: var(--slds-g-font-size-2);
+  line-height: var(--slds-g-line-height-text);
+}
+
+/* Succession media */
+.succession-media__body {
+  flex: 1;
+}
+
+/* Succession page header title */
+.succession-page-header__title {
+  font-size: var(--slds-g-font-size-5);
+  font-weight: var(--slds-g-font-weight-bold);
+  line-height: var(--slds-g-line-height-heading);
+}
+
+/* Succession page header row */
+.succession-page-header__row {
+  padding: var(--slds-g-spacing-4) 0;
+}
+
+/* Succession page header col title */
+.succession-page-header__col-title {
+  padding: var(--slds-g-spacing-4) 0;
+}
+
+/* Succession dl horizontal */
+.succession-dl_horizontal {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--slds-g-spacing-2);
+}
+
+/* Succession dl horizontal detail */
+.succession-dl_horizontal__detail {
+  margin-bottom: var(--slds-g-spacing-2);
+}
+
+/* Succession tile meta */
+.succession-tile__meta {
+  margin-bottom: var(--slds-g-spacing-2);
+}
+
+/* Succession form */
+.succession-form {
+  margin-top: var(--slds-g-spacing-4);
+}
+
+/* Succession radio group */
+.slds-radio-group {
+  margin-bottom: var(--slds-g-spacing-4);
+}
+
+/* Succession list dotted */
+.succession-list_dotted {
+  padding-left: var(--slds-g-spacing-4);
+}
+
+/* Succession textarea */
+lightning-textarea {
+  width: 100%;
+}
+
+/* Succession card footer */
+.succession-card__footer {
+  border-top: var(--slds-g-border-width-thin) solid
+    var(--slds-g-color-border-base-1);
+  padding: var(--slds-g-spacing-4) var(--slds-g-spacing-6);
+}
+
+/* Succession card footer inner */
+.succession-card__footer_inner {
+  padding: var(--slds-g-spacing-4) var(--slds-g-spacing-6);
+}
+
+/* Succession card body inner */
+.succession-card__body_inner {
+  padding: var(--slds-g-spacing-6);
+}
+
+/* Succession box x-small */
+.succession-box_x-small {
+  padding: var(--slds-g-spacing-2);
+}
+
+/* Succession box small */
+.succession-box_small {
+  padding: var(--slds-g-spacing-3);
+}
+
+/* Succession box medium */
+.succession-box_medium {
+  padding: var(--slds-g-spacing-4);
+}
+
+/* Succession box large */
+.succession-box_large {
+  padding: var(--slds-g-spacing-6);
+}
+
+/* Succession box x-large */
+.succession-box_x-large {
+  padding: var(--slds-g-spacing-8);
+}
+
+/* Succession form element */
+.succession-form-element {
+  margin-bottom: var(--slds-g-spacing-4);
+}
+
+/* Succession form element control */
+.succession-form-element__control {
+  margin-top: var(--slds-g-spacing-1);
+}
+
+/* Succession form element label */
+.succession-form-element__label {
+  margin-bottom: var(--slds-g-spacing-1);
+}
+
+/* Succession form element help */
+.succession-form-element__help {
+  margin-top: var(--slds-g-spacing-1);
+  font-size: var(--slds-g-font-size-2);
+  color: var(--slds-g-color-neutral-base-30);
+}
+
+/* Succession form element error */
+.succession-form-element__error {
+  margin-top: var(--slds-g-spacing-1);
+  font-size: var(--slds-g-font-size-2);
+  color: var(--slds-g-color-error-base-60);
+}
+
+/* Succession form element success */
+.succession-form-element__success {
+  margin-top: var(--slds-g-spacing-1);
+  font-size: var(--slds-g-font-size-2);
+  color: var(--slds-g-color-success-base-60);
+}
+
+/* Succession form element warning */
+.succession-form-element__warning {
+  margin-top: var(--slds-g-spacing-1);
+  font-size: var(--slds-g-font-size-2);
+  color: var(--slds-g-color-warning-base-60);
+}
+
+/* Succession form element info */
+.succession-form-element__info {
+  margin-top: var(--slds-g-spacing-1);
+  font-size: var(--slds-g-font-size-2);
+  color: var(--slds-g-color-info-base-60);
+}
+
+/* Succession form element disabled */
+.succession-form-element--disabled {
+  opacity: 0.6;
+}
+
+/* Succession form element readonly */
+.succession-form-element--readonly {
+  opacity: 0.6;
+}
+
+/* Succession form element required */
+.succession-form-element--required::after {
+  content: " *";
+  color: var(--slds-g-color-error-base-60);
+}
+
+/* Succession form element invalid */
+.succession-form-element--invalid {
+  border-color: var(--slds-g-color-error-base-60);
+}
+
+/* Succession form element valid */
+.succession-form-element--valid {
+  border-color: var(--slds-g-color-success-base-60);
+}
+
+/* Succession form element warning */
+.succession-form-element--warning {
+  border-color: var(--slds-g-color-warning-base-60);
+}
+
+/* Succession form element info */
+.succession-form-element--info {
+  border-color: var(--slds-g-color-info-base-60);
+}
+
+/* Succession form element focus */
+.succession-form-element--focus {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element hover */
+.succession-form-element--hover {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element active */
+.succession-form-element--active {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element visited */
+.succession-form-element--visited {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element checked */
+.succession-form-element--checked {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element unchecked */
+.succession-form-element--unchecked {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element indeterminate */
+.succession-form-element--indeterminate {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element selected */
+.succession-form-element--selected {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element unselected */
+.succession-form-element--unselected {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element focused */
+.succession-form-element--focused {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element blurred */
+.succession-form-element--blurred {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element validated */
+.succession-form-element--validated {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element invalid */
+.succession-form-element--invalid {
+  border-color: var(--slds-g-color-error-base-60);
+}
+
+/* Succession form element valid */
+.succession-form-element--valid {
+  border-color: var(--slds-g-color-success-base-60);
+}
+
+/* Succession form element warning */
+.succession-form-element--warning {
+  border-color: var(--slds-g-color-warning-base-60);
+}
+
+/* Succession form element info */
+.succession-form-element--info {
+  border-color: var(--slds-g-color-info-base-60);
+}
+
+/* Succession form element disabled */
+.succession-form-element--disabled {
+  opacity: 0.6;
+}
+
+/* Succession form element readonly */
+.succession-form-element--readonly {
+  opacity: 0.6;
+}
+
+/* Succession form element required */
+.succession-form-element--required::after {
+  content: " *";
+  color: var(--slds-g-color-error-base-60);
+}
+
+/* Succession form element invalid */
+.succession-form-element--invalid {
+  border-color: var(--slds-g-color-error-base-60);
+}
+
+/* Succession form element valid */
+.succession-form-element--valid {
+  border-color: var(--slds-g-color-success-base-60);
+}
+
+/* Succession form element warning */
+.succession-form-element--warning {
+  border-color: var(--slds-g-color-warning-base-60);
+}
+
+/* Succession form element info */
+.succession-form-element--info {
+  border-color: var(--slds-g-color-info-base-60);
+}
+
+/* Succession form element focus */
+.succession-form-element--focus {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element hover */
+.succession-form-element--hover {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element active */
+.succession-form-element--active {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element visited */
+.succession-form-element--visited {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element checked */
+.succession-form-element--checked {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element unchecked */
+.succession-form-element--unchecked {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element indeterminate */
+.succession-form-element--indeterminate {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element selected */
+.succession-form-element--selected {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element unselected */
+.succession-form-element--unselected {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element focused */
+.succession-form-element--focused {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element blurred */
+.succession-form-element--blurred {
+  border-color: var(--slds-g-color-brand-base-60);
+}
+
+/* Succession form element validated */
+.succession-form-element--validated {
+  border-color: var(--slds-g-color-brand-base-60);
 }

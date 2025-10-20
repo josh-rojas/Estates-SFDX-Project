@@ -1,6 +1,5 @@
 import { createElement } from "lwc";
 import RecordPathwaySelection from "c/recordPathwaySelection";
-import { updateRecord } from "lightning/uiRecordApi";
 
 // Mock lightning/uiRecordApi
 jest.mock(
@@ -38,11 +37,6 @@ describe("c-record-pathway-selection", () => {
     // Reset mocks
     jest.clearAllMocks();
   });
-
-  // Helper function to wait for async updates
-  async function flushPromises() {
-    return new Promise((resolve) => setTimeout(resolve, 0));
-  }
 
   it("renders without errors", () => {
     const element = createElement("c-record-pathway-selection", {

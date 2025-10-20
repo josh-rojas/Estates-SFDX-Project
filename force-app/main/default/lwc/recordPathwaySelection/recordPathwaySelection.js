@@ -76,10 +76,8 @@ export default class RecordPathwaySelection extends LightningElement {
         })
       );
 
-      // Auto-close the Quick Action after 1.5 seconds
-      setTimeout(() => {
-        this.handleClose();
-      }, 1500);
+      // Auto-close the Quick Action
+      this.handleClose();
     } catch (error) {
       this.errorMessage = error.body?.message || "Error updating Case record";
 
