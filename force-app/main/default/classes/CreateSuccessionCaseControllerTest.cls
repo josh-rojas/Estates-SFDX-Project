@@ -14,20 +14,32 @@ public class CreateSuccessionCaseControllerTest {
    */
   @TestSetup
   static void setupTestData() {
+    // Get Person Account RecordType
+    RecordType personAccountRT = [
+      SELECT Id 
+      FROM RecordType 
+      WHERE SObjectType = 'Account' 
+      AND IsPersonType = true 
+      LIMIT 1
+    ];
+    
     // Create Person Accounts (deceased donor and successors)
     List<Account> accounts = new List<Account>();
 
     // Deceased donor account
     Account deceasedDonor = new Account(
+      RecordTypeId = personAccountRT.Id,
       FirstName = 'John',
       LastName = 'Deceased',
       PersonEmail = 'john.deceased@example.com',
-      PersonHasOptedOutOfEmail = false
+      PersonHasOptedOutOfEmail = false,
+      Deceased__c = true
     );
     accounts.add(deceasedDonor);
 
     // Successor accounts
     Account successor1 = new Account(
+      RecordTypeId = personAccountRT.Id,
       FirstName = 'Jane',
       LastName = 'Successor1',
       PersonEmail = 'jane.successor1@example.com',
@@ -36,6 +48,7 @@ public class CreateSuccessionCaseControllerTest {
     accounts.add(successor1);
 
     Account successor2 = new Account(
+      RecordTypeId = personAccountRT.Id,
       FirstName = 'Bob',
       LastName = 'Successor2',
       PersonEmail = 'bob.successor2@example.com',
