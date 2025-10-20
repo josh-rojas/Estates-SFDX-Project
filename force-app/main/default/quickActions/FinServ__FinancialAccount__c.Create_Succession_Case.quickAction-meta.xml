@@ -4,7 +4,7 @@
   >Creates succession case for this financial account. Validates requirements (deceased owner, designated successors, no existing case) and auto-starts workflow. Multi-successor orchestration handled automatically.</description>
     <label>🏛️ Create Succession Case</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
-    <lightningComponent>c:createSuccessionCase</lightningComponent>
+    <lightningComponent>createSuccessionCase</lightningComponent>
     <type>LightningComponent</type>
 </QuickAction>
 

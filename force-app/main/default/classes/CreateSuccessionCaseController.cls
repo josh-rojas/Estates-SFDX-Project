@@ -36,37 +36,37 @@ public with sharing class CreateSuccessionCaseController {
       // Validate requirements
       String validationError = validateRequirements(financialAccountId);
       if (String.isNotBlank(validationError)) {
-        return new CreateCaseResult {
-          success = false,
-          message = validationError
-        };
+        CreateCaseResult errorResult = new CreateCaseResult();
+        errorResult.success = false;
+        errorResult.message = validationError;
+        return errorResult;
       }
 
       // Get deceased donor account
       Id deceasedOwnerAccountId = getDeceasedDonorAccount(financialAccountId);
       if (deceasedOwnerAccountId == null) {
-        return new CreateCaseResult {
-          success = false,
-          message = 'No deceased primary owner found on this financial account'
-        };
+        CreateCaseResult errorResult = new CreateCaseResult();
+        errorResult.success = false;
+        errorResult.message = 'No deceased primary owner found on this financial account';
+        return errorResult;
       }
 
       // Get successors and validate allocation
       List<FinServ__FinancialAccountRole__c> successors = getSuccessors(financialAccountId);
       if (successors.isEmpty()) {
-        return new CreateCaseResult {
-          success = false,
-          message = 'No active successors designated on this financial account'
-        };
+        CreateCaseResult errorResult = new CreateCaseResult();
+        errorResult.success = false;
+        errorResult.message = 'No active successors designated on this financial account';
+        return errorResult;
       }
 
       // Validate allocation totals (optional but recommended)
       String allocationError = validateSuccessorAllocations(successors);
       if (String.isNotBlank(allocationError)) {
-        return new CreateCaseResult {
-          success = false,
-          message = allocationError
-        };
+        CreateCaseResult errorResult = new CreateCaseResult();
+        errorResult.success = false;
+        errorResult.message = allocationError;
+        return errorResult;
       }
 
       // Get first successor (deterministic selection)
@@ -98,19 +98,19 @@ public with sharing class CreateSuccessionCaseController {
       Database.insert(seedCase, AccessLevel.USER_MODE);
 
       // Return success result
-      return new CreateCaseResult {
-        success = true,
-        message = 'Case created successfully' + 
-                 (successors.size() > 1 ? '. ' + successors.size() + ' successors detected - parent coordination case and child cases will be created automatically.' : '. Contact cadence will begin automatically.'),
-        seedCaseId = seedCase.Id,
-        successorCount = successors.size()
-      };
+      CreateCaseResult successResult = new CreateCaseResult();
+      successResult.success = true;
+      successResult.message = 'Case created successfully' + 
+                 (successors.size() > 1 ? '. ' + successors.size() + ' successors detected - parent coordination case and child cases will be created automatically.' : '. Contact cadence will begin automatically.');
+      successResult.seedCaseId = seedCase.Id;
+      successResult.successorCount = successors.size();
+      return successResult;
 
     } catch (Exception e) {
-      return new CreateCaseResult {
-        success = false,
-        message = 'Error creating succession case: ' + e.getMessage()
-      };
+      CreateCaseResult errorResult = new CreateCaseResult();
+      errorResult.success = false;
+      errorResult.message = 'Error creating succession case: ' + e.getMessage();
+      return errorResult;
     }
   }
 
@@ -166,15 +166,21 @@ public with sharing class CreateSuccessionCaseController {
    * @return List of successor FinancialAccountRole records
    */
   private static List<FinServ__FinancialAccountRole__c> getSuccessors(Id financialAccountId) {
-    return [
+    List<FinServ__FinancialAccountRole__c> successors = [
       SELECT Id, FinServ__RelatedContact__c, SuccessorAllocation__c
       FROM FinServ__FinancialAccountRole__c
       WHERE FinServ__FinancialAccount__c = :financialAccountId
       AND FinServ__Role__c = 'Successor'
       AND FinServ__Active__c = true
       ORDER BY CreatedDate ASC
-      WITH USER_MODE
     ];
+    
+    // Enforce field-level security
+    SObjectAccessDecision decision = Security.stripInaccessible(
+      AccessType.READABLE,
+      successors
+    );
+    return decision.getRecords();
   }
 
   /**
