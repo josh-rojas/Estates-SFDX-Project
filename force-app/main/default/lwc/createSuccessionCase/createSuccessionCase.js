@@ -39,12 +39,20 @@ export default class CreateSuccessionCase extends NavigationMixin(
    * Call Apex method to create succession case
    */
   createCase() {
+    console.log('createCase called with recordId:', this.recordId);
+    
+    if (!this.recordId) {
+      this.showErrorToast('No Financial Account ID provided');
+      return;
+    }
+    
     this.isLoading = true;
     this.error = null;
     this.result = null;
 
     createSuccessionCase({ financialAccountId: this.recordId })
       .then((result) => {
+        console.log('Apex result:', result);
         this.result = result;
         this.isLoading = false;
 
@@ -55,12 +63,18 @@ export default class CreateSuccessionCase extends NavigationMixin(
         }
       })
       .catch((error) => {
+        console.error("Apex error caught:", error);
         this.error = error;
         this.isLoading = false;
-        this.showErrorToast(
-          error.body?.message || error.message || "Unknown error occurred"
-        );
-        console.error("Error creating succession case:", error);
+        
+        let errorMessage = 'Unknown error occurred';
+        if (error.body && error.body.message) {
+          errorMessage = error.body.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        this.showErrorToast(errorMessage);
       });
   }
 

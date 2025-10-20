@@ -33,9 +33,12 @@ public with sharing class CreateSuccessionCaseController {
   @AuraEnabled
   public static CreateCaseResult createSuccessionCase(Id financialAccountId) {
     try {
+      System.debug('Starting createSuccessionCase for FA: ' + financialAccountId);
+      
       // Validate requirements
       String validationError = validateRequirements(financialAccountId);
       if (String.isNotBlank(validationError)) {
+        System.debug('Validation failed: ' + validationError);
         CreateCaseResult errorResult = new CreateCaseResult();
         errorResult.success = false;
         errorResult.message = validationError;
@@ -74,22 +77,40 @@ public with sharing class CreateSuccessionCaseController {
 
       // Get Estate Administration record type
       Id estateAdminRecordTypeId = getEstateAdministrationRecordTypeId();
+      System.debug('Record Type ID: ' + estateAdminRecordTypeId);
+      
+      if (estateAdminRecordTypeId == null) {
+        CreateCaseResult errorResult = new CreateCaseResult();
+        errorResult.success = false;
+        errorResult.message = 'Estate Administration record type not found';
+        return errorResult;
+      }
 
       // Get FinancialAccount name for subject
       String financialAccountName = getFinancialAccountName(financialAccountId);
+      System.debug('Financial Account Name: ' + financialAccountName);
       
       // Determine ContactId - use RelatedContact if available, otherwise get PersonContactId from Account
       Id contactId = firstSuccessor.FinServ__RelatedContact__c;
+      System.debug('First successor RelatedContact: ' + contactId);
+      System.debug('First successor RelatedAccount: ' + firstSuccessor.FinServ__RelatedAccount__c);
+      
       if (contactId == null && firstSuccessor.FinServ__RelatedAccount__c != null) {
+        System.debug('Querying PersonContactId from Account');
         List<Account> successorAccounts = [
-          SELECT PersonContactId 
+          SELECT PersonContactId, IsPersonAccount
           FROM Account 
           WHERE Id = :firstSuccessor.FinServ__RelatedAccount__c
           LIMIT 1
         ];
         
+        System.debug('Found accounts: ' + successorAccounts.size());
+        
         // Enforce field-level security
         if (!successorAccounts.isEmpty()) {
+          System.debug('Account IsPersonAccount: ' + successorAccounts[0].IsPersonAccount);
+          System.debug('Account PersonContactId: ' + successorAccounts[0].PersonContactId);
+          
           SObjectAccessDecision decision = Security.stripInaccessible(
             AccessType.READABLE,
             successorAccounts
@@ -100,6 +121,8 @@ public with sharing class CreateSuccessionCaseController {
           }
         }
       }
+      
+      System.debug('Final ContactId to use: ' + contactId);
 
       // Create seed case
       Case seedCase = new Case(
@@ -130,9 +153,11 @@ public with sharing class CreateSuccessionCaseController {
       return successResult;
 
     } catch (Exception e) {
+      System.debug('Exception occurred: ' + e.getMessage());
+      System.debug('Stack trace: ' + e.getStackTraceString());
       CreateCaseResult errorResult = new CreateCaseResult();
       errorResult.success = false;
-      errorResult.message = 'Error creating succession case: ' + e.getMessage();
+      errorResult.message = 'Error creating succession case: ' + e.getMessage() + ' (Line: ' + e.getLineNumber() + ')';
       return errorResult;
     }
   }
