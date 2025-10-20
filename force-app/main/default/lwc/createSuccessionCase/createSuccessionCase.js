@@ -16,9 +16,10 @@ export default class CreateSuccessionCase extends NavigationMixin(
 ) {
   @api recordId; // FinancialAccount ID (passed automatically by Quick Action)
 
-  @track isLoading = true;
+  @track isLoading = false;
   @track result = null;
   @track error = null;
+  @track hasInvoked = false;
 
   /**
    * Required method for Quick Action invocation
@@ -26,6 +27,11 @@ export default class CreateSuccessionCase extends NavigationMixin(
    */
   @api
   invoke() {
+    // Prevent duplicate invocations
+    if (this.hasInvoked) {
+      return;
+    }
+    this.hasInvoked = true;
     this.createCase();
   }
 

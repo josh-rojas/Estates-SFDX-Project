@@ -5,6 +5,13 @@
   Creates succession case and handles loading/error/success states.
 -->
 <template>
+  <!-- Empty state (before invoke is called) -->
+  <template if:false={hasInvoked}>
+    <div class="slds-var-p-around_medium">
+      <p class="slds-text-align_center">Click the action button to create a succession case.</p>
+    </div>
+  </template>
+
   <!-- Loading State -->
   <template if:true={showLoading}>
     <div class="create-succession-case-loading slds-var-p-around_medium">
