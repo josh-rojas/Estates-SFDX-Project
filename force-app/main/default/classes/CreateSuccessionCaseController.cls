@@ -151,7 +151,6 @@ public with sharing class CreateSuccessionCaseController {
       WHERE FinServ__FinancialAccount__c = :financialAccountId 
       AND (Type = 'Named Successor Enactment' OR Type = 'Multi-Account Succession Master')
       AND IsClosed = false
-      WITH USER_MODE
       LIMIT 1
     ];
     
@@ -175,7 +174,6 @@ public with sharing class CreateSuccessionCaseController {
       WHERE FinServ__FinancialAccount__c = :financialAccountId
       AND FinServ__Role__c LIKE '%Primary%'
       AND FinServ__RelatedAccount__r.Deceased__c = true
-      WITH USER_MODE
       LIMIT 1
     ];
 
@@ -231,16 +229,15 @@ public with sharing class CreateSuccessionCaseController {
    * @return Record type ID for Estate Administration
    */
   private static Id getEstateAdministrationRecordTypeId() {
-    RecordType estateAdminRT = [
+    List<RecordType> recordTypes = [
       SELECT Id 
       FROM RecordType 
       WHERE SObjectType = 'Case' 
       AND DeveloperName = 'EstateAdministration'
-      WITH USER_MODE
       LIMIT 1
     ];
     
-    return estateAdminRT.Id;
+    return recordTypes.isEmpty() ? null : recordTypes[0].Id;
   }
 
   /**
@@ -250,15 +247,14 @@ public with sharing class CreateSuccessionCaseController {
    * @return FinancialAccount name
    */
   private static String getFinancialAccountName(Id financialAccountId) {
-    FinServ__FinancialAccount__c fa = [
+    List<FinServ__FinancialAccount__c> accounts = [
       SELECT Name 
       FROM FinServ__FinancialAccount__c 
       WHERE Id = :financialAccountId
-      WITH USER_MODE
       LIMIT 1
     ];
     
-    return fa.Name;
+    return accounts.isEmpty() ? 'Unknown Financial Account' : accounts[0].Name;
   }
 }
 
