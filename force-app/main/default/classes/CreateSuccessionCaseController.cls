@@ -81,14 +81,24 @@ public with sharing class CreateSuccessionCaseController {
       // Determine ContactId - use RelatedContact if available, otherwise get PersonContactId from Account
       Id contactId = firstSuccessor.FinServ__RelatedContact__c;
       if (contactId == null && firstSuccessor.FinServ__RelatedAccount__c != null) {
-        Account successorAccount = [
+        List<Account> successorAccounts = [
           SELECT PersonContactId 
           FROM Account 
-          WHERE Id = :firstSuccessor.FinServ__RelatedAccount__c 
-          WITH USER_MODE 
+          WHERE Id = :firstSuccessor.FinServ__RelatedAccount__c
           LIMIT 1
         ];
-        contactId = successorAccount.PersonContactId;
+        
+        // Enforce field-level security
+        if (!successorAccounts.isEmpty()) {
+          SObjectAccessDecision decision = Security.stripInaccessible(
+            AccessType.READABLE,
+            successorAccounts
+          );
+          List<Account> filteredAccounts = (List<Account>) decision.getRecords();
+          if (!filteredAccounts.isEmpty()) {
+            contactId = filteredAccounts[0].PersonContactId;
+          }
+        }
       }
 
       // Create seed case
