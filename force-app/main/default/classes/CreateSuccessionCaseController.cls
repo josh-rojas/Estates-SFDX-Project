@@ -147,11 +147,11 @@ public with sharing class CreateSuccessionCaseController {
    */
   private static Id getDeceasedDonorAccount(Id financialAccountId) {
     List<FinServ__FinancialAccountRole__c> deceasedOwners = [
-      SELECT FinServ__RelatedAccount__c
+      SELECT FinServ__RelatedAccount__c, FinServ__RelatedAccount__r.Deceased__c
       FROM FinServ__FinancialAccountRole__c
       WHERE FinServ__FinancialAccount__c = :financialAccountId
       AND FinServ__Role__c LIKE '%Primary%'
-      AND FinServ__EndDate__c != null
+      AND FinServ__RelatedAccount__r.Deceased__c = true
       WITH USER_MODE
       LIMIT 1
     ];

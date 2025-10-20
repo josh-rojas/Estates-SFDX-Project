@@ -174,5 +174,3 @@ export default class CreateSuccessionCase extends NavigationMixin(
     this.dispatchEvent(new CustomEvent("close"));
   }
 }
-
-
