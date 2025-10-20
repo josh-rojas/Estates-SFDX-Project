@@ -81,6 +81,11 @@
           <div class="progress-bar-container">
             <div class="progress-bar-track"></div>
             <div class="progress-bar-fill" style={progressBarStyle}></div>
+            
+            <!-- Progress Line from completed to current -->
+            <template if:true={showProgressLine}>
+              <div class="progress-line"></div>
+            </template>
 
             <!-- Progress Nodes (5 attempts) -->
             <div class="progress-nodes">
@@ -88,6 +93,8 @@
                 <div
                   key={attempt.attemptNumber}
                   class={attempt.progressNodeClass}
+                  title={attempt.attemptLabel}
+                  aria-label={attempt.attemptLabel}
                 >
                   <div class="node-circle">
                     <template if:true={attempt.isCompleted}>
@@ -166,6 +173,11 @@
                 ></lightning-button>
               </div>
             </div>
+            <template if:true={pendingEmailTemplateLabel}>
+              <div class="slds-text-color_weak slds-text-body_small slds-var-m-top_x-small">
+                Select template: {pendingEmailTemplateLabel}
+              </div>
+            </template>
           </div>
         </template>
 
@@ -262,6 +274,7 @@
                     This task cannot be completed until the scheduled date
                     arrives.
                   </p>
+                  <!-- No Record Outcome button for locked tasks -->
                 </div>
               </template>
 

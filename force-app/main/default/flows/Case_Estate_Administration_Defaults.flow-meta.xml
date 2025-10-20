@@ -31,11 +31,18 @@
                 <stringValue>EstateAdministration</stringValue>
             </value>
         </filters>
+        <filters>
+            <field>AccountId</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
         <object>Case</object>
         <recordTriggerType>Create</recordTriggerType>
         <triggerType>RecordBeforeSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
     
     <!-- Get Account Details for Auto-Population -->
     <recordLookups>
@@ -44,10 +51,13 @@
         <locationX>176</locationX>
         <locationY>134</locationY>
         <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+    >true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Check_Person_Account</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Check_Person_Account</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -83,6 +93,13 @@
                 <operator>EqualTo</operator>
                 <rightValue>
                     <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varAccount.PersonContactId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
                 </rightValue>
             </conditions>
             <connector>
@@ -172,7 +189,7 @@
     <formulas>
         <name>fxSubject</name>
         <dataType>String</dataType>
-        <expression>"Estate Succession - " &amp; {!varAccount.Name}</expression>
+        <expression>IF(ISBLANK({!varAccount.Id}), "Estate Succession", "Estate Succession - " &amp; {!varAccount.Name})</expression>
     </formulas>
     
     <!-- Formula for Description -->
@@ -180,7 +197,7 @@
         <name>fxDescription</name>
         <dataType>String</dataType>
         <expression
-    >"Succession case created for deceased donor: " &amp; {!varAccount.Name} &amp; ". This case will track contact attempts, pathway selection, and execution for named successor(s)."</expression>
+    >IF(ISBLANK({!varAccount.Id}), "Succession case created for deceased donor.", "Succession case created for deceased donor: " &amp; {!varAccount.Name} &amp; ". This case will track contact attempts, pathway selection, and execution for named successor(s).")</expression>
     </formulas>
     
     <!-- Variable to hold Account record -->
@@ -193,6 +210,3 @@
         <objectType>Account</objectType>
     </variables>
 </Flow>
-
-
-

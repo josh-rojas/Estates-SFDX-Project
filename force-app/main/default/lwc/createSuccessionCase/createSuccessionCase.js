@@ -1,6 +1,7 @@
 import { LightningElement, api, track } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { NavigationMixin } from "lightning/navigation";
+import { CloseActionScreenEvent } from "lightning/actions";
 import createSuccessionCase from "@salesforce/apex/CreateSuccessionCaseController.createSuccessionCase";
 
 /**
@@ -39,20 +40,20 @@ export default class CreateSuccessionCase extends NavigationMixin(
    * Call Apex method to create succession case
    */
   createCase() {
-    console.log('createCase called with recordId:', this.recordId);
-    
+    console.log("createCase called with recordId:", this.recordId);
+
     if (!this.recordId) {
-      this.showErrorToast('No Financial Account ID provided');
+      this.showErrorToast("No Financial Account ID provided");
       return;
     }
-    
+
     this.isLoading = true;
     this.error = null;
     this.result = null;
 
     createSuccessionCase({ financialAccountId: this.recordId })
       .then((result) => {
-        console.log('Apex result:', result);
+        console.log("Apex result:", result);
         this.result = result;
         this.isLoading = false;
 
@@ -66,14 +67,14 @@ export default class CreateSuccessionCase extends NavigationMixin(
         console.error("Apex error caught:", error);
         this.error = error;
         this.isLoading = false;
-        
-        let errorMessage = 'Unknown error occurred';
+
+        let errorMessage = "Unknown error occurred";
         if (error.body && error.body.message) {
           errorMessage = error.body.message;
         } else if (error.message) {
           errorMessage = error.message;
         }
-        
+
         this.showErrorToast(errorMessage);
       });
   }
@@ -90,6 +91,9 @@ export default class CreateSuccessionCase extends NavigationMixin(
       })
     );
 
+    // Close the Quick Action modal
+    this.dispatchEvent(new CloseActionScreenEvent());
+
     // Navigate to the created case
     this.navigateToCase(result.seedCaseId);
   }
@@ -105,6 +109,9 @@ export default class CreateSuccessionCase extends NavigationMixin(
         variant: "error"
       })
     );
+
+    // Close the Quick Action modal
+    this.dispatchEvent(new CloseActionScreenEvent());
   }
 
   /**
@@ -174,9 +181,9 @@ export default class CreateSuccessionCase extends NavigationMixin(
   get successorInfo() {
     if (this.successorCount === 0) return "";
     if (this.successorCount === 1) {
-      return "Contact cadence will begin automatically.";
+      return "Click 'Begin Succession Processing' on the case to start the contact cadence workflow.";
     }
-    return `${this.successorCount} successors detected - parent coordination case and child cases will be created automatically.`;
+    return `${this.successorCount} successors detected. Click 'Begin Succession Processing' to create parent and child cases and start the workflow.`;
   }
 
   /**

@@ -18,10 +18,9 @@
         <name>LightningComponentBundle</name>
     </types>
     
-    <!-- Flows - Deploy core flows, excluded problematic flows temporarily -->
+    <!-- Flows - Deploy core flows -->
     <types>
         <members>Case_Create_Initial_Contact_Attempt</members>
-        <members>Case_Estate_Administration_Defaults</members>
         <members>Case_Multiple_Successors_Handler</members>
         <members>Case_Parent_Closure_Handler</members>
         <members>Case_Status_Coordination</members>
@@ -81,7 +80,7 @@
     <types>
         <members>Case.Mark_Contact_Established</members>
         <members>Case.Record_Contact_Attempt</members>
-        <members>FinancialAccount.Create_Succession_Case</members>
+        <members>FinServ__FinancialAccount__c.Create_Succession_Case</members>
         <name>QuickAction</name>
     </types>
     

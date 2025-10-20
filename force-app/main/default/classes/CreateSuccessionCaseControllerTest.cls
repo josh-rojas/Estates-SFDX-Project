@@ -146,6 +146,7 @@ public class CreateSuccessionCaseControllerTest {
         Verification_Status__c,
         FinServ__FinancialAccount__c,
         AccountId,
+        Deceased_Donor__c,
         ContactId,
         Subject
       FROM Case
@@ -154,7 +155,7 @@ public class CreateSuccessionCaseControllerTest {
 
     System.assertEquals(1, cases.size(), 'Should create 1 case');
     System.assertEquals('Named Successor Enactment', cases[0].Type);
-    System.assertEquals('Complete - Verified', cases[0].Verification_Status__c);
+    System.assertEquals('Not Started', cases[0].Verification_Status__c);
     System.assertEquals(fa.Id, cases[0].FinServ__FinancialAccount__c);
 
     // Verify ContactId mapping (should be first successor's Contact ID)
@@ -174,6 +175,10 @@ public class CreateSuccessionCaseControllerTest {
       LIMIT 1
     ];
     System.assertEquals(deceasedDonor.Id, cases[0].AccountId);
+    
+    // Verify Deceased_Donor__c mapping (should also be deceased donor's Account)
+    System.assertEquals(deceasedDonor.Id, cases[0].Deceased_Donor__c, 
+      'Deceased_Donor__c should be populated with deceased donor Account ID');
   }
 
   /**
@@ -212,6 +217,7 @@ public class CreateSuccessionCaseControllerTest {
         Verification_Status__c,
         FinServ__FinancialAccount__c,
         AccountId,
+        Deceased_Donor__c,
         ContactId,
         Subject,
         ParentId
@@ -224,9 +230,19 @@ public class CreateSuccessionCaseControllerTest {
 
     System.assertEquals(1, seedCases.size(), 'Should create 1 seed case');
     System.assertEquals(
-      'Complete - Verified',
+      'Not Started',
       seedCases[0].Verification_Status__c
     );
+    
+    // Verify Deceased_Donor__c is populated in seed case
+    Account deceasedDonor = [
+      SELECT Id
+      FROM Account
+      WHERE LastName = 'Deceased'
+      LIMIT 1
+    ];
+    System.assertEquals(deceasedDonor.Id, seedCases[0].Deceased_Donor__c, 
+      'Deceased_Donor__c should be populated with deceased donor Account ID');
 
     // Verify parent case was created by flow
     List<Case> parentCases = [

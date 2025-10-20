@@ -120,6 +120,9 @@
         <connector>
             <targetReference>Loop_Through_Children</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Loop_Through_Children</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>ParentId</field>
@@ -152,6 +155,9 @@
         <connector>
             <targetReference>Get_All_Child_Cases</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Get_All_Child_Cases</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>

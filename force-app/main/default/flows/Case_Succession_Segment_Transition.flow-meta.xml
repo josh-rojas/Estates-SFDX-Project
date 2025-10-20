@@ -156,7 +156,7 @@
         </rules>
     </decisions>
     <description
-  >Data Processing Engine: Tracks and logs workflow segment transitions. Posts Chatter updates when cases move between processing segments (Contact, Form, Documentation phases).</description>
+  >Logs key succession segment transitions and notifies the case feed. Triggers on Estate Administration cases when Contact_Established__c, Form_Completed_Date__c, or Pathway_Confirmed__c change. Posts a concise Chatter message indicating the new segment and next action to aid demo narration and agent handoffs.</description>
     <environments>Default</environments>
     <interviewLabel
   >Case: Succession Segment Transition {!$Flow.CurrentDateTime}</interviewLabel>

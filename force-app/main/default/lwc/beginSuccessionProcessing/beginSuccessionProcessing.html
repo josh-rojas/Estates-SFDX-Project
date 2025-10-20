@@ -1,0 +1,24 @@
+<template>
+  <lightning-card title="Begin Succession Processing">
+    <div class="slds-p-around_medium">
+      <p>
+        Click the button below to start the succession processing workflow. This
+        will:
+      </p>
+      <ul class="slds-list_dotted slds-m-top_small">
+        <li>Mark verification as complete</li>
+        <li>Create the first contact attempt task</li>
+        <li>Begin the 5-phase succession workflow</li>
+      </ul>
+    </div>
+    <div slot="footer">
+      <lightning-button
+        variant="brand"
+        label="✅ Begin Succession Processing"
+        onclick={handleClick}
+        disabled={isLoading}
+      >
+      </lightning-button>
+    </div>
+  </lightning-card>
+</template>

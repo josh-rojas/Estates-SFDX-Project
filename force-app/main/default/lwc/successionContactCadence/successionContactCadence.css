@@ -48,6 +48,22 @@
   transition: width var(--slds-g-duration-2) ease;
 }
 
+/* Progress Line between completed and current nodes */
+.progress-line {
+  position: absolute;
+  top: var(--slds-g-varSpacingLarge);
+  left: 0;
+  right: 0;
+  height: var(--slds-g-border-width-thick);
+  background: linear-gradient(
+    90deg,
+    var(--slds-g-color-success-base-60) 0%,
+    var(--slds-g-color-brand-base-60) 100%
+  );
+  border-radius: var(--slds-g-radius-border-1);
+  z-index: 2;
+}
+
 /* Progress Nodes Container */
 .progress-nodes {
   position: relative;
@@ -95,9 +111,9 @@
 }
 
 .node-pending .node-circle {
-  border-color: var(--slds-g-color-neutral-base-40);
+  border-color: var(--slds-g-color-neutral-base-50);
   background-color: var(--slds-g-color-neutral-inverse-100);
-  color: var(--slds-g-color-neutral-base-30);
+  color: var(--slds-g-color-neutral-base-60);
 }
 
 /* Node Label */

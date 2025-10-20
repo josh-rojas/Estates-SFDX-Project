@@ -2,10 +2,22 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <description
-  >Creates Attempt 1 task when case is created with Verification_Status__c='Complete - Verified' OR when agent clicks "Begin Succession Processing" Quick Action. Supports dual entry points: automatic (case creation) and manual (Quick Action). Prevents duplicate task creation via Contact_Attempt_Count__c check.</description>
+  >Seeds Attempt 1 (Day 0) when Verification_Status__c becomes "Complete - Verified" on an Estate Administration case. Guards against duplicates via Contact_Attempt_Count__c IS NULL. Triggers on create or when the verification field changes. Adds Builder UI metadata for clarity.</description>
     <label>Case - Create Initial Contact Attempt</label>
     <processMetadataValues>
         <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
         <value>
             <stringValue>LightningFlowBuilder</stringValue>
         </value>
@@ -17,21 +29,14 @@
         <connector>
             <targetReference>Check_Should_Start_Workflow</targetReference>
         </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>RecordTypeId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>EstateAdministration</stringValue>
-            </value>
-        </filters>
-        <filters>
-            <field>Type</field>
-            <operator>EqualTo</operator>
-            <value>
-                <stringValue>Named Successor Enactment</stringValue>
-            </value>
-        </filters>
+        <filterFormula>AND(
+    RecordType.DeveloperName = &quot;EstateAdministration&quot;,
+    TEXT({!$Record.Type}) = &quot;Named Successor Enactment&quot;,
+    OR(
+        ISNEW(),
+        ISCHANGED({!$Record.Verification_Status__c})
+    )
+)</filterFormula>
         <object>Case</object>
         <recordTriggerType>CreateAndUpdate</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
@@ -77,9 +82,6 @@
         <label>Create Attempt 1 Task</label>
         <locationX>50</locationX>
         <locationY>100</locationY>
-        <connector>
-            <targetReference>Update_Case_Attempt_Count</targetReference>
-        </connector>
         <inputAssignments>
             <field>WhatId</field>
             <value>
@@ -127,19 +129,5 @@
         <object>Task</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
-
-    <!-- Update Case Contact_Attempt_Count__c -->
-    <recordUpdates>
-        <name>Update_Case_Attempt_Count</name>
-        <label>Update Case Attempt Count</label>
-        <locationX>50</locationX>
-        <locationY>200</locationY>
-        <inputAssignments>
-            <field>Contact_Attempt_Count__c</field>
-            <value>
-                <numberValue>1.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
+    
 </Flow>

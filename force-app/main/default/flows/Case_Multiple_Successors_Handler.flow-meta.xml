@@ -102,17 +102,7 @@
             <targetReference>Check_Multiple_Successors</targetReference>
         </noMoreValuesConnector>
     </loops>
-    <loops>
-        <name>Loop_Add_Case_Team_Members</name>
-        <label>Loop Add Case Team Members</label>
-        <locationX>1980</locationX>
-        <locationY>158</locationY>
-        <collectionReference>Get_Financial_Account_Roles</collectionReference>
-        <iterationOrder>Asc</iterationOrder>
-        <nextValueConnector>
-            <targetReference>Get_Successor_For_Team_Member</targetReference>
-        </nextValueConnector>
-    </loops>
+
     <loops>
         <name>Loop_Through_Successors</name>
         <label>Loop Through Successors</label>
@@ -123,9 +113,6 @@
         <nextValueConnector>
             <targetReference>Check_If_First_Successor</targetReference>
         </nextValueConnector>
-        <noMoreValuesConnector>
-            <targetReference>Loop_Add_Case_Team_Members</targetReference>
-        </noMoreValuesConnector>
     </loops>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -146,40 +133,7 @@
         </value>
     </processMetadataValues>
     <processType>AutoLaunchedFlow</processType>
-    <recordCreates>
-        <name>Add_Successor_To_Case_Team</name>
-        <label>Add Successor To Case Team</label>
-        <locationX>2200</locationX>
-        <locationY>542</locationY>
-        <connector>
-            <targetReference>Loop_Add_Case_Team_Members</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Loop_Add_Case_Team_Members</targetReference>
-        </faultConnector>
-        <inputAssignments>
-            <field>MemberId</field>
-            <value>
-                <elementReference
-        >Get_Successor_For_Team_Member.PersonContactId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ParentId</field>
-            <value>
-                <elementReference
-        >Create_Parent_Coordination_Case</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>TeamRoleId</field>
-            <value>
-                <stringValue>Successor</stringValue>
-            </value>
-        </inputAssignments>
-        <object>CaseTeamMember</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordCreates>
+
     <recordCreates>
         <name>Create_Child_Case_For_Successor</name>
         <label>Create Child Case For Successor</label>
@@ -256,7 +210,7 @@
             <field>Subject</field>
             <value>
                 <stringValue
-        >{!$Record.FinServ__FinancialAccount__r.Name} - Named Successor Enactment</stringValue>
+        >{!varFinancialAccount.Name} - Named Successor Enactment</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -336,7 +290,7 @@
             <field>Subject</field>
             <value>
                 <stringValue
-        >{!$Record.FinServ__FinancialAccount__r.Name} - Multi-Account Succession Master</stringValue>
+        >{!varFinancialAccount.Name} - Multi-Account Succession Master</stringValue>
             </value>
         </inputAssignments>
         <inputAssignments>
@@ -349,15 +303,44 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordCreates>
     <recordLookups>
+        <name>Get_Financial_Account_Name</name>
+        <label>Get Financial Account Name</label>
+        <locationX>220</locationX>
+        <locationY>158</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Financial_Account_Roles</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Get_Financial_Account_Roles</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.FinServ__FinancialAccount__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>FinServ__FinancialAccount__c</object>
+        <outputReference>varFinancialAccount</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+    </recordLookups>
+    <recordLookups>
         <name>Get_Financial_Account_Roles</name>
         <label>Get Financial Account Roles</label>
         <locationX>440</locationX>
         <locationY>158</locationY>
         <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
+    >true</assignNullValuesIfNoRecordsFound>
         <connector>
             <targetReference>Count_Successors_Loop</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Count_Successors_Loop</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>FinServ__FinancialAccount__c</field>
@@ -385,32 +368,7 @@
         <object>FinServ__FinancialAccountRole__c</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
-    <recordLookups>
-        <name>Get_Successor_For_Team_Member</name>
-        <label>Get Successor For Team Member</label>
-        <locationX>2200</locationX>
-        <locationY>350</locationY>
-        <assignNullValuesIfNoRecordsFound
-    >false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Add_Successor_To_Case_Team</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>PersonContactId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference
-        >Loop_Add_Case_Team_Members.FinServ__RelatedContact__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Account</object>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Name</queriedFields>
-        <queriedFields>PersonContactId</queriedFields>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
+
     <recordLookups>
         <name>Get_Successor_Person_Contact_Id</name>
         <label>Get Successor Person Contact Id</label>
@@ -421,6 +379,9 @@
         <connector>
             <targetReference>Create_Child_Case_For_Successor</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Create_Child_Case_For_Successor</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>PersonContactId</field>
@@ -456,16 +417,16 @@
             <field>Subject</field>
             <value>
                 <stringValue
-        >{!$Record.FinServ__FinancialAccount__r.Name} - Named Successor Enactment</stringValue>
+        >{!varFinancialAccount.Name} - Named Successor Enactment</stringValue>
             </value>
         </inputAssignments>
         <inputReference>$Record</inputReference>
     </recordUpdates>
     <start>
-        <locationX>220</locationX>
+        <locationX>50</locationX>
         <locationY>158</locationY>
         <connector>
-            <targetReference>Get_Financial_Account_Roles</targetReference>
+            <targetReference>Get_Financial_Account_Name</targetReference>
         </connector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -518,5 +479,13 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varFinancialAccount</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>FinServ__FinancialAccount__c</objectType>
     </variables>
 </Flow>

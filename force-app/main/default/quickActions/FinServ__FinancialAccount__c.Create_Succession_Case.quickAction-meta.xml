@@ -1,11 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description
-  >Creates succession case for this financial account. Validates requirements (deceased owner, designated successors, no existing case) and auto-starts workflow. Multi-successor orchestration handled automatically.</description>
+    <description>Creates a succession case for this financial account with pre-populated fields. Validates requirements (deceased owner, designated successors, no existing case). Agent must click 'Begin Succession Processing' on the case to start the contact cadence workflow.</description>
     <label>🏛️ Create Succession Case</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
-    <lightningComponent>createSuccessionCase</lightningComponent>
+    <lightningComponent>c:createSuccessionCase</lightningComponent>
     <type>LightningComponent</type>
 </QuickAction>
-
-

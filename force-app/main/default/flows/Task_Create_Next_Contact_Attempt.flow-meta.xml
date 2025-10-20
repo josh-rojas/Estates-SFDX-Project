@@ -2,7 +2,7 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <description
-  >Creates the next contact attempt task when current attempt is completed. Tasks are created with scheduled due dates (Day 5, 35, 65, 95) but agent cannot complete until that date arrives.</description>
+  >Creates the next contact attempt when the current attempt Task is completed. Schedules ActivityDate off Case.CreatedDate (Day 5/35/65/95). Exits when contact established or after Attempt 5. Includes fault connector for parent case lookup.</description>
     <label>Task - Create Next Contact Attempt</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -49,6 +49,9 @@
         <connector>
             <targetReference>Check_If_Contact_Established</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Check_If_Contact_Established</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>
@@ -158,6 +161,19 @@
                 <targetReference>Create_Attempt_5_Task</targetReference>
             </connector>
             <label>Is Attempt 4</label>
+        </rules>
+        <rules>
+            <name>Is_Attempt_5</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Contact_Attempt_Number__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <numberValue>5.0</numberValue>
+                </rightValue>
+            </conditions>
+            <label>Is Attempt 5 (Exit)</label>
+            <!-- No connector: terminal attempt, exit flow -->
         </rules>
     </decisions>
 

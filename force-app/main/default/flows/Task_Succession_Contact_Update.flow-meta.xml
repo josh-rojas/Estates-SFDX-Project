@@ -26,7 +26,7 @@
         </rules>
     </decisions>
     <description
-  >BRD Contact Cadence: Updates parent Case when succession contact tasks are completed. If agent marks Succession_Contact_Established__c as TRUE, updates Contact_Established__c on parent Case. LastModifiedDate auto-updates for audit trail.</description>
+  >Sets Case.Contact_Established__c when a Task is completed with Succession_Contact_Established__c = TRUE. Acts as circuit breaker to stop the cadence. Includes fault connector for parent case lookup.</description>
     <environments>Default</environments>
     <interviewLabel
   >Task: Succession Contact Update {!$Flow.CurrentDateTime}</interviewLabel>
@@ -60,6 +60,9 @@
         <connector>
             <targetReference>Check_Contact_Established</targetReference>
         </connector>
+        <faultConnector>
+            <targetReference>Check_Contact_Established</targetReference>
+        </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
             <field>Id</field>

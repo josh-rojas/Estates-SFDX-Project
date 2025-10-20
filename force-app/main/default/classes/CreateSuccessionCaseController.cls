@@ -133,9 +133,10 @@ public with sharing class CreateSuccessionCaseController {
         Origin = 'Financial Account',
         Priority = 'Medium',
         AccountId = deceasedOwnerAccountId, // Deceased donor (NOT successor)
+        Deceased_Donor__c = deceasedOwnerAccountId, // Custom lookup to deceased donor Account
         ContactId = contactId, // Direct Contact ID or PersonContactId
         FinServ__FinancialAccount__c = financialAccountId,
-        Verification_Status__c = 'Complete - Verified', // Auto-starts workflow
+        Verification_Status__c = 'Not Started', // Agent must manually begin workflow
         Description = 'Succession case created from Financial Account. ' +
                      (successors.size() > 1 ? successors.size() + ' successors identified.' : '')
       );
@@ -146,8 +147,8 @@ public with sharing class CreateSuccessionCaseController {
       // Return success result
       CreateCaseResult successResult = new CreateCaseResult();
       successResult.success = true;
-      successResult.message = 'Case created successfully' + 
-                 (successors.size() > 1 ? '. ' + successors.size() + ' successors detected - parent coordination case and child cases will be created automatically.' : '. Contact cadence will begin automatically.');
+      successResult.message = 'Case created successfully. Click "Begin Succession Processing" to start the contact cadence workflow' + 
+                 (successors.size() > 1 ? '. ' + successors.size() + ' successors detected - parent and child cases will be created when workflow begins.' : '.');
       successResult.seedCaseId = seedCase.Id;
       successResult.successorCount = successors.size();
       return successResult;
@@ -199,10 +200,26 @@ public with sharing class CreateSuccessionCaseController {
       WHERE FinServ__FinancialAccount__c = :financialAccountId
       AND FinServ__Role__c LIKE '%Primary%'
       AND FinServ__RelatedAccount__r.Deceased__c = true
-      LIMIT 1
+      ORDER BY CreatedDate DESC
+      LIMIT 2
     ];
 
-    return deceasedOwners.isEmpty() ? null : deceasedOwners[0].FinServ__RelatedAccount__c;
+    if (deceasedOwners.size() > 1) {
+      System.debug('Warning: Multiple deceased primary owners found for FA ' + financialAccountId);
+    }
+
+    if (deceasedOwners.isEmpty()) {
+      return null;
+    }
+
+    // Apply field-level security
+    SObjectAccessDecision decision = Security.stripInaccessible(
+      AccessType.READABLE,
+      deceasedOwners
+    );
+    List<FinServ__FinancialAccountRole__c> filteredOwners = decision.getRecords();
+    
+    return filteredOwners.isEmpty() ? null : filteredOwners[0].FinServ__RelatedAccount__c;
   }
 
   /**
@@ -241,7 +258,8 @@ public with sharing class CreateSuccessionCaseController {
       totalAllocation += (s.SuccessorAllocation__c != null ? s.SuccessorAllocation__c : 0);
     }
     
-    if (totalAllocation != 100) {
+    // Use tolerance for decimal comparison to avoid rounding issues
+    if (Math.abs(totalAllocation - 100) > 0.01) {
       return 'Successor allocations must sum to 100%. Current total: ' + totalAllocation + '%';
     }
     

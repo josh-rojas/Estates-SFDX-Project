@@ -117,7 +117,7 @@ export default class SuccessionContactCadence extends NavigationMixin(
    * Get send email button label
    */
   get sendEmailButtonLabel() {
-    return this.isNavigatingToEmail ? "Opening..." : "Send Email";
+    return this.isNavigatingToEmail ? "Opening..." : "Open Email";
   }
 
   /**
@@ -132,6 +132,38 @@ export default class SuccessionContactCadence extends NavigationMixin(
 
     const current = this.cadenceData.currentAttemptNumber || 0;
     return `Attempt ${current} of 5`;
+  }
+
+  /**
+   * Show progress line when there are completed attempts and current attempt
+   */
+  get showProgressLine() {
+    if (!this.cadenceData || !this.cadenceData.attempts) return false;
+
+    const hasCompleted = this.cadenceData.attempts.some(
+      (attempt) => attempt.isCompleted
+    );
+    const hasCurrent = this.cadenceData.attempts.some(
+      (attempt) => attempt.isCurrent
+    );
+
+    return hasCompleted && hasCurrent;
+  }
+
+  /**
+   * Template label hint for the pending email prompt (desktop)
+   */
+  get pendingEmailTemplateLabel() {
+    const map = {
+      1: "Day 0 - Initial Contact",
+      2: "Day 5 - First Follow-Up",
+      3: "Day 35 - Second Contact",
+      4: "Day 65 - Third Contact",
+      5: "Day 95 - Final Contact"
+    };
+    return this.pendingEmailAttemptNumber
+      ? map[this.pendingEmailAttemptNumber]
+      : "";
   }
 
   /**
@@ -182,23 +214,42 @@ export default class SuccessionContactCadence extends NavigationMixin(
         attempt.attemptNumber === this.highestAttemptStarted &&
         !attempt.isCompleted;
 
+      // Normalize visual state (mutually exclusive flags for UI)
+      // Source flags from server may overlap when we override current status client-side.
+      const uiIsCompleted = !!attempt.isCompleted;
+      const uiIsCurrent = !uiIsCompleted && !!isCurrentEditable;
+      const uiIsPending = !uiIsCompleted && !uiIsCurrent;
+
       return {
         ...attempt,
         // Card state classes
-        cardClass: this.getCardClass(attempt),
-        progressNodeClass: this.getProgressNodeClass(attempt),
+        cardClass: this.getCardClass({
+          ...attempt,
+          isCompleted: uiIsCompleted,
+          isCurrent: uiIsCurrent,
+          isPending: uiIsPending
+        }),
+        progressNodeClass: this.getProgressNodeClass({
+          ...attempt,
+          isCompleted: uiIsCompleted,
+          isCurrent: uiIsCurrent,
+          isPending: uiIsPending
+        }),
 
-        // Editing state - override isCurrent based on highestAttemptStarted
-        isCurrent: isCurrentEditable,
+        // Editing state - override isCurrent based on highestAttemptStarted (UI)
+        isCurrent: uiIsCurrent,
+        // Ensure exclusivity for UI booleans used in template/icon rendering
+        isCompleted: uiIsCompleted,
+        isPending: uiIsPending,
         isEditing: isEditing,
         showEditForm: isEditing && isCurrentEditable, // Only show form if editing AND current
         showReadOnly: attempt.isCompleted || isLocked, // Read-only if completed OR locked
         showDisabled: attempt.attemptNumber > this.highestAttemptStarted, // Pending if beyond current
 
         // Display properties
-        completionIcon: attempt.isCompleted ? "✓" : "",
-        currentIcon: attempt.isCurrent ? "⏺" : "",
-        pendingIcon: attempt.isPending ? "○" : "",
+        completionIcon: uiIsCompleted ? "✓" : "",
+        currentIcon: uiIsCurrent ? "⏺" : "",
+        pendingIcon: uiIsPending ? "○" : "",
 
         // Task details
         hasTask: attempt.taskRecord != null,

@@ -28,7 +28,7 @@ describe("c-create-succession-case", () => {
     jest.clearAllMocks();
   });
 
-  it("renders component and calls Apex on initialization", () => {
+  it("renders component without calling Apex until invoke()", () => {
     const element = createElement("c-create-succession-case", {
       is: CreateSuccessionCase
     });
@@ -39,10 +39,8 @@ describe("c-create-succession-case", () => {
 
     document.body.appendChild(element);
 
-    // Verify Apex method was called with correct parameter
-    expect(createSuccessionCase).toHaveBeenCalledWith({
-      financialAccountId: "a0012345678901"
-    });
+    // Verify Apex method was NOT called until invoke()
+    expect(createSuccessionCase).not.toHaveBeenCalled();
   });
 
   it("handles successful case creation", () => {
@@ -61,6 +59,9 @@ describe("c-create-succession-case", () => {
     createSuccessionCase.mockResolvedValue(mockResult);
 
     document.body.appendChild(element);
+
+    // Call invoke() method
+    element.invoke();
 
     // Verify Apex was called
     expect(createSuccessionCase).toHaveBeenCalledWith({
@@ -83,6 +84,9 @@ describe("c-create-succession-case", () => {
 
     document.body.appendChild(element);
 
+    // Call invoke() method
+    element.invoke();
+
     // Verify error is handled
     return Promise.resolve().then(() => {
       expect(createSuccessionCase).toHaveBeenCalled();
@@ -103,6 +107,9 @@ describe("c-create-succession-case", () => {
     createSuccessionCase.mockRejectedValue(mockError);
 
     document.body.appendChild(element);
+
+    // Call invoke() method
+    element.invoke();
 
     // Verify error is handled gracefully
     return Promise.resolve().then(() => {
