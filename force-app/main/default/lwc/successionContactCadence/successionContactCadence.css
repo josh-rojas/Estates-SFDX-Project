@@ -9,33 +9,33 @@
    ============================================ */
 
 .progress-section {
-  padding: var(--slds-g-spacing-6);
-  background-color: var(--slds-g-color-neutral-base-95);
+  padding: var(--slds-g-spacing-medium);
+  background-color: var(--slds-g-color-background-light);
   border-radius: var(--slds-g-radius-border-2);
 }
 
 /* Progress Bar Container */
 .progress-bar-container {
   position: relative;
-  padding: var(--slds-g-spacing-large) var(--slds-g-spacing-none);
+  padding: var(--slds-g-spacing-medium) var(--slds-g-spacing-none);
 }
 
 /* Progress Bar Track (background line) */
 .progress-bar-track {
   position: absolute;
-  top: var(--slds-g-spacing-large);
+  top: var(--slds-g-spacing-medium);
   left: var(--slds-g-spacing-none);
   right: var(--slds-g-spacing-none);
   height: var(--slds-g-border-width-thick);
-  background-color: var(--slds-g-color-border-base-1);
-  border-radius: var(--slds-g-border-radius-medium);
+  background-color: var(--slds-g-color-border);
+  border-radius: var(--slds-g-radius-border-2);
   z-index: var(--slds-g-z-index-default);
 }
 
 /* Progress Bar Fill (completed portion) */
 .progress-bar-fill {
   position: absolute;
-  top: var(--slds-g-varSpacingLarge);
+  top: var(--slds-g-spacing-medium);
   left: var(--slds-g-spacing-none);
   height: var(--slds-g-border-width-thick);
   background: linear-gradient(
@@ -48,17 +48,70 @@
   transition: width var(--slds-g-duration-2) ease;
 }
 
+/* Thermometer-style Progress Bar */
+.thermometer-progress {
+  position: relative;
+  height: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--slds-g-color-success-base-60) 0%,
+    var(--slds-g-color-success-base-40) 100%
+  );
+  border-radius: var(--slds-g-radius-border-2);
+  margin: var(--slds-g-spacing-xx-small) 0;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  /* Align with progress nodes */
+  margin-left: var(--slds-g-spacing-medium);
+  margin-right: var(--slds-g-spacing-medium);
+}
+
+.thermometer-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--slds-g-color-success-base-60) 0%,
+    var(--slds-g-color-success-base-40) 50%,
+    var(--slds-g-color-success-base-60) 100%
+  );
+  border-radius: var(--slds-g-radius-border-2);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.thermometer-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* Progress Line between completed and current nodes */
 .progress-line {
   position: absolute;
-  top: var(--slds-g-varSpacingLarge);
-  left: 0;
-  right: 0;
+  top: var(--slds-g-spacing-medium);
+  left: var(--slds-g-spacing-none);
+  right: var(--slds-g-spacing-none);
   height: var(--slds-g-border-width-thick);
   background: linear-gradient(
     90deg,
     var(--slds-g-color-success-base-60) 0%,
-    var(--slds-g-color-brand-base-60) 100%
+    var(--slds-g-color-success-base-40) 100%
   );
   border-radius: var(--slds-g-radius-border-1);
   z-index: 2;
@@ -67,9 +120,12 @@
 /* Progress Nodes Container */
 .progress-nodes {
   position: relative;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--slds-g-spacing-large);
   z-index: 3;
+  /* Align with cards below - match the card grid */
+  margin-top: calc(var(--slds-g-spacing-large) + var(--slds-g-spacing-none));
 }
 
 /* Individual Progress Node */
@@ -88,7 +144,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--slds-g-varFontSize5);
+  font-size: var(--slds-g-font-size-4);
   font-weight: bold;
   border-width: var(--slds-g-border-width-thick);
   border-style: solid;
@@ -107,7 +163,7 @@
   border-color: var(--slds-g-color-brand-base-60);
   background-color: var(--slds-g-color-brand-base-60);
   color: var(--slds-g-color-neutral-inverse-100);
-  box-shadow: 0 0 8px rgba(1, 118, 211, 0.5);
+  box-shadow: var(--slds-g-shadow-2);
 }
 
 .node-pending .node-circle {
@@ -118,15 +174,15 @@
 
 /* Node Label */
 .node-label {
-  margin-top: var(--slds-g-spacing-3);
+  margin-top: var(--slds-g-spacing-medium);
   text-align: center;
-  font-size: var(--slds-g-font-size-1);
+  font-size: var(--slds-g-font-size-4);
   color: var(--slds-g-color-neutral-base-10);
 }
 
 /* Node Icon */
 .node-icon {
-  font-size: 14px;
+  font-size: var(--slds-g-font-size-4);
 }
 
 /* ============================================
@@ -137,14 +193,16 @@
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: var(--slds-g-spacing-large);
-  margin-top: calc(
-    var(--slds-g-spacing-large) + var(--slds-g-spacing-xx-small)
-  );
+  margin-top: calc(var(--slds-g-spacing-large) + var(--slds-g-spacing-none));
 }
 
 /* Responsive Grid: 3 columns on tablets */
 @media (max-width: 1024px) {
   .attempts-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .progress-nodes {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -156,7 +214,7 @@
   }
 
   .progress-nodes {
-    padding: var(--slds-g-spacing-none) var(--slds-g-spacing-xx-small);
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .progress-node {
@@ -177,6 +235,10 @@
 /* Responsive Grid: 1 column on very small screens */
 @media (max-width: 480px) {
   .attempts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .progress-nodes {
     grid-template-columns: 1fr;
   }
 }
@@ -205,11 +267,11 @@
   background-color: var(--slds-g-color-neutral-inverse-100);
   border: var(--slds-g-border-width-thick) solid
     var(--slds-g-color-brand-base-60);
-  box-shadow: 0 2px 8px rgba(1, 118, 211, 0.2);
+  box-shadow: var(--slds-g-shadow-2);
 }
 
 .card-pending {
-  background-color: var(--slds-g-color-neutral-base-95);
+  background-color: var(--slds-g-color-background-light);
   border: var(--slds-g-border-width-thin) dashed
     var(--slds-g-color-border-base-1);
   opacity: 0.7;
@@ -268,12 +330,29 @@ lightning-textarea {
    ============================================ */
 
 .card-current:hover {
-  box-shadow: 0 4px 12px rgba(1, 118, 211, 0.3);
+  transform: translateY(-2px);
+  box-shadow: var(--slds-g-shadow-4);
 }
 
 .card-completed:hover {
   transform: translateY(-2px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   COLLAPSIBLE FUNCTIONALITY
+   ============================================ */
+
+.collapsible-content {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.collapsible-content.collapsed {
+  max-height: 0;
+  padding: var(--slds-g-spacing-none);
+  margin: var(--slds-g-spacing-none);
+  opacity: 0;
 }
 
 /* ============================================

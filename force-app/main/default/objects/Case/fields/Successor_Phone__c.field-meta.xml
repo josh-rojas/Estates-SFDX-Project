@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Successor_Phone__c</fullName>
+    <label>Successor Phone</label>
+    <description
+  >Clickable phone link that displays in the highlights panel. When clicked, initiates a phone call to the successor.</description>
+    <inlineHelpText>Click to call the successor.</inlineHelpText>
+    <type>Text</type>
+    <formula>IF(
+  NOT(ISBLANK(Successor__r.MobilePhone)),
+  HYPERLINK(&apos;tel:&apos; &amp; Successor__r.MobilePhone, Successor__r.MobilePhone, &apos;_self&apos;),
+  IF(
+    NOT(ISBLANK(Successor__r.Phone)),
+    HYPERLINK(&apos;tel:&apos; &amp; Successor__r.Phone, Successor__r.Phone, &apos;_self&apos;),
+    &apos;&apos;
+  )
+)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+</CustomField>

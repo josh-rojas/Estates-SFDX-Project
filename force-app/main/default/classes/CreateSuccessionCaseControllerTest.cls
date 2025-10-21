@@ -43,6 +43,7 @@ public class CreateSuccessionCaseControllerTest {
       FirstName = 'Jane',
       LastName = 'Successor1',
       PersonEmail = 'jane.successor1@example.com',
+      PersonMobilePhone = '555-123-4567',
       PersonHasOptedOutOfEmail = false
     );
     accounts.add(successor1);
@@ -62,7 +63,8 @@ public class CreateSuccessionCaseControllerTest {
     FinServ__FinancialAccount__c financialAccount = new FinServ__FinancialAccount__c(
       Name = 'Test DAF Account',
       FinServ__FinancialAccountNumber__c = 'DAF-12345',
-      FinServ__Balance__c = 100000
+      FinServ__Balance__c = 100000,
+      FinServ__PrimaryOwner__c = deceasedDonor.Id
     );
     insert financialAccount;
 
@@ -83,9 +85,10 @@ public class CreateSuccessionCaseControllerTest {
     FinServ__FinancialAccountRole__c successorRole1 = new FinServ__FinancialAccountRole__c(
       FinServ__FinancialAccount__c = financialAccount.Id,
       FinServ__RelatedContact__c = successor1.PersonContactId,
+      FinServ__RelatedAccount__c = successor1.Id,
       FinServ__Role__c = 'Successor',
       FinServ__Active__c = true,
-      SuccessorAllocation__c = 50
+      SuccessorAllocation__c = 100
     );
     roles.add(successorRole1);
 
@@ -129,7 +132,10 @@ public class CreateSuccessionCaseControllerTest {
     Test.stopTest();
 
     // Verify result
-    System.assert(result.success, 'Case creation should succeed');
+    if (!result.success) {
+      System.debug('Controller error: ' + result.message);
+    }
+    System.assert(result.success, 'Case creation should succeed. Error: ' + result.message);
     System.assertNotEquals(
       null,
       result.seedCaseId,
@@ -148,6 +154,9 @@ public class CreateSuccessionCaseControllerTest {
         AccountId,
         Deceased_Donor__c,
         ContactId,
+        Successor__c,
+        Successor_Email__c,
+        Successor_Phone__c,
         Subject
       FROM Case
       WHERE FinServ__FinancialAccount__c = :fa.Id
@@ -179,6 +188,16 @@ public class CreateSuccessionCaseControllerTest {
     // Verify Deceased_Donor__c mapping (should also be deceased donor's Account)
     System.assertEquals(deceasedDonor.Id, cases[0].Deceased_Donor__c, 
       'Deceased_Donor__c should be populated with deceased donor Account ID');
+    
+    // Verify Successor__c mirrors ContactId (for highlights panel)
+    System.assertEquals(firstSuccessor.PersonContactId, cases[0].Successor__c, 
+      'Successor__c should match ContactId');
+
+    // Verify formula fields auto-populate
+    System.assert(cases[0].Successor_Email__c.contains('jane.successor1@example.com'),
+      'Successor_Email__c should contain email as mailto hyperlink');
+    System.assertNotEquals(null, cases[0].Successor_Phone__c,
+      'Successor_Phone__c should be populated as tel hyperlink');
   }
 
   /**
@@ -219,6 +238,9 @@ public class CreateSuccessionCaseControllerTest {
         AccountId,
         Deceased_Donor__c,
         ContactId,
+        Successor__c,
+        Successor_Email__c,
+        Successor_Phone__c,
         Subject,
         ParentId
       FROM Case
@@ -243,6 +265,18 @@ public class CreateSuccessionCaseControllerTest {
     ];
     System.assertEquals(deceasedDonor.Id, seedCases[0].Deceased_Donor__c, 
       'Deceased_Donor__c should be populated with deceased donor Account ID');
+    
+    // Verify Successor__c mirrors ContactId
+    System.assertNotEquals(null, seedCases[0].Successor__c,
+      'Successor__c should be populated');
+    System.assertEquals(seedCases[0].ContactId, seedCases[0].Successor__c,
+      'Successor__c should match ContactId');
+
+    // Verify formula fields auto-populate
+    System.assertNotEquals(null, seedCases[0].Successor_Email__c,
+      'Successor_Email__c should be populated as mailto hyperlink');
+    System.assertNotEquals(null, seedCases[0].Successor_Phone__c,
+      'Successor_Phone__c should be populated as tel hyperlink');
 
     // Verify parent case was created by flow
     List<Case> parentCases = [

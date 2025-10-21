@@ -56,7 +56,19 @@
 
     <!-- Contact Cadence Display -->
     <template if:true={hasData}>
-      <div class="slds-card__body slds-card__body_inner">
+      <!-- Toggle Button -->
+      <div class="slds-var-m-around_small">
+        <lightning-button
+          label={toggleButtonLabel}
+          icon-name={toggleIcon}
+          variant="neutral"
+          size="small"
+          onclick={toggleCollapse}
+          class="slds-var-m-bottom_small"
+        ></lightning-button>
+      </div>
+      
+      <div class={collapsibleContentClass}>
         <!-- Progress Bar Section -->
         <div class="progress-section slds-var-m-bottom_large">
           <!-- Progress Status Header -->
@@ -86,33 +98,39 @@
             <template if:true={showProgressLine}>
               <div class="progress-line"></div>
             </template>
+          </div>
 
-            <!-- Progress Nodes (5 attempts) -->
-            <div class="progress-nodes">
-              <template for:each={attemptsWithProps} for:item="attempt">
-                <div
-                  key={attempt.attemptNumber}
-                  class={attempt.progressNodeClass}
-                  title={attempt.attemptLabel}
-                  aria-label={attempt.attemptLabel}
-                >
-                  <div class="node-circle">
-                    <template if:true={attempt.isCompleted}>
-                      <span class="node-icon">✓</span>
-                    </template>
-                    <template if:true={attempt.isCurrent}>
-                      <span class="node-icon">⏺</span>
-                    </template>
-                    <template if:true={attempt.isPending}>
-                      <span class="node-icon">○</span>
-                    </template>
-                  </div>
-                  <p class="node-label slds-text-body_small">
-                    {attempt.dayLabel}
-                  </p>
-                </div>
+          <!-- Thermometer Progress Bar -->
+          <div class="thermometer-progress">
+            <div class="thermometer-fill" style={thermometerProgressStyle}></div>
+          </div>
+
+      <!-- Progress Nodes (5 attempts) -->
+      <div class="progress-nodes">
+        <template for:each={attemptsWithProps} for:item="attempt">
+          <div
+            key={attempt.attemptNumber}
+            class={attempt.progressNodeClass}
+            title={attempt.attemptLabel}
+            aria-label={attempt.attemptLabel}
+          >
+            <div class="node-circle">
+              <template if:true={attempt.isCompleted}>
+                <span class="node-icon">✓</span>
+              </template>
+              <template if:true={attempt.isCurrent}>
+                <span class="node-icon">⏺</span>
+              </template>
+              <template if:true={attempt.isPending}>
+                <span class="node-icon">○</span>
               </template>
             </div>
+            <p class="node-label slds-text-body_small">
+              {attempt.dayLabel}
+            </p>
+          </div>
+        </template>
+      </div>
           </div>
         </div>
 
@@ -138,7 +156,7 @@
         </template>
 
         <!-- Send Email Prompt (appears after saving NO outcome) -->
-        <template if:true={pendingEmailAttemptNumber}>
+        <template if:true={state.ui.pendingEmailAttempt}>
           <div
             class="slds-notify slds-notify_alert slds-theme_info slds-var-m-bottom_medium"
             role="alert"
@@ -167,9 +185,9 @@
                 <lightning-button
                   variant="brand"
                   label={sendEmailButtonLabel}
-                  data-attempt-number={pendingEmailAttemptNumber}
+                  data-attempt-number={state.ui.pendingEmailAttempt}
                   onclick={handleSendEmail}
-                  disabled={isNavigatingToEmail}
+                  disabled={state.ui.isNavigatingToEmail}
                 ></lightning-button>
               </div>
             </div>
@@ -317,7 +335,7 @@
                       <lightning-radio-group
                         name="contactMade"
                         options={contactMadeOptions}
-                        value={contactMadeValue}
+                        value={state.editing.contactMade}
                         onchange={handleContactMadeChange}
                         type="button"
                       >
@@ -333,7 +351,7 @@
                       </label>
                       <div class="slds-form-element__control">
                         <lightning-textarea
-                          value={notes}
+                          value={state.editing.notes}
                           onchange={handleNotesChange}
                           placeholder="Enter your notes about this contact attempt..."
                           class="slds-align_absolute-center"
@@ -374,11 +392,13 @@
               <!-- Pending Card - Waiting for previous attempts -->
               <template if:true={attempt.showDisabled}>
                 <div class="card-content card-disabled">
-                  <p
-                    class="slds-text-body_small slds-text-color_weak slds-var-m-bottom_small"
-                  >
-                    Expected: {attempt.dayLabel}
-                  </p>
+                  <template if:false={attempt.isCompleted}>
+                    <p
+                      class="slds-text-body_small slds-text-color_weak slds-var-m-bottom_small"
+                    >
+                      Expected: {attempt.dayLabel}
+                    </p>
+                  </template>
                   <lightning-icon
                     icon-name="utility:clock"
                     size="x-small"

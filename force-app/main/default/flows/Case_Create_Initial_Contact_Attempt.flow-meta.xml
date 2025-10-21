@@ -122,8 +122,7 @@
         <inputAssignments>
             <field>Description</field>
             <value>
-                <stringValue
-        >Initial contact attempt (Day 0). Agent can complete this task immediately.</stringValue>
+                <stringValue>Contact attempt for succession case.</stringValue>
             </value>
         </inputAssignments>
         <object>Task</object>

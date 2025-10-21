@@ -223,8 +223,7 @@
         <inputAssignments>
             <field>Description</field>
             <value>
-                <stringValue
-        >Contact attempt 2 scheduled for Day 5. Agent cannot complete this task until the scheduled date arrives.</stringValue>
+                <stringValue>Contact attempt for succession case.</stringValue>
             </value>
         </inputAssignments>
         <object>Task</object>
@@ -276,8 +275,7 @@
         <inputAssignments>
             <field>Description</field>
             <value>
-                <stringValue
-        >Contact attempt 3 scheduled for Day 35. Agent cannot complete this task until the scheduled date arrives.</stringValue>
+                <stringValue>Contact attempt for succession case.</stringValue>
             </value>
         </inputAssignments>
         <object>Task</object>
@@ -329,8 +327,7 @@
         <inputAssignments>
             <field>Description</field>
             <value>
-                <stringValue
-        >Contact attempt 4 scheduled for Day 65. Agent cannot complete this task until the scheduled date arrives.</stringValue>
+                <stringValue>Contact attempt for succession case.</stringValue>
             </value>
         </inputAssignments>
         <object>Task</object>
@@ -382,8 +379,7 @@
         <inputAssignments>
             <field>Description</field>
             <value>
-                <stringValue
-        >Contact attempt 5 scheduled for Day 95. Agent cannot complete this task until the scheduled date arrives.</stringValue>
+                <stringValue>Contact attempt for succession case.</stringValue>
             </value>
         </inputAssignments>
         <object>Task</object>

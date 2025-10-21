@@ -19,43 +19,43 @@
 
 /* Success and error alert styling */
 .create-succession-case-alert {
-  border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
+  border-radius: var(--slds-g-radius-border-medium, 0.25rem);
 }
 
 .create-succession-case-success {
-  background-color: #4bca81;
-  color: #ffffff;
+  background-color: var(--slds-g-color-success, #4bca81);
+  color: var(--slds-g-color-text-inverse, #ffffff);
 }
 
 .create-succession-case-error {
-  background-color: #ea001e;
-  color: #ffffff;
+  background-color: var(--slds-g-color-error, #ea001e);
+  color: var(--slds-g-color-text-inverse, #ffffff);
 }
 
 /* Box styling for success message */
 .create-succession-case-box {
-  border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
+  border-radius: var(--slds-g-radius-border-medium, 0.25rem);
 }
 
 .create-succession-case-shade {
-  background-color: var(--lwc-colorBackgroundAlt, #f3f3f3);
+  background-color: var(--slds-g-color-background-alt, #f3f3f3);
 }
 
 /* Text styling */
 .create-succession-case-weak-text {
-  color: var(--lwc-colorTextWeak, #706e6b);
+  color: var(--slds-g-color-text-weak, #706e6b);
 }
 
 /* Button styling */
 .create-succession-case-button {
-  background-color: var(--lwc-colorBackground, #ffffff);
-  border-color: var(--lwc-colorBorder, #dddbda);
-  color: var(--lwc-colorTextDefault, #080707);
+  background-color: var(--slds-g-color-background, #ffffff);
+  border-color: var(--slds-g-color-border, #dddbda);
+  color: var(--slds-g-color-text-default, #080707);
 }
 
 .create-succession-case-button:hover {
-  background-color: #f3f2f2;
-  border-color: var(--lwc-colorBorder, #dddbda);
+  background-color: var(--slds-g-color-background-hover, #f3f2f2);
+  border-color: var(--slds-g-color-border, #dddbda);
 }
 
 /* Icon container styling */
@@ -68,10 +68,10 @@
 /* Responsive adjustments */
 @media (max-width: 480px) {
   .slds-var-p-around_medium {
-    padding: var(--lwc-spacingMedium, 0.75rem);
+    padding: var(--slds-g-spacing-medium, 0.75rem);
   }
 
   .slds-var-m-top_medium {
-    margin-top: var(--lwc-spacingMedium, 0.75rem);
+    margin-top: var(--slds-g-spacing-medium, 0.75rem);
   }
 }

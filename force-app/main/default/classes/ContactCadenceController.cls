@@ -25,6 +25,7 @@ public with sharing class ContactCadenceController {
         @AuraEnabled public String formattedDueDate { get; set; }
         @AuraEnabled public Integer daysUntilAvailable { get; set; }  // Days until task can be completed
         @AuraEnabled public String countdownText { get; set; }  // Human-readable countdown
+        @AuraEnabled public String userNotes { get; set; }  // User-entered notes from ContentNote
     }
 
     /**
@@ -64,7 +65,7 @@ public with sharing class ContactCadenceController {
         // Query the parent case with record type validation and email fields
         Case parentCase = [
             SELECT Id, RecordType.DeveloperName, Type, Contact_Established__c,
-                   Contact_Attempt_Count__c, Status, ContactId, AccountId,
+                   Contact_Attempt_Count__c, Status, ContactId, AccountId, Successor__c,
                    Account.IsPersonAccount, Account.PersonEmail, Account.PersonHasOptedOutOfEmail,
                    Contact.Email, Contact.HasOptedOutOfEmail
             FROM Case
@@ -100,11 +101,12 @@ public with sharing class ContactCadenceController {
         cadenceData.isValidRecordType = true;
         cadenceData.contactEstablished = parentCase.Contact_Established__c;
         cadenceData.caseStatus = parentCase.Status;
-        cadenceData.contactId = parentCase.ContactId;  // For Business Account + Contact model
-        cadenceData.accountId = parentCase.AccountId;  // For Person Account model
-
-        // Safely check if Account is Person Account (null-safe)
-        cadenceData.isPersonAccount = (parentCase.Account != null && parentCase.Account.IsPersonAccount);
+        // SUCCESSION FIX: Always use Successor__c for email (not deceased donor)
+        cadenceData.contactId = parentCase.Successor__c;  // Successor Contact for email
+        cadenceData.accountId = parentCase.AccountId;  // Keep AccountId for reference
+        
+        // For succession cases, we always email the successor (Contact), never the deceased donor
+        cadenceData.isPersonAccount = false;  // Always treat as Contact for email purposes
 
         // CRITICAL: Validate email existence and opt-out status
         validateEmailAddress(parentCase, cadenceData);
@@ -113,7 +115,7 @@ public with sharing class ContactCadenceController {
 
         // Query all contact attempt tasks
         List<Task> attemptTasks = [
-            SELECT Id, Subject, Status, ActivityDate, Description,
+            SELECT Id, Subject, Status, ActivityDate,
                    Contact_Attempt_Number__c, Succession_Contact_Established__c,
                    IsClosed, CompletedDateTime
             FROM Task
@@ -122,11 +124,41 @@ public with sharing class ContactCadenceController {
             ORDER BY Contact_Attempt_Number__c ASC
         ];
 
+        // For now, skip ContentNote query to focus on progress bar fix
+        // TODO: Implement ContentNote query later
+        List<ContentNote> contactNotes = new List<ContentNote>();
+
         // Map tasks to attempt numbers (1-5)
         Map<Integer, Task> tasksByAttempt = new Map<Integer, Task>();
         for (Task t : attemptTasks) {
             Integer attemptNum = Integer.valueOf(t.Contact_Attempt_Number__c);
             tasksByAttempt.put(attemptNum, t);
+        }
+
+        // Map ContentNote records to attempt numbers
+        Map<Integer, String> notesByAttempt = new Map<Integer, String>();
+        for (ContentNote note : contactNotes) {
+            // Extract attempt number from title: "Succession Contact Attempt X - YYYY-MM-DD"
+            String title = note.Title;
+            if (title.contains('Succession Contact Attempt ')) {
+                String[] parts = title.split('Succession Contact Attempt ');
+                if (parts.size() > 1) {
+                    String[] attemptParts = parts[1].split(' - ');
+                    if (attemptParts.size() > 0) {
+                        try {
+                            Integer attemptNum = Integer.valueOf(attemptParts[0]);
+                            // TODO: Implement ContentNote parsing later
+                            // For now, just store the raw content
+                            String content = note.Content.toString();
+                            if (String.isNotBlank(content)) {
+                                notesByAttempt.put(attemptNum, content);
+                            }
+                        } catch (Exception e) {
+                            System.debug('Error parsing attempt number from note title: ' + title);
+                        }
+                    }
+                }
+            }
         }
 
         // Build attempt data for all 5 attempts
@@ -227,6 +259,13 @@ public with sharing class ContactCadenceController {
                 attemptData.daysUntilAvailable = null;
             }
 
+            // Add user notes from ContentNote if available
+            if (notesByAttempt.containsKey(i)) {
+                attemptData.userNotes = notesByAttempt.get(i);
+            } else {
+                attemptData.userNotes = '';
+            }
+
             cadenceData.attempts.add(attemptData);
         }
 
@@ -267,7 +306,7 @@ public with sharing class ContactCadenceController {
             } else {
                 // Query existing task
                 attemptTask = [
-                    SELECT Id, WhatId, Status, Succession_Contact_Established__c, Description
+                    SELECT Id, WhatId, Status, Succession_Contact_Established__c
                     FROM Task
                     WHERE Id = :taskId
                     LIMIT 1
@@ -279,16 +318,8 @@ public with sharing class ContactCadenceController {
             }
 
             // Add/append notes
-            if (String.isNotBlank(notes)) {
-                String timestamp = DateTime.now().format('yyyy-MM-dd HH:mm');
-                String newNote = '[' + timestamp + '] ' + notes;
-
-                if (String.isNotBlank(attemptTask.Description)) {
-                    attemptTask.Description += '\n\n' + newNote;
-                } else {
-                    attemptTask.Description = newNote;
-                }
-            }
+            // Notes are handled separately - not stored in Description field
+            // The Description field is metadata only
 
             upsert attemptTask;
 
@@ -335,6 +366,8 @@ public with sharing class ContactCadenceController {
             throw new AuraHandledException('Error saving outcome: ' + e.getMessage());
         }
     }
+
+    // TODO: Implement ContentNote query and extractUserNotes method later
 
     /**
      * Create a ContentNote record for the contact attempt
@@ -443,15 +476,20 @@ public with sharing class ContactCadenceController {
         String email = null;
         Boolean optedOut = false;
 
-        // Determine email address based on account type
-        if (cadenceData.isPersonAccount && parentCase.Account != null) {
-            // Person Account: use PersonEmail field and PersonHasOptedOutOfEmail
-            email = parentCase.Account.PersonEmail;
-            optedOut = parentCase.Account.PersonHasOptedOutOfEmail == true;
-        } else if (!cadenceData.isPersonAccount && parentCase.Contact != null) {
-            // Business Account: use Contact.Email field and HasOptedOutOfEmail
-            email = parentCase.Contact.Email;
-            optedOut = parentCase.Contact.HasOptedOutOfEmail == true;
+        // SUCCESSION FIX: Always use Successor Contact for email validation
+        if (parentCase.Successor__c != null) {
+            // Query the Successor Contact for email validation
+            List<Contact> successorContacts = [
+                SELECT Email, HasOptedOutOfEmail
+                FROM Contact
+                WHERE Id = :parentCase.Successor__c
+                LIMIT 1
+            ];
+            
+            if (!successorContacts.isEmpty()) {
+                email = successorContacts[0].Email;
+                optedOut = successorContacts[0].HasOptedOutOfEmail == true;
+            }
         }
 
         // Check if email exists and is not blank

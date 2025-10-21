@@ -30,7 +30,7 @@
         <name>Flow</name>
     </types>
     
-    <!-- Custom Fields - Case (9 fields actively used by flows/LWCs) -->
+    <!-- Custom Fields - Case (12 fields actively used by flows/LWCs) -->
     <types>
         <members>Case.Contact_Attempt_Count__c</members>
         <members>Case.Contact_Established__c</members>
@@ -41,6 +41,9 @@
         <members>Case.New_DAF_Account_Number__c</members>
         <members>Case.Pathway_Confirmed__c</members>
         <members>Case.SLA_Status__c</members>
+        <members>Case.Successor__c</members>
+        <members>Case.Successor_Email__c</members>
+        <members>Case.Successor_Phone__c</members>
         <members>Case.Verification_Status__c</members>
         <name>CustomField</name>
     </types>

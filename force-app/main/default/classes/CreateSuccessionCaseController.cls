@@ -123,6 +123,7 @@ public with sharing class CreateSuccessionCaseController {
       }
       
       System.debug('Final ContactId to use: ' + contactId);
+      System.debug('Successor__c will be set to: ' + contactId);
 
       // Create seed case
       Case seedCase = new Case(
@@ -134,7 +135,8 @@ public with sharing class CreateSuccessionCaseController {
         Priority = 'Medium',
         AccountId = deceasedOwnerAccountId, // Deceased donor (NOT successor)
         Deceased_Donor__c = deceasedOwnerAccountId, // Custom lookup to deceased donor Account
-        ContactId = contactId, // Direct Contact ID or PersonContactId
+        ContactId = contactId, // System field - used by automation
+        Successor__c = contactId, // Display field - shown in highlights panel
         FinServ__FinancialAccount__c = financialAccountId,
         Verification_Status__c = 'Not Started', // Agent must manually begin workflow
         Description = 'Succession case created from Financial Account. ' +
