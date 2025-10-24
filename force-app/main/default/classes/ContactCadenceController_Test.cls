@@ -106,6 +106,7 @@ private class ContactCadenceController_Test {
         Status = 'New',
         AccountId = successor.Id,
         ContactId = successor.PersonContactId,
+        Successor__c = successor.PersonContactId,
         FinServ__FinancialAccount__c = finAccount.Id,
         Contact_Established__c = false,
         Contact_Attempt_Count__c = 0
@@ -120,6 +121,7 @@ private class ContactCadenceController_Test {
         Subject = 'Succession - Brandon Williams (Opted Out)',
         Status = 'New',
         AccountId = optedOutSuccessor.Id,
+        Successor__c = optedOutSuccessor.PersonContactId,
         Contact_Established__c = false,
         Contact_Attempt_Count__c = 0
       )
@@ -133,6 +135,7 @@ private class ContactCadenceController_Test {
         Subject = 'Succession - Charlie Williams (No Email)',
         Status = 'New',
         AccountId = noEmailSuccessor.Id,
+        Successor__c = noEmailSuccessor.PersonContactId,
         Contact_Established__c = false,
         Contact_Attempt_Count__c = 0
       )
@@ -147,6 +150,7 @@ private class ContactCadenceController_Test {
         Status = 'New',
         AccountId = businessAccount.Id,
         ContactId = businessContact.Id,
+        Successor__c = businessContact.Id,
         Contact_Established__c = false,
         Contact_Attempt_Count__c = 0
       )

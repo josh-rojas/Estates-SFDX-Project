@@ -1,19 +1,12 @@
 /**
  * Create Succession Case Quick Action Component Styles
- * 
+ *
  * Lightning Web Component styling for FinancialAccount Quick Action.
  * Provides visual feedback for loading, error, and success states.
  */
 
-/* Loading spinner positioning */
-.create-succession-case-loading {
-  position: relative;
-}
-
+/* Loading spinner height */
 .create-succession-case-spinner {
-  position: relative;
-  display: inline-block;
-  width: 100%;
   height: 100px;
 }
 
@@ -56,13 +49,6 @@
 .create-succession-case-button:hover {
   background-color: var(--slds-g-color-background-hover, #f3f2f2);
   border-color: var(--slds-g-color-border, #dddbda);
-}
-
-/* Icon container styling */
-.create-succession-case-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Responsive adjustments */

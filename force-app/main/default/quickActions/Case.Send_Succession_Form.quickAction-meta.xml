@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description
-  >Send the Succession Recommendation Form to the successor. This form allows them to select their preferred pathway: Final Grant, New DAF Account, or Disclaim Assets.</description>
-    <flowDefinition>Case_Send_Succession_Form</flowDefinition>
-    <label>📤 Send Succession Form</label>
-    <optionsCreateFeedItem>false</optionsCreateFeedItem>
-    <type>Flow</type>
-</QuickAction>

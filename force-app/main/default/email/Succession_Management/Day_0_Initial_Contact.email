@@ -1,11 +1,11 @@
-Dear {!Case.ContactName},
+Dear {!Case.Successor__r.Name},
 
-We are reaching out to you regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360 (Account Number: {!Case.FinancialAccount__r.Name}).
+We are reaching out to you regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360 (Account Number: {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}).
 
 As the designated successor for this account, we need to connect with you to discuss the options available for handling the account assets. This is an important matter that requires your attention, and we are here to support you through this process during what we understand is a difficult time.
 
 NEXT STEPS:
-We will attempt to reach you by phone at {!Case.Contact.Phone} within the next 1-2 business days. If you prefer to contact us directly, please call us at 1-800-746-2227 and reference Case Number: {!Case.CaseNumber}.
+We will attempt to reach you by phone at {!Case.Successor__r.Phone} within the next 1-2 business days. If you prefer to contact us directly, please call us at 1-800-746-2227 and reference Case Number: {!Case.CaseNumber}.
 
 WHAT TO EXPECT:
 When we speak, we will:

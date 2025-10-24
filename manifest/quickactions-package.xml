@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    
+    <!-- Quick Actions Deployment Manifest -->
+    <!-- This manifest deploys Quick Actions with all dependencies in correct order -->
+    
+    <!-- Step 1: Deploy Apex Controllers (dependencies for LWC components) -->
+    <types>
+        <members>CreateSuccessionCaseController</members>
+        <members>BeginSuccessionProcessingController</members>
+        <name>ApexClass</name>
+    </types>
+    
+    <!-- Step 2: Deploy LWC Components (dependencies for Quick Actions) -->
+    <types>
+        <members>createSuccessionCase</members>
+        <members>beginSuccessionProcessing</members>
+        <members>recordPathwaySelection</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    
+    <!-- Step 3: Deploy Quick Actions (depend on LWC components) -->
+    <types>
+        <members>Case.Begin_Succession_Processing</members>
+        <members>Case.Record_Pathway_Selection</members>
+        <members>FinServ__FinancialAccount__c.Create_Succession_Case</members>
+        <name>QuickAction</name>
+    </types>
+    
+    <version>65.0</version>
+</Package>
+

@@ -13,7 +13,9 @@ import saveAttemptOutcome from "@salesforce/apex/ContactCadenceController.saveAt
  *
  * Usage: Add to Succession Management tab on Case record page
  */
-export default class SuccessionContactCadence extends NavigationMixin(LightningElement) {
+export default class SuccessionContactCadence extends NavigationMixin(
+  LightningElement
+) {
   @api recordId; // Case ID (automatically passed when on record page)
 
   cadenceData;
@@ -43,8 +45,6 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
 
   // PERFORMANCE: Memoization cache
   @track _memoizedAttempts = null;
-  @track _memoizedProgress = null;
-  @track _memoizedAnalytics = null;
 
   // ERROR HANDLING: Enhanced error state
   @track errorState = {
@@ -65,9 +65,6 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
     5: 30 * 24 * 60 * 60 * 1000 // attempt 5 unlocks 30 days after attempt 4 completed
   };
 
-  // Countdown interval timer id (single ticker for perf)
-  countdownIntervalId = null;
-
   // ERROR HANDLING: Enhanced error management methods
   handleError(error, context = "") {
     console.error(`Contact Cadence Error [${context}]:`, error);
@@ -81,7 +78,7 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
       lastErrorTime: Date.now()
     };
 
-    this.showErrorToast(this.errorState.errorMessage);
+    this.showToast("Error", this.errorState.errorMessage, "error");
   }
 
   categorizeError(error) {
@@ -149,12 +146,12 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
 
     if (
       this.state.editing.contactMade === "no" &&
-      !this.state.editing.notes.trim()
+      (!this.state.editing.notes || !this.state.editing.notes.trim())
     ) {
       errors.push("Please provide notes when contact was not made");
     }
 
-    if (this.state.editing.notes.length > 255) {
+    if (this.state.editing.notes && this.state.editing.notes.length > 255) {
       errors.push("Notes cannot exceed 255 characters");
     }
 
@@ -185,9 +182,6 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
 
       // PERFORMANCE: Mark data as changed to invalidate memoization
       this.state.performance.dataChanged = true;
-
-      // Start or restart countdown ticker when data loads
-      this.startCountdownTicker();
 
       // Initialize highestAttemptStarted to first incomplete attempt
       if (
@@ -264,47 +258,36 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
   }
 
   /**
-   * Get enhanced thermometer progress with partial completion
-   * Fills to encapsulate each node (0%, 25%, 50%, 75%, 100%)
-   */
-  get thermometerProgress() {
-    if (!this.cadenceData) return 0;
-
-    if (this.cadenceData.contactEstablished) {
-      return 100; // Contact established = 100% complete
-    }
-
-    const attempts = this.cadenceData.attempts || [];
-
-    // Only count completed attempts (25% per completed attempt)
-    const completedAttempts = attempts.filter(
-      (attempt) => attempt.isCompleted
-    ).length;
-
-    // Progress should only be based on completed attempts
-    // No partial progress for current attempt until it's actually completed
-    return completedAttempts * 25;
-  }
-
-  /**
    * Get progress bar width style
+   * Fills to each completed node's position
+   * Nodes are at: 0%, 25%, 50%, 75%, 100%
    */
   get progressBarStyle() {
-    return `width: ${this.progressPercent}%`;
-  }
+    if (!this.cadenceData) return "width: 0%";
 
-  /**
-   * Get thermometer progress bar width style
-   */
-  get thermometerProgressStyle() {
-    return `width: ${this.thermometerProgress}%`;
+    if (this.cadenceData.contactEstablished) {
+      return "width: 100%"; // Contact established = full width
+    }
+
+    const completedAttempts = this.cadenceData.attempts
+      ? this.cadenceData.attempts.filter((attempt) => attempt.isCompleted)
+          .length
+      : 0;
+
+    // Calculate width to fill to each completed node
+    // Node positions: 0%, 25%, 50%, 75%, 100%
+    // Formula: (completedAttempts - 1) / 4 * 100
+    const progressPercent =
+      completedAttempts > 0 ? ((completedAttempts - 1) / 4) * 100 : 0;
+
+    return `width: ${progressPercent}%`;
   }
 
   /**
    * Get send email button label
    */
   get sendEmailButtonLabel() {
-    return this.isNavigatingToEmail ? "Opening..." : "Open Email";
+    return this.state.ui.isNavigatingToEmail ? "Opening..." : "Open Email";
   }
 
   /**
@@ -323,6 +306,20 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
       : 0;
     const current = this.cadenceData.currentAttemptNumber || 0;
     return `${completedAttempts} of 5 completed (Attempt ${current} current)`;
+  }
+
+  /**
+   * CSS class for progress bar fill based on completion
+   */
+  get progressNodesClass() {
+    if (!this.cadenceData || !this.cadenceData.attempts)
+      return "progress-nodes fill-0";
+
+    const completedAttempts = this.cadenceData.attempts.filter(
+      (attempt) => attempt.isCompleted
+    ).length;
+
+    return `progress-nodes fill-${completedAttempts}`;
   }
 
   /**
@@ -352,8 +349,8 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
       4: "Day 65 - Third Contact",
       5: "Day 95 - Final Contact"
     };
-    return this.pendingEmailAttemptNumber
-      ? map[this.pendingEmailAttemptNumber]
+    return this.state.ui.pendingEmailAttempt
+      ? map[this.state.ui.pendingEmailAttempt]
       : "";
   }
 
@@ -398,12 +395,11 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
     // Build a map of previous completions by attempt number for countdown start
     const prevCompletionByAttempt = new Map();
     for (const a of this.cadenceData.attempts) {
-      if (a.isCompleted && a.completedDateISO) {
-        // completedDateISO should be an ISO string if available; otherwise, server can add later
-        prevCompletionByAttempt.set(
-          a.attemptNumber,
-          Date.parse(a.completedDateISO)
-        );
+      if (a.isCompleted && a.taskRecord?.CompletedDateTime) {
+        const parsedDate = Date.parse(a.taskRecord.CompletedDateTime);
+        if (!isNaN(parsedDate)) {
+          prevCompletionByAttempt.set(a.attemptNumber, parsedDate);
+        }
       }
     }
 
@@ -415,10 +411,6 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
         (attempt.taskRecord?.Id &&
           this.state.editing.attemptId === attempt.taskRecord?.Id) ||
         this.state.editing.attemptNumber === attempt.attemptNumber;
-
-      // Determine if this attempt is locked (user has progressed past it)
-      const isLocked =
-        attempt.attemptNumber < this.state.ui.highestAttemptStarted;
 
       // Determine if this is the current editable attempt
       const isCurrentEditable =
@@ -456,7 +448,7 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
               : 0;
 
           countdown = {
-            hasCountdown: remainingMs > 0 && !attempt.isCurrent,
+            hasCountdown: remainingMs > 0 && !uiIsCurrent,
             remainingMs,
             totalMs,
             percent: pct,
@@ -467,7 +459,22 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
         }
       }
 
-      return {
+      // Calculate if date has arrived (for current attempt)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      let isDateArrived = false;
+
+      if (attempt.taskRecord && attempt.taskRecord.ActivityDate) {
+        const activityDate = new Date(attempt.taskRecord.ActivityDate);
+        activityDate.setHours(0, 0, 0, 0);
+        isDateArrived = activityDate <= today;
+      }
+
+      // Determine if this attempt is locked (has task but date hasn't arrived and not completed)
+      const isLocked =
+        !!attempt.taskRecord && !isDateArrived && !attempt.isCompleted;
+
+      const mappedAttempt = {
         ...attempt,
         countdown,
         // Card state classes
@@ -494,6 +501,8 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
         showReadOnly: attempt.isCompleted || isLocked, // Read-only if completed OR locked
         showDisabled:
           attempt.attemptNumber > this.state.ui.highestAttemptStarted, // Pending if beyond current
+        isDateArrived: isDateArrived, // Whether the activity date has arrived
+        isLocked: isLocked, // Task exists but date hasn't arrived
 
         // Display properties
         completionIcon: uiIsCompleted ? "✓" : "",
@@ -505,6 +514,8 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
         taskNotes: attempt.userNotes || "", // User notes from ContentNote
         dueDate: attempt.formattedDueDate || "Not scheduled"
       };
+
+      return mappedAttempt;
     });
 
     // PERFORMANCE: Cache the result for future renders
@@ -516,12 +527,19 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
 
   /**
    * Get CSS class for attempt card
+   * ENHANCED: Differentiates between successful and unsuccessful contact attempts
    */
   getCardClass(attempt) {
     let baseClass =
       "attempt-card slds-box slds-var-p-around_medium slds-var-m-bottom_small";
 
     if (attempt.isCompleted) {
+      // Check if contact was established (successful) or not (unsuccessful)
+      const contactEstablished =
+        attempt.taskRecord?.Succession_Contact_Established__c;
+      if (contactEstablished === false) {
+        return baseClass + " card-completed-negative";
+      }
       return baseClass + " card-completed";
     } else if (attempt.isCurrent) {
       return baseClass + " card-current";
@@ -642,13 +660,8 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
       : "Collapse Contact Cadence";
   }
 
-  get toggleButtonLabel() {
-    return this.state.ui.isCollapsed ? "Show Details" : "Hide Details";
-  }
-
   get collapsibleContentClass() {
-    const baseClass =
-      "slds-card__body slds-card__body_inner collapsible-content";
+    const baseClass = "collapsible-content";
     return this.state.ui.isCollapsed ? `${baseClass} collapsed` : baseClass;
   }
 
@@ -716,6 +729,7 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
   /**
    * Handle Save Outcome button click
    * ENHANCED: Includes comprehensive error handling and performance optimizations
+   * FIX: Properly advances to next attempt after save
    */
   handleSaveOutcome(event) {
     try {
@@ -758,8 +772,9 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
             );
           }
 
-          // Flow Task_Create_Next_Contact_Attempt will auto-create next task
-          // No need to manually enable next attempt
+          // FIX: Advance to next attempt only after successful save
+          // This prevents attempt 2 from being editable while attempt 1 is still being saved
+          this.state.ui.highestAttemptStarted = attemptNumber + 1;
 
           // PERFORMANCE: Reset editing state using centralized state
           this.state.editing.attemptId = null;
@@ -813,8 +828,7 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
    */
   handleSendEmail(event) {
     // Prevent double-click (button already disabled during navigation)
-    if (this.isNavigatingToEmail) {
-      console.log("Email composer already opening, ignoring duplicate click");
+    if (this.state.ui.isNavigatingToEmail) {
       return;
     }
 
@@ -840,18 +854,20 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
    * This is the ONLY way to dismiss the email prompt (keeps it visible if agent closes composer)
    */
   handleSkipEmail() {
-    this.pendingEmailAttemptNumber = null;
-    this.isNavigatingToEmail = false; // Reset navigation state
+    this.state.ui.pendingEmailAttempt = null;
+    this.state.ui.isNavigatingToEmail = false; // Reset navigation state
     this.showToast("Email Skipped", "You can process the next case", "info");
   }
 
   /**
    * Open Send List Email dialog with appropriate template based on attempt number
    *
+   * FIX: Uses direct URL navigation to email composer
+   * This avoids the "Invalid template returned by render()" error
+   *
    * NOTE: This handles both Person Accounts and Business Accounts with Contacts.
-   * - Person Account: Uses Account.SendEmail action with AccountId
-   * - Business Account: Uses Contact.SendEmail action with ContactId
-   * Template cannot be pre-selected in Lightning Experience (manual selection required).
+   * - Person Account: Opens email composer for Account
+   * - Business Account: Opens email composer for Contact
    */
   openListEmailDialog(attemptNumber) {
     // Validate cadence data exists
@@ -911,18 +927,17 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
     const templateDisplayName = templateMap[attemptNumber];
 
     // Set navigation state to prevent double-click
-    this.isNavigatingToEmail = true;
+    this.state.ui.isNavigatingToEmail = true;
 
-    // Navigate to Send Email action
-    // For Person Account: Opens Account.SendEmail with AccountId
-    // For Business Account: Opens Contact.SendEmail with ContactId
+    // FIX: Use direct URL to email composer
+    // Format: /lightning/o/{ObjectApiName}/email?context={recordId}
+    const emailComposerUrl = `/lightning/o/${objectApiName}/email?context=${recordId}`;
+
     try {
       this[NavigationMixin.Navigate]({
-        type: "standard__recordAction",
+        type: "standard__webPage",
         attributes: {
-          recordId: recordId,
-          objectApiName: objectApiName,
-          actionName: `${objectApiName}.SendEmail`
+          url: emailComposerUrl
         }
       });
 
@@ -931,10 +946,9 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
       // Only clear when agent explicitly clicks "Skip" button
 
       // Show reminder about which template to select
-      const recipientType = isPersonAccount ? "Person Account" : "Contact";
       this.showToast(
         "Email Composer Opening",
-        `${recipientType} email opening. Select template: "${templateDisplayName}"`,
+        `Opening email composer. Select template: "${templateDisplayName}"`,
         "info"
       );
 
@@ -943,11 +957,11 @@ export default class SuccessionContactCadence extends NavigationMixin(LightningE
       // after the email composer opens, but it's not critical for core functionality
       // eslint-disable-next-line @lwc/lwc/no-async-operation
       setTimeout(() => {
-        this.isNavigatingToEmail = false;
+        this.state.ui.isNavigatingToEmail = false;
       }, 2000);
     } catch (error) {
       console.error("Error navigating to email composer:", error);
-      this.isNavigatingToEmail = false; // Reset on error
+      this.state.ui.isNavigatingToEmail = false; // Reset on error
       this.showToast(
         "Error",
         `Failed to open email composer: ${error.message || "Unknown error"}`,

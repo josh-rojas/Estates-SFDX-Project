@@ -8,14 +8,18 @@
   <!-- Empty state (before invoke is called) -->
   <template if:false={hasInvoked}>
     <div class="slds-var-p-around_medium">
-      <p class="slds-text-align_center">Click the action button to create a succession case.</p>
+      <p class="slds-text-align_center">
+        Click the action button to create a succession case.
+      </p>
     </div>
   </template>
 
   <!-- Loading State -->
   <template if:true={showLoading}>
-    <div class="create-succession-case-loading slds-var-p-around_medium">
-      <div class="create-succession-case-spinner">
+    <div class="slds-is-relative slds-var-p-around_medium">
+      <div
+        class="create-succession-case-spinner slds-is-relative slds-show_inline-block slds-size_full"
+      >
         <div
           class="slds-spinner slds-spinner_medium"
           role="status"
@@ -41,7 +45,7 @@
       >
         <span class="slds-assistive-text">Error</span>
         <span
-          class="create-succession-case-icon slds-icon-utility-error slds-var-m-right_x-small"
+          class="slds-media_center slds-var-m-right_x-small"
           title="Error"
           aria-label="Error icon"
         >
@@ -75,7 +79,7 @@
       >
         <span class="slds-assistive-text">Success</span>
         <span
-          class="create-succession-case-icon slds-icon-utility-success slds-var-m-right_x-small"
+          class="slds-media_center slds-var-m-right_x-small"
           title="Success"
           aria-label="Success icon"
         >

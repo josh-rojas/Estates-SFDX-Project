@@ -32,6 +32,9 @@
         <filterFormula>AND(
     RecordType.DeveloperName = &quot;EstateAdministration&quot;,
     TEXT({!$Record.Type}) = &quot;Named Successor Enactment&quot;,
+    NOT(ISBLANK({!$Record.ContactId})),
+    NOT(ISBLANK({!$Record.Successor__c})),
+    NOT({!$Record.IsClosed}),
     OR(
         ISNEW(),
         ISCHANGED({!$Record.Verification_Status__c})

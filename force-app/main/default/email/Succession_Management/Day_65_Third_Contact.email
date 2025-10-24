@@ -1,12 +1,12 @@
-Dear {!Case.ContactName},
+Dear {!Case.Successor__r.Name},
 
 This is our third attempt to reach you regarding the Donor-Advised Fund account held by {!Case.Account.Name}.
 
 It has been over two months since we first contacted you. As the designated successor, we need your input to properly handle this account. If we are unable to reach you, the account will be handled according to our organizational policies and the original donor's instructions.
 
 ACCOUNT INFORMATION:
-• Account Number: {!Case.FinancialAccount__r.Name}
-• Approximate Balance: {!Case.FinancialAccount__r.Balance__c}
+• Account Number: {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}
+• Approximate Balance: {!Case.FinServ__FinancialAccount__r.FinServ__Balance__c}
 • Case Number: {!Case.CaseNumber}
 • Days Since Initial Contact: 65+ days
 

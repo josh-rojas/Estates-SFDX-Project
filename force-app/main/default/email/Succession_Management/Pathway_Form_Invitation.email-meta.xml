@@ -5,8 +5,8 @@
     <name>Pathway Selection - Form Invitation</name>
     <style>none</style>
     <subject
-  >Your Succession Pathway Options - DAF Account {!Case.FinancialAccount__r.Name}</subject>
-    <textOnly>Dear {!Case.ContactName},
+  >Your Succession Pathway Options - DAF Account {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}</subject>
+    <textOnly>Dear {!Case.Successor__r.Name},
 
 Thank you for speaking with us regarding the Donor-Advised Fund account held by {!Case.Account.Name}. As discussed during our conversation, we are pleased to provide you with the Succession Recommendation process to formalize your pathway selection.
 

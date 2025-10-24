@@ -2,13 +2,17 @@
  * CreateSuccessionCaseController
  *
  * Apex controller for FinancialAccount Quick Action to create succession cases.
- * Creates a single seed case and lets existing flows handle multi-successor orchestration.
+ * Handles both single and multi-successor scenarios in pure Apex (no flows).
+ *
+ * Single Successor: Creates one Case (Type = "Named Successor Enactment")
+ * Multi-Successor: Creates parent Case (Type = "Multi-Account Succession Master")
+ *                  + child Cases for each successor
  *
  * @author Claude Code
  * @date 2025-01-27
+ * @version 2.0 - Refactored to handle multi-successor in Apex
  */
 public with sharing class CreateSuccessionCaseController {
-  
   /**
    * Wrapper class for Quick Action result
    */
@@ -20,12 +24,14 @@ public with sharing class CreateSuccessionCaseController {
     @AuraEnabled
     public Id seedCaseId { get; set; }
     @AuraEnabled
+    public Id parentCaseId { get; set; }
+    @AuraEnabled
     public Integer successorCount { get; set; }
   }
 
   /**
    * Main entry point for Quick Action
-   * Creates a single seed case and lets existing flows handle orchestration
+   * Handles both single and multi-successor scenarios
    *
    * @param financialAccountId - ID of the FinancialAccount
    * @return CreateCaseResult with success status and case information
@@ -33,136 +39,269 @@ public with sharing class CreateSuccessionCaseController {
   @AuraEnabled
   public static CreateCaseResult createSuccessionCase(Id financialAccountId) {
     try {
-      System.debug('Starting createSuccessionCase for FA: ' + financialAccountId);
-      
+      System.debug(
+        'Starting createSuccessionCase for FA: ' + financialAccountId
+      );
+
       // Validate requirements
       String validationError = validateRequirements(financialAccountId);
       if (String.isNotBlank(validationError)) {
         System.debug('Validation failed: ' + validationError);
-        CreateCaseResult errorResult = new CreateCaseResult();
-        errorResult.success = false;
-        errorResult.message = validationError;
-        return errorResult;
+        return createErrorResult(validationError);
       }
 
       // Get deceased donor account
       Id deceasedOwnerAccountId = getDeceasedDonorAccount(financialAccountId);
       if (deceasedOwnerAccountId == null) {
-        CreateCaseResult errorResult = new CreateCaseResult();
-        errorResult.success = false;
-        errorResult.message = 'No deceased primary owner found on this financial account';
-        return errorResult;
+        return createErrorResult(
+          'No deceased primary owner found on this financial account'
+        );
       }
 
       // Get successors and validate allocation
-      List<FinServ__FinancialAccountRole__c> successors = getSuccessors(financialAccountId);
+      List<FinServ__FinancialAccountRole__c> successors = getSuccessors(
+        financialAccountId
+      );
       if (successors.isEmpty()) {
-        CreateCaseResult errorResult = new CreateCaseResult();
-        errorResult.success = false;
-        errorResult.message = 'No active successors designated on this financial account';
-        return errorResult;
+        return createErrorResult(
+          'No active successors designated on this financial account'
+        );
       }
 
-      // Validate allocation totals (optional but recommended)
+      // Validate allocation totals
       String allocationError = validateSuccessorAllocations(successors);
       if (String.isNotBlank(allocationError)) {
-        CreateCaseResult errorResult = new CreateCaseResult();
-        errorResult.success = false;
-        errorResult.message = allocationError;
-        return errorResult;
+        return createErrorResult(allocationError);
       }
-
-      // Get first successor (deterministic selection)
-      FinServ__FinancialAccountRole__c firstSuccessor = successors[0];
 
       // Get Estate Administration record type
       Id estateAdminRecordTypeId = getEstateAdministrationRecordTypeId();
-      System.debug('Record Type ID: ' + estateAdminRecordTypeId);
-      
       if (estateAdminRecordTypeId == null) {
-        CreateCaseResult errorResult = new CreateCaseResult();
-        errorResult.success = false;
-        errorResult.message = 'Estate Administration record type not found';
-        return errorResult;
+        return createErrorResult('Estate Administration record type not found');
       }
 
       // Get FinancialAccount name for subject
       String financialAccountName = getFinancialAccountName(financialAccountId);
-      System.debug('Financial Account Name: ' + financialAccountName);
-      
-      // Determine ContactId - use RelatedContact if available, otherwise get PersonContactId from Account
-      Id contactId = firstSuccessor.FinServ__RelatedContact__c;
-      System.debug('First successor RelatedContact: ' + contactId);
-      System.debug('First successor RelatedAccount: ' + firstSuccessor.FinServ__RelatedAccount__c);
-      
-      if (contactId == null && firstSuccessor.FinServ__RelatedAccount__c != null) {
-        System.debug('Querying PersonContactId from Account');
-        List<Account> successorAccounts = [
-          SELECT PersonContactId, IsPersonAccount
-          FROM Account 
-          WHERE Id = :firstSuccessor.FinServ__RelatedAccount__c
-          LIMIT 1
-        ];
-        
-        System.debug('Found accounts: ' + successorAccounts.size());
-        
-        // Enforce field-level security
-        if (!successorAccounts.isEmpty()) {
-          System.debug('Account IsPersonAccount: ' + successorAccounts[0].IsPersonAccount);
-          System.debug('Account PersonContactId: ' + successorAccounts[0].PersonContactId);
-          
-          SObjectAccessDecision decision = Security.stripInaccessible(
-            AccessType.READABLE,
-            successorAccounts
-          );
-          List<Account> filteredAccounts = (List<Account>) decision.getRecords();
-          if (!filteredAccounts.isEmpty()) {
-            contactId = filteredAccounts[0].PersonContactId;
-          }
-        }
-      }
-      
-      System.debug('Final ContactId to use: ' + contactId);
-      System.debug('Successor__c will be set to: ' + contactId);
 
-      // Create seed case
-      Case seedCase = new Case(
+      // Branch based on successor count
+      if (successors.size() == 1) {
+        // Single successor - create one case
+        return createSingleSuccessorCase(
+          successors[0],
+          deceasedOwnerAccountId,
+          financialAccountId,
+          financialAccountName,
+          estateAdminRecordTypeId
+        );
+      } else {
+        // Multiple successors - create parent + children
+        return createMultiSuccessorCases(
+          successors,
+          deceasedOwnerAccountId,
+          financialAccountId,
+          financialAccountName,
+          estateAdminRecordTypeId
+        );
+      }
+    } catch (Exception e) {
+      System.debug('Exception occurred: ' + e.getMessage());
+      System.debug('Stack trace: ' + e.getStackTraceString());
+      return createErrorResult(
+        'Error creating succession case: ' +
+          e.getMessage() +
+          ' (Line: ' +
+          e.getLineNumber() +
+          ')'
+      );
+    }
+  }
+
+  /**
+   * Create error result wrapper
+   */
+  private static CreateCaseResult createErrorResult(String message) {
+    CreateCaseResult errorResult = new CreateCaseResult();
+    errorResult.success = false;
+    errorResult.message = message;
+    return errorResult;
+  }
+
+  /**
+   * Create single successor case
+   */
+  private static CreateCaseResult createSingleSuccessorCase(
+    FinServ__FinancialAccountRole__c successor,
+    Id deceasedOwnerAccountId,
+    Id financialAccountId,
+    String financialAccountName,
+    Id estateAdminRecordTypeId
+  ) {
+    // Get ContactId for successor
+    Id contactId = getContactIdForSuccessor(successor);
+
+    // Validate ContactId exists - critical for contact cadence workflow
+    if (contactId == null) {
+      return createErrorResult(
+        'Successor contact not found. Please ensure the successor has a Related Contact or is linked to a Person Account.'
+      );
+    }
+
+    // Create case
+    Case successionCase = new Case(
+      RecordTypeId = estateAdminRecordTypeId,
+      Type = 'Named Successor Enactment',
+      Subject = financialAccountName + ' - Named Successor Enactment',
+      Status = 'New',
+      Origin = 'Financial Account',
+      Priority = 'Medium',
+      AccountId = deceasedOwnerAccountId,
+      Deceased_Donor__c = deceasedOwnerAccountId,
+      ContactId = contactId,
+      Successor__c = contactId,
+      FinServ__FinancialAccount__c = financialAccountId,
+      Verification_Status__c = 'Not Started',
+      Description = 'Succession case created from Financial Account.'
+    );
+
+    Database.insert(successionCase, AccessLevel.USER_MODE);
+
+    // Return success
+    CreateCaseResult successResult = new CreateCaseResult();
+    successResult.success = true;
+    successResult.message = 'Case created successfully. Click "Begin Succession Processing" to start the contact cadence workflow.';
+    successResult.seedCaseId = successionCase.Id;
+    successResult.successorCount = 1;
+    return successResult;
+  }
+
+  /**
+   * Create multi-successor cases (parent + children)
+   */
+  private static CreateCaseResult createMultiSuccessorCases(
+    List<FinServ__FinancialAccountRole__c> successors,
+    Id deceasedOwnerAccountId,
+    Id financialAccountId,
+    String financialAccountName,
+    Id estateAdminRecordTypeId
+  ) {
+    // Create parent case
+    Case parentCase = new Case(
+      RecordTypeId = estateAdminRecordTypeId,
+      Type = 'Multi-Account Succession Master',
+      Subject = financialAccountName + ' - Multi-Account Succession Master',
+      Status = 'In Progress',
+      Origin = 'Financial Account',
+      Priority = 'Medium',
+      AccountId = deceasedOwnerAccountId,
+      FinServ__FinancialAccount__c = financialAccountId,
+      Description = 'Multi-successor coordination case. ' +
+        successors.size() +
+        ' successors identified for this DAF account. Individual succession cases created for each successor with independent contact cadence and pathway selection.'
+    );
+
+    Database.insert(parentCase, AccessLevel.USER_MODE);
+
+    // Create child cases for each successor
+    List<Case> childCases = new List<Case>();
+    Integer skippedCount = 0;
+
+    for (FinServ__FinancialAccountRole__c successor : successors) {
+      Id contactId = getContactIdForSuccessor(successor);
+
+      // Skip successors without valid ContactId (cannot run contact cadence)
+      if (contactId == null) {
+        System.debug(
+          'Warning: Skipping successor without valid ContactId: ' + successor.Id
+        );
+        skippedCount++;
+        continue;
+      }
+
+      Case childCase = new Case(
         RecordTypeId = estateAdminRecordTypeId,
         Type = 'Named Successor Enactment',
         Subject = financialAccountName + ' - Named Successor Enactment',
         Status = 'New',
         Origin = 'Financial Account',
         Priority = 'Medium',
-        AccountId = deceasedOwnerAccountId, // Deceased donor (NOT successor)
-        Deceased_Donor__c = deceasedOwnerAccountId, // Custom lookup to deceased donor Account
-        ContactId = contactId, // System field - used by automation
-        Successor__c = contactId, // Display field - shown in highlights panel
+        AccountId = deceasedOwnerAccountId,
+        Deceased_Donor__c = deceasedOwnerAccountId,
+        ContactId = contactId,
+        Successor__c = contactId,
         FinServ__FinancialAccount__c = financialAccountId,
-        Verification_Status__c = 'Not Started', // Agent must manually begin workflow
-        Description = 'Succession case created from Financial Account. ' +
-                     (successors.size() > 1 ? successors.size() + ' successors identified.' : '')
+        ParentId = parentCase.Id,
+        Verification_Status__c = 'Not Started',
+        Description = 'Succession case for successor. Part of multi-successor coordination under parent case. ' +
+          (successor.SuccessorAllocation__c != null
+            ? 'Allocation: ' + successor.SuccessorAllocation__c + '%'
+            : 'Equal allocation assumed unless otherwise specified in financial account roles.')
       );
 
-      // Insert seed case with USER_MODE to enforce FLS
-      Database.insert(seedCase, AccessLevel.USER_MODE);
-
-      // Return success result
-      CreateCaseResult successResult = new CreateCaseResult();
-      successResult.success = true;
-      successResult.message = 'Case created successfully. Click "Begin Succession Processing" to start the contact cadence workflow' + 
-                 (successors.size() > 1 ? '. ' + successors.size() + ' successors detected - parent and child cases will be created when workflow begins.' : '.');
-      successResult.seedCaseId = seedCase.Id;
-      successResult.successorCount = successors.size();
-      return successResult;
-
-    } catch (Exception e) {
-      System.debug('Exception occurred: ' + e.getMessage());
-      System.debug('Stack trace: ' + e.getStackTraceString());
-      CreateCaseResult errorResult = new CreateCaseResult();
-      errorResult.success = false;
-      errorResult.message = 'Error creating succession case: ' + e.getMessage() + ' (Line: ' + e.getLineNumber() + ')';
-      return errorResult;
+      childCases.add(childCase);
     }
+
+    // Validate at least one child case was created
+    if (childCases.isEmpty()) {
+      return createErrorResult(
+        'No valid successor contacts found. Please ensure at least one successor has a Related Contact or is linked to a Person Account.'
+      );
+    }
+
+    Database.insert(childCases, AccessLevel.USER_MODE);
+
+    // Return success
+    CreateCaseResult successResult = new CreateCaseResult();
+    successResult.success = true;
+
+    String warningMessage = skippedCount > 0
+      ? ' (' +
+        skippedCount +
+        ' successor(s) skipped due to missing contact information)'
+      : '';
+
+    successResult.message =
+      'Parent case and ' +
+      childCases.size() +
+      ' child cases created successfully.' +
+      warningMessage +
+      ' Click "Begin Succession Processing" on each child case to start the contact cadence workflow.';
+    successResult.parentCaseId = parentCase.Id;
+    successResult.seedCaseId = childCases[0].Id;
+    successResult.successorCount = childCases.size();
+    return successResult;
+  }
+
+  /**
+   * Get ContactId for a successor (handles Person Accounts)
+   */
+  private static Id getContactIdForSuccessor(
+    FinServ__FinancialAccountRole__c successor
+  ) {
+    Id contactId = successor.FinServ__RelatedContact__c;
+
+    // If no RelatedContact, try to get PersonContactId from Account
+    if (contactId == null && successor.FinServ__RelatedAccount__c != null) {
+      List<Account> successorAccounts = [
+        SELECT PersonContactId, IsPersonAccount
+        FROM Account
+        WHERE Id = :successor.FinServ__RelatedAccount__c
+        WITH USER_MODE
+        LIMIT 1
+      ];
+
+      if (!successorAccounts.isEmpty()) {
+        SObjectAccessDecision decision = Security.stripInaccessible(
+          AccessType.READABLE,
+          successorAccounts
+        );
+        List<Account> filteredAccounts = (List<Account>) decision.getRecords();
+        if (!filteredAccounts.isEmpty()) {
+          contactId = filteredAccounts[0].PersonContactId;
+        }
+      }
+    }
+
+    return contactId;
   }
 
   /**
@@ -174,14 +313,17 @@ public with sharing class CreateSuccessionCaseController {
   private static String validateRequirements(Id financialAccountId) {
     // Check for existing cases (idempotency)
     List<Case> existingCases = [
-      SELECT Id 
-      FROM Case 
-      WHERE FinServ__FinancialAccount__c = :financialAccountId 
-      AND (Type = 'Named Successor Enactment' OR Type = 'Multi-Account Succession Master')
-      AND IsClosed = false
+      SELECT Id
+      FROM Case
+      WHERE
+        FinServ__FinancialAccount__c = :financialAccountId
+        AND (Type = 'Named Successor Enactment'
+        OR Type = 'Multi-Account Succession Master')
+        AND IsClosed = FALSE
+      WITH USER_MODE
       LIMIT 1
     ];
-    
+
     if (!existingCases.isEmpty()) {
       return 'A succession case already exists for this financial account';
     }
@@ -199,15 +341,20 @@ public with sharing class CreateSuccessionCaseController {
     List<FinServ__FinancialAccountRole__c> deceasedOwners = [
       SELECT FinServ__RelatedAccount__c, FinServ__RelatedAccount__r.Deceased__c
       FROM FinServ__FinancialAccountRole__c
-      WHERE FinServ__FinancialAccount__c = :financialAccountId
-      AND FinServ__Role__c LIKE '%Primary%'
-      AND FinServ__RelatedAccount__r.Deceased__c = true
+      WHERE
+        FinServ__FinancialAccount__c = :financialAccountId
+        AND FinServ__Role__c LIKE '%Primary%'
+        AND FinServ__RelatedAccount__r.Deceased__c = TRUE
+      WITH USER_MODE
       ORDER BY CreatedDate DESC
       LIMIT 2
     ];
 
     if (deceasedOwners.size() > 1) {
-      System.debug('Warning: Multiple deceased primary owners found for FA ' + financialAccountId);
+      System.debug(
+        'Warning: Multiple deceased primary owners found for FA ' +
+        financialAccountId
+      );
     }
 
     if (deceasedOwners.isEmpty()) {
@@ -220,8 +367,10 @@ public with sharing class CreateSuccessionCaseController {
       deceasedOwners
     );
     List<FinServ__FinancialAccountRole__c> filteredOwners = decision.getRecords();
-    
-    return filteredOwners.isEmpty() ? null : filteredOwners[0].FinServ__RelatedAccount__c;
+
+    return filteredOwners.isEmpty()
+      ? null
+      : filteredOwners[0].FinServ__RelatedAccount__c;
   }
 
   /**
@@ -230,16 +379,24 @@ public with sharing class CreateSuccessionCaseController {
    * @param financialAccountId - ID of the FinancialAccount
    * @return List of successor FinancialAccountRole records
    */
-  private static List<FinServ__FinancialAccountRole__c> getSuccessors(Id financialAccountId) {
+  private static List<FinServ__FinancialAccountRole__c> getSuccessors(
+    Id financialAccountId
+  ) {
     List<FinServ__FinancialAccountRole__c> successors = [
-      SELECT Id, FinServ__RelatedContact__c, FinServ__RelatedAccount__c, SuccessorAllocation__c
+      SELECT
+        Id,
+        FinServ__RelatedContact__c,
+        FinServ__RelatedAccount__c,
+        SuccessorAllocation__c
       FROM FinServ__FinancialAccountRole__c
-      WHERE FinServ__FinancialAccount__c = :financialAccountId
-      AND FinServ__Role__c LIKE '%Successor%'
-      AND FinServ__Active__c = true
+      WHERE
+        FinServ__FinancialAccount__c = :financialAccountId
+        AND FinServ__Role__c LIKE '%Successor%'
+        AND FinServ__Active__c = TRUE
+      WITH USER_MODE
       ORDER BY CreatedDate ASC
     ];
-    
+
     // Enforce field-level security
     SObjectAccessDecision decision = Security.stripInaccessible(
       AccessType.READABLE,
@@ -250,21 +407,49 @@ public with sharing class CreateSuccessionCaseController {
 
   /**
    * Validate that successor allocations sum to 100%
+   * If all allocations are null, equal split is assumed (valid)
+   * Partial allocations (some set, some null) are NOT allowed
    *
    * @param successors - List of successor FinancialAccountRole records
    * @return Error message if validation fails, null if valid
    */
-  private static String validateSuccessorAllocations(List<FinServ__FinancialAccountRole__c> successors) {
+  private static String validateSuccessorAllocations(
+    List<FinServ__FinancialAccountRole__c> successors
+  ) {
+    // Count how many successors have allocations set
+    Integer allocatedCount = 0;
     Decimal totalAllocation = 0;
+
     for (FinServ__FinancialAccountRole__c s : successors) {
-      totalAllocation += (s.SuccessorAllocation__c != null ? s.SuccessorAllocation__c : 0);
+      if (s.SuccessorAllocation__c != null) {
+        allocatedCount++;
+        totalAllocation += s.SuccessorAllocation__c;
+      }
     }
-    
-    // Use tolerance for decimal comparison to avoid rounding issues
+
+    // If no allocations are set, assume equal split (valid scenario)
+    if (allocatedCount == 0) {
+      return null;
+    }
+
+    // Partial allocations not allowed - must be ALL or NONE
+    if (allocatedCount > 0 && allocatedCount < successors.size()) {
+      return 'Successor allocations must be set for ALL successors or NONE. ' +
+        'Currently ' +
+        allocatedCount +
+        ' of ' +
+        successors.size() +
+        ' successors have allocations set. ' +
+        'Please either set allocations for all successors (totaling 100%) or remove all allocations to use equal split.';
+    }
+
+    // If all allocations are set, they must sum to 100%
     if (Math.abs(totalAllocation - 100) > 0.01) {
-      return 'Successor allocations must sum to 100%. Current total: ' + totalAllocation + '%';
+      return 'Successor allocations must sum to 100%. Current total: ' +
+        totalAllocation +
+        '%';
     }
-    
+
     return null; // Validation passed
   }
 
@@ -275,13 +460,13 @@ public with sharing class CreateSuccessionCaseController {
    */
   private static Id getEstateAdministrationRecordTypeId() {
     List<RecordType> recordTypes = [
-      SELECT Id 
-      FROM RecordType 
-      WHERE SObjectType = 'Case' 
-      AND DeveloperName = 'EstateAdministration'
+      SELECT Id
+      FROM RecordType
+      WHERE SObjectType = 'Case' AND DeveloperName = 'EstateAdministration'
+      WITH USER_MODE
       LIMIT 1
     ];
-    
+
     return recordTypes.isEmpty() ? null : recordTypes[0].Id;
   }
 
@@ -293,14 +478,13 @@ public with sharing class CreateSuccessionCaseController {
    */
   private static String getFinancialAccountName(Id financialAccountId) {
     List<FinServ__FinancialAccount__c> accounts = [
-      SELECT Name 
-      FROM FinServ__FinancialAccount__c 
+      SELECT Name
+      FROM FinServ__FinancialAccount__c
       WHERE Id = :financialAccountId
+      WITH USER_MODE
       LIMIT 1
     ];
-    
+
     return accounts.isEmpty() ? 'Unknown Financial Account' : accounts[0].Name;
   }
 }
-
-

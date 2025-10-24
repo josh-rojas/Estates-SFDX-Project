@@ -9,180 +9,218 @@
    ============================================ */
 
 .progress-section {
-  padding: var(--slds-g-spacing-medium);
-  background-color: var(--slds-g-color-background-light);
-  border-radius: var(--slds-g-radius-border-2);
-}
-
-/* Progress Bar Container */
-.progress-bar-container {
-  position: relative;
-  padding: var(--slds-g-spacing-medium) var(--slds-g-spacing-none);
-}
-
-/* Progress Bar Track (background line) */
-.progress-bar-track {
-  position: absolute;
-  top: var(--slds-g-spacing-medium);
-  left: var(--slds-g-spacing-none);
-  right: var(--slds-g-spacing-none);
-  height: var(--slds-g-border-width-thick);
-  background-color: var(--slds-g-color-border);
-  border-radius: var(--slds-g-radius-border-2);
-  z-index: var(--slds-g-z-index-default);
-}
-
-/* Progress Bar Fill (completed portion) */
-.progress-bar-fill {
-  position: absolute;
-  top: var(--slds-g-spacing-medium);
-  left: var(--slds-g-spacing-none);
-  height: var(--slds-g-border-width-thick);
-  background: linear-gradient(
-    90deg,
-    var(--slds-g-color-success-base-60) 0%,
-    var(--slds-g-color-success-base-40) 100%
-  );
-  border-radius: var(--slds-g-radius-border-1);
-  z-index: var(--slds-g-z-index-default);
-  transition: width var(--slds-g-duration-2) ease;
-}
-
-/* Thermometer-style Progress Bar */
-.thermometer-progress {
-  position: relative;
-  height: 8px;
-  background: linear-gradient(
-    90deg,
-    var(--slds-g-color-success-base-60) 0%,
-    var(--slds-g-color-success-base-40) 100%
-  );
-  border-radius: var(--slds-g-radius-border-2);
-  margin: var(--slds-g-spacing-xx-small) 0;
-  overflow: hidden;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-  /* Align with progress nodes */
-  margin-left: var(--slds-g-spacing-medium);
-  margin-right: var(--slds-g-spacing-medium);
-}
-
-.thermometer-fill {
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--slds-g-color-success-base-60) 0%,
-    var(--slds-g-color-success-base-40) 50%,
-    var(--slds-g-color-success-base-60) 100%
-  );
-  border-radius: var(--slds-g-radius-border-2);
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 1rem 1.25rem 1.25rem 1.25rem;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafaf9 100%);
+  border-radius: 0.5rem;
+  border: 2px solid #d8dde6;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 0 1px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
 }
 
-.thermometer-fill::after {
-  content: '';
+/* Subtle top accent to unify the component */
+.progress-section::before {
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  bottom: 0;
+  height: 3px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.3) 50%,
+    rgba(27, 150, 255, 0.15) 50%,
     transparent 100%
   );
-  animation: shimmer 2s infinite;
+  pointer-events: none;
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+/* Progress Bar Container - Hidden, nodes handle everything */
+.progress-bar-container {
+  display: none;
 }
 
-/* Progress Line between completed and current nodes */
-.progress-line {
-  position: absolute;
-  top: var(--slds-g-spacing-medium);
-  left: var(--slds-g-spacing-none);
-  right: var(--slds-g-spacing-none);
-  height: var(--slds-g-border-width-thick);
-  background: linear-gradient(
-    90deg,
-    var(--slds-g-color-success-base-60) 0%,
-    var(--slds-g-color-success-base-40) 100%
-  );
-  border-radius: var(--slds-g-radius-border-1);
-  z-index: 2;
+.progress-bar-track {
+  display: none;
 }
 
-/* Progress Nodes Container */
+.progress-bar-fill {
+  display: none;
+}
+
+/* Progress Nodes Container - Single unified progress bar component */
 .progress-nodes {
   position: relative;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: var(--slds-g-spacing-large);
-  z-index: 3;
-  /* Align with cards below - match the card grid */
-  margin-top: calc(var(--slds-g-spacing-large) + var(--slds-g-spacing-none));
+  gap: 0;
+  margin-bottom: 1.5rem;
+  margin-top: 0.75rem;
+  padding: 1.25rem 1.5rem 1rem 1.5rem;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(250, 250, 249, 0.9) 100%
+  );
+  border-radius: 0.5rem;
+  border: 1px solid rgba(216, 221, 230, 0.7);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.05),
+    0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Individual Progress Node */
+/* Continuous progress bar track (gray baseline) */
+.progress-nodes::before {
+  content: "";
+  position: absolute;
+  top: 1.75rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 10px;
+  background: linear-gradient(to bottom, #e8e8e8 0%, #d4d4d4 50%, #c9c9c9 100%);
+  border-radius: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  z-index: 1;
+}
+
+/* Green progress fill (calculated width based on completion) */
+.progress-nodes::after {
+  content: "";
+  position: absolute;
+  top: 1.75rem;
+  left: 1.5rem;
+  width: 0%;
+  height: 10px;
+  background: linear-gradient(to bottom, #4bca81 0%, #3ba755 50%, #2e844a 100%);
+  border-radius: 5px;
+  box-shadow:
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    0 1px 2px rgba(46, 132, 74, 0.2);
+  z-index: 2;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Dynamic fill widths based on completion - Attempt 0 complete (0%) */
+.progress-nodes.fill-0::after {
+  width: 0%;
+}
+
+/* Attempt 1 complete (20%) */
+.progress-nodes.fill-1::after {
+  width: 20%;
+}
+
+/* Attempt 2 complete (40%) */
+.progress-nodes.fill-2::after {
+  width: 40%;
+}
+
+/* Attempt 3 complete (60%) */
+.progress-nodes.fill-3::after {
+  width: 60%;
+}
+
+/* Attempt 4 complete (80%) */
+.progress-nodes.fill-4::after {
+  width: 80%;
+}
+
+/* Attempt 5 complete (100%) */
+.progress-nodes.fill-5::after {
+  width: 100%;
+}
+
+/* Individual Progress Node - Positioned on progress bar */
 .progress-node {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 60px;
+  justify-content: flex-start;
+  min-width: 50px;
+  position: relative;
+  z-index: 3;
+  padding: 0;
 }
 
-/* Node Circle */
+/* Node Circle - milestone indicator */
 .node-circle {
-  width: var(--slds-g-square-tappable-small);
-  height: var(--slds-g-square-tappable-small);
-  border-radius: var(--slds-g-border-radius-circle);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--slds-g-font-size-4);
-  font-weight: bold;
-  border-width: var(--slds-g-border-width-thick);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-width: 3px;
   border-style: solid;
-  background-color: var(--slds-g-color-neutral-inverse-100);
-  transition: all 0.3s ease;
+  background: radial-gradient(circle at 30% 30%, #ffffff, #f4f4f4);
+  transition: all 0.25s ease;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 2; /* Above connector lines */
 }
 
 /* Node States */
 .node-completed .node-circle {
-  border-color: var(--slds-g-color-success-base-60);
-  background-color: var(--slds-g-color-success-base-60);
-  color: var(--slds-g-color-neutral-inverse-100);
+  border-color: #2e844a;
+  background: radial-gradient(circle at 30% 30%, #4bca81, #3ba755);
+  color: #ffffff;
+  box-shadow:
+    0 2px 6px rgba(46, 132, 74, 0.25),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
 .node-current .node-circle {
-  border-color: var(--slds-g-color-brand-base-60);
-  background-color: var(--slds-g-color-brand-base-60);
-  color: var(--slds-g-color-neutral-inverse-100);
-  box-shadow: var(--slds-g-shadow-2);
+  border-color: #0161b5;
+  background: radial-gradient(circle at 30% 30%, #1b96ff, #0176d3);
+  color: #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(1, 118, 211, 0.2),
+    0 3px 8px rgba(1, 118, 211, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  transform: scale(1.08);
 }
 
 .node-pending .node-circle {
-  border-color: var(--slds-g-color-neutral-base-50);
-  background-color: var(--slds-g-color-neutral-inverse-100);
-  color: var(--slds-g-color-neutral-base-60);
+  border-color: #c9c9c9;
+  background: radial-gradient(circle at 30% 30%, #fafafa, #efefef);
+  color: #c9c9c9;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 /* Node Label */
 .node-label {
-  margin-top: var(--slds-g-spacing-medium);
+  margin-top: 0.5rem;
   text-align: center;
-  font-size: var(--slds-g-font-size-4);
-  color: var(--slds-g-color-neutral-base-10);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: #3e3e3c;
+  line-height: 1.25;
 }
 
 /* Node Icon */
 .node-icon {
-  font-size: var(--slds-g-font-size-4);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+/* Node Icon - Success (Contact Established) */
+.node-icon-success {
+  color: #2e844a;
+  font-weight: 700;
+}
+
+/* Node Icon - Failure (Contact Not Established) */
+.node-icon-failure {
+  color: #ea001e;
+  font-weight: 700;
 }
 
 /* ============================================
@@ -192,17 +230,13 @@
 .attempts-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: var(--slds-g-spacing-large);
-  margin-top: calc(var(--slds-g-spacing-large) + var(--slds-g-spacing-none));
+  gap: 1rem;
+  margin-top: 0;
 }
 
 /* Responsive Grid: 3 columns on tablets */
 @media (max-width: 1024px) {
   .attempts-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  .progress-nodes {
     grid-template-columns: repeat(3, 1fr);
   }
 }
@@ -211,24 +245,27 @@
 @media (max-width: 768px) {
   .attempts-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .progress-nodes {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .progress-node {
-    min-width: var(--slds-g-square-tappable-small);
+    gap: 1rem;
   }
 
   .node-circle {
-    width: var(--slds-g-square-tappable-x-small);
-    height: var(--slds-g-square-tappable-x-small);
-    font-size: var(--slds-g-font-size-4);
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
   }
 
   .node-label {
-    font-size: var(--slds-g-font-size-4);
+    font-size: 0.6875rem;
+    margin-top: 0.5rem;
+  }
+
+  .attempt-card {
+    min-height: 200px;
+    padding: 0.875rem;
+  }
+
+  .card-current {
+    padding: calc(0.875rem - 1px);
   }
 }
 
@@ -236,10 +273,22 @@
 @media (max-width: 480px) {
   .attempts-grid {
     grid-template-columns: 1fr;
+    gap: 0.875rem;
   }
-  
-  .progress-nodes {
-    grid-template-columns: 1fr;
+
+  .node-circle {
+    width: 24px;
+    height: 24px;
+    font-size: 0.6875rem;
+  }
+
+  .node-label {
+    font-size: 0.6875rem;
+    margin-top: 0.375rem;
+  }
+
+  .attempt-card {
+    min-height: 180px;
   }
 }
 
@@ -249,59 +298,100 @@
 
 /* Base Card */
 .attempt-card {
-  border-radius: var(--slds-g-radius-border-1);
-  transition: all 0.2s ease;
-  min-height: 180px;
+  border-radius: 0.375rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 200px;
   display: flex;
   flex-direction: column;
+  padding: 0.875rem;
+  background-color: #ffffff;
+  border: 1px solid #dddbda;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 /* Card States */
 .card-completed {
-  background-color: var(--slds-g-color-success-base-95);
-  border-left: var(--slds-g-border-width-thick) solid
-    var(--slds-g-color-success-base-60);
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border: 1px solid #86efac;
+  box-shadow: 0 2px 6px rgba(46, 132, 74, 0.15);
+}
+
+/* Negative Outcome Card - Contact Not Made */
+.card-completed-negative {
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+  border: 2px solid #fca5a5;
+  box-shadow: 0 2px 6px rgba(234, 0, 30, 0.15);
+  position: relative;
+}
+
+/* Subtle left accent for negative cards */
+.card-completed-negative::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  border-radius: 0.375rem 0 0 0.375rem;
 }
 
 .card-current {
-  background-color: var(--slds-g-color-neutral-inverse-100);
-  border: var(--slds-g-border-width-thick) solid
-    var(--slds-g-color-brand-base-60);
-  box-shadow: var(--slds-g-shadow-2);
+  background-color: #ffffff;
+  border: 2px solid #0176d3;
+  box-shadow: 0 4px 12px rgba(1, 118, 211, 0.18);
+  padding: calc(0.875rem - 1px); /* Compensate for thicker border */
 }
 
 .card-pending {
-  background-color: var(--slds-g-color-background-light);
-  border: var(--slds-g-border-width-thin) dashed
-    var(--slds-g-color-border-base-1);
+  background-color: #fafaf9;
+  border: 1px solid #e5e5e5;
   opacity: 0.7;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.card-locked {
+  background-color: #ffffff;
+  border: 1px solid #ffb75d;
+  box-shadow: 0 2px 6px rgba(255, 153, 0, 0.12);
 }
 
 /* Card Header */
 .card-header {
-  border-bottom: var(--slds-g-border-width-thin) solid
-    var(--slds-g-color-border-base-1);
-  padding-bottom: var(--slds-g-spacing-3);
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 0.625rem;
+  margin-bottom: 0.75rem;
 }
 
 .card-header h3 {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.375rem;
+  font-weight: 600;
+  color: #080707;
+  font-size: 0.9375rem;
+}
+
+.card-header p {
+  font-size: 0.8125rem;
+  line-height: 1.25;
 }
 
 /* Card Content */
 .card-content {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-disabled {
-  opacity: 0.6;
+  opacity: 0.65;
 }
 
 /* Notes Display */
 .notes-display {
-  background-color: var(--slds-g-color-neutral-inverse-100);
-  border: var(--slds-g-border-width-thin) solid
-    var(--slds-g-color-border-base-1);
+  background-color: #fafaf9;
+  border: 1px solid #e5e5e5;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
   max-height: 120px;
   overflow-y: auto;
 }
@@ -309,6 +399,8 @@
 .notes-display p {
   white-space: pre-wrap;
   word-break: break-word;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* ============================================
@@ -318,6 +410,21 @@
 /* Textarea in edit mode */
 lightning-textarea {
   width: 100%;
+}
+
+/* Agent Notes Label Styling */
+.slds-form-element__label.slds-text-align_center {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #080707;
+  margin-bottom: 0.5rem;
+  border: none;
+  padding-top: 0;
+}
+
+/* Remove border from form element containing Agent Notes */
+.slds-form-element {
+  border-top: none;
 }
 
 /* Success indicator */
@@ -330,13 +437,47 @@ lightning-textarea {
    ============================================ */
 
 .card-current:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--slds-g-shadow-4);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(1, 118, 211, 0.24);
 }
 
 .card-completed:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(46, 132, 74, 0.2);
+}
+
+.card-completed-negative:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(234, 0, 30, 0.2);
+}
+
+/* ============================================
+   CARD HEADER WITH TOGGLE
+   ============================================ */
+
+.card-header-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toggle-button-left {
+  flex-shrink: 0;
+  cursor: pointer;
+  order: -1;
+  margin-right: 0.25rem;
+}
+
+.header-icon {
+  flex-shrink: 0;
+  margin-left: 0.125rem;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #080707;
+  line-height: 1.25;
 }
 
 /* ============================================
@@ -346,6 +487,7 @@ lightning-textarea {
 .collapsible-content {
   transition: all 0.3s ease;
   overflow: hidden;
+  max-height: 10000px;
 }
 
 .collapsible-content.collapsed {
@@ -362,4 +504,181 @@ lightning-textarea {
 lightning-spinner {
   position: relative;
   z-index: 10;
+}
+
+/* ============================================
+   COUNTDOWN BAR (ORANGE)
+   ============================================ */
+
+.countdown-bar {
+  background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 50%, #ffd699 100%);
+  border: 2px solid #ff9900;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(255, 153, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer-bar 2s infinite;
+}
+
+@keyframes shimmer-bar {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.countdown-bar-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.countdown-icon {
+  flex-shrink: 0;
+  color: #ff9900;
+}
+
+.countdown-text-container {
+  flex-grow: 1;
+}
+
+.countdown-primary-text {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #7a4f01;
+  margin: 0 0 0.25rem 0;
+  line-height: 1.3;
+}
+
+.countdown-secondary-text {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #996a13;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ============================================
+   COUNTDOWN ANIMATION
+   ============================================ */
+
+/* Pulsing glow animation for locked attempts */
+@keyframes pulse-warning {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(254, 147, 57, 0);
+    border-color: #fe9339;
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.01);
+    box-shadow: 0 0 12px 2px rgba(254, 147, 57, 0.4);
+    border-color: #ffb75d;
+  }
+}
+
+/* Background shimmer for countdown bar */
+@keyframes shimmer-bg {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.card-locked .slds-theme_warning {
+  position: relative;
+  animation: pulse-warning 2.5s ease-in-out infinite;
+  border: 2px solid #fe9339;
+  background: linear-gradient(
+    90deg,
+    #ffe0cc 0%,
+    #ffd4b8 25%,
+    #ffc299 50%,
+    #ffd4b8 75%,
+    #ffe0cc 100%
+  );
+  background-size: 200% auto;
+  animation:
+    pulse-warning 2.5s ease-in-out infinite,
+    shimmer-bg 3s linear infinite;
+  overflow: hidden;
+}
+
+/* Shimmer overlay effect */
+.card-locked .slds-theme_warning::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  animation: shimmer-overlay 2s linear infinite;
+}
+
+@keyframes shimmer-overlay {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Text shimmer effect */
+@keyframes shimmer-text {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.card-locked .slds-theme_warning span {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    #8b4513 0%,
+    #fe9339 25%,
+    #ffd700 50%,
+    #fe9339 75%,
+    #8b4513 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer-text 2s linear infinite;
+  font-weight: 600;
 }

@@ -1,12 +1,12 @@
-Dear {!Case.ContactName},
+Dear {!Case.Successor__r.Name},
 
 We have made multiple attempts to reach you regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360.
 
 It has been approximately one month since we first contacted you. As the designated successor, your input is essential for handling the account assets properly. We want to ensure you understand your options and can make an informed decision.
 
 ACCOUNT INFORMATION:
-• Account Number: {!Case.FinancialAccount__r.Name}
-• Approximate Balance: {!Case.FinancialAccount__r.Balance__c}
+• Account Number: {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}
+• Approximate Balance: {!Case.FinServ__FinancialAccount__r.FinServ__Balance__c}
 • Case Number: {!Case.CaseNumber}
 • Days Since Initial Contact: 35+ days
 

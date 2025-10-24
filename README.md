@@ -23,11 +23,11 @@ Automated succession processing system managing deceased donor account transitio
 
 ### Apex Classes (3)
 
-| Class                          | Purpose                                    |
-| ------------------------------ | ------------------------------------------ |
-| `CaseHierarchyController`      | Visualize multi-successor case hierarchies |
-| `ContactCadenceController`     | Manage date-gated contact attempts         |
-| `SuccessionPublicFormController` | Guest user form submission handler       |
+| Class                            | Purpose                                    |
+| -------------------------------- | ------------------------------------------ |
+| `CaseHierarchyController`        | Visualize multi-successor case hierarchies |
+| `ContactCadenceController`       | Manage date-gated contact attempts         |
+| `SuccessionPublicFormController` | Guest user form submission handler         |
 
 ### Flow Automations (7)
 
@@ -36,10 +36,9 @@ Automated succession processing system managing deceased donor account transitio
 | `Case_Create_Initial_Contact_Attempt` | Creates first contact task on case creation |
 | `Task_Create_Next_Contact_Attempt`    | Auto-creates next task on completion        |
 | `Task_Succession_Contact_Update`      | Circuit breaker for contact established     |
-| `Case_Multiple_Successors_Handler`    | Multi-successor orchestration               |
-| `Case_Send_Succession_Form`           | Form delivery automation                    |
-| `Case_Succession_Segment_Transition`  | Pathway transitions                         |
-| `Case_Assign_Pathway_Action_Plan`     | Auto-assigns pathway-specific Action Plans  |
+| `Case_Parent_Closure_Handler`         | Multi-successor parent case auto-closure    |
+| `Case_Status_Coordination`            | Automatic Status field coordination         |
+| `Case_Succession_Segment_Transition`  | Pathway transitions and Chatter posts       |
 
 ### Lightning Web Components (12)
 
@@ -65,11 +64,11 @@ Automated succession processing system managing deceased donor account transitio
 
 Pathway-specific task templates auto-assigned when successors select their pathway:
 
-| Template                           | Tasks | Timeline |
-| ---------------------------------- | ----- | -------- |
-| `Succession_Final_Grant_Pathway`   | 5     | Day 2-20 |
-| `Succession_New_DAF_Account_Pathway` | 4   | Day 2-18 |
-| `Succession_Disclaim_Assets_Pathway` | 4   | Day 3-20 |
+| Template                             | Tasks | Timeline |
+| ------------------------------------ | ----- | -------- |
+| `Succession_Final_Grant_Pathway`     | 5     | Day 2-20 |
+| `Succession_New_DAF_Account_Pathway` | 4     | Day 2-18 |
+| `Succession_Disclaim_Assets_Pathway` | 4     | Day 3-20 |
 
 ### Custom Objects
 
@@ -120,16 +119,16 @@ Pathway-specific task templates auto-assigned when successors select their pathw
 
 ### Core Documentation
 
-| Document                                                | Description                                                          |
-| ------------------------------------------------------- | -------------------------------------------------------------------- |
-| [AGENTS.md](AGENTS.md)                                  | **Primary guide** - Commands, architecture, patterns                 |
-| [CLAUDE.md](CLAUDE.md)                                  | Legacy guide retained for reference                                  |
-| [docs/01-SYSTEM-ARCHITECTURE.md](docs/01-SYSTEM-ARCHITECTURE.md) | Complete system architecture and data model               |
-| [docs/02-DEPLOYMENT-AND-CICD.md](docs/02-DEPLOYMENT-AND-CICD.md) | Deployment procedures and CI/CD with CumulusCI            |
-| [docs/03-ADMIN-RUNBOOK.md](docs/03-ADMIN-RUNBOOK.md)   | Service Cloud setup, Email-to-Case, demo preparation                 |
-| [docs/04-FIELD-REFERENCE.md](docs/04-FIELD-REFERENCE.md) | Custom field definitions with Person Account notes                 |
-| [docs/05-TESTING-AND-DATA.md](docs/05-TESTING-AND-DATA.md) | Multi-successor testing and Snowfakery data generation         |
-| [docs/06-SECURITY.md](docs/06-SECURITY.md)              | Security audit, permissions, email compliance                        |
+| Document                                                         | Description                                            |
+| ---------------------------------------------------------------- | ------------------------------------------------------ |
+| [AGENTS.md](AGENTS.md)                                           | **Primary guide** - Commands, architecture, patterns   |
+| [CLAUDE.md](CLAUDE.md)                                           | Legacy guide retained for reference                    |
+| [docs/01-SYSTEM-ARCHITECTURE.md](docs/01-SYSTEM-ARCHITECTURE.md) | Complete system architecture and data model            |
+| [docs/02-DEPLOYMENT-AND-CICD.md](docs/02-DEPLOYMENT-AND-CICD.md) | Deployment procedures and CI/CD with CumulusCI         |
+| [docs/03-ADMIN-RUNBOOK.md](docs/03-ADMIN-RUNBOOK.md)             | Service Cloud setup, Email-to-Case, demo preparation   |
+| [docs/04-FIELD-REFERENCE.md](docs/04-FIELD-REFERENCE.md)         | Custom field definitions with Person Account notes     |
+| [docs/05-TESTING-AND-DATA.md](docs/05-TESTING-AND-DATA.md)       | Multi-successor testing and Snowfakery data generation |
+| [docs/06-SECURITY.md](docs/06-SECURITY.md)                       | Security audit, permissions, email compliance          |
 
 ### Diagrams
 
@@ -280,3 +279,20 @@ Proprietary - Schwab Charitable Fund
 **Version:** 1.0.0  
 **Last Updated:** October 2025  
 **Target Org:** schwab-sandbox (josh.rojas.charfsc@schwab.com.fscjosh)
+
+
+## Documentation
+
+[Read auto-generated documentation of the SFDX project](docs/index.md)
+
+## Doc HTML Pages
+
+To read the documentation as HTML pages, run the following code (you need [**Python**](https://www.python.org/downloads/) on your computer)
+
+```python
+pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists || python -m pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists || py -m pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists
+mkdocs serve -v || python -m mkdocs serve -v || py -m mkdocs serve -v
+```
+
+To just generate HTML pages that you can host anywhere, run `mkdocs build -v || python -m mkdocs build -v || py -m mkdocs build -v`
+

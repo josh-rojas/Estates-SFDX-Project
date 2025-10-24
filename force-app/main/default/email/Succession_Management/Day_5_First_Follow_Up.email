@@ -1,6 +1,6 @@
-Dear {!Case.ContactName},
+Dear {!Case.Successor__r.Name},
 
-We previously reached out to you on {!Case.CreatedDate} regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360.
+We previously reached out to you regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360.
 
 This is our first follow-up attempt to connect with you about this important matter.
 
@@ -8,8 +8,8 @@ TIME-SENSITIVE MATTER:
 As the designated successor, we need to speak with you about the options for handling this account. Your response is important to ensure the account assets are managed according to your wishes and in compliance with our organizational policies.
 
 ACCOUNT INFORMATION:
-• Account Number: {!Case.FinancialAccount__r.Name}
-• Approximate Balance: {!Case.FinancialAccount__r.Balance__c}
+• Account Number: {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}
+• Approximate Balance: {!Case.FinServ__FinancialAccount__r.FinServ__Balance__c}
 • Case Number: {!Case.CaseNumber}
 
 ACTION REQUIRED:

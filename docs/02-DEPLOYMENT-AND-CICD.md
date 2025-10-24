@@ -9,7 +9,7 @@
 ## Related Diagrams
 
 - Component Architecture (PlantUML): `diagrams/images/plantuml/component-architecture.png`
- - Data Model (ERD): `diagrams/images/erd/data-model.png`
+- Data Model (ERD): `diagrams/images/erd/data-model.png`
 - CI/CD Pipeline (PlantUML): `diagrams/images/plantuml/ci-cd-pipeline.png`
 
 ---
@@ -41,12 +41,14 @@ sf org assign permset --name Succession_Field_Access
 ### Successfully Deployed (67 components)
 
 **Apex Classes (8):**
+
 - CaseHierarchyController + Test
-- ContactCadenceController + Test  
+- ContactCadenceController + Test
 - SuccessionPublicFormController + Test
 - SuccessionTaskGenerator + Test (NEW - replaces Action Plan flow)
 
 **LWC Components (5):**
+
 - caseHierarchyViewer
 - recordPathwaySelection
 - successionAccountSummary
@@ -54,6 +56,7 @@ sf org assign permset --name Succession_Field_Access
 - successionPublicForm
 
 **Flows (8 of 10):**
+
 - Case_Create_Initial_Contact_Attempt
 - Case_Estate_Administration_Defaults
 - Case_Multiple_Successors_Handler
@@ -64,13 +67,16 @@ sf org assign permset --name Succession_Field_Access
 - Task_Succession_Contact_Update
 
 **Custom Fields:**
+
 - Case: 18 fields
-- Activity: 2 fields (Contact_Attempt_Number__c, Succession_Contact_Established__c)
+- Activity: 2 fields (Contact_Attempt_Number**c, Succession_Contact_Established**c)
 
 **Triggers (1):**
+
 - SuccessionCaseTrigger (auto-creates pathway tasks)
 
 **Other Metadata:**
+
 - Record Type: Case.EstateAdministration
 - Business Process: Estate_Administration
 - Permission Sets: All 3
@@ -80,20 +86,23 @@ sf org assign permset --name Succession_Field_Access
 ### Failed to Deploy (19 components)
 
 **Flows (2 - REPLACED WITH APEX):**
-- ~~Case_Assign_Pathway_Action_Plan~~ → ✅ REPLACED with SuccessionTaskGenerator
-- Case_Send_Succession_Form (field reference errors)
 
-**Quick Actions (4):**
-- Case.Begin_Succession_Processing
-- Case.Record_Pathway_Selection
-- Case.Send_Succession_Form
-- Case.Start_Contact_Cadence
+- ~~Case_Assign_Pathway_Action_Plan~~ → ✅ REPLACED with SuccessionTaskGenerator
+- ~~Case_Send_Succession_Form~~ → ✅ REPLACED with automatic email flow
+
+**Quick Actions (3 - REMOVED AS REDUNDANT):**
+
+- ~~Case.Mark_Contact_Established~~ → ✅ REPLACED by successionContactCadence LWC
+- ~~Case.Record_Contact_Attempt~~ → ✅ REPLACED by successionContactCadence LWC
+- ~~Case.Send_Succession_Form~~ → ✅ REPLACED with automatic email flow
 
 **Task Fields (2):**
-- Task.Contact_Attempt_Number__c (Activity version deployed successfully)
-- Task.Succession_Contact_Established__c (Activity version deployed successfully)
+
+- Task.Contact_Attempt_Number\_\_c (Activity version deployed successfully)
+- Task.Succession_Contact_Established\_\_c (Activity version deployed successfully)
 
 **Service Cloud Components (5 - NOT ESSENTIAL):**
+
 - Estate_Case_Channel
 - Estate_Email_Channel
 - Estate_Cases_Routing
@@ -101,10 +110,12 @@ sf org assign permset --name Succession_Field_Access
 - Estate_Succession_SLA
 
 **Experience Cloud (2 - NOT ESSENTIAL):**
+
 - Succession Portal (Network)
 - Succession_Portal (CustomSite)
 
 **Layout (1):**
+
 - Case-Estate Administration Layout (relatedList issue)
 
 ---
@@ -119,29 +130,29 @@ pip install cumulusci
 
 ### Available Flows
 
-| Flow | Description | Use Case |
-|------|-------------|----------|
-| `deploy_succession` | Full deployment with test data | Development/QA |
-| `deploy_succession_no_data` | Metadata + permissions only | Production/Staging |
-| `deploy_succession_incremental` | Fast incremental updates | Quick iterations |
-| `uninstall_succession` | Remove all components | Cleanup/reset |
+| Flow                            | Description                    | Use Case           |
+| ------------------------------- | ------------------------------ | ------------------ |
+| `deploy_succession`             | Full deployment with test data | Development/QA     |
+| `deploy_succession_no_data`     | Metadata + permissions only    | Production/Staging |
+| `deploy_succession_incremental` | Fast incremental updates       | Quick iterations   |
+| `uninstall_succession`          | Remove all components          | Cleanup/reset      |
 
 ### CI/CD Flows
 
-| Flow | Triggered By | Purpose |
-|------|--------------|---------|
-| `ci_succession_feature` | PR/feature branches | Feature validation |
-| `ci_succession_main` | Merge to main | Full test + deploy to sandbox |
-| `ci_succession_release` | Version tags (`v*.*.*`) | Production deployment |
+| Flow                    | Triggered By            | Purpose                       |
+| ----------------------- | ----------------------- | ----------------------------- |
+| `ci_succession_feature` | PR/feature branches     | Feature validation            |
+| `ci_succession_main`    | Merge to main           | Full test + deploy to sandbox |
+| `ci_succession_release` | Version tags (`v*.*.*`) | Production deployment         |
 
 ### Test Data Flows
 
-| Flow | Data Loaded | Purpose |
-|------|-------------|---------|
-| `succession_test_setup` | Basic succession cases | Standard testing |
-| `final_grant_test_setup` | Complete Final Grant pathway | Pathway testing |
-| `demo_setup` | UI demo data | LWC component testing |
-| `load_all_scenarios` | All test scenarios | Comprehensive testing |
+| Flow                     | Data Loaded                  | Purpose               |
+| ------------------------ | ---------------------------- | --------------------- |
+| `succession_test_setup`  | Basic succession cases       | Standard testing      |
+| `final_grant_test_setup` | Complete Final Grant pathway | Pathway testing       |
+| `demo_setup`             | UI demo data                 | LWC component testing |
+| `load_all_scenarios`     | All test scenarios           | Comprehensive testing |
 
 ### Example Commands
 
@@ -166,10 +177,11 @@ cci task run load_demo_ui_showcase --org my-sandbox
 ![CI/CD Pipeline (PlantUML)](diagrams/images/plantuml/ci-cd-pipeline.png)
 
 Legend
+
 - Triggers
-  - feature-ci.yml: PRs to main; pushes to feature/*, bugfix/*
+  - feature-ci.yml: PRs to main; pushes to feature/_, bugfix/_
   - main-ci.yml: pushes to main
-  - release.yml: tags v*.*.* (or manual dispatch)
+  - release.yml: tags v*.*.\* (or manual dispatch)
 - Target orgs
   - feature-ci.yml: Scratch Org (created from Dev Hub)
   - main-ci.yml: QA Scratch Org → deploy to Schwab Sandbox on success
@@ -181,6 +193,7 @@ Legend
 **Workflow:** `.github/workflows/feature-ci.yml`
 
 **Steps:**
+
 1. Create scratch org (7 days)
 2. Deploy & test (`ci_succession_feature`)
 3. Run code quality checks (PMD, security scan)
@@ -195,6 +208,7 @@ Legend
 **Workflow:** `.github/workflows/main-ci.yml`
 
 **Steps:**
+
 1. Create QA scratch org (30 days)
 2. Full deployment with test data
 3. Run comprehensive tests
@@ -204,6 +218,7 @@ Legend
 7. Comment deployment status on commit
 
 **Environments:**
+
 - `qa-main`: Scratch org for validation
 - `schwab-sandbox`: Persistent sandbox
 
@@ -213,6 +228,7 @@ Legend
 **Workflow:** `.github/workflows/release.yml`
 
 **Steps:**
+
 1. Create GitHub Release
 2. Validate deployment (check-only)
 3. ⚠️ **Request approval** (2 approvers required)
@@ -223,6 +239,7 @@ Legend
 8. Notify success/failure
 
 **Environments:**
+
 - `production`: Production org
 - `uat`: User acceptance testing
 - `staging`: Pre-production
@@ -237,13 +254,13 @@ Navigate to **Settings → Secrets and variables → Actions**
 
 **Required Secrets:**
 
-| Secret | Description | How to Generate |
-|--------|-------------|-----------------|
-| `DEVHUB_AUTH_URL` | Dev Hub authentication | `sf org display --verbose --json` |
-| `SANDBOX_AUTH_URL` | Sandbox authentication | `sf org display --verbose --json` |
-| `PROD_AUTH_URL` | Production authentication | `sf org display --verbose --json` |
-| `UAT_AUTH_URL` | UAT authentication | `sf org display --verbose --json` |
-| `PROD_APPROVERS` | Production approvers | `user1,user2` |
+| Secret             | Description               | How to Generate                   |
+| ------------------ | ------------------------- | --------------------------------- |
+| `DEVHUB_AUTH_URL`  | Dev Hub authentication    | `sf org display --verbose --json` |
+| `SANDBOX_AUTH_URL` | Sandbox authentication    | `sf org display --verbose --json` |
+| `PROD_AUTH_URL`    | Production authentication | `sf org display --verbose --json` |
+| `UAT_AUTH_URL`     | UAT authentication        | `sf org display --verbose --json` |
+| `PROD_APPROVERS`   | Production approvers      | `user1,user2`                     |
 
 **Generate Auth URL:**
 
@@ -260,16 +277,19 @@ sf org display --target-org my-org --verbose --json
 ### 2. Configure GitHub Environments
 
 **Sandbox Environment:**
+
 - Protection rules: None
 - Secrets: `SANDBOX_AUTH_URL`
 
 **Production Environment:**
+
 - Protection rules:
   - ✅ Required reviewers (2 minimum)
   - ✅ Wait timer (5 minutes)
 - Secrets: `PROD_AUTH_URL`, `PROD_APPROVERS`
 
 **UAT Environment:**
+
 - Protection rules: Required reviewers (1)
 - Secrets: `UAT_AUTH_URL`
 
@@ -354,6 +374,7 @@ cci task run assign_permission_sets \
 ### Why Retrieve Org Dependencies?
 
 **Benefits:**
+
 1. Pre-deployment validation locally
 2. Better IDE support (autocomplete, reference validation)
 3. Version control tracking
@@ -363,12 +384,15 @@ cci task run assign_permission_sets \
 ### Critical Dependencies
 
 **Case Record Types:**
+
 - `Case.EstateAdministration` - Used by flows, quick actions, layouts
 
 **Business Processes:**
+
 - `Estate_Administration` - Controls Status picklist values
 
 **Standard Picklist Values:**
+
 - `Case.Type` - Validates "Named Successor Enactment"
 - `Case.Status` - Validates workflow status values
 - `Case.Priority`, `Case.Origin` - Default values in auto-population flow
@@ -408,16 +432,19 @@ sf project retrieve start --metadata StandardValueSet:Case.Type,StandardValueSet
 ### Immediate Actions
 
 **1. Automated Pathway Task Creation**
+
 - ✅ **AUTOMATED** via SuccessionTaskGenerator trigger
 - Sets `Pathway_Confirmed__c` → Auto-creates 4-5 pathway tasks
 - No manual action required
 
 **2. Email Automation (OPTIONAL)**
+
 - Email sending flow has errors
 - **Workaround:** Send "Pathway_Form_Invitation" email template manually
 - Time cost: ~30 seconds per case
 
 **3. Add Related Lists to Layout (OPTIONAL)**
+
 - Setup → Object Manager → Case → Page Layouts
 - Edit "Estate Administration Layout"
 - Add required related lists (Cases, Activities, Files)
@@ -425,11 +452,13 @@ sf project retrieve start --metadata StandardValueSet:Case.Type,StandardValueSet
 ### Optional Configuration
 
 **4. Service Cloud Setup:**
+
 - Enable Omni-Channel routing
 - Configure Service Channels manually
 - Set up Entitlement Processes
 
 **5. Experience Cloud Setup:**
+
 - Create/configure Succession Portal site manually
 - Assign guest user permissions
 
@@ -490,6 +519,7 @@ cci task run assign_permission_sets \
 ### Issue: CI/CD Pipeline Fails
 
 **Check:**
+
 1. GitHub Secrets configured correctly
 2. SFDX Auth URLs are valid
 3. Dev Hub has scratch org capacity
@@ -497,6 +527,7 @@ cci task run assign_permission_sets \
 5. Required approvers configured
 
 **View Logs:**
+
 - GitHub Actions → Workflow run → Job → Step logs
 
 ---

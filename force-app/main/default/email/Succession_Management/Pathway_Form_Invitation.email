@@ -1,4 +1,4 @@
-Dear {!Case.Contact.Name},
+Dear {!Case.Successor__r.Name},
 
 We are writing to inform you that you have been named as a successor for the Donor-Advised Fund account held by {!Case.Account.Name}. We extend our sincere condolences during this difficult time.
 
@@ -17,9 +17,11 @@ You have three pathway options available to you:
 COMPLETE YOUR PATHWAY SELECTION:
 Please use the secure online form below to make your pathway selection and provide required information:
 
-👉 COMPLETE PATHWAY FORM: [Form URL will be added here]
+👉 COMPLETE PATHWAY FORM: [Your case manager will provide the secure form link]
 
 The form will take approximately 10-15 minutes to complete and will be pre-filled with account information.
+
+Note: The secure form link is unique to your case and will be provided during our phone conversation or via a separate secure message.
 
 PHONE FOLLOW-UP:
 Our Estate Administration team will call you within the next 3-5 business days to:

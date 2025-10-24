@@ -40,8 +40,6 @@ export default class CreateSuccessionCase extends NavigationMixin(
    * Call Apex method to create succession case
    */
   createCase() {
-    console.log("createCase called with recordId:", this.recordId);
-
     if (!this.recordId) {
       this.showErrorToast("No Financial Account ID provided");
       return;
@@ -53,7 +51,6 @@ export default class CreateSuccessionCase extends NavigationMixin(
 
     createSuccessionCase({ financialAccountId: this.recordId })
       .then((result) => {
-        console.log("Apex result:", result);
         this.result = result;
         this.isLoading = false;
 
@@ -64,7 +61,6 @@ export default class CreateSuccessionCase extends NavigationMixin(
         }
       })
       .catch((error) => {
-        console.error("Apex error caught:", error);
         this.error = error;
         this.isLoading = false;
 
@@ -118,19 +114,14 @@ export default class CreateSuccessionCase extends NavigationMixin(
    * Navigate to the created case record
    */
   navigateToCase(caseId) {
-    try {
-      this[NavigationMixin.Navigate]({
-        type: "standard__recordPage",
-        attributes: {
-          recordId: caseId,
-          objectApiName: "Case",
-          actionName: "view"
-        }
-      });
-    } catch (error) {
-      console.error("Error navigating to case:", error);
-      // Don't show error to user - case was created successfully
-    }
+    this[NavigationMixin.Navigate]({
+      type: "standard__recordPage",
+      attributes: {
+        recordId: caseId,
+        objectApiName: "Case",
+        actionName: "view"
+      }
+    });
   }
 
   /**
@@ -191,6 +182,6 @@ export default class CreateSuccessionCase extends NavigationMixin(
    */
   handleClose() {
     // Close the Quick Action modal
-    this.dispatchEvent(new CustomEvent("close"));
+    this.dispatchEvent(new CloseActionScreenEvent());
   }
 }

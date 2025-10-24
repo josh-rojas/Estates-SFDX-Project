@@ -1,12 +1,12 @@
-Dear {!Case.ContactName},
+Dear {!Case.Successor__r.Name},
 
 This is our final attempt to reach you regarding the Donor-Advised Fund account held by {!Case.Account.Name}.
 
 We have attempted to contact you five times over the past three months regarding your role as successor for this account. We have not yet received a response.
 
 ACCOUNT INFORMATION:
-• Account Number: {!Case.FinancialAccount__r.Name}
-• Approximate Balance: {!Case.FinancialAccount__r.Balance__c}
+• Account Number: {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}
+• Approximate Balance: {!Case.FinServ__FinancialAccount__r.FinServ__Balance__c}
 • Case Number: {!Case.CaseNumber}
 • Days Since Initial Contact: 95+ days
 • Contact Attempts: 5
@@ -17,7 +17,7 @@ If we do not receive contact from you within 7 business days, we will proceed wi
 • Assets will be distributed according to the original donor's stated charitable preferences
 • This will be our last communication regarding your successor designation
 
-We encourage you to contact us at 1-800-746-2227 or reply to this email by {!TODAY() + 7} if you would like to discuss your options.
+We encourage you to contact us at 1-800-746-2227 or reply to this email within 7 business days of receiving this email if you would like to discuss your options.
 
 We have made every reasonable effort to reach you and remain available to assist you.
 

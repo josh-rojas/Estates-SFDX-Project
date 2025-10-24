@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- Apex Classes - Include new Quick Action controller -->
+    <!-- Apex Classes -->
     <types>
+        <members>BeginSuccessionProcessingController</members>
+        <members>BeginSuccessionProcessingControllerTest</members>
+        <members>CaseHierarchyController</members>
+        <members>CaseHierarchyController_Test</members>
+        <members>ContactCadenceController</members>
+        <members>ContactCadenceController_Test</members>
         <members>CreateSuccessionCaseController</members>
         <members>CreateSuccessionCaseControllerTest</members>
+        <members>SuccessionPublicFormController</members>
+        <members>SuccessionPublicFormController_Test</members>
+        <members>SuccessionTaskGenerator</members>
+        <members>SuccessionTaskGenerator_Test</members>
         <name>ApexClass</name>
+    </types>
+    
+    <!-- Triggers -->
+    <types>
+        <members>SuccessionCaseTrigger</members>
+        <name>ApexTrigger</name>
     </types>
     
     <!-- Lightning Web Components -->
@@ -18,10 +34,9 @@
         <name>LightningComponentBundle</name>
     </types>
     
-    <!-- Flows - Deploy core flows -->
+    <!-- Flows - Deploy active flows only (2 flows deleted Oct 2025) -->
     <types>
         <members>Case_Create_Initial_Contact_Attempt</members>
-        <members>Case_Multiple_Successors_Handler</members>
         <members>Case_Parent_Closure_Handler</members>
         <members>Case_Status_Coordination</members>
         <members>Case_Succession_Segment_Transition</members>
@@ -30,11 +45,12 @@
         <name>Flow</name>
     </types>
     
-    <!-- Custom Fields - Case (12 fields actively used by flows/LWCs) -->
+    <!-- Custom Fields - Case (13 fields actively used by flows/LWCs) -->
     <types>
         <members>Case.Contact_Attempt_Count__c</members>
         <members>Case.Contact_Established__c</members>
         <members>Case.Contact_Established_Date__c</members>
+        <members>Case.Deceased_Donor__c</members>
         <members>Case.Execution_Status__c</members>
         <members>Case.Form_Completed_Date__c</members>
         <members>Case.Form_Sent_Date__c</members>
@@ -79,10 +95,10 @@
         <name>FlexiPage</name>
     </types>
     
-    <!-- Quick Actions - Include new FinancialAccount Quick Action -->
+    <!-- Quick Actions - Active Quick Actions only -->
     <types>
-        <members>Case.Mark_Contact_Established</members>
-        <members>Case.Record_Contact_Attempt</members>
+        <members>Case.Begin_Succession_Processing</members>
+        <members>Case.Record_Pathway_Selection</members>
         <members>FinServ__FinancialAccount__c.Create_Succession_Case</members>
         <name>QuickAction</name>
     </types>

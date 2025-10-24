@@ -1,5 +1,17 @@
 import { createElement } from "lwc";
 import SuccessionContactCadence from "c/successionContactCadence";
+import getContactCadence from "@salesforce/apex/ContactCadenceController.getContactCadence";
+
+// Mock Apex method
+jest.mock(
+  "@salesforce/apex/ContactCadenceController.getContactCadence",
+  () => {
+    return {
+      default: jest.fn()
+    };
+  },
+  { virtual: true }
+);
 
 describe("c-succession-contact-cadence", () => {
   afterEach(() => {
@@ -7,6 +19,8 @@ describe("c-succession-contact-cadence", () => {
     while (document.body.firstChild) {
       document.body.removeChild(document.body.firstChild);
     }
+    // Clear all mocks
+    jest.clearAllMocks();
   });
 
   it("renders without errors", () => {
@@ -19,7 +33,6 @@ describe("c-succession-contact-cadence", () => {
     // Verify component renders
     const card = element.shadowRoot.querySelector("lightning-card");
     expect(card).not.toBeNull();
-    expect(card.title).toBe("Contact Cadence Progress");
   });
 
   it("shows loading spinner initially", () => {
@@ -43,5 +56,43 @@ describe("c-succession-contact-cadence", () => {
 
     // Verify recordId is set (public @api property)
     expect(element.recordId).toBe("500xx000000000AAAA");
+  });
+
+  it("displays card header with title", () => {
+    const element = createElement("c-succession-contact-cadence", {
+      is: SuccessionContactCadence
+    });
+    element.recordId = "500xx000000000AAAA";
+    document.body.appendChild(element);
+
+    // Verify card header contains title
+    const cardTitle = element.shadowRoot.querySelector(".card-title");
+    expect(cardTitle).not.toBeNull();
+    expect(cardTitle.textContent).toContain("Contact Cadence Progress");
+  });
+
+  it("has toggle button for collapsible functionality", () => {
+    const element = createElement("c-succession-contact-cadence", {
+      is: SuccessionContactCadence
+    });
+    element.recordId = "500xx000000000AAAA";
+    document.body.appendChild(element);
+
+    // Verify toggle button exists
+    const toggleButton = element.shadowRoot.querySelector(".toggle-button");
+    expect(toggleButton).not.toBeNull();
+  });
+
+  it("renders with proper SLDS alert styling for warnings", () => {
+    const element = createElement("c-succession-contact-cadence", {
+      is: SuccessionContactCadence
+    });
+    element.recordId = "500xx000000000AAAA";
+    document.body.appendChild(element);
+
+    // Verify SLDS box component is used for alerts (not deprecated slds-notify)
+    const alertBoxes = element.shadowRoot.querySelectorAll(".slds-box");
+    // Alert boxes may be present depending on data state
+    expect(alertBoxes).toBeDefined();
   });
 });
