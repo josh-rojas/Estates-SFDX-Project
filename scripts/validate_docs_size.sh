@@ -9,6 +9,7 @@
 #   SR_NAME        - Static Resource name for messages (default: SfdxHardis_MkDocsSite_CICD)
 #   ZIP_FILE       - path for temporary zip (default: mktemp)
 #   FAIL_ON_LIMIT  - if 'true'|'yes'|'1', exit 1 when over limit (default: true)
+#   STRICT         - if 'true'|'yes'|'1', fail when size cannot be evaluated (default: false)
 #
 # Usage:
 #   # After `mkdocs build` has produced ./site
@@ -16,6 +17,9 @@
 #
 #   # Custom threshold or site dir (warn-only mode)
 #   FAIL_ON_LIMIT=false SITE_DIR=site MAX_MB=5 scripts/validate_docs_size.sh
+#
+#   # Strict CI example (fail on unknowns and on limit)
+#   STRICT=true FAIL_ON_LIMIT=true mkdocs build -v && STRICT=true scripts/validate_docs_size.sh
 
 set -u
 
@@ -48,6 +52,15 @@ info() {
   echo "$1"
 }
 
+# error helper with GitHub Actions annotation
+err() {
+  local msg="$1"
+  if [ -n "${GITHUB_ACTIONS:-}" ]; then
+    echo "::error ::${msg}"
+  fi
+  echo "ERROR: ${msg}" 1>&2
+}
+
 # truthy helper for environment booleans
 is_truthy() {
   case "$1" in
@@ -58,10 +71,18 @@ is_truthy() {
 
 # 0) Preconditions
 if [ ! -d "$SITE_DIR" ]; then
+  if is_truthy "${STRICT:-false}"; then
+    err "Docs size check: site dir '$SITE_DIR' not found. Strict mode enabled; failing."
+    exit 1
+  fi
   info "Docs size check: site dir '$SITE_DIR' not found. Skipping validation (no failure)."
   exit 0
 fi
 if ! command -v zip >/dev/null 2>&1; then
+  if is_truthy "${STRICT:-false}"; then
+    err "'zip' command not found. Strict mode enabled; failing."
+    exit 1
+  fi
   warn "'zip' command not found. Skipping zipped size validation. Consider installing zip to enable accurate pre-checks."
   exit 0
 fi
@@ -70,6 +91,10 @@ fi
 (
   cd "$SITE_DIR" && zip -r -q -X "$ZIP_FILE" .
 ) || {
+  if is_truthy "${STRICT:-false}"; then
+    err "Failed to zip site directory '$SITE_DIR'. Strict mode enabled; failing."
+    exit 1
+  fi
   warn "Failed to zip site directory '$SITE_DIR'. Skipping validation (no failure)."
   exit 0
 }
@@ -81,6 +106,11 @@ if stat -f%z "$ZIP_FILE" >/dev/null 2>&1; then
 elif stat -c%s "$ZIP_FILE" >/dev/null 2>&1; then
   SIZE_BYTES=$(stat -c%s "$ZIP_FILE")
 else
+  if is_truthy "${STRICT:-false}"; then
+    err "Could not determine zip size (stat not available). Strict mode enabled; failing."
+    rm -f "$ZIP_FILE"
+    exit 1
+  fi
   warn "Could not determine zip size (stat not available). Skipping validation."
   rm -f "$ZIP_FILE"
   exit 0
