@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 # Validate MkDocs site zip size before uploading as a Salesforce Static Resource
-# - Warns (does not fail) if the zipped site exceeds the 5 MB Static Resource limit
+# - Fails or warns if the zipped site exceeds the 5 MB Static Resource limit
 # - Emits GitHub Actions warnings/outputs when possible
 #
 # Env vars (optional):
-#   SITE_DIR   - directory containing built MkDocs site (default: site)
-#   MAX_MB     - MB threshold (default: 5)
-#   SR_NAME    - Static Resource name for messages (default: SfdxHardis_MkDocsSite_CICD)
-#   ZIP_FILE   - path for temporary zip (default: mktemp)
+#   SITE_DIR       - directory containing built MkDocs site (default: site)
+#   MAX_MB         - MB threshold (default: 5)
+#   SR_NAME        - Static Resource name for messages (default: SfdxHardis_MkDocsSite_CICD)
+#   ZIP_FILE       - path for temporary zip (default: mktemp)
+#   FAIL_ON_LIMIT  - if 'true'|'yes'|'1', exit 1 when over limit (default: true)
 #
 # Usage:
 #   # After `mkdocs build` has produced ./site
 #   scripts/validate_docs_size.sh
 #
-#   # Custom threshold or site dir
-#   SITE_DIR=site MAX_MB=5 scripts/validate_docs_size.sh
+#   # Custom threshold or site dir (warn-only mode)
+#   FAIL_ON_LIMIT=false SITE_DIR=site MAX_MB=5 scripts/validate_docs_size.sh
 
 set -u
 
@@ -45,6 +46,14 @@ warn() {
 
 info() {
   echo "$1"
+}
+
+# truthy helper for environment booleans
+is_truthy() {
+  case "$1" in
+    [Tt][Rr][Uu][Ee]|[Yy]|[Yy][Ee][Ss]|1) return 0 ;;
+    *) return 1 ;;
+  esac
 }
 
 # 0) Preconditions
@@ -97,9 +106,16 @@ if [ -n "${GITHUB_OUTPUT:-}" ]; then
   } >> "$GITHUB_OUTPUT"
 fi
 
-# 5) Warn or info
+# 5) Warn or info; optionally fail when over the limit
 if [ "$SIZE_BYTES" -gt "$THRESHOLD_BYTES" ]; then
-  warn "Doc package size ${SIZE_MB} MB exceeds ${LIMIT_MB} MB limit. ${SR_NAME} Static Resource upload will fail in Salesforce. Consider removing large assets or slimming the site before upload."
+  warn "Doc package size ${SIZE_MB} MB exceeds ${LIMIT_MB} MB limit. ${SR_NAME} Static Resource upload will fail in Salesforce."
+  # Decide whether to fail the pipeline based on FAIL_ON_LIMIT (default: true)
+  FAIL_ON_LIMIT=${FAIL_ON_LIMIT:-true}
+  if is_truthy "$FAIL_ON_LIMIT"; then
+    # Cleanup temp zip before exiting
+    rm -f "$ZIP_FILE" >/dev/null 2>&1 || true
+    exit 1
+  fi
 else
   info "Doc package size ${SIZE_MB} MB within ${LIMIT_MB} MB limit. Proceeding."
 fi
@@ -107,6 +123,6 @@ fi
 # 6) Cleanup temp zip but keep data emitted above
 rm -f "$ZIP_FILE" >/dev/null 2>&1 || true
 
-# Always succeed (warn-only behavior)
+# Succeed (warn-only mode or within limit)
 exit 0
 
