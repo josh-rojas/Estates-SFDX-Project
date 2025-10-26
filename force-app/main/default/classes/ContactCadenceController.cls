@@ -650,7 +650,16 @@ public with sharing class ContactCadenceController {
     }
   }
 
-  // TODO: Implement ContentNote query and extractUserNotes method later
+  /**
+   * IMPLEMENTATION NOTE: ContentNote Integration (COMPLETE)
+   * ========================================================
+   * ContentNotes are automatically created when saving attempt outcomes (createContactAttemptNote method below).
+   * Notes are queried and displayed on each attempt card via:
+   * 1. queryAndMapNotes() - Queries ContentVersion records linked to Case
+   * 2. extractUserNotesFromContent() - Extracts user notes from formatted content
+   * 3. TaskAttemptData.userNotes - Populated with extracted notes (buildAttemptData method)
+   * 4. LWC displays notes in read-only section of completed attempt cards
+   */
 
   /**
    * Create a ContentNote record for the contact attempt

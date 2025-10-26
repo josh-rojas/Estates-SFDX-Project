@@ -25,10 +25,10 @@
     
     <!-- Lightning Web Components -->
     <types>
+        <members>beginSuccessionProcessing</members>
         <members>caseHierarchyViewer</members>
         <members>createSuccessionCase</members>
         <members>recordPathwaySelection</members>
-        <members>successionAccountSummary</members>
         <members>successionContactCadence</members>
         <members>successionPublicForm</members>
         <name>LightningComponentBundle</name>
