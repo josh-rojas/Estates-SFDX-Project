@@ -14,6 +14,8 @@
         <members>SuccessionPublicFormController_Test</members>
         <members>SuccessionTaskGenerator</members>
         <members>SuccessionTaskGenerator_Test</members>
+        <members>SuccessionUtilities</members>
+        <members>SuccessionUtilities_Test</members>
         <name>ApexClass</name>
     </types>
     
