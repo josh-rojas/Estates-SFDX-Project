@@ -337,25 +337,15 @@ public with sharing class ContactCadenceController {
 
   /**
    * Extract attempt number from ContentNote title
+   * Uses SuccessionUtilities for string parsing
    * Returns null if parsing fails
    */
   private static Integer extractAttemptNumberFromTitle(String title) {
-    try {
-      String[] parts = title.split('Succession Contact Attempt ');
-      if (parts.size() <= 1) {
-        return null;
-      }
-
-      String[] attemptParts = parts[1].split(' - ');
-      if (attemptParts.size() == 0) {
-        return null;
-      }
-
-      return Integer.valueOf(attemptParts[0]);
-    } catch (Exception e) {
-      System.debug('Error parsing attempt number from title: ' + title);
-      return null;
-    }
+    return SuccessionUtilities.extractIntegerFromDelimitedString(
+      title,
+      'Succession Contact Attempt ',
+      ' - '
+    );
   }
 
   /**
@@ -597,11 +587,19 @@ public with sharing class ContactCadenceController {
       // Wrapped in try-catch to handle test context where ContentNote/FeedItem may have limitations
       if (String.isNotBlank(notes)) {
         try {
-          createContactAttemptNote(
-            caseId,
+          // Use shared utility for ContentNote creation
+          String noteTitle = SuccessionUtilities.buildContactAttemptNoteTitle(
+            attemptNumber
+          );
+          String noteBody = SuccessionUtilities.buildContactAttemptNoteBody(
             attemptNumber,
             contactEstablished,
             notes
+          );
+          SuccessionUtilities.createLinkedContentNote(
+            caseId,
+            noteTitle,
+            noteBody
           );
         } catch (Exception noteEx) {
           // Log but don't fail - ContentNote creation is supplementary
@@ -611,7 +609,13 @@ public with sharing class ContactCadenceController {
         }
 
         try {
-          createChatterPost(caseId, attemptNumber, contactEstablished, notes);
+          // Use shared utility for Chatter post creation
+          String postBody = SuccessionUtilities.buildContactAttemptPostBody(
+            attemptNumber,
+            contactEstablished,
+            notes
+          );
+          SuccessionUtilities.createChatterPost(caseId, postBody, false);
         } catch (Exception chatterEx) {
           // Log but don't fail - Chatter post creation is supplementary
           System.debug(
@@ -650,243 +654,62 @@ public with sharing class ContactCadenceController {
     }
   }
 
-  // TODO: Implement ContentNote query and extractUserNotes method later
-
   /**
-   * Create a ContentNote record for the contact attempt
-   * DEMO: Suppressing CRUD and parameter list warnings for demo environment
+   * IMPLEMENTATION NOTE: ContentNote Integration (COMPLETE)
+   * ========================================================
+   * ContentNotes are automatically created when saving attempt outcomes via SuccessionUtilities.
+   * Notes are queried and displayed on each attempt card via:
+   * 1. queryAndMapNotes() - Queries ContentVersion records linked to Case
+   * 2. SuccessionUtilities.extractSectionContent() - Extracts user notes from formatted content
+   * 3. TaskAttemptData.userNotes - Populated with extracted notes (buildAttemptData method)
+   * 4. LWC displays notes in read-only section of completed attempt cards
    *
-   * @param caseId - Case record ID
-   * @param attemptNumber - Attempt number (1-5)
-   * @param contactEstablished - Whether contact was established
-   * @param noteContent - Note content
+   * NOTE: createContactAttemptNote and createChatterPost methods moved to SuccessionUtilities
    */
-  @SuppressWarnings('PMD.ExcessiveParameterList')
-  private static void createContactAttemptNote(
-    Id caseId,
-    Integer attemptNumber,
-    Boolean contactEstablished,
-    String noteContent
-  ) {
-    // Format timestamp for note title and content
-    DateTime now = DateTime.now();
-    String formattedDate = now.format('yyyy-MM-dd HH:mm:ss');
-    String dateOnly = now.format('yyyy-MM-dd');
-
-    // Determine outcome label
-    String outcomeLabel = contactEstablished
-      ? 'Contact Established'
-      : 'Contact Not Established';
-
-    // Create note title
-    String noteTitle =
-      'Succession Contact Attempt ' +
-      attemptNumber +
-      ' - ' +
-      dateOnly;
-
-    // Create note body with structured format
-    String noteBody = '========================================\n';
-    noteBody += 'SUCCESSION CONTACT ATTEMPT #' + attemptNumber + '\n';
-    noteBody += '========================================\n\n';
-    noteBody += 'Date/Time: ' + formattedDate + '\n';
-    noteBody += 'Outcome: ' + outcomeLabel + '\n\n';
-    noteBody += '----------------------------------------\n';
-    noteBody += 'NOTES:\n';
-    noteBody += '----------------------------------------\n\n';
-    noteBody += noteContent;
-
-    // Create ContentNote
-    ContentNote note = new ContentNote();
-    note.Title = noteTitle;
-    note.Content = Blob.valueOf(noteBody);
-    insert note;
-
-    System.debug('DEBUG: Created ContentNote with Title: ' + noteTitle);
-    System.debug('DEBUG: ContentNote Id: ' + note.Id);
-    System.debug('DEBUG: Note content preview: ' + noteBody.substring(0, Math.min(100, noteBody.length())));
-
-    // Link note to Case
-    // Query ContentDocument using LatestPublishedVersionId (ContentNote is a version)
-    ContentDocument doc = [
-      SELECT Id
-      FROM ContentDocument
-      WHERE LatestPublishedVersionId = :note.Id
-      LIMIT 1
-    ];
-
-    System.debug('DEBUG: Found ContentDocument Id: ' + doc.Id);
-
-    ContentDocumentLink cdl = new ContentDocumentLink();
-    cdl.ContentDocumentId = doc.Id;
-    cdl.LinkedEntityId = caseId;
-    cdl.ShareType = 'V'; // Viewer permission
-    cdl.Visibility = 'AllUsers'; // Visible to all users with access to the record
-    insert cdl;
-
-    System.debug('DEBUG: Created ContentDocumentLink to Case: ' + caseId);
-  }
-
-  /**
-   * Create a Chatter post on the Case for the contact attempt
-   * DEMO: Suppressing CRUD and parameter list warnings for demo environment
-   *
-   * @param caseId - Case record ID
-   * @param attemptNumber - Attempt number (1-5)
-   * @param contactEstablished - Whether contact was established
-   * @param noteContent - Note content
-   */
-  @SuppressWarnings('PMD.ExcessiveParameterList')
-  private static void createChatterPost(
-    Id caseId,
-    Integer attemptNumber,
-    Boolean contactEstablished,
-    String noteContent
-  ) {
-    // Format timestamp and outcome
-    DateTime now = DateTime.now();
-    String formattedDateTime = now.format('MM/dd/yyyy HH:mm');
-    String outcomeEmoji = contactEstablished ? '✅' : '❌';
-    String outcomeText = contactEstablished
-      ? 'Contact Established'
-      : 'Contact Not Established';
-
-    // Build Chatter post body
-    String postBody = String.format(
-      '{0} Succession Contact Attempt {1}\n\n' +
-        'Time: {2}\n' +
-        'Outcome: {3}\n\n' +
-        'Agent Notes:\n{4}',
-      new List<String>{
-        outcomeEmoji,
-        String.valueOf(attemptNumber),
-        formattedDateTime,
-        outcomeText,
-        noteContent
-      }
-    );
-
-    // Create FeedItem (Chatter post)
-    FeedItem post = new FeedItem();
-    post.ParentId = caseId;
-    post.Body = postBody;
-    post.Type = 'TextPost';
-    insert post;
-  }
 
   /**
    * Validate email address existence, format, and opt-out status
-   * DEMO: Suppressing CRUD warnings for demo environment
+   * Uses SuccessionUtilities for email validation logic
    *
-   * @param parentCase - Case record with Account and Contact relationships
+   * @param parentCase - Case record with Successor__c field
    * @param cadenceData - ContactCadenceData to populate with email validation results
    */
-  @SuppressWarnings('PMD.ApexCRUDViolation')
   private static void validateEmailAddress(
     Case parentCase,
     ContactCadenceData cadenceData
   ) {
-    String email = null;
-    Boolean optedOut = false;
+    // Query successor contact for email validation
+    Contact successor = SuccessionUtilities.querySuccessorContact(
+      parentCase.Successor__c
+    );
 
-    // SUCCESSION FIX: Always use Successor Contact for email validation
-    if (parentCase.Successor__c != null) {
-      // Query the Successor Contact for email validation
-      List<Contact> successorContacts = [
-        SELECT Email, HasOptedOutOfEmail
-        FROM Contact
-        WHERE Id = :parentCase.Successor__c
-        LIMIT 1
-      ];
+    // Use SuccessionUtilities to validate email
+    SuccessionUtilities.EmailValidationResult result = SuccessionUtilities.validateEmail(
+      successor?.Email,
+      successor?.HasOptedOutOfEmail
+    );
 
-      if (!successorContacts.isEmpty()) {
-        email = successorContacts[0].Email;
-        optedOut = successorContacts[0].HasOptedOutOfEmail == true;
-      }
-    }
-
-    // Check if email exists and is not blank
-    cadenceData.hasEmail = String.isNotBlank(email);
-    cadenceData.emailAddress = email;
-    cadenceData.hasOptedOut = optedOut;
-
-    // Validate email format using regex (basic RFC 5322 pattern)
-    // Pattern matches: local-part@domain.tld
-    if (cadenceData.hasEmail) {
-      String emailPattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
-      cadenceData.hasValidEmailFormat = Pattern.matches(emailPattern, email);
-    } else {
-      cadenceData.hasValidEmailFormat = false;
-    }
-
-    // Build warning message for UI
-    List<String> warnings = new List<String>();
-
-    if (optedOut) {
-      warnings.add(
-        '⚠️ Successor has opted out of email. Contact by phone only.'
-      );
-    }
-
-    if (!cadenceData.hasEmail) {
-      warnings.add('No email address on file for this successor.');
-    } else if (!cadenceData.hasValidEmailFormat) {
-      warnings.add('Email address format appears invalid: ' + email);
-    }
-
-    // Set warning message (null if no issues)
-    cadenceData.emailWarning = warnings.isEmpty()
-      ? null
-      : String.join(warnings, ' ');
+    // Populate cadenceData with validation results
+    cadenceData.emailAddress = result.email;
+    cadenceData.hasEmail = result.hasEmail;
+    cadenceData.hasValidEmailFormat = result.hasValidFormat;
+    cadenceData.hasOptedOut = result.hasOptedOut;
+    cadenceData.emailWarning = result.warning;
   }
 
   /**
    * Extract user notes from ContentNote content
-   * ContentNote content is stored with structured format:
-   * ========================================
-   * SUCCESSION CONTACT ATTEMPT #X
-   * ========================================
-   * Date/Time: ...
-   * Outcome: ...
-   * ----------------------------------------
-   * NOTES:
-   * ----------------------------------------
-   * [USER NOTES HERE]
+   * Uses SuccessionUtilities for section extraction
+   * ContentNote content has structured format with "NOTES:" section
    *
    * @param fullContent - Full content from ContentNote
    * @return Extracted user notes
    */
   private static String extractUserNotesFromContent(String fullContent) {
-    if (String.isBlank(fullContent)) {
-      return '';
-    }
-
-    // Find the "NOTES:" section
-    Integer notesIndex = fullContent.indexOf('NOTES:');
-    if (notesIndex == -1) {
-      return '';
-    }
-
-    // Find the next line after "NOTES:" header
-    Integer startIndex = fullContent.indexOf('\n', notesIndex);
-    if (startIndex == -1) {
-      return '';
-    }
-
-    // Skip the dashes line after NOTES:
-    startIndex = fullContent.indexOf('\n', startIndex + 1);
-    if (startIndex == -1) {
-      return '';
-    }
-
-    // Skip the blank line
-    startIndex = fullContent.indexOf('\n', startIndex + 1);
-    if (startIndex == -1) {
-      return '';
-    }
-
-    // Extract everything after the blank line as user notes
-    String userNotes = fullContent.substring(startIndex + 1).trim();
-    return userNotes;
+    return SuccessionUtilities.extractSectionContent(
+      fullContent,
+      'NOTES:',
+      3 // Skip 3 lines: dashes, blank line, start of content
+    );
   }
 }

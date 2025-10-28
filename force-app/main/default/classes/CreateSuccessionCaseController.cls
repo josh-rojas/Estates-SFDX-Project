@@ -68,14 +68,16 @@ public with sharing class CreateSuccessionCaseController {
         );
       }
 
-      // Validate allocation totals
-      String allocationError = validateSuccessorAllocations(successors);
+      // Validate allocation totals using SuccessionUtilities
+      String allocationError = SuccessionUtilities.validateSuccessorAllocations(
+        successors
+      );
       if (String.isNotBlank(allocationError)) {
         return createErrorResult(allocationError);
       }
 
-      // Get Estate Administration record type
-      Id estateAdminRecordTypeId = getEstateAdministrationRecordTypeId();
+      // Get Estate Administration record type (cached for performance)
+      Id estateAdminRecordTypeId = SuccessionUtilities.getEstateAdministrationRecordTypeId();
       if (estateAdminRecordTypeId == null) {
         return createErrorResult('Estate Administration record type not found');
       }
@@ -405,70 +407,6 @@ public with sharing class CreateSuccessionCaseController {
     return decision.getRecords();
   }
 
-  /**
-   * Validate that successor allocations sum to 100%
-   * If all allocations are null, equal split is assumed (valid)
-   * Partial allocations (some set, some null) are NOT allowed
-   *
-   * @param successors - List of successor FinancialAccountRole records
-   * @return Error message if validation fails, null if valid
-   */
-  private static String validateSuccessorAllocations(
-    List<FinServ__FinancialAccountRole__c> successors
-  ) {
-    // Count how many successors have allocations set
-    Integer allocatedCount = 0;
-    Decimal totalAllocation = 0;
-
-    for (FinServ__FinancialAccountRole__c s : successors) {
-      if (s.SuccessorAllocation__c != null) {
-        allocatedCount++;
-        totalAllocation += s.SuccessorAllocation__c;
-      }
-    }
-
-    // If no allocations are set, assume equal split (valid scenario)
-    if (allocatedCount == 0) {
-      return null;
-    }
-
-    // Partial allocations not allowed - must be ALL or NONE
-    if (allocatedCount > 0 && allocatedCount < successors.size()) {
-      return 'Successor allocations must be set for ALL successors or NONE. ' +
-        'Currently ' +
-        allocatedCount +
-        ' of ' +
-        successors.size() +
-        ' successors have allocations set. ' +
-        'Please either set allocations for all successors (totaling 100%) or remove all allocations to use equal split.';
-    }
-
-    // If all allocations are set, they must sum to 100%
-    if (Math.abs(totalAllocation - 100) > 0.01) {
-      return 'Successor allocations must sum to 100%. Current total: ' +
-        totalAllocation +
-        '%';
-    }
-
-    return null; // Validation passed
-  }
-
-  /**
-   * Get Estate Administration record type ID
-   *
-   * @return Record type ID for Estate Administration
-   */
-  private static Id getEstateAdministrationRecordTypeId() {
-    List<RecordType> recordTypes = [
-      SELECT Id
-      FROM RecordType
-      WHERE SObjectType = 'Case' AND DeveloperName = 'EstateAdministration'
-      WITH USER_MODE
-      LIMIT 1
-    ];
-
-    return recordTypes.isEmpty() ? null : recordTypes[0].Id;
-  }
 
   /**
    * Get FinancialAccount name for case subject

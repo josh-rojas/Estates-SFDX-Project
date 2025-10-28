@@ -61,13 +61,14 @@ public with sharing class SuccessionTaskGenerator {
         if (pathwayTasks != null && !pathwayTasks.isEmpty()) {
           tasksToCreate.addAll(pathwayTasks);
 
-          // Prepare Chatter post
+          // Prepare Chatter post using SuccessionUtilities for consistent formatting
+          String postBody = SuccessionUtilities.buildPathwayTaskPostBody(
+            c.Pathway_Confirmed__c,
+            pathwayTasks.size()
+          );
           FeedItem post = new FeedItem(
             ParentId = c.Id,
-            Body = pathwayTasks.size() +
-              ' pathway tasks created for: ' +
-              c.Pathway_Confirmed__c +
-              '. Review milestones in Activities to guide the case through completion.',
+            Body = postBody,
             Type = 'TextPost'
           );
           chatterPostsToCreate.add(post);
