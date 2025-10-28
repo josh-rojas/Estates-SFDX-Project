@@ -12,10 +12,13 @@
         <members>CreateSuccessionCaseControllerTest</members>
         <members>SuccessionPublicFormController</members>
         <members>SuccessionPublicFormController_Test</members>
+        <members>SuccessionTaskCreator</members>
+        <members>SuccessionTaskCreator_Test</members>
         <members>SuccessionTaskGenerator</members>
         <members>SuccessionTaskGenerator_Test</members>
         <members>SuccessionUtilities</members>
         <members>SuccessionUtilities_Test</members>
+        <members>SuccessionWorkflow_Integration_Test</members>
         <name>ApexClass</name>
     </types>
     

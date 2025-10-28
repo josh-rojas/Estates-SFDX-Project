@@ -20,8 +20,8 @@ export default class SuccessionPublicForm extends LightningElement {
   // Pathway options
   pathwayOptions = [
     { label: "Final Grant to Charity", value: "Final Grant" },
-    { label: "Transfer to New DAF Account", value: "New DAF" },
-    { label: "Disclaim Successor Rights", value: "Disclaim" }
+    { label: "Transfer to New DAF Account", value: "New DAF Account" },
+    { label: "Disclaim Successor Rights", value: "Disclaim Assets" }
   ];
 
   connectedCallback() {

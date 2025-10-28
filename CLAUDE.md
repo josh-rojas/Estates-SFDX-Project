@@ -82,7 +82,7 @@ The system uses **only standard Salesforce objects** - no custom objects:
 
 **Critical Pattern:** When 2+ successors exist:
 
-1. Flow `Case_Multiple_Successors_Handler` detects multiple FinancialAccountRole records
+1. `CreateSuccessionCaseController` (Apex) detects multiple FinancialAccountRole records
 2. Creates parent case (Type: "Multi-Account Succession Master")
 3. Creates child case for each successor (Type: "Named Successor Enactment")
 4. Each child case has independent workflow
@@ -90,7 +90,9 @@ The system uses **only standard Salesforce objects** - no custom objects:
 
 **Component:** `caseHierarchyViewer` LWC displays parent + child hierarchy
 
-## Apex Classes (4 total)
+**Note:** Multi-successor detection was migrated from Flow to Apex for better performance and complex logic handling.
+
+## Apex Classes (8 total)
 
 ### ContactCadenceController
 **Purpose:** Manages contact attempt data + email validation
@@ -126,7 +128,50 @@ The system uses **only standard Salesforce objects** - no custom objects:
 - New DAF: 4 tasks (Day 2-18)
 - Disclaim: 4 tasks (Day 3-20)
 
-## Lightning Web Components (4 active)
+### CreateSuccessionCaseController
+**Purpose:** Multi-successor case creation with validation
+**Key Methods:**
+- `createSuccessionCase()` - Creates single or multi-successor cases
+- `validateSuccessors()` - Validates allocation percentages and contact data
+- `createMultiSuccessorStructure()` - Creates parent + child case hierarchy
+
+**Pattern:** Replaces Flow-based case creation for better complex logic handling
+**Validation:** Checks 100% allocation total, successor contact existence
+
+### BeginSuccessionProcessingController
+**Purpose:** Workflow trigger via Quick Action
+**Key Method:**
+- `updateVerificationStatus()` - Sets Verification_Status__c = "Complete - Verified"
+
+**Pattern:** Simple controller for Quick Action button
+**Duplicate Prevention:** Checks if already verified before updating
+
+### SuccessionTaskCreator
+**Purpose:** Invocable Apex for flow-based contact task creation
+**Key Method:**
+- `createContactAttemptTasks()` - Creates contact attempt tasks from flows with duplicate prevention
+
+**Pattern:** Invocable method for flow optimization (alternative to trigger-based approach)
+**Usage:** Called from `Task_Create_Next_Contact_Attempt` flow
+**Features:**
+- Bulk processing support
+- Duplicate prevention (checks for existing tasks)
+- Date-gated scheduling (Days 0, 5, 35, 65, 95)
+- Response wrapper with success/skip status
+
+### SuccessionUtilities
+**Purpose:** Shared utility class for common patterns
+**Key Methods:**
+- `validateEmail()` - Email compliance validation (RFC 5322 format, opt-out check)
+- `createChatterPost()` - Standardized Chatter post creation
+- `getRecordTypeId()` - Cached record type lookup for performance
+- `createContentNote()` - ContentNote creation with error handling
+
+**Pattern:** Static utility methods with WITH SHARING for security
+**Refactored From:** ContactCadenceController, CreateSuccessionCaseController
+**Benefits:** Reduces code duplication, centralizes validation logic, improves maintainability
+
+## Lightning Web Components (6 active)
 
 ### successionContactCadence
 **Location:** `force-app/main/default/lwc/successionContactCadence/`
@@ -178,12 +223,35 @@ The system uses **only standard Salesforce objects** - no custom objects:
 
 **Usage:** Agent-facing Quick Action for fast pathway recording
 
-## Flow Automation (8 active flows)
+### createSuccessionCase
+**Location:** `force-app/main/default/lwc/createSuccessionCase/`
+**Purpose:** Quick Action for creating succession cases from Financial Account
+**Features:**
+- Financial account selection
+- Deceased donor validation
+- Successor detection and display
+- Multi-successor allocation validation
 
-### Case_Estate_Administration_Defaults
-**Trigger:** Case CREATE (BEFORE SAVE)
-**Purpose:** Auto-populates default field values
-**Sets:** Subject, Priority, Origin, Status, Verification_Status__c
+**Usage:** Placed on FinancialAccount record page as Quick Action
+
+### beginSuccessionProcessing
+**Location:** `force-app/main/default/lwc/beginSuccessionProcessing/`
+**Purpose:** Quick Action to trigger workflow start
+**Features:**
+- Single "Begin Succession Processing" button
+- Updates Verification_Status__c to trigger flows
+- Shows workflow steps that will be initiated
+- Duplicate prevention with error messages
+
+**Usage:** Placed on Case record page for Estate Administration record type
+
+## Flow Automation (6 active flows)
+
+**Note:** Two flows were migrated to Apex for better performance:
+- `Case_Estate_Administration_Defaults` → Implemented in `CreateSuccessionCaseController.cls`
+- `Case_Multiple_Successors_Handler` → Implemented in `CreateSuccessionCaseController.cls`
+
+This migration improves complex logic handling, validation, and reduces flow complexity.
 
 ### Case_Create_Initial_Contact_Attempt
 **Trigger:** Case CREATE or UPDATE when Verification_Status__c = "Complete - Verified"
@@ -200,11 +268,6 @@ The system uses **only standard Salesforce objects** - no custom objects:
 **Trigger:** Task UPDATE when Status = "Completed"
 **Purpose:** Circuit breaker - sets Contact_Established__c on Case
 **Condition:** Task.Succession_Contact_Established__c = TRUE
-
-### Case_Multiple_Successors_Handler
-**Trigger:** Case CREATE/UPDATE with 2+ successors
-**Purpose:** Creates parent + child cases for multi-successor scenarios
-**Detection:** Counts FinancialAccountRole records with Role = "Successor"
 
 ### Case_Parent_Closure_Handler
 **Trigger:** Child case Status = "Closed" or "Canceled"

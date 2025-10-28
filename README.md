@@ -21,15 +21,20 @@ Automated succession processing system managing deceased donor account transitio
 
 ## 📦 Components
 
-### Apex Classes (3)
+### Apex Classes (8)
 
-| Class                            | Purpose                                    |
-| -------------------------------- | ------------------------------------------ |
-| `CaseHierarchyController`        | Visualize multi-successor case hierarchies |
-| `ContactCadenceController`       | Manage date-gated contact attempts         |
-| `SuccessionPublicFormController` | Guest user form submission handler         |
+| Class                                  | Purpose                                    |
+| -------------------------------------- | ------------------------------------------ |
+| `BeginSuccessionProcessingController`  | Workflow trigger via Quick Action          |
+| `CaseHierarchyController`              | Visualize multi-successor case hierarchies |
+| `ContactCadenceController`             | Manage date-gated contact attempts         |
+| `CreateSuccessionCaseController`       | Multi-successor case creation & validation |
+| `SuccessionPublicFormController`       | Guest user form submission handler         |
+| `SuccessionTaskCreator`                | Invocable Apex for flow-based task creation|
+| `SuccessionTaskGenerator`              | Pathway-specific task creation (trigger)   |
+| `SuccessionUtilities`                  | Shared utility class (email, Chatter, etc) |
 
-### Flow Automations (7)
+### Flow Automations (6)
 
 | Flow                                  | Trigger                                     |
 | ------------------------------------- | ------------------------------------------- |
@@ -40,25 +45,24 @@ Automated succession processing system managing deceased donor account transitio
 | `Case_Status_Coordination`            | Automatic Status field coordination         |
 | `Case_Succession_Segment_Transition`  | Pathway transitions and Chatter posts       |
 
-### Lightning Web Components (12)
+### Lightning Web Components (11 total: 6 active, 5 deprecated)
 
-**Active Components:**
+**Active Components (6):**
 
+- `beginSuccessionProcessing` - Quick action to trigger workflow start
 - `caseHierarchyViewer` - Visual case hierarchy tree for multi-successor cases
+- `createSuccessionCase` - Quick action for creating succession cases
 - `recordPathwaySelection` - Quick action pathway selector
 - `successionContactCadence` - **Primary UI** - Date-gated contact attempt tracker
 - `successionPublicForm` - Guest user pathway selection form
 
-**Deprecated Components** (part of deprecated flows):
+**Deprecated Components (5)** (part of deprecated flows):
 
-- `successionAccountSummary` - Account details display (not actively used)
 - `successionDisclaimDetails` - Disclaim pathway form
 - `successionDocumentUpload` - Document management
 - `successionGrantBeneficiaries` - Beneficiary management
 - `successionNewDafDetails` - New DAF pathway form
 - `successionPathwaySelector` - Pathway selection wizard
-- `successionReviewAndSign` - Final review & signature
-- `successionSuccessorInfo` - Successor information form
 
 ### Action Plan Templates (3)
 

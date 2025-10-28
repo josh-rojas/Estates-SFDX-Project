@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contact_Established_Date__c</fullName>
+    <description
+  >Phase 2: Date when contact was successfully established with the successor during the contact cadence. Records when the successor was reached and informed about their succession rights.</description>
+    <encryptionScheme>None</encryptionScheme>
+    <inlineHelpText
+  >Auto-populated when agent records a successful contact attempt (outcome = YES). Triggers pathway form email and halts further contact attempts.</inlineHelpText>
+    <label>Contact Established Date</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>true</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Date</type>
+</CustomField>
