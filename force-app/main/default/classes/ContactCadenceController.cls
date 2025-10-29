@@ -225,7 +225,8 @@ public with sharing class ContactCadenceController {
         Contact_Attempt_Number__c,
         Succession_Contact_Established__c,
         IsClosed,
-        CompletedDateTime
+        CompletedDateTime,
+        Description
       FROM Task
       WHERE WhatId = :caseId AND Contact_Attempt_Number__c != NULL
       ORDER BY Contact_Attempt_Number__c ASC
@@ -269,15 +270,23 @@ public with sharing class ContactCadenceController {
       docIds.add(cdl.ContentDocumentId);
     }
 
-    // Query ContentVersion records (ContentNote is stored as ContentVersion)
+    // Query ContentVersion records (ContentNote is stored as ContentVersion with FileType = 'SNOTE')
+    // CRITICAL: Filter by FileType = 'SNOTE' to only get ContentNotes, not other files/attachments
     List<ContentVersion> contentVersions = [
-      SELECT Id, Title, VersionData
+      SELECT Id, Title, VersionData, FileType
       FROM ContentVersion
-      WHERE ContentDocumentId IN :docIds AND IsLatest = TRUE
+      WHERE
+        ContentDocumentId IN :docIds
+        AND IsLatest = TRUE
+        AND FileType = 'SNOTE'
       ORDER BY CreatedDate DESC
     ];
 
-    System.debug('DEBUG: Found ' + contentVersions.size() + ' ContentVersions');
+    System.debug(
+      'DEBUG: Found ' +
+      contentVersions.size() +
+      ' ContentNotes (FileType=SNOTE)'
+    );
 
     for (ContentVersion cv : contentVersions) {
       // Parse the title to extract attempt number
@@ -406,10 +415,33 @@ public with sharing class ContactCadenceController {
         populatePendingAttemptData(attemptData);
       }
 
-      // Add user notes
-      attemptData.userNotes = notesByAttempt.containsKey(i)
+      // Add user notes with fallback logic:
+      // 1. Try ContentNote first (preferred, structured format)
+      // 2. Fall back to Task.Description if ContentNote not available
+      // 3. Use empty string if neither available
+      String contentNoteNotes = notesByAttempt.containsKey(i)
         ? notesByAttempt.get(i)
         : '';
+      String taskDescriptionNotes = tasksByAttempt.containsKey(i) &&
+        String.isNotBlank(tasksByAttempt.get(i).Description)
+        ? tasksByAttempt.get(i).Description
+        : '';
+
+      // Prefer ContentNote, fall back to Description
+      attemptData.userNotes = String.isNotBlank(contentNoteNotes)
+        ? contentNoteNotes
+        : taskDescriptionNotes;
+
+      System.debug(
+        'DEBUG: Attempt ' +
+        i +
+        ' notes - ContentNote: ' +
+        (String.isNotBlank(contentNoteNotes) ? 'YES' : 'NO') +
+        ', Description: ' +
+        (String.isNotBlank(taskDescriptionNotes) ? 'YES' : 'NO') +
+        ', Final: ' +
+        attemptData.userNotes
+      );
 
       cadenceData.attempts.add(attemptData);
     }
@@ -561,12 +593,13 @@ public with sharing class ContactCadenceController {
           Contact_Attempt_Number__c = attemptNumber,
           Status = 'Completed',
           Succession_Contact_Established__c = contactEstablished,
-          ActivityDate = Date.today()
+          ActivityDate = Date.today(),
+          Description = notes // Store notes as backup in Description field
         );
       } else {
         // Query existing task
         attemptTask = [
-          SELECT Id, WhatId, Status, Succession_Contact_Established__c
+          SELECT Id, WhatId, Status, Succession_Contact_Established__c, Description
           FROM Task
           WHERE Id = :taskId
           LIMIT 1
@@ -575,17 +608,20 @@ public with sharing class ContactCadenceController {
         // Update task
         attemptTask.Status = 'Completed';
         attemptTask.Succession_Contact_Established__c = contactEstablished;
+        attemptTask.Description = notes; // Store notes as backup in Description field
       }
 
-      // Add/append notes
-      // Notes are handled separately - not stored in Description field
-      // The Description field is metadata only
+      // IMPORTANT: Notes are saved to BOTH Description (immediate backup) and ContentNote (structured format)
+      // This ensures notes are always available even if ContentNote creation fails or is delayed
+      System.debug('DEBUG: Saving notes to Task.Description: ' + notes);
 
       upsert attemptTask;
 
       // Create ContentNote and Chatter post if notes were provided
-      // Wrapped in try-catch to handle test context where ContentNote/FeedItem may have limitations
+      // NOTE: Notes are ALREADY saved to Task.Description (above) as immediate backup
+      // ContentNote and Chatter are supplementary - if they fail, notes still exist
       if (String.isNotBlank(notes)) {
+        System.debug('DEBUG: Creating ContentNote for attempt ' + attemptNumber);
         try {
           // Use shared utility for ContentNote creation
           String noteTitle = SuccessionUtilities.buildContactAttemptNoteTitle(
@@ -601,13 +637,29 @@ public with sharing class ContactCadenceController {
             noteTitle,
             noteBody
           );
+          System.debug(
+            'DEBUG: ContentNote created successfully for attempt ' +
+            attemptNumber
+          );
         } catch (Exception noteEx) {
           // Log but don't fail - ContentNote creation is supplementary
+          // Notes are already saved to Task.Description, so this is not critical
+          System.debug(LoggingLevel.WARN, 'WARNING: ContentNote creation failed');
           System.debug(
-            'Note creation failed (may be test context): ' + noteEx.getMessage()
+            LoggingLevel.WARN,
+            'ContentNote error (attempt ' +
+            attemptNumber +
+            '): ' +
+            noteEx.getMessage()
+          );
+          System.debug(LoggingLevel.WARN, 'Stack trace: ' + noteEx.getStackTraceString());
+          System.debug(
+            LoggingLevel.INFO,
+            'Notes are preserved in Task.Description field'
           );
         }
 
+        System.debug('DEBUG: Creating Chatter post for attempt ' + attemptNumber);
         try {
           // Use shared utility for Chatter post creation
           String postBody = SuccessionUtilities.buildContactAttemptPostBody(
@@ -616,12 +668,21 @@ public with sharing class ContactCadenceController {
             notes
           );
           SuccessionUtilities.createChatterPost(caseId, postBody, false);
+          System.debug(
+            'DEBUG: Chatter post created successfully for attempt ' +
+            attemptNumber
+          );
         } catch (Exception chatterEx) {
           // Log but don't fail - Chatter post creation is supplementary
+          System.debug(LoggingLevel.WARN, 'WARNING: Chatter post creation failed');
           System.debug(
-            'Chatter post creation failed (may be test context): ' +
+            LoggingLevel.WARN,
+            'Chatter error (attempt ' +
+            attemptNumber +
+            '): ' +
             chatterEx.getMessage()
           );
+          System.debug(LoggingLevel.WARN, 'Stack trace: ' + chatterEx.getStackTraceString());
         }
       }
 

@@ -161,7 +161,7 @@ public with sharing class CreateSuccessionCaseController {
       ContactId = contactId,
       Successor__c = contactId,
       FinServ__FinancialAccount__c = financialAccountId,
-      Verification_Status__c = 'Not Started',
+      Verification_Status__c = 'Complete - Verified',
       Description = 'Succession case created from Financial Account.'
     );
 
@@ -170,7 +170,7 @@ public with sharing class CreateSuccessionCaseController {
     // Return success
     CreateCaseResult successResult = new CreateCaseResult();
     successResult.success = true;
-    successResult.message = 'Case created successfully. Click "Begin Succession Processing" to start the contact cadence workflow.';
+    successResult.message = 'Case created successfully! Contact cadence workflow has started automatically.';
     successResult.seedCaseId = successionCase.Id;
     successResult.successorCount = 1;
     return successResult;
@@ -232,7 +232,7 @@ public with sharing class CreateSuccessionCaseController {
         Successor__c = contactId,
         FinServ__FinancialAccount__c = financialAccountId,
         ParentId = parentCase.Id,
-        Verification_Status__c = 'Not Started',
+        Verification_Status__c = 'Complete - Verified',
         Description = 'Succession case for successor. Part of multi-successor coordination under parent case. ' +
           (successor.SuccessorAllocation__c != null
             ? 'Allocation: ' + successor.SuccessorAllocation__c + '%'
@@ -266,7 +266,7 @@ public with sharing class CreateSuccessionCaseController {
       childCases.size() +
       ' child cases created successfully.' +
       warningMessage +
-      ' Click "Begin Succession Processing" on each child case to start the contact cadence workflow.';
+      ' Contact cadence workflows have started automatically for all child cases.';
     successResult.parentCaseId = parentCase.Id;
     successResult.seedCaseId = childCases[0].Id;
     successResult.successorCount = childCases.size();

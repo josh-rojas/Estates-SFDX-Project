@@ -102,7 +102,7 @@ public with sharing class CaseHierarchyController {
 
             childQuery += ' ORDER BY CreatedDate ASC';
 
-            List<Case> childCases = Database.query(childQuery);
+            List<Case> childCases = Database.query(childQuery, AccessLevel.USER_MODE);
 
             // Conditionally query financial accounts and account roles
             Map<Id, FinServ__FinancialAccount__c> financialAccountMap = new Map<Id, FinServ__FinancialAccount__c>();

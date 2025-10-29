@@ -49,31 +49,29 @@ The system uses **only standard Salesforce objects** - no custom objects:
 - Succession_Contact_Established__c (outcome tracking)
 - ActivityDate for date-gating
 
-### 5-Phase Workflow
+### 4-Phase Workflow (Automatic Start)
 
-**Phase 1: Verification** (Auto-completed in 90% of cases)
-- Agent clicks "✅ Begin Succession Processing" Quick Action
-- Sets Verification_Status__c = "Complete - Verified"
-- Triggers workflow start
+**Workflow starts automatically when case is created** - No manual verification step required. The CreateSuccessionCaseController validates successors and allocations during case creation, so verification is implicit and complete before the case is created.
 
-**Phase 2: Contact Cadence** (5 attempts over 95 days)
+**Phase 1: Contact Cadence** (5 attempts over 95 days)
 - Day 0, 5, 35, 65, 95 contact schedule
+- First contact task created automatically when case is created
 - Phone calls are **informational only** - agent cannot accept pathway decisions
 - successionContactCadence LWC displays progress + email validation
 - Tasks created automatically by flows
 
-**Phase 3: Pathway Selection**
+**Phase 2: Pathway Selection**
 - Email sent automatically when contact established
 - Successor completes public form (successionPublicForm LWC)
 - Three pathways: Final Grant, New DAF Account, Disclaim Assets
 
-**Phase 4: Pathway Execution**
+**Phase 3: Pathway Execution**
 - SuccessionTaskGenerator creates pathway-specific tasks
 - Final Grant: 5 tasks over 20 days
 - New DAF: 4 tasks over 18 days
 - Disclaim: 4 tasks over 20 days
 
-**Phase 5: Case Closure**
+**Phase 4: Case Closure**
 - All pathway tasks completed
 - Financial account status updated
 - Case closed
@@ -92,7 +90,7 @@ The system uses **only standard Salesforce objects** - no custom objects:
 
 **Note:** Multi-successor detection was migrated from Flow to Apex for better performance and complex logic handling.
 
-## Apex Classes (8 total)
+## Apex Classes (8 active, 1 deprecated)
 
 ### ContactCadenceController
 **Purpose:** Manages contact attempt data + email validation
@@ -139,25 +137,45 @@ The system uses **only standard Salesforce objects** - no custom objects:
 **Validation:** Checks 100% allocation total, successor contact existence
 
 ### BeginSuccessionProcessingController
-**Purpose:** Workflow trigger via Quick Action
-**Key Method:**
-- `updateVerificationStatus()` - Sets Verification_Status__c = "Complete - Verified"
+**Status:** DEPRECATED - No longer needed as of v1.1
+**Legacy Purpose:** Workflow trigger via Quick Action
 
-**Pattern:** Simple controller for Quick Action button
-**Duplicate Prevention:** Checks if already verified before updating
+**Note:** The verification phase was removed in v1.1. Workflows now start automatically when cases are created. This controller and its associated Quick Action (beginSuccessionProcessing) are retained for backward compatibility but are no longer used in the standard workflow.
 
 ### SuccessionTaskCreator
 **Purpose:** Invocable Apex for flow-based contact task creation
 **Key Method:**
 - `createContactAttemptTasks()` - Creates contact attempt tasks from flows with duplicate prevention
 
-**Pattern:** Invocable method for flow optimization (alternative to trigger-based approach)
-**Usage:** Called from `Task_Create_Next_Contact_Attempt` flow
+**Pattern:** Invocable method for flow-based task creation
+**Usage:** **ACTIVE** - Called from `Task_Create_Next_Contact_Attempt` flow (refactored Oct 2025)
 **Features:**
-- Bulk processing support
-- Duplicate prevention (checks for existing tasks)
+- Bulk processing support with centralized logic
+- Advanced duplicate prevention (bulk query with composite keys)
 - Date-gated scheduling (Days 0, 5, 35, 65, 95)
-- Response wrapper with success/skip status
+- Response wrapper with success/skip status and error messages
+- Eliminates code duplication (replaced 400+ lines of flow XML)
+
+### SuccessionChatterPoster
+**Purpose:** Invocable Apex for posting succession workflow transition messages to Chatter
+**Key Method:**
+- `postTransitions()` - Posts workflow transition messages with standardized formatting
+
+**Pattern:** Invocable method for Chatter transition notifications
+**Usage:** **ACTIVE** - Called from `Case_After_Update_Handler` flow (consolidated flow in v1.1)
+**Transition Types:**
+- `CONTACT_ESTABLISHED` - Successor contact made, ready to send form
+- `FORM_COMPLETED` - Pathway form submitted by successor
+- `PATHWAY_CONFIRMED` - Pathway execution tasks generated
+- `VERIFICATION_COMPLETE` - Verification phase completed
+- `EXECUTION_COMPLETE` - All pathway tasks completed
+**Features:**
+- Centralized message templates with emojis and formatting
+- Uses SuccessionUtilities.createChatterPost() for consistency
+- Optional pathway name and additional context
+- Response wrapper with success/failure status
+- Replaces hardcoded strings in flows with reusable Apex
+**Note:** Previously called from Case_Succession_Segment_Transition (deprecated in v1.1)
 
 ### SuccessionUtilities
 **Purpose:** Shared utility class for common patterns
@@ -171,7 +189,7 @@ The system uses **only standard Salesforce objects** - no custom objects:
 **Refactored From:** ContactCadenceController, CreateSuccessionCaseController
 **Benefits:** Reduces code duplication, centralizes validation logic, improves maintainability
 
-## Lightning Web Components (6 active)
+## Lightning Web Components (5 active, 1 deprecated)
 
 ### successionContactCadence
 **Location:** `force-app/main/default/lwc/successionContactCadence/`
@@ -235,34 +253,169 @@ The system uses **only standard Salesforce objects** - no custom objects:
 **Usage:** Placed on FinancialAccount record page as Quick Action
 
 ### beginSuccessionProcessing
+**Status:** DEPRECATED - No longer needed as of v1.1
 **Location:** `force-app/main/default/lwc/beginSuccessionProcessing/`
-**Purpose:** Quick Action to trigger workflow start
-**Features:**
-- Single "Begin Succession Processing" button
-- Updates Verification_Status__c to trigger flows
-- Shows workflow steps that will be initiated
-- Duplicate prevention with error messages
+**Legacy Purpose:** Quick Action to trigger workflow start
 
-**Usage:** Placed on Case record page for Estate Administration record type
+**Note:** The verification phase was removed in v1.1. Workflows now start automatically when cases are created. This component is retained for backward compatibility but is no longer used in the standard workflow. Consider removing this Quick Action from Case record page layouts.
 
-## Flow Automation (6 active flows)
+## Quick Actions for FinancialAccountRole Creation
 
-**Note:** Two flows were migrated to Apex for better performance:
+**Purpose:** Enable creation of Financial Account Role records (successors, beneficiaries, co-owners) from multiple contexts with field pre-population.
+
+**⚠️ Person Account Note:** This project uses Person Accounts (Financial Services Cloud). The virtual Contact (PersonContactId) is automatically populated when creating roles from Person Account context.
+
+### Quick Actions (3 total)
+
+#### 1. Object-Level Quick Action
+**File:** `FinServ__FinancialAccountRole__c.New_Financial_Account_Role.quickAction-meta.xml`
+**Label:** New Financial Account Role
+**Context:** FinancialAccountRole list views and record pages
+**Fields:**
+- FinServ__FinancialAccount__c (Required)
+- FinServ__RelatedContact__c (Required)
+- FinServ__Role__c (Required - Successor, Primary Owner, Beneficiary, etc.)
+- SuccessorAllocation__c (Optional - percentage for multi-successor scenarios)
+- FinServ__Active__c (Optional - defaults to true)
+- FinServ__StartDate__c (Optional)
+- FinServ__EndDate__c (Optional)
+
+**Availability:**
+- FinancialAccountRole object home page
+- FinancialAccountRole list views (All, Successors, etc.)
+- FinancialAccountRole record pages (via Clone)
+
+---
+
+#### 2. FinancialAccount Context Quick Action
+**File:** `FinServ__FinancialAccount__c.New_Account_Role.quickAction-meta.xml`
+**Label:** New Account Role
+**Context:** FinancialAccount record pages and related lists
+**Pre-populated:** FinServ__FinancialAccount__c (automatically from parent record)
+**Fields Shown:**
+- FinServ__RelatedContact__c (Required - select Person Account's virtual contact)
+- FinServ__Role__c (Required)
+- SuccessorAllocation__c (Optional)
+- FinServ__Active__c (Optional)
+- FinServ__StartDate__c (Optional)
+- FinServ__EndDate__c (Optional)
+
+**Usage:** Create roles for a specific financial account without manually selecting the account
+
+**Where to Add:**
+1. Setup → Object Manager → Financial Account → Lightning Record Pages
+2. Edit existing page → Highlights Panel → Mobile & Lightning Actions
+3. Add "New Account Role" to action list
+4. Also available on FinancialAccountRole related lists on any object's page layout
+
+---
+
+#### 3. Person Account (Account) Context Quick Action
+**File:** `Account.New_Financial_Account_Role.quickAction-meta.xml`
+**Label:** New Financial Account Role
+**Context:** Person Account record pages
+**Pre-populated:** FinServ__RelatedContact__c (automatically via Account.PersonContactId)
+**Fields Shown:**
+- FinServ__FinancialAccount__c (Required - select which account this person is a successor/beneficiary for)
+- FinServ__Role__c (Required)
+- SuccessorAllocation__c (Optional)
+- FinServ__Active__c (Optional)
+- FinServ__StartDate__c (Optional)
+- FinServ__EndDate__c (Optional)
+
+**Usage:** Designate a Person Account as successor/beneficiary across multiple financial accounts
+
+**Where to Add:**
+1. Setup → Object Manager → Account → Lightning Record Pages
+2. Edit existing Person Account page → Highlights Panel → Mobile & Lightning Actions
+3. Add "New Financial Account Role" to action list
+4. Works with Person Account model - automatically links to PersonContactId
+
+---
+
+### Adding Quick Actions to Existing Lightning Pages
+
+**Financial Services Cloud Note:** Account and FinancialAccount objects use FSC default Lightning pages. Quick Actions must be added via Setup:
+
+**For FinancialAccount Pages:**
+```
+Setup → Object Manager → FinServ__FinancialAccount__c → Lightning Record Pages
+→ Edit active page → Highlights Panel (top of page)
+→ Override Global Publisher Layout → Add "New Account Role"
+```
+
+**For Person Account Pages:**
+```
+Setup → Object Manager → Account → Lightning Record Pages
+→ Edit Person Account page → Highlights Panel
+→ Override Global Publisher Layout → Add "New Financial Account Role"
+```
+
+**For Related Lists:**
+Quick Actions automatically appear in related list action menus when:
+- Related list is added to any Lightning page
+- "Enable inline editing" is checked on related list component
+- Action bar is enabled on the related list
+
+---
+
+### List Views
+
+#### All Financial Account Roles
+**File:** `All_Financial_Account_Roles.listView-meta.xml`
+**Columns:**
+- Name
+- Financial Account
+- Related Contact
+- Role
+- Successor Allocation %
+- Active
+- Start Date
+- End Date
+**Filter:** None (shows all roles)
+
+#### Successors
+**File:** `Successors.listView-meta.xml`
+**Columns:**
+- Name
+- Financial Account
+- Related Contact
+- Successor Allocation %
+- Active
+- Start Date
+**Filter:** Role = "Successor"
+**Usage:** Quick access to all successor designations for succession planning
+
+## Flow Automation (5 active, 2 deprecated)
+
+**Migration History:**
+
+**v1.0 → Apex Migration:**
 - `Case_Estate_Administration_Defaults` → Implemented in `CreateSuccessionCaseController.cls`
 - `Case_Multiple_Successors_Handler` → Implemented in `CreateSuccessionCaseController.cls`
+- Reason: Complex logic handling, validation, reduced flow complexity
 
-This migration improves complex logic handling, validation, and reduces flow complexity.
+**v1.1 → Flow Consolidation (October 2025):**
+- `Case_Status_Coordination` + `Case_Succession_Segment_Transition` → Consolidated into `Case_After_Update_Handler`
+- Reason: Performance optimization - both flows triggered on same Case UPDATE events, causing 2x flow executions
+- Impact: 24% reduction in flow executions per case lifecycle (21 → 16 interviews)
+- Status: Original flows marked Inactive with deprecation notices
 
 ### Case_Create_Initial_Contact_Attempt
-**Trigger:** Case CREATE or UPDATE when Verification_Status__c = "Complete - Verified"
-**Purpose:** Creates Task #1 (Day 0 contact attempt)
-**Duplicate Prevention:** Checks Contact_Attempt_Count__c is NULL
+**Trigger:** Case CREATE (automatic start when case is created)
+**Purpose:** Creates Task #1 (Day 0 contact attempt) automatically via SuccessionTaskCreator invocable class
+**Implementation:** Calls SuccessionTaskCreator.createContactAttemptTasks() for centralized logic
+**Duplicate Prevention:** Checks Contact_Attempt_Count__c is NULL + invocable class duplicate detection
+**Benefits:** Immediate workflow start, consistent with Attempts 2-5, centralized task creation, better error handling
+**Note:** Updated in v1.1 to trigger on CREATE only (removed verification phase requirement)
 
 ### Task_Create_Next_Contact_Attempt
 **Trigger:** Task UPDATE when Status = "Completed"
-**Purpose:** Creates next contact task (Day 5, 35, 65, 95)
+**Purpose:** Creates next contact task (Day 5, 35, 65, 95) via SuccessionTaskCreator invocable class
+**Implementation:** Calls SuccessionTaskCreator.createContactAttemptTasks() for centralized logic
 **Gate Check:** Contact_Established__c = FALSE (stops if contact made)
-**Date Formula:** DATEVALUE(Case.CreatedDate) + [days]
+**Date Calculation:** Invocable class calculates Case.CreatedDate + [days offset]
+**Benefits:** Eliminates code duplication, better error handling, advanced duplicate prevention
 
 ### Task_Succession_Contact_Update
 **Trigger:** Task UPDATE when Status = "Completed"
@@ -274,19 +427,46 @@ This migration improves complex logic handling, validation, and reduces flow com
 **Purpose:** Auto-closes parent when all children complete
 **Pattern:** Queries all siblings, checks if all have terminal status
 
-### Case_Status_Coordination
-**Trigger:** Case UPDATE (field changes)
-**Purpose:** Automatic Status field coordination based on phase progression
-**Status Mapping:**
-- Verification complete → "In Progress"
-- Contact + form sent → "Awaiting Response"
-- Form completed → "In Review"
-- Pathway execution → "In Progress"
-- Execution complete → "Closed"
+### Case_After_Update_Handler ⭐ NEW - CONSOLIDATED (v1.1)
+**Trigger:** Case UPDATE for Estate Administration cases (not closed)
+**Purpose:** CONSOLIDATED FLOW - Handles all Case after-update automation (Status coordination + Chatter notifications)
+**Replaces:** Case_Status_Coordination + Case_Succession_Segment_Transition (deprecated)
 
-### Case_Succession_Segment_Transition
-**Trigger:** Case UPDATE when pathway-related fields change
-**Purpose:** Manages pathway transitions and status updates
+**What It Does:**
+- Updates Case.Status based on workflow phase transitions (4-phase model)
+- Posts Chatter feed updates when key milestones reached (aids demos & agent handoffs)
+- Handles 5 phase transitions in single flow execution
+
+**Phase Transitions:**
+1. Verification Complete (auto) → Status = "In Progress" (no Chatter - silent)
+2. Contact Established → Status = "Awaiting Response" + Chatter post
+3. Form Completed → Status = "In Review" + Chatter post with pathway name
+4. Pathway Execution Started → Status = "In Progress" (no Chatter - tasks visible)
+5. Execution Complete → Status = "Closed" (no Chatter - case closure self-evident)
+
+**Performance:** Consolidates 2 flows into 1 = 50% reduction in flow executions per Case UPDATE event
+
+**Dependencies:**
+- SuccessionChatterPoster.cls - Invocable class for standardized Chatter posts
+- Contact_Established__c, Form_Completed_Date__c, Pathway_Confirmed__c, Execution_Status__c fields
+
+**Related Flows:**
+- Task_Succession_Contact_Update - Sets Contact_Established__c when task marked YES
+- Case_Create_Initial_Contact_Attempt - Creates first contact task on case creation
+
+---
+
+### Case_Status_Coordination ⚠️ DEPRECATED (v1.1)
+**Status:** Inactive - DO NOT ACTIVATE
+**Replaced By:** Case_After_Update_Handler (consolidated flow)
+**Original Purpose:** Automatic Status field coordination based on phase progression
+**Deprecation Reason:** Performance - this flow + Case_Succession_Segment_Transition both triggered on same Case UPDATE events, causing 2x flow executions
+
+### Case_Succession_Segment_Transition ⚠️ DEPRECATED (v1.1)
+**Status:** Inactive - DO NOT ACTIVATE
+**Replaced By:** Case_After_Update_Handler (consolidated flow)
+**Original Purpose:** Posted Chatter transition messages via SuccessionChatterPoster invocable class
+**Deprecation Reason:** Performance - this flow + Case_Status_Coordination both triggered on same Case UPDATE events, causing 2x flow executions
 
 ## Essential Commands
 
@@ -491,23 +671,25 @@ cci task run load_demo_ui_showcase
 - `PERSON_ACCOUNT_FIXES.md` - FSC Person Account compatibility
 - `TIER_1_FIXES_SUMMARY.md` - Email validation fixes
 - `MULTI_SUCCESSOR_TESTING_GUIDE.md` - Multi-successor scenarios
+- `FLOW_DESCRIPTIONS_IMPROVED.md` - Comprehensive flow documentation with dependencies, workflow relationships, and migration notes (v1.1)
 
 ## End-to-End Workflow Summary
 
-1. **Case Created** → Verification_Status__c = "Not Started"
-2. **Agent Clicks Quick Action** → Sets Verification_Status__c = "Complete - Verified"
-3. **Flow Creates Task #1** → Contact cadence begins (Day 0)
-4. **Agent Records Outcome** → Uses successionContactCadence LWC
-5. **If Contact Made (YES)** → Flow sets Contact_Established__c = TRUE
-6. **Flow Sends Email** → Automatic pathway form invitation
-7. **Successor Completes Form** → successionPublicForm LWC
-8. **Pathway Tasks Created** → SuccessionTaskGenerator (trigger-based)
-9. **Agent Completes Tasks** → Pathway execution
-10. **Case Closed** → Execution_Status__c = "Completed"
+1. **Case Created** → CreateSuccessionCaseController validates successors and creates case
+2. **Workflow Starts Automatically** → Flow creates Task #1 (Day 0 contact attempt) immediately
+3. **Agent Records Outcome** → Uses successionContactCadence LWC
+4. **If Contact Made (YES)** → Flow sets Contact_Established__c = TRUE
+5. **Flow Sends Email** → Automatic pathway form invitation
+6. **Successor Completes Form** → successionPublicForm LWC
+7. **Pathway Tasks Created** → SuccessionTaskGenerator (trigger-based)
+8. **Agent Completes Tasks** → Pathway execution
+9. **Case Closed** → Execution_Status__c = "Completed"
+
+**Key Improvement in v1.1:** Verification phase removed - workflow now starts automatically when case is created. No manual "Begin Succession Processing" step required.
 
 ## Version & Status
 
-- **Version:** 1.0.0
+- **Version:** 1.1.0 - Automatic workflow start (verification phase removed)
 - **API Version:** 65.0
 - **Last Updated:** October 2025
 - **Environment:** Demo/Sandbox

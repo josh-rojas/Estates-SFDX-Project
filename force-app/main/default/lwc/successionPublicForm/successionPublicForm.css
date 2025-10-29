@@ -33,3 +33,51 @@
   font-weight: 700;
   color: #0070d2;
 }
+
+/* Enhanced Error Display */
+.slds-notify_alert {
+  display: flex;
+  align-items: center;
+}
+
+.slds-alert_error {
+  background-color: #fef2f2;
+  border-left: 4px solid #c81e1e;
+}
+
+/* Error Card Sections */
+lightning-card .slds-p-around_medium > div {
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+lightning-card .slds-p-around_medium > div:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Support Info Box */
+.slds-box.slds-theme_shade {
+  background-color: #f3f3f3;
+  border-left: 3px solid #0070d2;
+}
+
+.slds-box.slds-theme_shade code {
+  background-color: #ffffff;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: "Courier New", Courier, monospace;
+  color: #c81e1e;
+  font-weight: 600;
+}
+
+/* Retry Button */
+lightning-button[icon-name="utility:refresh"] {
+  min-width: 120px;
+}
+
+/* Error Type Badge */
+.slds-text-body_small strong {
+  color: #3e3e3c;
+}

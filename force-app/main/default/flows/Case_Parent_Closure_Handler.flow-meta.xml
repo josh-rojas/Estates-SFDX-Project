@@ -6,7 +6,7 @@
         <name>Set_Has_Open_Child_True</name>
         <label>Set Has Open Child = True</label>
         <locationX>374</locationX>
-        <locationY>458</locationY>
+        <locationY>674</locationY>
         <assignmentItems>
             <assignToReference>varHasOpenChild</assignToReference>
             <operator>Assign</operator>
@@ -14,12 +14,15 @@
                 <booleanValue>true</booleanValue>
             </value>
         </assignmentItems>
+        <connector>
+            <targetReference>Loop_Through_Children</targetReference>
+        </connector>
     </assignments>
     <decisions>
         <name>All_Children_Complete</name>
         <label>All Children Complete?</label>
         <locationX>176</locationX>
-        <locationY>566</locationY>
+        <locationY>674</locationY>
         <defaultConnectorLabel>Has Open Children</defaultConnectorLabel>
         <rules>
             <name>All_Closed_or_Canceled</name>
@@ -38,10 +41,32 @@
         </rules>
     </decisions>
     <decisions>
+        <name>Parent_Case_Found</name>
+        <label>Parent Case Found?</label>
+        <locationX>176</locationX>
+        <locationY>242</locationY>
+        <defaultConnectorLabel>No Parent Found</defaultConnectorLabel>
+        <rules>
+            <name>Parent_Exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Parent_Case</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_All_Child_Cases</targetReference>
+            </connector>
+            <label>Parent Exists</label>
+        </rules>
+    </decisions>
+    <decisions>
         <name>Check_If_Child_Is_Open</name>
         <label>Check If Child Is Open</label>
         <locationX>374</locationX>
-        <locationY>350</locationY>
+        <locationY>566</locationY>
         <defaultConnector>
             <targetReference>Loop_Through_Children</targetReference>
         </defaultConnector>
@@ -81,7 +106,7 @@
         <name>Loop_Through_Children</name>
         <label>Loop Through Children</label>
         <locationX>176</locationX>
-        <locationY>350</locationY>
+        <locationY>458</locationY>
         <collectionReference>Get_All_Child_Cases</collectionReference>
         <iterationOrder>Asc</iterationOrder>
         <nextValueConnector>
@@ -114,7 +139,7 @@
         <name>Get_All_Child_Cases</name>
         <label>Get All Child Cases</label>
         <locationX>176</locationX>
-        <locationY>242</locationY>
+        <locationY>350</locationY>
         <assignNullValuesIfNoRecordsFound
     >false</assignNullValuesIfNoRecordsFound>
         <connector>
@@ -153,10 +178,10 @@
         <assignNullValuesIfNoRecordsFound
     >false</assignNullValuesIfNoRecordsFound>
         <connector>
-            <targetReference>Get_All_Child_Cases</targetReference>
+            <targetReference>Parent_Case_Found</targetReference>
         </connector>
         <faultConnector>
-            <targetReference>Get_All_Child_Cases</targetReference>
+            <targetReference>Parent_Case_Found</targetReference>
         </faultConnector>
         <filterLogic>and</filterLogic>
         <filters>
@@ -191,7 +216,7 @@
         <name>Update_Parent_Case_Closed</name>
         <label>Update Parent Case to Closed</label>
         <locationX>176</locationX>
-        <locationY>674</locationY>
+        <locationY>782</locationY>
         <filters>
             <field>Id</field>
             <operator>EqualTo</operator>

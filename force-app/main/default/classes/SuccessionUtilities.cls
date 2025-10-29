@@ -257,7 +257,7 @@ public with sharing class SuccessionUtilities {
     ContentNote note = new ContentNote();
     note.Title = noteTitle;
     note.Content = Blob.valueOf(noteBody);
-    insert note;
+    Database.insert(note, AccessLevel.USER_MODE);
 
     System.debug('DEBUG: Created ContentNote with Title: ' + noteTitle);
     System.debug('DEBUG: ContentNote Id: ' + note.Id);
@@ -268,6 +268,7 @@ public with sharing class SuccessionUtilities {
       SELECT Id
       FROM ContentDocument
       WHERE LatestPublishedVersionId = :note.Id
+      WITH USER_MODE
       LIMIT 1
     ];
 
@@ -279,7 +280,7 @@ public with sharing class SuccessionUtilities {
     cdl.LinkedEntityId = recordId;
     cdl.ShareType = 'V'; // Viewer permission
     cdl.Visibility = 'AllUsers'; // Visible to all users with access to record
-    insert cdl;
+    Database.insert(cdl, AccessLevel.USER_MODE);
 
     System.debug('DEBUG: Created ContentDocumentLink to record: ' + recordId);
 

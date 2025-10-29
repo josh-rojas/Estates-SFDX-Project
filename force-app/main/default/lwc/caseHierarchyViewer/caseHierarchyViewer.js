@@ -213,7 +213,7 @@ export default class CaseHierarchyViewer extends NavigationMixin(
    * Get CSS class for SLA status badge
    */
   getSLAClass(slaStatus) {
-    if (!slaStatus) return "slds-badge";
+    if (!slaStatus || typeof slaStatus !== "string") return "slds-badge";
 
     if (slaStatus.includes("🔴")) return "slds-badge sla-critical";
     if (slaStatus.includes("🟠")) return "slds-badge sla-at-risk";
@@ -228,12 +228,19 @@ export default class CaseHierarchyViewer extends NavigationMixin(
    * Get CSS class for pathway badge
    */
   getPathwayClass(pathway) {
-    if (!pathway || pathway === "Not Selected")
+    if (!pathway || typeof pathway !== "string" || pathway === "Not Selected")
       return "slds-badge pathway-not-selected";
     if (pathway === "Final Grant") return "slds-badge pathway-final-grant";
     if (pathway === "New DAF Account") return "slds-badge pathway-new-daf";
     if (pathway === "Disclaim Assets") return "slds-badge pathway-disclaim";
     return "slds-badge";
+  }
+
+  /**
+   * Get safe error message with null checks
+   */
+  get errorMessage() {
+    return this.error?.body?.message || this.error?.message || "Unknown error occurred";
   }
 
   /**

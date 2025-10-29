@@ -48,10 +48,10 @@
           role="alert"
         >
           <h2>Error loading contact cadence</h2>
-          <template if:true={error.body}>
-            <p>{error.body.message}</p>
+          <template if:true={errorMessage}>
+            <p>{errorMessage}</p>
           </template>
-          <template if:false={error.body}>
+          <template if:false={errorMessage}>
             <p>An unknown error occurred loading contact cadence</p>
           </template>
         </div>
@@ -248,8 +248,7 @@
                           if:false={attempt.taskRecord.Succession_Contact_Established__c}
                         >
                           <p
-                            class="slds-text-body_regular"
-                            style="color: #ea001e"
+                            class="slds-text-body_regular succession-text-color-error"
                           >
                             <lightning-icon
                               icon-name="utility:close"

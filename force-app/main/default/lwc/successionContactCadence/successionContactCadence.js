@@ -56,16 +56,46 @@ export default class SuccessionContactCadence extends NavigationMixin(
     lastErrorTime: null
   };
 
-  // Client-side wait durations in milliseconds (per feedback)
-  // 1->2 = 5 days, else 30 days
+  // ASYNC OPERATION TRACKING: Store timeout IDs for cleanup
+  _refreshTimeoutId = null;
+  _emailNavigationTimeoutId = null;
+
+  /**
+   * BUSINESS LOGIC: Contact cadence wait durations (configured per compliance requirements)
+   *
+   * Rationale for wait periods:
+   * - Attempt 1→2: 5 days - Quick follow-up while initial contact is fresh
+   * - Attempts 2→3, 3→4, 4→5: 30 days - Allows reasonable time for response without pressure
+   *
+   * Total cadence duration: 95 days (5 + 30 + 30 + 30 days)
+   *
+   * CONFIGURATION NOTE: These durations are hardcoded to match Task.ActivityDate values
+   * set by flows (Case_Create_Initial_Contact_Attempt, Task_Create_Next_Contact_Attempt).
+   * Any changes here must be coordinated with corresponding flow date formulas.
+   *
+   * FUTURE ENHANCEMENT: Consider moving to Custom Metadata Type for admin configuration
+   * without code deployment (Succession_Contact_Cadence__mdt with Wait_Days__c field)
+   */
   static ATTEMPT_WAIT_MS = {
-    2: 5 * 24 * 60 * 60 * 1000, // attempt 2 unlocks 5 days after attempt 1 completed
-    3: 30 * 24 * 60 * 60 * 1000, // attempt 3 unlocks 30 days after attempt 2 completed
-    4: 30 * 24 * 60 * 60 * 1000, // attempt 4 unlocks 30 days after attempt 3 completed
-    5: 30 * 24 * 60 * 60 * 1000 // attempt 5 unlocks 30 days after attempt 4 completed
+    2: 5 * 24 * 60 * 60 * 1000, // 5 days (attempt 2 unlocks after attempt 1)
+    3: 30 * 24 * 60 * 60 * 1000, // 30 days (attempt 3 unlocks after attempt 2)
+    4: 30 * 24 * 60 * 60 * 1000, // 30 days (attempt 4 unlocks after attempt 3)
+    5: 30 * 24 * 60 * 60 * 1000 // 30 days (attempt 5 unlocks after attempt 4)
   };
 
-  // ERROR HANDLING: Enhanced error management methods
+  /**
+   * Centralized error handler for all component operations
+   *
+   * Categorizes errors, increments retry counter, and displays user-friendly messages.
+   * Maintains error state for UI rendering and retry logic.
+   *
+   * @param {Error} error - The error object from Apex call or JavaScript operation
+   * @param {string} context - Context where error occurred (method name) for debugging
+   * @returns {void}
+   *
+   * @example
+   * this.handleError(error, 'handleSaveOutcome');
+   */
   handleError(error, context = "") {
     console.error(`Contact Cadence Error [${context}]:`, error);
 
@@ -81,6 +111,17 @@ export default class SuccessionContactCadence extends NavigationMixin(
     this.showToast("Error", this.errorState.errorMessage, "error");
   }
 
+  /**
+   * Categorizes error type based on error properties
+   *
+   * Maps Salesforce error codes and messages to user-friendly error types.
+   * Used for conditional error handling and appropriate user messaging.
+   *
+   * @param {Error} error - Error object to categorize
+   * @returns {string} Error type: PERMISSION|VALIDATION|DUPLICATE|SERVER|NOT_FOUND|FORBIDDEN|UNKNOWN
+   *
+   * @private
+   */
   categorizeError(error) {
     if (error.body?.message?.includes("INSUFFICIENT_ACCESS"))
       return "PERMISSION";
@@ -93,6 +134,17 @@ export default class SuccessionContactCadence extends NavigationMixin(
     return "UNKNOWN";
   }
 
+  /**
+   * Converts technical error types into user-friendly messages
+   *
+   * Provides actionable guidance for each error type. Messages are non-technical
+   * and guide users toward resolution.
+   *
+   * @param {Error} error - Error object to generate message for
+   * @returns {string} User-friendly error message with guidance
+   *
+   * @private
+   */
   getUserFriendlyMessage(error) {
     const errorType = this.categorizeError(error);
 
@@ -114,6 +166,14 @@ export default class SuccessionContactCadence extends NavigationMixin(
     }
   }
 
+  /**
+   * Resets error state to initial values
+   *
+   * Called after successful operations or when user manually dismisses errors.
+   * Allows component to return to normal operation after error recovery.
+   *
+   * @returns {void}
+   */
   clearError() {
     this.errorState = {
       hasError: false,
@@ -125,6 +185,14 @@ export default class SuccessionContactCadence extends NavigationMixin(
     };
   }
 
+  /**
+   * Retries the last failed operation by refreshing data
+   *
+   * Only allows retry if under maximum retry limit (3 attempts).
+   * Clears error state and triggers data refresh via wire adapter.
+   *
+   * @returns {void}
+   */
   retryLastOperation() {
     if (this.errorState.canRetry) {
       this.clearError();
@@ -134,8 +202,22 @@ export default class SuccessionContactCadence extends NavigationMixin(
   }
 
   /**
-   * Enhanced form validation
-   * PERFORMANCE: Validates form data before API calls
+   * Validates contact attempt outcome form before submission
+   *
+   * Business rules:
+   * - Contact made selection is required
+   * - Notes are required when contact was NOT made
+   * - Notes cannot exceed 255 characters (Salesforce field limit)
+   *
+   * PERFORMANCE: Prevents unnecessary API calls for invalid data
+   *
+   * @returns {{isValid: boolean, errors: string[]}} Validation result with error messages
+   *
+   * @example
+   * const validation = this.validateForm();
+   * if (!validation.isValid) {
+   *   this.showToast('Error', validation.errors.join(', '), 'error');
+   * }
    */
   validateForm() {
     const errors = [];
@@ -378,6 +460,13 @@ export default class SuccessionContactCadence extends NavigationMixin(
    */
   get emailWarningMessage() {
     return this.cadenceData?.emailWarning || "";
+  }
+
+  /**
+   * Get safe error message with null checks
+   */
+  get errorMessage() {
+    return this.error?.body?.message || this.error?.message || "";
   }
 
   /**
@@ -675,7 +764,18 @@ export default class SuccessionContactCadence extends NavigationMixin(
   }
 
   /**
-   * Utility: format remaining ms to a compact string (e.g., "12d 4h")
+   * Formats milliseconds into human-readable compact time string
+   *
+   * Displays the two largest units for clarity (e.g., "12d 4h" not "12d 4h 30m").
+   * Used for countdown timers showing time remaining until attempt unlocks.
+   *
+   * @param {number} ms - Milliseconds to format
+   * @returns {string} Formatted string (e.g., "12d 4h", "3h 25m", "45m")
+   *
+   * @example
+   * formatRemaining(1123200000) // Returns "13d 0h"
+   * formatRemaining(11700000)   // Returns "3h 15m"
+   * formatRemaining(2700000)    // Returns "45m"
    */
   formatRemaining(ms) {
     const d = Math.floor(ms / (24 * 60 * 60 * 1000));
@@ -686,7 +786,20 @@ export default class SuccessionContactCadence extends NavigationMixin(
     return `${m}m`;
   }
 
-  // Filter out system-generated description text, keep user notes
+  /**
+   * Filters out system-generated text from Task descriptions to extract user notes
+   *
+   * Task.Description contains both system-generated instruction text and agent notes.
+   * This method removes known system patterns to isolate the actual agent notes.
+   *
+   * DUAL STORAGE PATTERN: User notes are stored in both Task.Description (immediate)
+   * and ContentNote (structured). This filter extracts notes from Description field.
+   *
+   * @param {string} description - Full Task.Description field value
+   * @returns {string} User notes only (empty string if no user notes present)
+   *
+   * @private
+   */
   filterUserNotes(description) {
     if (!description) return "";
 
@@ -721,9 +834,18 @@ export default class SuccessionContactCadence extends NavigationMixin(
 
   /**
    * Clean up any async handles if component is destroyed
+   * Prevents memory leaks and errors from timeouts firing after unmount
    */
   disconnectedCallback() {
-    // No cleanup needed as we're not using any async operations
+    // Clear any pending timeouts
+    if (this._refreshTimeoutId) {
+      clearTimeout(this._refreshTimeoutId);
+      this._refreshTimeoutId = null;
+    }
+    if (this._emailNavigationTimeoutId) {
+      clearTimeout(this._emailNavigationTimeoutId);
+      this._emailNavigationTimeoutId = null;
+    }
   }
 
   /**
@@ -785,8 +907,30 @@ export default class SuccessionContactCadence extends NavigationMixin(
           // PERFORMANCE: Mark data as changed to invalidate memoization
           this.state.performance.dataChanged = true;
 
-          // Refresh data
-          return refreshApex(this.wiredCadenceResult);
+          // FIX: Add delay before refreshApex to allow ContentNote indexing
+          // ContentNotes may take a moment to be indexed by Salesforce
+          // Task.Description is saved immediately, so notes will appear after delay
+          // TECHNICAL LIMITATION: Salesforce ContentNote indexing is asynchronous
+          // 1.5s delay allows time for ContentVersion -> ContentDocument linkage
+          // Alternative considered: Poll API, but adds complexity for minimal UX benefit
+          // eslint-disable-next-line @lwc/lwc/no-async-operation
+          this._refreshTimeoutId = setTimeout(() => {
+            refreshApex(this.wiredCadenceResult)
+              .then(() => {
+                console.log("Contact cadence data refreshed with notes");
+                this._refreshTimeoutId = null;
+              })
+              .catch((refreshError) => {
+                console.error("Error refreshing cadence data:", refreshError);
+                this._refreshTimeoutId = null;
+                // Still show success, but note refresh failed
+                this.showToast(
+                  "Partial Success",
+                  "Outcome saved but display refresh failed. Please refresh the page to see notes.",
+                  "warning"
+                );
+              });
+          }, 1500); // 1.5 second delay for ContentNote indexing
         })
         .catch((error) => {
           this.handleError(error, "handleSaveOutcome");
@@ -953,11 +1097,13 @@ export default class SuccessionContactCadence extends NavigationMixin(
       );
 
       // Reset navigation state after short delay (allow composer to open)
-      // Note: We're leaving this timeout as it's needed for UX purposes to reset the navigation state
-      // after the email composer opens, but it's not critical for core functionality
+      // UX Enhancement: Prevents double-clicking "Send Email" button while composer loads
+      // 2s delay allows email composer window to fully load before re-enabling button
+      // Alternative considered: Navigation complete event, but not available for email composer
       // eslint-disable-next-line @lwc/lwc/no-async-operation
-      setTimeout(() => {
+      this._emailNavigationTimeoutId = setTimeout(() => {
         this.state.ui.isNavigatingToEmail = false;
+        this._emailNavigationTimeoutId = null;
       }, 2000);
     } catch (error) {
       console.error("Error navigating to email composer:", error);

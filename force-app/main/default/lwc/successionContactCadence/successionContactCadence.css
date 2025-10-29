@@ -107,27 +107,27 @@
   width: 0%;
 }
 
-/* Attempt 1 complete (20%) */
+/* Attempt 1 complete (25% - fills to first node) */
 .progress-nodes.fill-1::after {
-  width: 20%;
+  width: 25%;
 }
 
-/* Attempt 2 complete (40%) */
+/* Attempt 2 complete (50% - fills to second node) */
 .progress-nodes.fill-2::after {
-  width: 40%;
+  width: 50%;
 }
 
-/* Attempt 3 complete (60%) */
+/* Attempt 3 complete (75% - fills to third node) */
 .progress-nodes.fill-3::after {
-  width: 60%;
+  width: 75%;
 }
 
-/* Attempt 4 complete (80%) */
+/* Attempt 4 complete (100% - fills to fourth node) */
 .progress-nodes.fill-4::after {
-  width: 80%;
+  width: 100%;
 }
 
-/* Attempt 5 complete (100%) */
+/* Attempt 5 complete (100% - fills to fifth node) */
 .progress-nodes.fill-5::after {
   width: 100%;
 }
@@ -430,6 +430,11 @@ lightning-textarea {
 /* Success indicator */
 .succession-text-color-success {
   color: var(--slds-g-color-success-base-60);
+}
+
+/* Error indicator */
+.succession-text-color-error {
+  color: #ea001e;
 }
 
 /* ============================================

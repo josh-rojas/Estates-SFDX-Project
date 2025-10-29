@@ -2,7 +2,7 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <description
-  >Creates the next contact attempt when the current attempt Task is completed. Schedules ActivityDate off Case.CreatedDate (Day 5/35/65/95). Exits when contact established or after Attempt 5. Includes fault connector for parent case lookup.</description>
+  >Creates the next contact attempt when the current attempt Task is completed. Uses SuccessionTaskCreator invocable class for duplicate prevention and centralized task creation logic. Schedules ActivityDate off Case.CreatedDate (Day 5/35/65/95). Exits when contact established or after Attempt 5.</description>
     <label>Task - Create Next Contact Attempt</label>
     <processMetadataValues>
         <name>BuilderType</name>
@@ -65,126 +65,6 @@
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
 
-    <!-- Check if Attempt 2 Task Already Exists -->
-    <recordLookups>
-        <name>Check_If_Attempt_2_Exists</name>
-        <label>Check If Attempt 2 Exists</label>
-        <locationX>50</locationX>
-        <locationY>350</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>If_Attempt_2_Does_Not_Exist</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>WhatId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Parent_Case.Id</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>Contact_Attempt_Number__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <numberValue>2.0</numberValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>false</getFirstRecordOnly>
-        <object>Task</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-
-    <!-- Check if Attempt 3 Task Already Exists -->
-    <recordLookups>
-        <name>Check_If_Attempt_3_Exists</name>
-        <label>Check If Attempt 3 Exists</label>
-        <locationX>150</locationX>
-        <locationY>350</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>If_Attempt_3_Does_Not_Exist</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>WhatId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Parent_Case.Id</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>Contact_Attempt_Number__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <numberValue>3.0</numberValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>false</getFirstRecordOnly>
-        <object>Task</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-
-    <!-- Check if Attempt 4 Task Already Exists -->
-    <recordLookups>
-        <name>Check_If_Attempt_4_Exists</name>
-        <label>Check If Attempt 4 Exists</label>
-        <locationX>250</locationX>
-        <locationY>350</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>If_Attempt_4_Does_Not_Exist</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>WhatId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Parent_Case.Id</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>Contact_Attempt_Number__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <numberValue>4.0</numberValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>false</getFirstRecordOnly>
-        <object>Task</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-
-    <!-- Check if Attempt 5 Task Already Exists -->
-    <recordLookups>
-        <name>Check_If_Attempt_5_Exists</name>
-        <label>Check If Attempt 5 Exists</label>
-        <locationX>350</locationX>
-        <locationY>350</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>If_Attempt_5_Does_Not_Exist</targetReference>
-        </connector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>WhatId</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>Get_Parent_Case.Id</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>Contact_Attempt_Number__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <numberValue>5.0</numberValue>
-            </value>
-        </filters>
-        <getFirstRecordOnly>false</getFirstRecordOnly>
-        <object>Task</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-
     <!-- Decision: Check If Contact Established -->
     <decisions>
         <name>Check_If_Contact_Established</name>
@@ -230,7 +110,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Check_If_Attempt_2_Exists</targetReference>
+                <targetReference>Create_Attempt_2_Via_Apex</targetReference>
             </connector>
             <label>Is Attempt 1</label>
         </rules>
@@ -246,7 +126,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Check_If_Attempt_3_Exists</targetReference>
+                <targetReference>Create_Attempt_3_Via_Apex</targetReference>
             </connector>
             <label>Is Attempt 2</label>
         </rules>
@@ -262,7 +142,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Check_If_Attempt_4_Exists</targetReference>
+                <targetReference>Create_Attempt_4_Via_Apex</targetReference>
             </connector>
             <label>Is Attempt 3</label>
         </rules>
@@ -278,7 +158,7 @@
                 </rightValue>
             </conditions>
             <connector>
-                <targetReference>Check_If_Attempt_5_Exists</targetReference>
+                <targetReference>Create_Attempt_5_Via_Apex</targetReference>
             </connector>
             <label>Is Attempt 4</label>
         </rules>
@@ -297,335 +177,151 @@
         </rules>
     </decisions>
 
-    <!-- Decision: If Attempt 2 Does Not Exist -->
-    <decisions>
-        <name>If_Attempt_2_Does_Not_Exist</name>
-        <label>If Attempt 2 Does Not Exist</label>
-        <locationX>50</locationX>
-        <locationY>375</locationY>
-        <defaultConnectorLabel>Task Already Exists</defaultConnectorLabel>
-        <rules>
-            <name>No_Attempt_2_Task_Found</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Check_If_Attempt_2_Exists</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Create_Attempt_2_Task</targetReference>
-            </connector>
-            <label>No Attempt 2 Task Found</label>
-        </rules>
-    </decisions>
-
-    <!-- Decision: If Attempt 3 Does Not Exist -->
-    <decisions>
-        <name>If_Attempt_3_Does_Not_Exist</name>
-        <label>If Attempt 3 Does Not Exist</label>
-        <locationX>150</locationX>
-        <locationY>375</locationY>
-        <defaultConnectorLabel>Task Already Exists</defaultConnectorLabel>
-        <rules>
-            <name>No_Attempt_3_Task_Found</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Check_If_Attempt_3_Exists</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Create_Attempt_3_Task</targetReference>
-            </connector>
-            <label>No Attempt 3 Task Found</label>
-        </rules>
-    </decisions>
-
-    <!-- Decision: If Attempt 4 Does Not Exist -->
-    <decisions>
-        <name>If_Attempt_4_Does_Not_Exist</name>
-        <label>If Attempt 4 Does Not Exist</label>
-        <locationX>250</locationX>
-        <locationY>375</locationY>
-        <defaultConnectorLabel>Task Already Exists</defaultConnectorLabel>
-        <rules>
-            <name>No_Attempt_4_Task_Found</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Check_If_Attempt_4_Exists</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Create_Attempt_4_Task</targetReference>
-            </connector>
-            <label>No Attempt 4 Task Found</label>
-        </rules>
-    </decisions>
-
-    <!-- Decision: If Attempt 5 Does Not Exist -->
-    <decisions>
-        <name>If_Attempt_5_Does_Not_Exist</name>
-        <label>If Attempt 5 Does Not Exist</label>
-        <locationX>350</locationX>
-        <locationY>375</locationY>
-        <defaultConnectorLabel>Task Already Exists</defaultConnectorLabel>
-        <rules>
-            <name>No_Attempt_5_Task_Found</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Check_If_Attempt_5_Exists</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Create_Attempt_5_Task</targetReference>
-            </connector>
-            <label>No Attempt 5 Task Found</label>
-        </rules>
-    </decisions>
-
-    <!-- Create Attempt 2 Task (Day 5) -->
-    <recordCreates>
-        <name>Create_Attempt_2_Task</name>
-        <label>Create Attempt 2 Task</label>
+    <!-- Action Call: Create Attempt 2 (Day 5) -->
+    <actionCalls>
+        <name>Create_Attempt_2_Via_Apex</name>
+        <label>Create Attempt 2 (Day 5)</label>
         <locationX>50</locationX>
         <locationY>400</locationY>
-        <inputAssignments>
-            <field>WhatId</field>
+        <actionName>SuccessionTaskCreator</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
             <value>
                 <elementReference>Get_Parent_Case.Id</elementReference>
             </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject</field>
-            <value>
-                <stringValue
-        >Succession Contact - Attempt 2 (Day 5)</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Not Started</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Priority</field>
-            <value>
-                <stringValue>High</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ActivityDate</field>
-            <value>
-                <elementReference>fxCalculateDay5</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Contact_Attempt_Number__c</field>
+        </inputParameters>
+        <inputParameters>
+            <name>attemptNumber</name>
             <value>
                 <numberValue>2.0</numberValue>
             </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Description</field>
-            <value>
-                <stringValue>Contact attempt for succession case.</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Task</object>
-    </recordCreates>
-
-    <!-- Create Attempt 3 Task (Day 35) -->
-    <recordCreates>
-        <name>Create_Attempt_3_Task</name>
-        <label>Create Attempt 3 Task</label>
-        <locationX>150</locationX>
-        <locationY>400</locationY>
-        <inputAssignments>
-            <field>WhatId</field>
-            <value>
-                <elementReference>Get_Parent_Case.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject</field>
-            <value>
-                <stringValue
-        >Succession Contact - Attempt 3 (Day 35)</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Not Started</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Priority</field>
-            <value>
-                <stringValue>High</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ActivityDate</field>
-            <value>
-                <elementReference>fxCalculateDay35</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Contact_Attempt_Number__c</field>
-            <value>
-                <numberValue>3.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Description</field>
-            <value>
-                <stringValue>Contact attempt for succession case.</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Task</object>
-    </recordCreates>
-
-    <!-- Create Attempt 4 Task (Day 65) -->
-    <recordCreates>
-        <name>Create_Attempt_4_Task</name>
-        <label>Create Attempt 4 Task</label>
-        <locationX>250</locationX>
-        <locationY>400</locationY>
-        <inputAssignments>
-            <field>WhatId</field>
-            <value>
-                <elementReference>Get_Parent_Case.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject</field>
-            <value>
-                <stringValue
-        >Succession Contact - Attempt 4 (Day 65)</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Not Started</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Priority</field>
-            <value>
-                <stringValue>Urgent</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ActivityDate</field>
-            <value>
-                <elementReference>fxCalculateDay65</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Contact_Attempt_Number__c</field>
-            <value>
-                <numberValue>4.0</numberValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Description</field>
-            <value>
-                <stringValue>Contact attempt for succession case.</stringValue>
-            </value>
-        </inputAssignments>
-        <object>Task</object>
-    </recordCreates>
-
-    <!-- Create Attempt 5 Task (Day 95) -->
-    <recordCreates>
-        <name>Create_Attempt_5_Task</name>
-        <label>Create Attempt 5 Task</label>
-        <locationX>350</locationX>
-        <locationY>400</locationY>
-        <inputAssignments>
-            <field>WhatId</field>
-            <value>
-                <elementReference>Get_Parent_Case.Id</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Subject</field>
-            <value>
-                <stringValue
-        >Succession Contact - Attempt 5 (Day 95)</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Not Started</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Priority</field>
-            <value>
-                <stringValue>Urgent</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>ActivityDate</field>
-            <value>
-                <elementReference>fxCalculateDay95</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Contact_Attempt_Number__c</field>
+        </inputParameters>
+        <inputParameters>
+            <name>daysOffset</name>
             <value>
                 <numberValue>5.0</numberValue>
             </value>
-        </inputAssignments>
-        <inputAssignments>
-            <field>Description</field>
+        </inputParameters>
+        <inputParameters>
+            <name>caseCreatedDate</name>
             <value>
-                <stringValue>Contact attempt for succession case.</stringValue>
+                <elementReference>Get_Parent_Case.CreatedDate</elementReference>
             </value>
-        </inputAssignments>
-        <object>Task</object>
-    </recordCreates>
+        </inputParameters>
+        <nameSegment>SuccessionTaskCreator</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
 
-    <!-- Formula: Calculate Day 5 Date -->
-    <formulas>
-        <name>fxCalculateDay5</name>
-        <dataType>Date</dataType>
-        <expression>DATEVALUE({!Get_Parent_Case.CreatedDate}) + 5</expression>
-    </formulas>
+    <!-- Action Call: Create Attempt 3 (Day 35) -->
+    <actionCalls>
+        <name>Create_Attempt_3_Via_Apex</name>
+        <label>Create Attempt 3 (Day 35)</label>
+        <locationX>150</locationX>
+        <locationY>400</locationY>
+        <actionName>SuccessionTaskCreator</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>Get_Parent_Case.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>attemptNumber</name>
+            <value>
+                <numberValue>3.0</numberValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>daysOffset</name>
+            <value>
+                <numberValue>35.0</numberValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>caseCreatedDate</name>
+            <value>
+                <elementReference>Get_Parent_Case.CreatedDate</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SuccessionTaskCreator</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
 
-    <!-- Formula: Calculate Day 35 Date -->
-    <formulas>
-        <name>fxCalculateDay35</name>
-        <dataType>Date</dataType>
-        <expression>DATEVALUE({!Get_Parent_Case.CreatedDate}) + 35</expression>
-    </formulas>
+    <!-- Action Call: Create Attempt 4 (Day 65) -->
+    <actionCalls>
+        <name>Create_Attempt_4_Via_Apex</name>
+        <label>Create Attempt 4 (Day 65)</label>
+        <locationX>250</locationX>
+        <locationY>400</locationY>
+        <actionName>SuccessionTaskCreator</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>Get_Parent_Case.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>attemptNumber</name>
+            <value>
+                <numberValue>4.0</numberValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>daysOffset</name>
+            <value>
+                <numberValue>65.0</numberValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>caseCreatedDate</name>
+            <value>
+                <elementReference>Get_Parent_Case.CreatedDate</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SuccessionTaskCreator</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
 
-    <!-- Formula: Calculate Day 65 Date -->
-    <formulas>
-        <name>fxCalculateDay65</name>
-        <dataType>Date</dataType>
-        <expression>DATEVALUE({!Get_Parent_Case.CreatedDate}) + 65</expression>
-    </formulas>
-
-    <!-- Formula: Calculate Day 95 Date -->
-    <formulas>
-        <name>fxCalculateDay95</name>
-        <dataType>Date</dataType>
-        <expression>DATEVALUE({!Get_Parent_Case.CreatedDate}) + 95</expression>
-    </formulas>
+    <!-- Action Call: Create Attempt 5 (Day 95) -->
+    <actionCalls>
+        <name>Create_Attempt_5_Via_Apex</name>
+        <label>Create Attempt 5 (Day 95)</label>
+        <locationX>350</locationX>
+        <locationY>400</locationY>
+        <actionName>SuccessionTaskCreator</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>Get_Parent_Case.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>attemptNumber</name>
+            <value>
+                <numberValue>5.0</numberValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>daysOffset</name>
+            <value>
+                <numberValue>95.0</numberValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>caseCreatedDate</name>
+            <value>
+                <elementReference>Get_Parent_Case.CreatedDate</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SuccessionTaskCreator</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
 </Flow>
