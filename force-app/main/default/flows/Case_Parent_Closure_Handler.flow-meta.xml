@@ -258,7 +258,7 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Inactive</status>
     <variables>
         <name>varHasOpenChild</name>
         <dataType>Boolean</dataType>

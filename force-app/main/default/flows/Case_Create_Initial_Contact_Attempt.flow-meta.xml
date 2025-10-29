@@ -65,7 +65,7 @@
             <label>Yes - Create First Task</label>
         </rules>
     </decisions>
-    <status>Active</status>
+    <status>Inactive</status>
 
     <!-- Action Call: Create Attempt 1 Task (Day 0 - Immediate) -->
     <actionCalls>
