@@ -16,34 +16,26 @@
   color: white;
 }
 
-.slds-text-body_regular {
+/* Component-scoped styling (not global SLDS overrides) */
+.succession-scope .slds-page-header .slds-text-body_regular {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.slds-card {
+.succession-scope .slds-card {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.slds-dl_horizontal__label {
+.succession-scope .slds-dl_horizontal__label {
   font-weight: 600;
-  color: #3e3e3c;
+  color: var(--slds-g-color-neutral-base-10, #181818);
 }
 
-.slds-text-heading_small {
+.succession-scope .form-section-heading {
   font-weight: 700;
-  color: #0070d2;
+  color: var(--slds-g-color-brand-base-70, #0070d2);
 }
 
-/* Enhanced Error Display */
-.slds-notify_alert {
-  display: flex;
-  align-items: center;
-}
-
-.slds-alert_error {
-  background-color: #fef2f2;
-  border-left: 4px solid #c81e1e;
-}
+/* Error notification uses standard SLDS scoped-notification pattern */
 
 /* Error Card Sections */
 lightning-card .slds-p-around_medium > div {

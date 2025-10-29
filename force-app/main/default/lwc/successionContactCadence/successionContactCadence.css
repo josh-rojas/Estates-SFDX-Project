@@ -5,6 +5,41 @@
  */
 
 /* ============================================
+   SLDS DESIGN TOKEN MAPPING
+   Provides fallbacks for older SLDS versions
+   ============================================ */
+
+:host {
+  /* Brand Colors */
+  --color-brand: var(--slds-g-color-brand-base-60, #0176d3);
+  --color-brand-dark: var(--slds-g-color-brand-base-70, #0070d2);
+
+  /* Success Colors */
+  --color-success: var(--slds-g-color-success-base-60, #4bca81);
+  --color-success-dark: var(--slds-g-color-success-base-70, #2e844a);
+  --color-success-mid: #3ba755;
+
+  /* Error Colors */
+  --color-error: var(--slds-g-color-error-base-60, #ea001e);
+  --color-error-dark: var(--slds-g-color-error-base-70, #c23934);
+
+  /* Warning Colors */
+  --color-warning: var(--slds-g-color-warning-base-60, #ff9900);
+  --color-warning-light: var(--slds-g-color-warning-base-50, #ffb75d);
+
+  /* Neutral Colors */
+  --color-neutral-100: var(--slds-g-color-neutral-base-100, #ffffff);
+  --color-neutral-95: var(--slds-g-color-neutral-base-95, #f3f3f3);
+  --color-neutral-90: var(--slds-g-color-neutral-base-90, #ecebea);
+  --color-neutral-10: var(--slds-g-color-neutral-base-10, #181818);
+
+  /* Spacing */
+  --spacing-small: var(--slds-g-spacing-2, 0.5rem);
+  --spacing-medium: var(--slds-g-spacing-4, 0.75rem);
+  --spacing-large: var(--slds-g-spacing-6, 1rem);
+}
+
+/* ============================================
    PROGRESS BAR SECTION
    ============================================ */
 
@@ -93,7 +128,12 @@
   left: 1.5rem;
   width: 0%;
   height: 10px;
-  background: linear-gradient(to bottom, #4bca81 0%, #3ba755 50%, #2e844a 100%);
+  background: linear-gradient(
+    to bottom,
+    var(--color-success) 0%,
+    var(--color-success-mid) 50%,
+    var(--color-success-dark) 100%
+  );
   border-radius: 5px;
   box-shadow:
     inset 0 1px 2px rgba(255, 255, 255, 0.3),
@@ -167,9 +207,13 @@
 
 /* Node States */
 .node-completed .node-circle {
-  border-color: #2e844a;
-  background: radial-gradient(circle at 30% 30%, #4bca81, #3ba755);
-  color: #ffffff;
+  border-color: var(--color-success-dark);
+  background: radial-gradient(
+    circle at 30% 30%,
+    var(--color-success),
+    var(--color-success-mid)
+  );
+  color: var(--color-neutral-100);
   box-shadow:
     0 2px 6px rgba(46, 132, 74, 0.25),
     inset 0 1px 2px rgba(255, 255, 255, 0.4);
@@ -177,8 +221,8 @@
 
 .node-current .node-circle {
   border-color: #0161b5;
-  background: radial-gradient(circle at 30% 30%, #1b96ff, #0176d3);
-  color: #ffffff;
+  background: radial-gradient(circle at 30% 30%, #1b96ff, var(--color-brand));
+  color: var(--color-neutral-100);
   box-shadow:
     0 0 0 4px rgba(1, 118, 211, 0.2),
     0 3px 8px rgba(1, 118, 211, 0.4),
@@ -213,13 +257,13 @@
 
 /* Node Icon - Success (Contact Established) */
 .node-icon-success {
-  color: #2e844a;
+  color: var(--color-success-dark);
   font-weight: 700;
 }
 
 /* Node Icon - Failure (Contact Not Established) */
 .node-icon-failure {
-  color: #ea001e;
+  color: var(--color-error);
   font-weight: 700;
 }
 
@@ -337,8 +381,8 @@
 }
 
 .card-current {
-  background-color: #ffffff;
-  border: 2px solid #0176d3;
+  background-color: var(--color-neutral-100);
+  border: 2px solid var(--color-brand);
   box-shadow: 0 4px 12px rgba(1, 118, 211, 0.18);
   padding: calc(0.875rem - 1px); /* Compensate for thicker border */
 }
@@ -351,8 +395,8 @@
 }
 
 .card-locked {
-  background-color: #ffffff;
-  border: 1px solid #ffb75d;
+  background-color: var(--color-neutral-100);
+  border: 1px solid var(--color-warning-light);
   box-shadow: 0 2px 6px rgba(255, 153, 0, 0.12);
 }
 
@@ -434,7 +478,7 @@ lightning-textarea {
 
 /* Error indicator */
 .succession-text-color-error {
-  color: #ea001e;
+  color: var(--color-error);
 }
 
 /* ============================================
@@ -517,7 +561,7 @@ lightning-spinner {
 
 .countdown-bar {
   background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 50%, #ffd699 100%);
-  border: 2px solid #ff9900;
+  border: 2px solid var(--color-warning);
   border-radius: 0.5rem;
   padding: 1rem;
   box-shadow: 0 2px 8px rgba(255, 153, 0, 0.2);
@@ -538,16 +582,136 @@ lightning-spinner {
     rgba(255, 255, 255, 0.4),
     transparent
   );
-  animation: shimmer-bar 2s infinite;
 }
 
-@keyframes shimmer-bar {
-  0% {
-    left: -100%;
+/* ============================================
+   ACCESSIBILITY: REDUCED MOTION SUPPORT
+   ============================================ */
+
+/* Animations only for users who prefer motion */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes shimmer-bar {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
   }
-  100% {
-    left: 100%;
+
+  @keyframes pulse-warning {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(254, 147, 57, 0);
+      border-color: #fe9339;
+    }
+    50% {
+      opacity: 0.95;
+      transform: scale(1.01);
+      box-shadow: 0 0 12px 2px rgba(254, 147, 57, 0.4);
+      border-color: #ffb75d;
+    }
   }
+
+  @keyframes shimmer-bg {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
+  @keyframes shimmer-overlay {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  @keyframes shimmer-text {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
+  /* Apply animations only when motion is preferred */
+  .countdown-bar::before {
+    animation: shimmer-bar 2s infinite;
+  }
+
+  .card-locked .slds-theme_warning {
+    animation:
+      pulse-warning 2.5s ease-in-out infinite,
+      shimmer-bg 3s linear infinite;
+  }
+
+  .card-locked .slds-theme_warning::before {
+    animation: shimmer-overlay 2s linear infinite;
+  }
+
+  .card-locked .slds-theme_warning span {
+    animation: shimmer-text 2s linear infinite;
+  }
+}
+
+/* Static fallback for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .countdown-bar::before {
+    display: none;
+  }
+
+  .card-locked .slds-theme_warning {
+    border: 2px solid #fe9339;
+    background: #ffe0cc;
+  }
+
+  .card-locked .slds-theme_warning::before {
+    display: none;
+  }
+
+  .card-locked .slds-theme_warning span {
+    color: #8b4513;
+    background: none;
+    -webkit-text-fill-color: unset;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY: FOCUS INDICATORS
+   ============================================ */
+
+/* Focus states for toggle buttons */
+.toggle-button-left:focus,
+.toggle-button-right:focus {
+  outline: 2px solid var(--slds-g-color-brand-base-60, #0176d3);
+  outline-offset: 2px;
+  z-index: 10;
+  border-radius: 0.25rem;
+}
+
+/* Enhanced focus for keyboard users */
+.toggle-button-left:focus-visible,
+.toggle-button-right:focus-visible {
+  outline: 3px solid var(--slds-g-color-brand-base-60, #0176d3);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(1, 118, 211, 0.2);
+  border-radius: 0.25rem;
+}
+
+/* Card action buttons */
+.card-content button:focus-visible,
+.attempt-card button:focus-visible {
+  outline: 2px solid var(--slds-g-color-brand-base-60, #0176d3);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.15);
 }
 
 .countdown-bar-content {
@@ -560,7 +724,7 @@ lightning-spinner {
 
 .countdown-icon {
   flex-shrink: 0;
-  color: #ff9900;
+  color: var(--color-warning);
 }
 
 .countdown-text-container {
@@ -584,39 +748,11 @@ lightning-spinner {
 }
 
 /* ============================================
-   COUNTDOWN ANIMATION
+   COUNTDOWN ANIMATION (Base Styles)
    ============================================ */
-
-/* Pulsing glow animation for locked attempts */
-@keyframes pulse-warning {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(254, 147, 57, 0);
-    border-color: #fe9339;
-  }
-  50% {
-    opacity: 0.95;
-    transform: scale(1.01);
-    box-shadow: 0 0 12px 2px rgba(254, 147, 57, 0.4);
-    border-color: #ffb75d;
-  }
-}
-
-/* Background shimmer for countdown bar */
-@keyframes shimmer-bg {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
 
 .card-locked .slds-theme_warning {
   position: relative;
-  animation: pulse-warning 2.5s ease-in-out infinite;
   border: 2px solid #fe9339;
   background: linear-gradient(
     90deg,
@@ -627,13 +763,10 @@ lightning-spinner {
     #ffe0cc 100%
   );
   background-size: 200% auto;
-  animation:
-    pulse-warning 2.5s ease-in-out infinite,
-    shimmer-bg 3s linear infinite;
   overflow: hidden;
 }
 
-/* Shimmer overlay effect */
+/* Shimmer overlay effect (base structure) */
 .card-locked .slds-theme_warning::before {
   content: "";
   position: absolute;
@@ -647,28 +780,9 @@ lightning-spinner {
     rgba(255, 255, 255, 0.6) 50%,
     transparent 100%
   );
-  animation: shimmer-overlay 2s linear infinite;
 }
 
-@keyframes shimmer-overlay {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-/* Text shimmer effect */
-@keyframes shimmer-text {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
+/* Text shimmer effect (base structure) */
 .card-locked .slds-theme_warning span {
   position: relative;
   z-index: 1;
@@ -684,6 +798,5 @@ lightning-spinner {
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shimmer-text 2s linear infinite;
   font-weight: 600;
 }

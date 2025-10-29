@@ -39,25 +39,6 @@
   color: var(--slds-g-color-text-weak, #706e6b);
 }
 
-/* Button styling */
-.create-succession-case-button {
-  background-color: var(--slds-g-color-background, #ffffff);
-  border-color: var(--slds-g-color-border, #dddbda);
-  color: var(--slds-g-color-text-default, #080707);
-}
+/* Button styling removed - lightning-button handles its own styling */
 
-.create-succession-case-button:hover {
-  background-color: var(--slds-g-color-background-hover, #f3f2f2);
-  border-color: var(--slds-g-color-border, #dddbda);
-}
-
-/* Responsive adjustments */
-@media (max-width: 480px) {
-  .slds-var-p-around_medium {
-    padding: var(--slds-g-spacing-medium, 0.75rem);
-  }
-
-  .slds-var-m-top_medium {
-    margin-top: var(--slds-g-spacing-medium, 0.75rem);
-  }
-}
+/* Responsive adjustments removed - SLDS utilities handle their own responsive behavior */

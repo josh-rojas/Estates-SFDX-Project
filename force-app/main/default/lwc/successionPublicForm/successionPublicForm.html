@@ -34,19 +34,24 @@
       <div class="slds-m-around_medium">
         <!-- Error Alert -->
         <div
-          class="slds-notify slds-notify_alert slds-alert_error slds-m-bottom_medium"
+          class="slds-scoped-notification slds-theme_error slds-m-bottom_medium"
           role="alert"
         >
-          <span class="slds-assistive-text">Error</span>
-          <lightning-icon
-            icon-name="utility:error"
-            variant="error"
-            size="small"
-            class="slds-m-right_small"
-          ></lightning-icon>
-          <h2 class="slds-text-heading_medium">
-            {errorState.title}
-          </h2>
+          <div class="slds-media">
+            <div class="slds-media__figure">
+              <lightning-icon
+                icon-name="utility:error"
+                variant="error"
+                size="small"
+                alternative-text="Error"
+              ></lightning-icon>
+            </div>
+            <div class="slds-media__body">
+              <h2 class="slds-text-heading_medium">
+                {errorState.title}
+              </h2>
+            </div>
+          </div>
         </div>
 
         <!-- Error Details Card -->

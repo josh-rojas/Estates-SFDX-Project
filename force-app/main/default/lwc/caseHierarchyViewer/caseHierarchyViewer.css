@@ -40,11 +40,11 @@
 
 /* Indentation Levels */
 .indent-level-1 {
-  margin-left: var(--slds-g-varSpacingMedium);
+  margin-left: var(--slds-g-spacing-4, 0.75rem);
 }
 
 .indent-level-2 {
-  margin-left: var(--slds-g-varSpacingLarge);
+  margin-left: var(--slds-g-spacing-6, 1rem);
 }
 
 /* SLA Status Badges */
@@ -105,12 +105,12 @@
 
 /* Financial Account Section */
 .account-section .succession-box {
-  background-color: var(--slds-g-color-neutral-inverse-100);
+  background-color: var(--slds-g-color-neutral-base-100, #ffffff);
 }
 
 /* Successor Items */
 .successor-item {
-  background-color: var(--slds-g-color-neutral-inverse-100);
+  background-color: var(--slds-g-color-neutral-base-100, #ffffff);
   border-left: var(--slds-g-border-width-thick) solid
     var(--slds-g-color-brand-base-60);
 }
@@ -122,10 +122,10 @@
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .indent-level-1 {
-    margin-left: var(--slds-g-varSpacingXxSmall);
+    margin-left: var(--slds-g-spacing-1, 0.25rem);
   }
 
   .indent-level-2 {
-    margin-left: var(--slds-g-varSpacingXSmall);
+    margin-left: var(--slds-g-spacing-2, 0.5rem);
   }
 }
