@@ -1004,14 +1004,23 @@ export default class SuccessionContactCadence extends NavigationMixin(
   }
 
   /**
-   * Open Send List Email dialog with appropriate template based on attempt number
+   * Open Lightning Email Composer with appropriate context
    *
-   * FIX: Uses direct URL navigation to email composer
-   * This avoids the "Invalid template returned by render()" error
+   * Uses the supported standard__composer navigation type instead of webPage URL hack.
+   * This ensures reliable composer opening across all Salesforce shells and org configurations.
    *
    * NOTE: This handles both Person Accounts and Business Accounts with Contacts.
-   * - Person Account: Opens email composer for Account
+   * - Person Account: Opens email composer for Account (requires Enhanced Email enabled)
    * - Business Account: Opens email composer for Contact
+   *
+   * TEMPLATE SELECTION: Opens composer with manual template selection UX.
+   * Agent must select template from dropdown. Pre-selection not implemented because:
+   * - Requires EmailTemplate API lookup (additional SOQL query + performance impact)
+   * - Template IDs vary across orgs (deployment complexity)
+   * - Manual selection ensures agent reviews template before sending (compliance benefit)
+   *
+   * FUTURE ENHANCEMENT: Add showTemplate/templateId attributes for automatic template selection.
+   * Would require: Custom Metadata Type mapping (Template_Label__c → Template_Id__c per org).
    */
   openListEmailDialog(attemptNumber) {
     // Validate cadence data exists
@@ -1030,18 +1039,16 @@ export default class SuccessionContactCadence extends NavigationMixin(
     const accountId = this.cadenceData.accountId;
     const contactId = this.cadenceData.contactId;
 
-    // Determine recordId and objectApiName based on account type
+    // Determine recordId for recipient context based on account type
     let recordId;
-    let objectApiName;
 
     if (isPersonAccount) {
       // Person Account: use AccountId
+      // IMPORTANT: Enhanced Email must be enabled in org for Account email sending
       recordId = accountId;
-      objectApiName = "Account";
     } else {
       // Business Account: use ContactId
       recordId = contactId;
-      objectApiName = "Contact";
     }
 
     // Validate recordId exists
@@ -1059,7 +1066,7 @@ export default class SuccessionContactCadence extends NavigationMixin(
       return;
     }
 
-    // Map attempt numbers to email template display names
+    // Map attempt numbers to email template display names (for toast message)
     const templateMap = {
       1: "Day 0 - Initial Contact",
       2: "Day 5 - First Follow-Up",
@@ -1073,19 +1080,23 @@ export default class SuccessionContactCadence extends NavigationMixin(
     // Set navigation state to prevent double-click
     this.state.ui.isNavigatingToEmail = true;
 
-    // FIX: Use direct URL to email composer
-    // Format: /lightning/o/{ObjectApiName}/email?context={recordId}
-    const emailComposerUrl = `/lightning/o/${objectApiName}/email?context=${recordId}`;
-
     try {
+      // Use standard__composer navigation type (supported pattern)
+      // recordId provides recipient context (Contact or Account for Person Account)
+      // relatedEntityId provides merge field context (Case fields in template)
       this[NavigationMixin.Navigate]({
-        type: "standard__webPage",
+        type: "standard__composer",
         attributes: {
-          url: emailComposerUrl
+          recordId: recordId, // Recipient: Contact or Account (Person Account)
+          relatedEntityId: this.recordId // Related Case for merge fields in template
+          // Template selection: Manual UX (agent selects from dropdown)
+          // To enable auto-selection, add:
+          // showTemplate: true,
+          // templateId: '00Xxxxxxxxxxxxx' // EmailTemplate.Id from org
         }
       });
 
-      // NOTE: Do NOT clear pendingEmailAttemptNumber here
+      // NOTE: Do NOT clear pendingEmailAttempt here
       // Keep email prompt visible in case agent closes composer without sending
       // Only clear when agent explicitly clicks "Skip" button
 
