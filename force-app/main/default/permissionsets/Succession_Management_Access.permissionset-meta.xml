@@ -241,11 +241,39 @@
 
     <!-- Apex Class Permissions -->
     <classAccesses>
+        <apexClass>CaseHierarchyController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ContactCadenceController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>CreateSuccessionCaseController</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
-        <apexClass>CreateSuccessionCaseControllerTest</apexClass>
+        <apexClass>SuccessionChatterPoster</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SuccessionPathwayEmailSender</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SuccessionPublicFormController</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SuccessionTaskCreator</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SuccessionTaskGenerator</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>SuccessionUtilities</apexClass>
         <enabled>true</enabled>
     </classAccesses>
 </PermissionSet>
