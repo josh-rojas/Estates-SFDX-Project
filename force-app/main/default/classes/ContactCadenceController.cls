@@ -732,22 +732,39 @@ public with sharing class ContactCadenceController {
    * Validate email address existence, format, and opt-out status
    * Uses SuccessionUtilities for email validation logic
    *
-   * @param parentCase - Case record with Successor__c field
+   * PERSON ACCOUNT SUPPORT: Checks Account.IsPersonAccount flag to determine
+   * which email fields to use:
+   * - Person Account: Account.PersonEmail, Account.PersonHasOptedOutOfEmail
+   * - Business Account: Contact.Email, Contact.HasOptedOutOfEmail
+   *
+   * @param parentCase - Case record with Account and Contact relationships (already queried)
    * @param cadenceData - ContactCadenceData to populate with email validation results
    */
   private static void validateEmailAddress(
     Case parentCase,
     ContactCadenceData cadenceData
   ) {
-    // Query successor contact for email validation
-    Contact successor = SuccessionUtilities.querySuccessorContact(
-      parentCase.Successor__c
-    );
+    String emailToValidate;
+    Boolean hasOptedOut;
+
+    // Determine which email fields to use based on Account type
+    // Case SOQL already includes: Account.PersonEmail, Account.PersonHasOptedOutOfEmail,
+    // Contact.Email, Contact.HasOptedOutOfEmail (lines 147-150)
+    if (parentCase.Account?.IsPersonAccount == true) {
+      // Person Account: Use Account.PersonEmail and Account.PersonHasOptedOutOfEmail
+      emailToValidate = parentCase.Account.PersonEmail;
+      hasOptedOut = parentCase.Account.PersonHasOptedOutOfEmail;
+    } else {
+      // Business Account: Use Contact.Email and Contact.HasOptedOutOfEmail
+      // Note: Contact relationship must exist for Business Accounts
+      emailToValidate = parentCase.Contact?.Email;
+      hasOptedOut = parentCase.Contact?.HasOptedOutOfEmail;
+    }
 
     // Use SuccessionUtilities to validate email
     SuccessionUtilities.EmailValidationResult result = SuccessionUtilities.validateEmail(
-      successor?.Email,
-      successor?.HasOptedOutOfEmail
+      emailToValidate,
+      hasOptedOut
     );
 
     // Populate cadenceData with validation results
