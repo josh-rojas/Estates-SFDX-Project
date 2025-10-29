@@ -790,4 +790,54 @@ public with sharing class ContactCadenceController {
       3 // Skip 3 lines: dashes, blank line, start of content
     );
   }
+
+  /**
+   * Mark pathway form email as sent
+   * Sets Form_Sent_Date__c and creates Chatter notification
+   * Called when agent manually sends email via email composer
+   *
+   * @param caseId - ID of the Case
+   * @return Success message or error
+   */
+  @AuraEnabled
+  public static String markFormEmailSent(Id caseId) {
+    try {
+      // Query case
+      List<Case> cases = [
+        SELECT Id, Form_Sent_Date__c, CaseNumber
+        FROM Case
+        WHERE Id = :caseId
+        WITH USER_MODE
+        LIMIT 1
+      ];
+
+      if (cases.isEmpty()) {
+        throw new AuraHandledException('Case not found');
+      }
+
+      Case c = cases[0];
+
+      // Check if already set
+      if (c.Form_Sent_Date__c != null) {
+        return 'Pathway form email already marked as sent on ' +
+          c.Form_Sent_Date__c.format();
+      }
+
+      // Update case
+      c.Form_Sent_Date__c = Date.today();
+      Database.update(c, AccessLevel.USER_MODE);
+
+      // Create Chatter post
+      SuccessionUtilities.createChatterPost(
+        c.Id,
+        '📧 Pathway form invitation email sent manually via email composer (' +
+        c.Form_Sent_Date__c.format() +
+        ')'
+      );
+
+      return 'Pathway form email marked as sent';
+    } catch (Exception e) {
+      throw new AuraHandledException('Error marking email as sent: ' + e.getMessage());
+    }
+  }
 }

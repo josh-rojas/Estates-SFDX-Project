@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <description
+  >Automatically sends pathway form invitation email when contact is established with successor.</description>
+    <environments>Default</environments>
+    <interviewLabel
+  >Succession - Send Pathway Form Email {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Succession - Send Pathway Form Email</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+
+    <!-- START: Trigger when Contact_Established__c changes to true -->
+    <start>
+        <locationX>176</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Check_Email_Not_Already_Sent</targetReference>
+        </connector>
+        <filterFormula>AND(
+    RecordType.DeveloperName = &quot;EstateAdministration&quot;,
+    TEXT({!$Record.Type}) = &quot;Named Successor Enactment&quot;,
+    ISCHANGED({!$Record.Contact_Established__c}),
+    {!$Record.Contact_Established__c} = TRUE,
+    NOT(ISBLANK({!$Record.Successor__c})),
+    IsClosed = FALSE
+)</filterFormula>
+        <object>Case</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+
+    <!-- DECISION: Check if email already sent -->
+    <decisions>
+        <name>Check_Email_Not_Already_Sent</name>
+        <label>Email Not Already Sent?</label>
+        <locationX>176</locationX>
+        <locationY>134</locationY>
+        <defaultConnectorLabel>Email Already Sent</defaultConnectorLabel>
+        <rules>
+            <name>Email_Not_Sent</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference
+        >$Record.Form_Sent_Date__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Send_Email_Via_Apex</targetReference>
+            </connector>
+            <label>Email Not Sent Yet</label>
+        </rules>
+    </decisions>
+
+    <!-- ACTION: Send Email via Apex Invocable -->
+    <actionCalls>
+        <name>Send_Email_Via_Apex</name>
+        <label>Send Pathway Form Email</label>
+        <locationX>176</locationX>
+        <locationY>242</locationY>
+        <actionName>SuccessionPathwayEmailSender</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SuccessionPathwayEmailSender</nameSegment>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+
+    <status>Active</status>
+</Flow>

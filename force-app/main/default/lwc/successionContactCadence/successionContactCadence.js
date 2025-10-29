@@ -4,6 +4,7 @@ import { NavigationMixin } from "lightning/navigation";
 import { refreshApex } from "@salesforce/apex";
 import getContactCadence from "@salesforce/apex/ContactCadenceController.getContactCadence";
 import saveAttemptOutcome from "@salesforce/apex/ContactCadenceController.saveAttemptOutcome";
+import markFormEmailSent from "@salesforce/apex/ContactCadenceController.markFormEmailSent";
 
 /**
  * Succession Contact Cadence
@@ -1107,6 +1108,10 @@ export default class SuccessionContactCadence extends NavigationMixin(
         "info"
       );
 
+      // Mark form email as sent (sets Form_Sent_Date__c and creates Chatter post)
+      // Called asynchronously to avoid blocking email composer opening
+      this.markEmailSent();
+
       // Reset navigation state after short delay (allow composer to open)
       // UX Enhancement: Prevents double-clicking "Send Email" button while composer loads
       // 2s delay allows email composer window to fully load before re-enabling button
@@ -1124,6 +1129,27 @@ export default class SuccessionContactCadence extends NavigationMixin(
         `Failed to open email composer: ${error.message || "Unknown error"}`,
         "error"
       );
+    }
+  }
+
+  /**
+   * Mark pathway form email as sent
+   * Calls Apex to set Form_Sent_Date__c and create Chatter notification
+   * Called after email composer opens successfully
+   */
+  async markEmailSent() {
+    try {
+      const result = await markFormEmailSent({ caseId: this.recordId });
+      console.log("Form email marked as sent:", result);
+
+      // Refresh cadence data to update UI
+      if (this.wiredCadenceResult) {
+        await refreshApex(this.wiredCadenceResult);
+      }
+    } catch (error) {
+      // Log error but don't show toast to avoid interrupting agent workflow
+      console.error("Error marking form email as sent:", error);
+      // If this fails, the automatic flow will handle it when Contact_Established__c = true
     }
   }
 
