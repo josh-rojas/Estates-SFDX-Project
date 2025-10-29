@@ -67,7 +67,8 @@ $RECYCLE.BIN/
 *.key
 
 # IDE specific files
-.vscode/settings.json
+.vscode/
+.claude/
 .idea/
 *.swp
 *.swo
