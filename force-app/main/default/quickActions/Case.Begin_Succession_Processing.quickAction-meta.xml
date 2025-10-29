@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Marks verification complete and begins succession workflow. Sets Verification_Status__c to Complete - Verified to trigger contact cadence.</description>
-    <label>✅ Begin Succession Processing</label>
-    <optionsCreateFeedItem>false</optionsCreateFeedItem>
-    <lightningComponent>c:beginSuccessionProcessing</lightningComponent>
-    <type>LightningComponent</type>
-</QuickAction>
