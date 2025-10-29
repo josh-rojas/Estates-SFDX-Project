@@ -1,1 +1,0 @@
-Json files used for advanced display like jsTree
