@@ -80,9 +80,11 @@ public with sharing class CaseHierarchyController {
             ];
 
             // Build child case query with optional status exclusion
+            // PERSON ACCOUNT SUPPORT: Include both Contact and Account Person Account fields
             String childQuery = 'SELECT Id, CaseNumber, Subject, Status, CreatedDate, ' +
                 'ContactId, Contact.Name, Contact.Email, Contact.Phone, ' +
-                'AccountId, Account.Name, ' +
+                'AccountId, Account.Name, Account.IsPersonAccount, Account.PersonEmail, ' +
+                'Account.FirstName, Account.LastName, Account.Phone, ' +
                 'FinServ__FinancialAccount__c, FinServ__FinancialAccount__r.Name, ' +
                 'FinServ__FinancialAccount__r.FinServ__Balance__c, ' +
                 'FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c, ' +
@@ -130,10 +132,17 @@ public with sharing class CaseHierarchyController {
 
                 if (includeAccountRoles && !financialAccountIds.isEmpty()) {
                     // Build dynamic query based on role filter
-                    String roleQuery = 'SELECT Id, FinServ__FinancialAccount__c, FinServ__RelatedContact__c, ' +
-                        'FinServ__RelatedContact__r.Name, FinServ__RelatedContact__r.Email, ' +
-                        'FinServ__RelatedContact__r.Phone, FinServ__Role__c, FinServ__Active__c, ' +
-                        'SuccessorAllocation__c FROM FinServ__FinancialAccountRole__c ' +
+                    // PERSON ACCOUNT SUPPORT: Query both RelatedContact__r and RelatedAccount__r fields
+                    // - Business Account successors use RelatedContact__c
+                    // - Person Account successors use RelatedAccount__c
+                    String roleQuery = 'SELECT Id, FinServ__FinancialAccount__c, ' +
+                        'FinServ__RelatedContact__c, FinServ__RelatedContact__r.Name, ' +
+                        'FinServ__RelatedContact__r.Email, FinServ__RelatedContact__r.Phone, ' +
+                        'FinServ__RelatedAccount__c, FinServ__RelatedAccount__r.PersonEmail, ' +
+                        'FinServ__RelatedAccount__r.FirstName, FinServ__RelatedAccount__r.LastName, ' +
+                        'FinServ__RelatedAccount__r.Phone, FinServ__RelatedAccount__r.IsPersonAccount, ' +
+                        'FinServ__Role__c, FinServ__Active__c, SuccessorAllocation__c ' +
+                        'FROM FinServ__FinancialAccountRole__c ' +
                         'WHERE FinServ__FinancialAccount__c IN :financialAccountIds AND FinServ__Active__c = TRUE';
 
                     // Add role filter if provided
@@ -184,9 +193,28 @@ public with sharing class CaseHierarchyController {
                     if (accountRoles != null) {
                         for (FinServ__FinancialAccountRole__c role : accountRoles) {
                             SuccessorData roleData = new SuccessorData();
-                            roleData.successorName = role.FinServ__RelatedContact__r.Name;
-                            roleData.successorEmail = role.FinServ__RelatedContact__r.Email;
-                            roleData.successorPhone = role.FinServ__RelatedContact__r.Phone;
+
+                            // PERSON ACCOUNT SUPPORT: Check if successor is Person Account or Contact
+                            // - Person Account: Use RelatedAccount__r fields (PersonEmail, FirstName, LastName, Phone)
+                            // - Business Account: Use RelatedContact__r fields (Name, Email, Phone)
+                            Boolean isPersonAccount = role.FinServ__RelatedAccount__r?.IsPersonAccount ?? false;
+
+                            if (isPersonAccount) {
+                                // Person Account: Construct full name from FirstName + LastName
+                                String firstName = role.FinServ__RelatedAccount__r.FirstName != null
+                                    ? role.FinServ__RelatedAccount__r.FirstName : '';
+                                String lastName = role.FinServ__RelatedAccount__r.LastName != null
+                                    ? role.FinServ__RelatedAccount__r.LastName : '';
+                                roleData.successorName = (firstName + ' ' + lastName).trim();
+                                roleData.successorEmail = role.FinServ__RelatedAccount__r.PersonEmail;
+                                roleData.successorPhone = role.FinServ__RelatedAccount__r.Phone;
+                            } else {
+                                // Business Account: Use Contact fields
+                                roleData.successorName = role.FinServ__RelatedContact__r?.Name;
+                                roleData.successorEmail = role.FinServ__RelatedContact__r?.Email;
+                                roleData.successorPhone = role.FinServ__RelatedContact__r?.Phone;
+                            }
+
                             roleData.allocationPercent = role.SuccessorAllocation__c;
                             roleData.pathway = childCase.Pathway_Confirmed__c;
                             roleData.status = childCase.Status;
