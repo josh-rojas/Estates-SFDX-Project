@@ -97,11 +97,11 @@
         </rules>
     </decisions>
     <description
-  >Monitors child case status changes and automatically closes the parent Multi-Account Succession Master case when all child Named Successor Enactment cases reach terminal status (Closed or Canceled).</description>
+  >Automatically closes parent cases when all successor cases are complete.</description>
     <environments>Default</environments>
     <interviewLabel
-  >Case: Parent Closure Handler {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Case: Parent Closure Handler</label>
+  >Succession - Close Multi-Successor Parent {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Succession - Close Multi-Successor Parent</label>
     <loops>
         <name>Loop_Through_Children</name>
         <label>Loop Through Children</label>

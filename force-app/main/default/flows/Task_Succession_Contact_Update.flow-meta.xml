@@ -26,11 +26,11 @@
         </rules>
     </decisions>
     <description
-  >Sets Case.Contact_Established__c when a Task is completed with Succession_Contact_Established__c = TRUE. Acts as circuit breaker to stop the cadence. Includes fault connector for parent case lookup.</description>
+  >Records when successor contact is successfully established and stops additional contact attempts.</description>
     <environments>Default</environments>
     <interviewLabel
-  >Task: Succession Contact Update {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Task: Succession Contact Update</label>
+  >Succession - Mark Contact Established {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Succession - Mark Contact Established</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

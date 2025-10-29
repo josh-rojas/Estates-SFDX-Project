@@ -2,8 +2,8 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <description
-  >Creates the next contact attempt when the current attempt Task is completed. Uses SuccessionTaskCreator invocable class for duplicate prevention and centralized task creation logic. Schedules ActivityDate off Case.CreatedDate (Day 5/35/65/95). Exits when contact established or after Attempt 5.</description>
-    <label>Task - Create Next Contact Attempt</label>
+  >Schedules the next successor contact attempt after completing the current one.</description>
+    <label>Succession - Schedule Next Contact</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

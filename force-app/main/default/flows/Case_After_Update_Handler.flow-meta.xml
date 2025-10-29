@@ -2,39 +2,12 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description>CONSOLIDATED FLOW (v1.1): Handles all Case after-update automation for Estate Administration succession cases. Combines Status field coordination + Chatter feed notifications into single flow for performance optimization. Replaces deprecated flows: Case_Status_Coordination and Case_Succession_Segment_Transition.
-
-TRIGGERS ON: Case UPDATE for Estate Administration cases (not closed)
-
-WHAT IT DOES:
-• Updates Case.Status based on workflow phase transitions (4-phase model)
-• Posts Chatter feed updates when key milestones reached (aids demos &amp; agent handoffs)
-• Handles 4 phase transitions: Contact Cadence → Pathway Selection → Pathway Execution → Case Closure
-
-PHASE TRANSITIONS MONITORED:
-1. Verification Complete (auto) → Status = "In Progress" (no Chatter - silent)
-2. Contact Established → Status = "Awaiting Response" + Chatter post
-3. Form Completed → Status = "In Review" + Chatter post with pathway name
-4. Pathway Execution Started → Status = "In Progress" (no Chatter - tasks visible)
-5. Execution Complete → Status = "Closed" (no Chatter - case closure self-evident)
-
-PERFORMANCE: Consolidates 2 flows into 1 = 24% reduction in flow executions per case lifecycle
-
-DEPENDENCIES:
-• SuccessionChatterPoster.cls - Invocable class for standardized Chatter posts
-• Contact_Established__c, Form_Completed_Date__c, Pathway_Confirmed__c, Execution_Status__c fields
-
-RELATED FLOWS:
-• Task_Succession_Contact_Update - Sets Contact_Established__c when task marked YES
-• Case_Create_Initial_Contact_Attempt - Creates first contact task on case creation
-
-VERSION HISTORY:
-• v1.1 (Oct 2025) - Created consolidated flow for performance optimization
-• Replaces: Case_Status_Coordination + Case_Succession_Segment_Transition (deprecated)</description>
+    <description
+  >Updates case status and notifies stakeholders as succession cases progress through workflow phases.</description>
     <environments>Default</environments>
     <interviewLabel
-  >Case: After Update Handler {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Case: After Update Handler</label>
+  >Succession - Update Case Status & Notify {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Succession - Update Case Status & Notify</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>

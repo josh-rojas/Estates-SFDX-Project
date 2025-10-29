@@ -2,8 +2,8 @@
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>65.0</apiVersion>
     <description
-  >Automatically seeds Attempt 1 (Day 0) when an Estate Administration succession case is created. Uses SuccessionTaskCreator invocable class for centralized task creation and duplicate prevention. Triggers immediately on case creation.</description>
-    <label>Case - Create Initial Contact Attempt</label>
+  >Starts the successor contact process automatically when a case is created.</description>
+    <label>Succession - Start Contact Process</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
