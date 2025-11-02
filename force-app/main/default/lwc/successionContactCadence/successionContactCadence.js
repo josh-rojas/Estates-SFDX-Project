@@ -5,6 +5,7 @@ import { refreshApex } from "@salesforce/apex";
 import getContactCadence from "@salesforce/apex/ContactCadenceController.getContactCadence";
 import saveAttemptOutcome from "@salesforce/apex/ContactCadenceController.saveAttemptOutcome";
 import markFormEmailSent from "@salesforce/apex/ContactCadenceController.markFormEmailSent";
+import getAttemptWaitDurations from "@salesforce/apex/ContactCadenceController.getAttemptWaitDurations";
 
 /**
  * Succession Contact Cadence
@@ -64,8 +65,10 @@ export default class SuccessionContactCadence extends NavigationMixin(
   _refreshTimeoutId = null;
   _emailNavigationTimeoutId = null;
 
+  attemptWaitDurations = null;
+
   /**
-   * BUSINESS LOGIC: Contact cadence wait durations (configured per compliance requirements)
+   * BUSINESS LOGIC: Contact cadence wait durations (configured via Custom Metadata)
    *
    * Rationale for wait periods:
    * - Attempt 1→2: 5 days - Quick follow-up while initial contact is fresh
@@ -73,19 +76,32 @@ export default class SuccessionContactCadence extends NavigationMixin(
    *
    * Total cadence duration: 95 days (5 + 30 + 30 + 30 days)
    *
-   * CONFIGURATION NOTE: These durations are hardcoded to match Task.ActivityDate values
-   * set by flows (Case_Create_Initial_Contact_Attempt, Task_Create_Next_Contact_Attempt).
-   * Any changes here must be coordinated with corresponding flow date formulas.
+   * CONFIGURATION: Wait durations are now stored in Custom Metadata Type
+   * (Succession_Contact_Cadence__mdt) for admin configuration without code deployment.
+   * Admins can modify wait periods via Setup > Custom Metadata Types.
    *
-   * FUTURE ENHANCEMENT: Consider moving to Custom Metadata Type for admin configuration
-   * without code deployment (Succession_Contact_Cadence__mdt with Wait_Days__c field)
+   * IMPORTANT: Changes to wait durations must be coordinated with flow date formulas
+   * in Case_Create_Initial_Contact_Attempt and Task_Create_Next_Contact_Attempt flows.
    */
-  static ATTEMPT_WAIT_MS = {
-    2: 5 * 24 * 60 * 60 * 1000, // 5 days (attempt 2 unlocks after attempt 1)
-    3: 30 * 24 * 60 * 60 * 1000, // 30 days (attempt 3 unlocks after attempt 2)
-    4: 30 * 24 * 60 * 60 * 1000, // 30 days (attempt 4 unlocks after attempt 3)
-    5: 30 * 24 * 60 * 60 * 1000 // 30 days (attempt 5 unlocks after attempt 4)
-  };
+  @wire(getAttemptWaitDurations)
+  wiredAttemptWaitDurations({ error, data }) {
+    if (data) {
+      // Convert wait days to milliseconds for countdown calculations
+      this.attemptWaitDurations = {};
+      Object.keys(data).forEach((attemptNum) => {
+        const waitDays = data[attemptNum];
+        this.attemptWaitDurations[attemptNum] = waitDays * 24 * 60 * 60 * 1000;
+      });
+    } else if (error) {
+      console.error("Error loading wait durations from Custom Metadata:", error);
+      this.attemptWaitDurations = {
+        2: 5 * 24 * 60 * 60 * 1000, // 5 days
+        3: 30 * 24 * 60 * 60 * 1000, // 30 days
+        4: 30 * 24 * 60 * 60 * 1000, // 30 days
+        5: 30 * 24 * 60 * 60 * 1000 // 30 days
+      };
+    }
+  }
 
   /**
    * Centralized error handler for all component operations
@@ -426,13 +442,13 @@ export default class SuccessionContactCadence extends NavigationMixin(
 
       // Compute countdown for attempts > 1 that are not yet current and not completed
       // Start time = previous attempt completion timestamp
-      // Duration = ATTEMPT_WAIT_MS mapping
+      // Duration = wait durations from Custom Metadata
       let countdown = null;
       if (attempt.attemptNumber > 1) {
         const prevAttemptNum = attempt.attemptNumber - 1;
         const startMs = prevCompletionByAttempt.get(prevAttemptNum);
         const requiredWait =
-          SuccessionContactCadence.ATTEMPT_WAIT_MS[attempt.attemptNumber] ??
+          this.attemptWaitDurations?.[attempt.attemptNumber] ??
           30 * 24 * 60 * 60 * 1000; // default 30d safety
 
         if (startMs && !attempt.isCompleted) {

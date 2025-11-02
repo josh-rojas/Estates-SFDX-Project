@@ -840,4 +840,41 @@ public with sharing class ContactCadenceController {
       throw new AuraHandledException('Error marking email as sent: ' + e.getMessage());
     }
   }
+
+  /**
+   * Get contact attempt wait durations from Custom Metadata
+   * Returns a map of attempt number to wait days
+   * Used by LWC to calculate date-gating and countdown timers
+   *
+   * @return Map<Integer, Integer> - Map of attempt number (2-5) to wait days
+   */
+  @AuraEnabled(cacheable=true)
+  public static Map<Integer, Integer> getAttemptWaitDurations() {
+    Map<Integer, Integer> waitDurations = new Map<Integer, Integer>();
+
+    // Query Custom Metadata Type for wait durations
+    List<Succession_Contact_Cadence__mdt> cadenceConfigs = [
+      SELECT Attempt_Number__c, Wait_Days__c
+      FROM Succession_Contact_Cadence__mdt
+      WHERE Attempt_Number__c IN (2, 3, 4, 5)
+      ORDER BY Attempt_Number__c ASC
+    ];
+
+    // Build map of attempt number to wait days
+    for (Succession_Contact_Cadence__mdt config : cadenceConfigs) {
+      Integer attemptNum = Integer.valueOf(config.Attempt_Number__c);
+      Integer waitDays = Integer.valueOf(config.Wait_Days__c);
+      waitDurations.put(attemptNum, waitDays);
+    }
+
+    // Fallback to default values if metadata not configured
+    if (waitDurations.isEmpty()) {
+      waitDurations.put(2, 5);   // 5 days for attempt 2
+      waitDurations.put(3, 30);  // 30 days for attempt 3
+      waitDurations.put(4, 30);  // 30 days for attempt 4
+      waitDurations.put(5, 30);  // 30 days for attempt 5
+    }
+
+    return waitDurations;
+  }
 }
