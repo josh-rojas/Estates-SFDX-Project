@@ -93,13 +93,18 @@ public with sharing class CaseHierarchyController {
                 'FROM Case WHERE ParentId = :parentCaseId';
 
             // Add status exclusion filter if provided
+            // OPTIMIZATION: Use bind variable instead of string concatenation for better performance
             if (String.isNotBlank(excludeStatusString)) {
-                List<String> excludedStatuses = excludeStatusString.split(',');
-                List<String> escapedStatuses = new List<String>();
-                for (String status : excludedStatuses) {
-                    escapedStatuses.add('\'' + String.escapeSingleQuotes(status.trim()) + '\'');
+                Set<String> excludedStatuses = new Set<String>();
+                for (String status : excludeStatusString.split(',')) {
+                    String trimmed = status.trim();
+                    if (String.isNotBlank(trimmed)) {
+                        excludedStatuses.add(trimmed);
+                    }
                 }
-                childQuery += ' AND Status NOT IN (' + String.join(escapedStatuses, ',') + ')';
+                if (!excludedStatuses.isEmpty()) {
+                    childQuery += ' AND Status NOT IN :excludedStatuses';
+                }
             }
 
             childQuery += ' ORDER BY CreatedDate ASC';
