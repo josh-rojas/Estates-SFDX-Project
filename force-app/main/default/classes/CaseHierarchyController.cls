@@ -146,17 +146,15 @@ public with sharing class CaseHierarchyController {
                         'WHERE FinServ__FinancialAccount__c IN :financialAccountIds AND FinServ__Active__c = TRUE';
 
                     // Add role filter if provided
+                    // REFACTOR: Use SuccessionUtilities helper for consistent LIKE condition building
                     if (String.isNotBlank(roleFilterString)) {
-                        // Parse comma-separated roles
-                        List<String> roleFilters = roleFilterString.split(',');
-                        List<String> roleConditions = new List<String>();
-
-                        for (String roleFilter : roleFilters) {
-                            String trimmedRole = roleFilter.trim();
-                            roleConditions.add('FinServ__Role__c LIKE \'%' + String.escapeSingleQuotes(trimmedRole) + '%\'');
+                        String likeConditions = SuccessionUtilities.buildSafeLikeConditions(
+                            roleFilterString,
+                            'FinServ__Role__c'
+                        );
+                        if (String.isNotBlank(likeConditions)) {
+                            roleQuery += ' AND (' + likeConditions + ')';
                         }
-
-                        roleQuery += ' AND (' + String.join(roleConditions, ' OR ') + ')';
                     }
 
                     roleQuery += ' ORDER BY SuccessorAllocation__c DESC NULLS LAST';
