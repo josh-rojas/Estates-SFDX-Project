@@ -71,8 +71,8 @@ FinancialAccountRole
 
 Legend
 - Layers: LWC (UI) → Apex Controllers → Standard Objects (DB).
-- Automation: Trigger `SuccessionCaseTrigger` → `SuccessionTaskGenerator`; Flow `Case_Status_Coordination` updates status.
-- Security: All Apex executes WITH USER_MODE to enforce FLS.
+- Automation: Trigger `SuccessionCaseTrigger` → `SuccessionTaskGenerator` (primary automation); Flows in repo are Inactive.
+- Security: Most Apex executes WITH USER_MODE to enforce FLS (exception: SuccessionTaskGenerator uses SYSTEM_MODE for automation).
 
 ### Apex Classes (4)
 
@@ -81,25 +81,30 @@ Legend
 | `CaseHierarchyController` | Multi-successor case hierarchy visualization | ✅ 95%+ |
 | `ContactCadenceController` | Date-gated contact attempt management | ✅ 95%+ |
 | `SuccessionPublicFormController` | Guest user form submission handler | ✅ 95%+ |
-| `SuccessionTaskGenerator` | **NEW** Pathway task automation (replaces Action Plan flow) | ✅ 100% (7/7 tests) |
+| `SuccessionTaskGenerator` | **PRIMARY AUTOMATION** - Pathway task creation via trigger | ✅ 100% (7/7 tests) |
 
 **Triggers (1):**
 - `SuccessionCaseTrigger` - Fires SuccessionTaskGenerator when Pathway_Confirmed__c changes
 
-**Security:** All use `WITH USER_MODE` for FLS enforcement
+**Security:** Most use `WITH USER_MODE` for FLS enforcement (exception: SuccessionTaskGenerator uses SYSTEM_MODE for automation)
 
-### Flows (8 deployed)
+### Flows (5 - All Inactive in Source Control)
 
-| Flow | Trigger | Purpose |
-|------|---------|---------|
-| `Case_Estate_Administration_Defaults` | Before Save | Auto-populate default values |
-| `Case_Create_Initial_Contact_Attempt` | After Save | Creates Day 0 task |
-| `Task_Create_Next_Contact_Attempt` | After Update | Auto-creates next task (Day 5, 35, 65, 95) |
-| `Task_Succession_Contact_Update` | After Update | Circuit breaker when contact established |
-| `Case_Multiple_Successors_Handler` | Before Save | Multi-successor orchestration |
-| `Case_Parent_Closure_Handler` | After Update | Closes parent when all children complete |
-| `Case_Status_Coordination` | After Update | Auto-updates Case.Status |
-| `Case_Succession_Segment_Transition` | After Update | Phase transitions |
+**⚠️ All flows in this repository are marked as `Inactive`.** Primary automation is trigger-based (see above).
+
+| Flow | Intended Purpose (if active) | File |
+|------|------------------------------|------|
+| `Succession_Start_Contact_Process` | Would create Day 0 task | `force-app/main/default/flows/Succession_Start_Contact_Process.flow-meta.xml` |
+| `Succession_Schedule_Next_Contact` | Would auto-create next task (Day 5, 35, 65, 95) | `force-app/main/default/flows/Succession_Schedule_Next_Contact.flow-meta.xml` |
+| `Succession_Mark_Contact_Established` | Would set contact established flag | `force-app/main/default/flows/Succession_Mark_Contact_Established.flow-meta.xml` |
+| `Succession_Close_Multi_Successor_Parent` | Would close parent when all children complete | `force-app/main/default/flows/Succession_Close_Multi_Successor_Parent.flow-meta.xml` |
+| `Succession_Update_Case_Status_And_Notify` | Would auto-update Case.Status and post Chatter | `force-app/main/default/flows/Succession_Update_Case_Status_And_Notify.flow-meta.xml` |
+
+**Legacy Flow Name Mapping:**
+- `Case_Create_Initial_Contact_Attempt` → now `Succession_Start_Contact_Process` (Inactive)
+- `Task_Create_Next_Contact_Attempt` → now `Succession_Schedule_Next_Contact` (Inactive)
+- `Case_Status_Coordination` → functionality in `Succession_Update_Case_Status_And_Notify` (Inactive)
+- `Case_Succession_Segment_Transition` → functionality in `Succession_Update_Case_Status_And_Notify` (Inactive)
 
 ### Lightning Web Components (5)
 
@@ -119,13 +124,15 @@ Legend
 - Trigger: `Pathway_Confirmed__c` set on `Case` (after update).
 - Generator: `SuccessionTaskGenerator` creates 4–5 pathway tasks and updates status fields.
 
-**Task Templates (mirroring Action Plan Templates):**
+**Task Templates (Apex-based, not Action Plan metadata):**
 
-| Template | Tasks | Timeline |
-|----------|-------|----------|
-| `Succession_Final_Grant_Pathway` | 5 | Day 2-20 |
-| `Succession_New_DAF_Account_Pathway` | 4 | Day 2-18 |
-| `Succession_Disclaim_Assets_Pathway` | 4 | Day 3-20 |
+| Pathway | Tasks | Timeline | Implementation |
+|---------|-------|----------|----------------|
+| Final Grant | 5 | Day 2-20 | `SuccessionTaskGenerator.generateFinalGrantTasks()` |
+| New DAF Account | 4 | Day 2-18 | `SuccessionTaskGenerator.generateNewDAFTasks()` |
+| Disclaim Assets | 4 | Day 3-20 | `SuccessionTaskGenerator.generateDisclaimTasks()` |
+
+**Note:** No Action Plan Templates directory exists. Tasks are created via Apex trigger.
 
 ---
 
@@ -155,7 +162,7 @@ Legend
 Legend
 - Sequential unlock: next task is created/unlocked only when prior is completed.
 - Circuit breaker: `Contact_Established__c = true` stops creating further tasks.
-- Flow: `Task_Create_Next_Contact_Attempt` handles creation and gating.
+- Note: Contact task creation is currently manual or via inactive flows in this codebase.
 
 **Phase 3: Pathway Selection (30-day SLA)**
 - Automated email with public form link (when contact established)
@@ -210,8 +217,8 @@ IF Account.IsPersonAccount = TRUE
 
 **Solution:** Flow-Based Status Coordination
 
-**Flow:** `Case_Status_Coordination`  
-**Trigger:** After Update on Case
+**Note:** Status coordination is currently manual or via inactive flows in this codebase.  
+**Legacy Reference:** Previously documented as `Case_Status_Coordination` flow
 
 ![Case Status Coordination (PlantUML)](./diagrams/images/plantuml/status-coordination-state.png)
 
@@ -392,7 +399,7 @@ This project is explicitly configured for demonstration purposes:
 
 ```
 force-app/main/default/
-├── actionPlanTemplates/    # 3 pathway templates
+├── triggers/               # Apex triggers (1: SuccessionCaseTrigger)
 ├── classes/                # 3 Apex classes + test classes
 ├── flows/                  # 8 active flows
 ├── email/                  # 6 email templates (5 cadence + 1 form invitation)
@@ -407,10 +414,10 @@ force-app/main/default/
 
 ## Known Limitations
 
-**Action Plan Automation:**
-- Original flow (`Case_Assign_Pathway_Action_Plan`) cannot deploy via metadata API
-- Industry Action Plans API has deployment limitations
-- **Solution:** SuccessionTaskGenerator Apex trigger creates tasks directly
+**Pathway Task Automation:**
+- No Action Plan Templates directory exists in this codebase
+- Tasks are created via Apex trigger: `SuccessionCaseTrigger` → `SuccessionTaskGenerator`
+- **Solution:** Apex-based task generation (deployable, version-controlled)
 
 **Email Automation:**
 - `Case_Send_Succession_Form` flow has complex errors

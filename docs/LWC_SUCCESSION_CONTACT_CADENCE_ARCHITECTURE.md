@@ -1,6 +1,8 @@
 # successionContactCadence Component Architecture
 ## Visual Documentation for Developers
 
+**⚠️ HISTORICAL DOCUMENT:** This document references old flow names (`Case_Create_Initial_Contact_Attempt`, `Task_Create_Next_Contact_Attempt`). These flows have been renamed to `Succession_*` naming convention and are now Inactive in source control. See README.md for current automation architecture.
+
 ---
 
 ## COMPONENT OVERVIEW

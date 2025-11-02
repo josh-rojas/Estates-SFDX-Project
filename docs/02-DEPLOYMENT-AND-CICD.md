@@ -55,16 +55,15 @@ sf org assign permset --name Succession_Field_Access
 - successionContactCadence
 - successionPublicForm
 
-**Flows (8 of 10):**
+**Flows (5 - All Inactive in Source Control):**
 
-- Case_Create_Initial_Contact_Attempt
-- Case_Estate_Administration_Defaults
-- Case_Multiple_Successors_Handler
-- Case_Parent_Closure_Handler
-- Case_Status_Coordination
-- Case_Succession_Segment_Transition
-- Task_Create_Next_Contact_Attempt
-- Task_Succession_Contact_Update
+- Succession_Start_Contact_Process (Inactive)
+- Succession_Schedule_Next_Contact (Inactive)
+- Succession_Mark_Contact_Established (Inactive)
+- Succession_Close_Multi_Successor_Parent (Inactive)
+- Succession_Update_Case_Status_And_Notify (Inactive)
+
+**Note:** Primary automation is trigger-based via `SuccessionCaseTrigger` → `SuccessionTaskGenerator`
 
 **Custom Fields:**
 
@@ -81,7 +80,7 @@ sf org assign permset --name Succession_Field_Access
 - Business Process: Estate_Administration
 - Permission Sets: All 3
 - Email Templates: 6 templates
-- Action Plan Templates: 3 templates
+- **Note:** No Action Plan Templates directory - tasks created via Apex trigger
 
 ### Failed to Deploy (19 components)
 

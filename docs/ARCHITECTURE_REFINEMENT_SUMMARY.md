@@ -4,6 +4,8 @@
 **Environment:** Demo/Sandbox
 **Status:** Phase 1 Complete (Apex Refactoring)
 
+**⚠️ HISTORICAL DOCUMENT:** This document references old flow names (`Case_Create_Initial_Contact_Attempt`, `Task_Create_Next_Contact_Attempt`, `Case_Status_Coordination`, `Case_Succession_Segment_Transition`). These flows have been renamed to `Succession_*` naming convention and are now Inactive in source control. See README.md for current automation architecture.
+
 ---
 
 ## Executive Summary

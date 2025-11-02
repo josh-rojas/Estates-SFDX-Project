@@ -72,13 +72,17 @@
 3. **successionPublicForm** - Public pathway selection form
 4. **caseHierarchyViewer** - Parent/child case hierarchy
 
-### Flows (6 Active)
-1. Case_Create_Initial_Contact_Attempt - Attempt #1 task
-2. Task_Create_Next_Contact_Attempt - Attempts 2-5
-3. Task_Succession_Contact_Update - Circuit breaker
-4. Case_Parent_Closure_Handler - Multi-successor coordination
-5. Case_Status_Coordination - Auto status updates
-6. Case_Succession_Segment_Transition - Pathway transitions
+### Flows (5 - All Inactive in Source Control)
+
+**⚠️ All flows in this repository are marked as Inactive.** Primary automation is trigger-based.
+
+1. Succession_Start_Contact_Process (Inactive) - Would create Attempt #1 task
+2. Succession_Schedule_Next_Contact (Inactive) - Would create Attempts 2-5
+3. Succession_Mark_Contact_Established (Inactive) - Would set contact established flag
+4. Succession_Close_Multi_Successor_Parent (Inactive) - Would close parent cases
+5. Succession_Update_Case_Status_And_Notify (Inactive) - Would update status and post Chatter
+
+**Primary Automation:** `SuccessionCaseTrigger` → `SuccessionTaskGenerator` (Apex-based)
 
 ### Email Templates (6)
 1. Day_0_Initial_Contact

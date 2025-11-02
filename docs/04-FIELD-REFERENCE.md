@@ -135,7 +135,7 @@ Comprehensive field documentation for all succession-specific custom fields.
 **Record Type:** EstateAdministration
 
 **Description:**
-> BRD Phase 5: Tracks the status of pathway execution. Values progress from "Not Started" through execution phases to "Completed". Used by Case_Status_Coordination flow to set final Case.Status.
+> BRD Phase 5: Tracks the status of pathway execution. Values progress from "Not Started" through execution phases to "Completed". Used for status coordination (manual or via inactive flows).
 
 **Help Text:**
 > Current status of pathway execution. This field tracks the progress of implementing the successor's chosen pathway.
@@ -167,7 +167,7 @@ Comprehensive field documentation for all succession-specific custom fields.
 **Record Type:** EstateAdministration
 
 **Description:**
-> BRD Phase 5: Timestamp when pathway execution was completed. Set when Execution_Status__c changes to "Completed". Triggers final case closure in Case_Status_Coordination flow.
+> BRD Phase 5: Timestamp when pathway execution was completed. Set when Execution_Status__c changes to "Completed". Used for status coordination (manual or via inactive flows).
 
 **Help Text:**
 > Date and time when pathway execution was completed. This marks the successful completion of the succession process.
