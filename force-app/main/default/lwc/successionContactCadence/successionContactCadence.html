@@ -76,68 +76,6 @@
     <template if:true={hasData}>
       <div class="slds-var-m-around_small">
         <div class={collapsibleContentClass}>
-          <!-- Progress Bar Section -->
-          <div class="progress-section slds-var-m-bottom_small">
-            <!-- Progress Status Header -->
-            <div
-              class="slds-grid slds-grid_align-spread slds-var-m-bottom_small"
-            >
-              <div class="slds-col">
-                <p class="slds-text-heading_small">{progressStatusText}</p>
-              </div>
-              <template if:true={cadenceData.contactEstablished}>
-                <div class="slds-col slds-text-align_right">
-                  <lightning-icon
-                    icon-name="utility:success"
-                    size="small"
-                    variant="success"
-                    class="slds-var-m-right_x-small"
-                  ></lightning-icon>
-                  <span class="succession-text-color-success"
-                    >Contact Established</span
-                  >
-                </div>
-              </template>
-            </div>
-
-            <!-- Progress Nodes (5 attempts) -->
-            <div class={progressNodesClass}>
-              <template for:each={attemptsWithProps} for:item="attempt">
-                <div
-                  key={attempt.attemptNumber}
-                  class={attempt.progressNodeClass}
-                  title={attempt.attemptLabel}
-                  aria-label={attempt.attemptLabel}
-                >
-                  <div class="node-circle">
-                    <!-- Completed: Show checkmark if contact established, X if not -->
-                    <template if:true={attempt.isCompleted}>
-                      <template
-                        if:true={attempt.taskRecord.Succession_Contact_Established__c}
-                      >
-                        <span class="node-icon node-icon-success">✓</span>
-                      </template>
-                      <template
-                        if:false={attempt.taskRecord.Succession_Contact_Established__c}
-                      >
-                        <span class="node-icon node-icon-failure">✕</span>
-                      </template>
-                    </template>
-                    <template if:true={attempt.isCurrent}>
-                      <span class="node-icon">⏺</span>
-                    </template>
-                    <template if:true={attempt.isPending}>
-                      <span class="node-icon">○</span>
-                    </template>
-                  </div>
-                  <p class="node-label slds-text-body_small">
-                    {attempt.dayLabel}
-                  </p>
-                </div>
-              </template>
-            </div>
-          </div>
-
           <!-- Email Warning Alert (opt-out, missing email, invalid format) -->
           <template if:true={hasEmailWarning}>
             <div

@@ -13,6 +13,9 @@ import markFormEmailSent from "@salesforce/apex/ContactCadenceController.markFor
  * Allows inline editing of current attempt outcome.
  *
  * Usage: Add to Succession Management tab on Case record page
+ *
+ * @author DAFGiving360
+ * @date 2025-10-27
  */
 export default class SuccessionContactCadence extends NavigationMixin(
   LightningElement
@@ -323,102 +326,10 @@ export default class SuccessionContactCadence extends NavigationMixin(
   }
 
   /**
-   * Get progress percentage (0-100)
-   */
-  get progressPercent() {
-    if (!this.cadenceData) return 0;
-
-    if (this.cadenceData.contactEstablished) {
-      return 100; // Contact established = 100% complete
-    }
-
-    // Calculate based on completed attempts (0-5)
-    const completedAttempts = this.cadenceData.attempts
-      ? this.cadenceData.attempts.filter((attempt) => attempt.isCompleted)
-          .length
-      : 0;
-    return (completedAttempts / 5) * 100;
-  }
-
-  /**
-   * Get progress bar width style
-   * Fills to each completed node's position
-   * Nodes are at: 0%, 25%, 50%, 75%, 100%
-   */
-  get progressBarStyle() {
-    if (!this.cadenceData) return "width: 0%";
-
-    if (this.cadenceData.contactEstablished) {
-      return "width: 100%"; // Contact established = full width
-    }
-
-    const completedAttempts = this.cadenceData.attempts
-      ? this.cadenceData.attempts.filter((attempt) => attempt.isCompleted)
-          .length
-      : 0;
-
-    // Calculate width to fill to each completed node
-    // Node positions: 0%, 25%, 50%, 75%, 100%
-    // Formula: (completedAttempts - 1) / 4 * 100
-    const progressPercent =
-      completedAttempts > 0 ? ((completedAttempts - 1) / 4) * 100 : 0;
-
-    return `width: ${progressPercent}%`;
-  }
-
-  /**
    * Get send email button label
    */
   get sendEmailButtonLabel() {
     return this.state.ui.isNavigatingToEmail ? "Opening..." : "Open Email";
-  }
-
-  /**
-   * Get progress status text
-   */
-  get progressStatusText() {
-    if (!this.cadenceData) return "";
-
-    if (this.cadenceData.contactEstablished) {
-      return "✓ Contact Established";
-    }
-
-    const completedAttempts = this.cadenceData.attempts
-      ? this.cadenceData.attempts.filter((attempt) => attempt.isCompleted)
-          .length
-      : 0;
-    const current = this.cadenceData.currentAttemptNumber || 0;
-    return `${completedAttempts} of 5 completed (Attempt ${current} current)`;
-  }
-
-  /**
-   * CSS class for progress bar fill based on completion
-   */
-  get progressNodesClass() {
-    if (!this.cadenceData || !this.cadenceData.attempts)
-      return "progress-nodes fill-0";
-
-    const completedAttempts = this.cadenceData.attempts.filter(
-      (attempt) => attempt.isCompleted
-    ).length;
-
-    return `progress-nodes fill-${completedAttempts}`;
-  }
-
-  /**
-   * Show progress line when there are completed attempts and current attempt
-   */
-  get showProgressLine() {
-    if (!this.cadenceData || !this.cadenceData.attempts) return false;
-
-    const hasCompleted = this.cadenceData.attempts.some(
-      (attempt) => attempt.isCompleted
-    );
-    const hasCurrent = this.cadenceData.attempts.some(
-      (attempt) => attempt.isCurrent
-    );
-
-    return hasCompleted && hasCurrent;
   }
 
   /**
@@ -564,6 +475,10 @@ export default class SuccessionContactCadence extends NavigationMixin(
       const isLocked =
         !!attempt.taskRecord && !isDateArrived && !attempt.isCompleted;
 
+      // FIX: If attempt is locked, it should NOT be current (prevents duplicate countdown bars)
+      // Locked attempts should show only the locked card, not the current card
+      const finalIsCurrent = uiIsCurrent && !isLocked;
+
       const mappedAttempt = {
         ...attempt,
         countdown,
@@ -571,24 +486,18 @@ export default class SuccessionContactCadence extends NavigationMixin(
         cardClass: this.getCardClass({
           ...attempt,
           isCompleted: uiIsCompleted,
-          isCurrent: uiIsCurrent,
-          isPending: uiIsPending
-        }),
-        progressNodeClass: this.getProgressNodeClass({
-          ...attempt,
-          isCompleted: uiIsCompleted,
-          isCurrent: uiIsCurrent,
+          isCurrent: finalIsCurrent,
           isPending: uiIsPending
         }),
 
         // Editing state - override isCurrent based on highestAttemptStarted (UI)
-        isCurrent: uiIsCurrent,
+        isCurrent: finalIsCurrent, // FIX: Use finalIsCurrent instead of uiIsCurrent to exclude locked attempts
         // Ensure exclusivity for UI booleans used in template/icon rendering
         isCompleted: uiIsCompleted,
         isPending: uiIsPending,
         isEditing: isEditing,
         showEditForm: isEditing && isCurrentEditable, // Only show form if editing AND current
-        showReadOnly: attempt.isCompleted || isLocked, // Read-only if completed OR locked
+        showReadOnly: attempt.isCompleted && !isLocked, // FIX: Read-only ONLY if completed (not locked)
         showDisabled:
           attempt.attemptNumber > this.state.ui.highestAttemptStarted, // Pending if beyond current
         isDateArrived: isDateArrived, // Whether the activity date has arrived
@@ -596,7 +505,7 @@ export default class SuccessionContactCadence extends NavigationMixin(
 
         // Display properties
         completionIcon: uiIsCompleted ? "✓" : "",
-        currentIcon: uiIsCurrent ? "⏺" : "",
+        currentIcon: finalIsCurrent ? "⏺" : "", // FIX: Use finalIsCurrent to match isCurrent property
         pendingIcon: uiIsPending ? "○" : "",
 
         // Task details
@@ -638,19 +547,6 @@ export default class SuccessionContactCadence extends NavigationMixin(
     }
 
     return baseClass;
-  }
-
-  /**
-   * Get CSS class for progress bar node
-   */
-  getProgressNodeClass(attempt) {
-    if (attempt.isCompleted) {
-      return "progress-node node-completed";
-    }
-    if (attempt.isCurrent) {
-      return "progress-node node-current";
-    }
-    return "progress-node node-pending";
   }
 
   /**
@@ -1007,21 +903,22 @@ export default class SuccessionContactCadence extends NavigationMixin(
   /**
    * Open Lightning Email Composer with appropriate context
    *
-   * Uses the supported standard__composer navigation type instead of webPage URL hack.
-   * This ensures reliable composer opening across all Salesforce shells and org configurations.
+   * Uses Quick Action navigation pattern (Account.SendEmail / Contact.SendEmail) for reliability.
+   * This ensures stable composer opening across all Salesforce environments and org configurations.
    *
    * NOTE: This handles both Person Accounts and Business Accounts with Contacts.
-   * - Person Account: Opens email composer for Account (requires Enhanced Email enabled)
-   * - Business Account: Opens email composer for Contact
+   * - Person Account: Uses Account.SendEmail Quick Action
+   * - Business Account: Uses Contact.SendEmail Quick Action
    *
    * TEMPLATE SELECTION: Opens composer with manual template selection UX.
    * Agent must select template from dropdown. Pre-selection not implemented because:
    * - Requires EmailTemplate API lookup (additional SOQL query + performance impact)
    * - Template IDs vary across orgs (deployment complexity)
    * - Manual selection ensures agent reviews template before sending (compliance benefit)
+   * - Quick Action pattern doesn't support automatic template selection
    *
-   * FUTURE ENHANCEMENT: Add showTemplate/templateId attributes for automatic template selection.
-   * Would require: Custom Metadata Type mapping (Template_Label__c → Template_Id__c per org).
+   * IMPLEMENTATION NOTE: Changed from standard__composer to Quick Action pattern to fix
+   * "Page doesn't exist" navigation errors in certain org configurations.
    */
   openListEmailDialog(attemptNumber) {
     // Validate cadence data exists
@@ -1082,18 +979,21 @@ export default class SuccessionContactCadence extends NavigationMixin(
     this.state.ui.isNavigatingToEmail = true;
 
     try {
-      // Use standard__composer navigation type (supported pattern)
-      // recordId provides recipient context (Contact or Account for Person Account)
-      // relatedEntityId provides merge field context (Case fields in template)
+      // FIX: Use Quick Action navigation pattern for better cross-environment compatibility
+      // standard__composer sometimes fails with "Page doesn't exist" error in certain orgs
+      // Quick Action pattern (Account.SendEmail / Contact.SendEmail) is more reliable
+
+      // Determine which action to use based on record type
+      const actionName = isPersonAccount ? 'Account.SendEmail' : 'Contact.SendEmail';
+
       this[NavigationMixin.Navigate]({
-        type: "standard__composer",
+        type: "standard__quickAction",
         attributes: {
-          recordId: recordId, // Recipient: Contact or Account (Person Account)
-          relatedEntityId: this.recordId // Related Case for merge fields in template
-          // Template selection: Manual UX (agent selects from dropdown)
-          // To enable auto-selection, add:
-          // showTemplate: true,
-          // templateId: '00Xxxxxxxxxxxxx' // EmailTemplate.Id from org
+          actionName: actionName,
+          objectApiName: isPersonAccount ? 'Account' : 'Contact',
+          recordId: recordId // Recipient: Contact or Account (Person Account)
+          // Note: relatedEntityId not available in quick action pattern
+          // Agent must manually reference Case fields if needed
         }
       });
 
@@ -1108,9 +1008,8 @@ export default class SuccessionContactCadence extends NavigationMixin(
         "info"
       );
 
-      // Mark form email as sent (sets Form_Sent_Date__c and creates Chatter post)
-      // Called asynchronously to avoid blocking email composer opening
-      this.markEmailSent();
+      // NOTE: No Chatter post created for optional contact cadence emails
+      // Pathway form invitation email (automated) is handled separately by Flow
 
       // Reset navigation state after short delay (allow composer to open)
       // UX Enhancement: Prevents double-clicking "Send Email" button while composer loads
