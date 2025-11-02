@@ -284,8 +284,8 @@ public with sharing class ContactCadenceController {
 
     System.debug(
       'DEBUG: Found ' +
-      contentVersions.size() +
-      ' ContentNotes (FileType=SNOTE)'
+        contentVersions.size() +
+        ' ContentNotes (FileType=SNOTE)'
     );
 
     for (ContentVersion cv : contentVersions) {
@@ -299,7 +299,10 @@ public with sharing class ContactCadenceController {
 
         if (attemptNum != null) {
           String content = cv.VersionData.toString();
-          System.debug('DEBUG: Content preview (first 200 chars): ' + content.substring(0, Math.min(200, content.length())));
+          System.debug(
+            'DEBUG: Content preview (first 200 chars): ' +
+            content.substring(0, Math.min(200, content.length()))
+          );
 
           String userNotes = extractUserNotesFromContent(content);
           System.debug('DEBUG: Extracted user notes: ' + userNotes);
@@ -312,7 +315,9 @@ public with sharing class ContactCadenceController {
       }
     }
 
-    System.debug('DEBUG: Final notesByAttempt map size: ' + notesByAttempt.size());
+    System.debug(
+      'DEBUG: Final notesByAttempt map size: ' + notesByAttempt.size()
+    );
     return notesByAttempt;
   }
 
@@ -434,13 +439,13 @@ public with sharing class ContactCadenceController {
 
       System.debug(
         'DEBUG: Attempt ' +
-        i +
-        ' notes - ContentNote: ' +
-        (String.isNotBlank(contentNoteNotes) ? 'YES' : 'NO') +
-        ', Description: ' +
-        (String.isNotBlank(taskDescriptionNotes) ? 'YES' : 'NO') +
-        ', Final: ' +
-        attemptData.userNotes
+          i +
+          ' notes - ContentNote: ' +
+          (String.isNotBlank(contentNoteNotes) ? 'YES' : 'NO') +
+          ', Description: ' +
+          (String.isNotBlank(taskDescriptionNotes) ? 'YES' : 'NO') +
+          ', Final: ' +
+          attemptData.userNotes
       );
 
       cadenceData.attempts.add(attemptData);
@@ -599,7 +604,12 @@ public with sharing class ContactCadenceController {
       } else {
         // Query existing task
         attemptTask = [
-          SELECT Id, WhatId, Status, Succession_Contact_Established__c, Description
+          SELECT
+            Id,
+            WhatId,
+            Status,
+            Succession_Contact_Established__c,
+            Description
           FROM Task
           WHERE Id = :taskId
           LIMIT 1
@@ -621,7 +631,9 @@ public with sharing class ContactCadenceController {
       // NOTE: Notes are ALREADY saved to Task.Description (above) as immediate backup
       // ContentNote and Chatter are supplementary - if they fail, notes still exist
       if (String.isNotBlank(notes)) {
-        System.debug('DEBUG: Creating ContentNote for attempt ' + attemptNumber);
+        System.debug(
+          'DEBUG: Creating ContentNote for attempt ' + attemptNumber
+        );
         try {
           // Use shared utility for ContentNote creation
           String noteTitle = SuccessionUtilities.buildContactAttemptNoteTitle(
@@ -644,22 +656,30 @@ public with sharing class ContactCadenceController {
         } catch (Exception noteEx) {
           // Log but don't fail - ContentNote creation is supplementary
           // Notes are already saved to Task.Description, so this is not critical
-          System.debug(LoggingLevel.WARN, 'WARNING: ContentNote creation failed');
+          System.debug(
+            LoggingLevel.WARN,
+            'WARNING: ContentNote creation failed'
+          );
           System.debug(
             LoggingLevel.WARN,
             'ContentNote error (attempt ' +
-            attemptNumber +
-            '): ' +
-            noteEx.getMessage()
+              attemptNumber +
+              '): ' +
+              noteEx.getMessage()
           );
-          System.debug(LoggingLevel.WARN, 'Stack trace: ' + noteEx.getStackTraceString());
+          System.debug(
+            LoggingLevel.WARN,
+            'Stack trace: ' + noteEx.getStackTraceString()
+          );
           System.debug(
             LoggingLevel.INFO,
             'Notes are preserved in Task.Description field'
           );
         }
 
-        System.debug('DEBUG: Creating Chatter post for attempt ' + attemptNumber);
+        System.debug(
+          'DEBUG: Creating Chatter post for attempt ' + attemptNumber
+        );
         try {
           // Use shared utility for Chatter post creation
           String postBody = SuccessionUtilities.buildContactAttemptPostBody(
@@ -674,36 +694,44 @@ public with sharing class ContactCadenceController {
           );
         } catch (Exception chatterEx) {
           // Log but don't fail - Chatter post creation is supplementary
-          System.debug(LoggingLevel.WARN, 'WARNING: Chatter post creation failed');
+          System.debug(
+            LoggingLevel.WARN,
+            'WARNING: Chatter post creation failed'
+          );
           System.debug(
             LoggingLevel.WARN,
             'Chatter error (attempt ' +
-            attemptNumber +
-            '): ' +
-            chatterEx.getMessage()
+              attemptNumber +
+              '): ' +
+              chatterEx.getMessage()
           );
-          System.debug(LoggingLevel.WARN, 'Stack trace: ' + chatterEx.getStackTraceString());
+          System.debug(
+            LoggingLevel.WARN,
+            'Stack trace: ' + chatterEx.getStackTraceString()
+          );
         }
       }
 
       // Update parent case based on outcome
-      Case parentCase = [
-        SELECT
-          Id,
-          Contact_Established__c,
-          Contact_Established_Date__c,
-          Contact_Attempt_Count__c
-        FROM Case
-        WHERE Id = :caseId
-        LIMIT 1
-      ];
-
-      // If contact established, update case
       // Task_Succession_Contact_Update flow will handle this too, but we update here for immediate feedback
-      if (contactEstablished && !parentCase.Contact_Established__c) {
-        parentCase.Contact_Established__c = true;
-        parentCase.Contact_Established_Date__c = Date.today();
-        update parentCase;
+      // OPTIMIZATION: Only query case if contact was established to avoid unnecessary SOQL
+      if (contactEstablished) {
+        Case parentCase = [
+          SELECT
+            Id,
+            Contact_Established__c,
+            Contact_Established_Date__c,
+            Contact_Attempt_Count__c
+          FROM Case
+          WHERE Id = :caseId
+          LIMIT 1
+        ];
+
+        if (!parentCase.Contact_Established__c) {
+          parentCase.Contact_Established__c = true;
+          parentCase.Contact_Established_Date__c = Date.today();
+          update parentCase;
+        }
       }
 
       // Flow Task_Create_Next_Contact_Attempt will auto-create next task when this task completes
