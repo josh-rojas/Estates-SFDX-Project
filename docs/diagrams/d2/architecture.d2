@@ -1,0 +1,178 @@
+direction: right
+
+title: {
+  label: Succession Management System - Component Architecture
+  near: top-center
+  shape: text
+  style.font-size: 24
+  style.bold: true
+}
+
+ui: UI Layer {
+  style.fill: "#e3f2fd"
+  style.stroke: "#1976d2"
+  
+  lwc1: successionContactCadence {
+    shape: rectangle
+    style.fill: "#bbdefb"
+  }
+  lwc2: recordPathwaySelection {
+    shape: rectangle
+    style.fill: "#bbdefb"
+  }
+  lwc3: successionPublicForm {
+    shape: rectangle
+    style.fill: "#bbdefb"
+  }
+  lwc4: caseHierarchyViewer {
+    shape: rectangle
+    style.fill: "#bbdefb"
+  }
+  lwc5: createSuccessionCase {
+    shape: rectangle
+    style.fill: "#bbdefb"
+  }
+}
+
+controllers: Controller Layer {
+  style.fill: "#fff3e0"
+  style.stroke: "#f57c00"
+  
+  ctrl1: ContactCadenceController {
+    shape: rectangle
+    style.fill: "#ffe0b2"
+  }
+  ctrl2: CreateSuccessionCaseController {
+    shape: rectangle
+    style.fill: "#ffe0b2"
+  }
+  ctrl3: SuccessionPublicFormController {
+    shape: rectangle
+    style.fill: "#ffe0b2"
+  }
+  ctrl4: CaseHierarchyController {
+    shape: rectangle
+    style.fill: "#ffe0b2"
+  }
+  ctrl5: SuccessionUtilities {
+    shape: rectangle
+    style.fill: "#ffe0b2"
+  }
+}
+
+automation: Automation Layer {
+  style.fill: "#f3e5f5"
+  style.stroke: "#7b1fa2"
+  
+  trigger: SuccessionCaseTrigger {
+    shape: hexagon
+    style.fill: "#e1bee7"
+  }
+  generator: SuccessionTaskGenerator {
+    shape: rectangle
+    style.fill: "#e1bee7"
+    label: "SuccessionTaskGenerator\n(SYSTEM_MODE)"
+  }
+  invocable1: SuccessionTaskCreator {
+    shape: rectangle
+    style.fill: "#e1bee7"
+  }
+  invocable2: SuccessionChatterPoster {
+    shape: rectangle
+    style.fill: "#e1bee7"
+  }
+}
+
+data: Data Layer {
+  style.fill: "#e8f5e9"
+  style.stroke: "#388e3c"
+  
+  case: Case {
+    shape: cylinder
+    style.fill: "#c8e6c9"
+  }
+  task: Task {
+    shape: cylinder
+    style.fill: "#c8e6c9"
+  }
+  account: Account\n(Person Account) {
+    shape: cylinder
+    style.fill: "#c8e6c9"
+  }
+  finacct: FinancialAccount {
+    shape: cylinder
+    style.fill: "#c8e6c9"
+  }
+  finrole: FinancialAccountRole {
+    shape: cylinder
+    style.fill: "#c8e6c9"
+  }
+}
+
+flows: Inactive Flows {
+  style.fill: "#ffebee"
+  style.stroke: "#c62828"
+  style.stroke-dash: 5
+  
+  note: "5 flows present\nbut INACTIVE\nin source control" {
+    shape: text
+    style.font-size: 14
+    style.italic: true
+  }
+}
+
+# UI to Controller connections
+ui.lwc1 -> controllers.ctrl1: "@wire"
+ui.lwc2 -> controllers.ctrl2: "sets Pathway_Confirmed__c"
+ui.lwc3 -> controllers.ctrl3: "guest submission"
+ui.lwc4 -> controllers.ctrl4: "hierarchy query"
+ui.lwc5 -> controllers.ctrl2: "case creation"
+
+# Controller to Data connections
+controllers.ctrl1 -> data.case: "WITH USER_MODE"
+controllers.ctrl1 -> data.task: "WITH USER_MODE"
+controllers.ctrl2 -> data.case: "WITH USER_MODE"
+controllers.ctrl2 -> data.finrole: "WITH USER_MODE"
+controllers.ctrl3 -> data.case: "WITH USER_MODE"
+controllers.ctrl4 -> data.case: "WITH USER_MODE"
+
+# Trigger automation flow
+data.case -> automation.trigger: "after update\n(Pathway_Confirmed__c)" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 3
+}
+automation.trigger -> automation.generator: "createPathwayTasks()" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 3
+}
+automation.generator -> data.task: "SYSTEM_MODE\n(4-5 tasks)" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 3
+}
+
+# Invocable Apex (referenced by inactive flows)
+automation.invocable1 -> data.task: "contact tasks\n(inactive flows)"
+automation.invocable2 -> data.case: "Chatter posts\n(inactive flows)"
+
+# Data relationships
+data.case -> data.task: "1:N"
+data.case -> data.case: "ParentId\n(multi-successor)"
+data.finacct -> data.finrole: "1:N"
+data.finrole -> data.account: "successor"
+data.account -> data.case: "related contact"
+
+# Legend
+legend: {
+  shape: rectangle
+  style.fill: "#fafafa"
+  style.stroke: "#757575"
+  
+  primary: "Primary Automation Path\n(Trigger-based)" {
+    shape: text
+    style.font-size: 12
+  }
+  inactive: "Inactive Flows\n(present but not active)" {
+    shape: text
+    style.font-size: 12
+  }
+}

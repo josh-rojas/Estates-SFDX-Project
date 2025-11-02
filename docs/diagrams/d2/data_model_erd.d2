@@ -1,0 +1,232 @@
+direction: right
+
+title: {
+  label: Succession Management - Data Model (Standard Objects Only)
+  near: top-center
+  shape: text
+  style.font-size: 24
+  style.bold: true
+}
+
+# Entities
+case: Case {
+  shape: sql_table
+  style.fill: "#e3f2fd"
+  style.stroke: "#1976d2"
+  
+  id: Id (PK) {shape: text}
+  recordtype: RecordTypeId {shape: text}
+  type: Type {shape: text}
+  status: Status {shape: text}
+  parentid: ParentId (FK) {shape: text}
+  contactid: ContactId (FK) {shape: text}
+  sep1: --- {shape: text}
+  contact_attempt: Contact_Attempt_Count__c {shape: text}
+  contact_est: Contact_Established__c {shape: text}
+  contact_date: Contact_Established_Date__c {shape: text}
+  form_sent: Form_Sent_Date__c {shape: text}
+  form_completed: Form_Completed_Date__c {shape: text}
+  pathway: Pathway_Confirmed__c {shape: text}
+  exec_status: Execution_Status__c {shape: text}
+  exec_date: Execution_Completed_Date__c {shape: text}
+}
+
+task: Task {
+  shape: sql_table
+  style.fill: "#fff3e0"
+  style.stroke: "#f57c00"
+  
+  id: Id (PK) {shape: text}
+  whatid: WhatId (FK) {shape: text}
+  subject: Subject {shape: text}
+  status: Status {shape: text}
+  activitydate: ActivityDate {shape: text}
+  sep1: --- {shape: text}
+  attempt_num: Contact_Attempt_Number__c {shape: text}
+  contact_est: Succession_Contact_Established__c {shape: text}
+}
+
+account: Account (Person Account) {
+  shape: sql_table
+  style.fill: "#f3e5f5"
+  style.stroke: "#7b1fa2"
+  
+  id: Id (PK) {shape: text}
+  personcontactid: PersonContactId {shape: text}
+  firstname: FirstName {shape: text}
+  lastname: LastName {shape: text}
+  personemail: PersonEmail {shape: text}
+  sep1: --- {shape: text}
+  deceased: Deceased__c {shape: text}
+  death_date: Date_of_Death__c {shape: text}
+  opt_out: PersonHasOptedOutOfEmail {shape: text}
+}
+
+contact: Contact {
+  shape: sql_table
+  style.fill: "#f3e5f5"
+  style.stroke: "#7b1fa2"
+  
+  id: Id (PK) {shape: text}
+  accountid: AccountId (FK) {shape: text}
+  firstname: FirstName {shape: text}
+  lastname: LastName {shape: text}
+  email: Email {shape: text}
+}
+
+finacct: FinancialAccount {
+  shape: sql_table
+  style.fill: "#e8f5e9"
+  style.stroke: "#388e3c"
+  
+  id: Id (PK) {shape: text}
+  name: Name {shape: text}
+  finserv_status: FinServ__Status__c {shape: text}
+  finserv_balance: FinServ__Balance__c {shape: text}
+  primaryowner: FinServ__PrimaryOwner__c (FK) {shape: text}
+}
+
+finrole: FinancialAccountRole {
+  shape: sql_table
+  style.fill: "#e8f5e9"
+  style.stroke: "#388e3c"
+  
+  id: Id (PK) {shape: text}
+  finacct: FinServ__FinancialAccount__c (FK) {shape: text}
+  contact: FinServ__RelatedContact__c (FK) {shape: text}
+  role: FinServ__Role__c {shape: text}
+  active: FinServ__Active__c {shape: text}
+  sep1: --- {shape: text}
+  allocation: SuccessorAllocation__c {shape: text}
+}
+
+# Relationships
+case -> case: "ParentId\n(Multi-Successor)" {
+  style.stroke: "#1976d2"
+  style.stroke-width: 2
+}
+
+case -> task: "1:N\n(WhatId)" {
+  style.stroke: "#f57c00"
+  style.stroke-width: 2
+}
+
+case -> contact: "N:1\n(ContactId)" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 2
+}
+
+contact -> account: "N:1\n(AccountId)" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 2
+}
+
+finacct -> finrole: "1:N\n(FinancialAccount)" {
+  style.stroke: "#388e3c"
+  style.stroke-width: 2
+}
+
+finrole -> contact: "N:1\n(RelatedContact)" {
+  style.stroke: "#388e3c"
+  style.stroke-width: 2
+}
+
+finacct -> account: "N:1\n(PrimaryOwner)" {
+  style.stroke: "#388e3c"
+  style.stroke-width: 2
+}
+
+# Person Account pattern note
+person_account_note: {
+  shape: rectangle
+  style.fill: "#fff9c4"
+  style.stroke: "#f9a825"
+  
+  title: "Person Account Pattern (FSC)" {
+    shape: text
+    style.font-size: 16
+    style.bold: true
+  }
+  
+  note1: "• Account.PersonContactId → Contact.Id" {
+    shape: text
+    style.font-size: 12
+  }
+  
+  note2: "• Each Account has exactly 1 Contact" {
+    shape: text
+    style.font-size: 12
+  }
+  
+  note3: "• FinancialAccountRole uses RelatedContact__c" {
+    shape: text
+    style.font-size: 12
+  }
+  
+  note4: "• Case.ContactId references Person Account's Contact" {
+    shape: text
+    style.font-size: 12
+  }
+}
+
+# Key details
+details: {
+  shape: rectangle
+  style.fill: "#e0f2f1"
+  style.stroke: "#00897b"
+  
+  title: "Key Implementation Details" {
+    shape: text
+    style.font-size: 16
+    style.bold: true
+  }
+  
+  detail1: "• No custom objects - standard objects only" {
+    shape: text
+    style.font-size: 12
+  }
+  
+  detail2: "• Case RecordType: EstateAdministration" {
+    shape: text
+    style.font-size: 12
+  }
+  
+  detail3: "• Case Type: 'Named Successor Enactment' or 'Multi-Account Succession Master'" {
+    shape: text
+    style.font-size: 12
+  }
+  
+  detail4: "• Task: Contact attempts (1-5) + Pathway tasks (4-5)" {
+    shape: text
+    style.font-size: 12
+  }
+  
+  detail5: "• FinancialAccountRole.Role = 'Successor'" {
+    shape: text
+    style.font-size: 12
+  }
+  
+  detail6: "• SuccessorAllocation__c: percentage (multi-successor)" {
+    shape: text
+    style.font-size: 12
+  }
+}
+
+# Trigger automation note
+automation_note: {
+  shape: rectangle
+  style.fill: "#ffebee"
+  style.stroke: "#c62828"
+  
+  title: "Automation Entry Point" {
+    shape: text
+    style.font-size: 16
+    style.bold: true
+  }
+  
+  note: "SuccessionCaseTrigger fires on Case.after update\nwhen Pathway_Confirmed__c changes\n→ Creates pathway-specific Tasks" {
+    shape: text
+    style.font-size: 12
+    style.italic: true
+  }
+}

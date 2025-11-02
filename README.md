@@ -143,27 +143,30 @@ When `Pathway_Confirmed__c` is set on a Case, `SuccessionCaseTrigger` fires and 
 
 ### Core Documentation
 
-| Document                                                         | Description                                            |
-| ---------------------------------------------------------------- | ------------------------------------------------------ |
-| [CLAUDE.md](CLAUDE.md)                                           | **Primary guide** - Commands, architecture, patterns   |
-| [docs/01-SYSTEM-ARCHITECTURE.md](docs/01-SYSTEM-ARCHITECTURE.md) | Complete system architecture and data model            |
-| [docs/02-DEPLOYMENT-AND-CICD.md](docs/02-DEPLOYMENT-AND-CICD.md) | Deployment procedures and CI/CD with CumulusCI         |
-| [docs/03-ADMIN-RUNBOOK.md](docs/03-ADMIN-RUNBOOK.md)             | Service Cloud setup, Email-to-Case, demo preparation   |
-| [docs/04-FIELD-REFERENCE.md](docs/04-FIELD-REFERENCE.md)         | Custom field definitions with Person Account notes     |
-| [docs/05-TESTING-AND-DATA.md](docs/05-TESTING-AND-DATA.md)       | Multi-successor testing and Snowfakery data generation |
-| [docs/06-SECURITY.md](docs/06-SECURITY.md)                       | Security audit, permissions, email compliance          |
+| Document                                                                     | Description                                            |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------ |
+| [docs/00-quick-start.md](docs/00-quick-start.md)                             | **Start here** - 5-minute setup and end-to-end test    |
+| [docs/01-architecture-automation-data.md](docs/01-architecture-automation-data.md) | Complete system architecture with D2 diagrams          |
+| [docs/02-components.md](docs/02-components.md)                               | LWC and Apex class inventory with detailed descriptions |
+| [docs/03-security.md](docs/03-security.md)                                   | Permission sets, Apex security modes, and compliance   |
+| [docs/04-deployment-ci.md](docs/04-deployment-ci.md)                         | Deployment procedures and CI/CD with CumulusCI         |
+| [docs/05-runbook.md](docs/05-runbook.md)                                     | Admin runbook for demos and troubleshooting            |
+| [CLAUDE.md](CLAUDE.md)                                                       | AI assistant context and patterns                      |
 
-### Diagrams
+### D2 Diagrams
 
-- Curated index: `docs/00 - INDEX.md#🗺️-diagrams-index`
-- Images folder: `docs/diagrams/images` (PlantUML, Mermaid, ERD)
-- Re-render all: `scripts/render_diagrams.sh`
+All documentation includes embedded D2 diagrams showing architecture, automation flow, state machine, and data model.
 
-### Additional Resources
+- **Diagram sources:** `docs/diagrams/d2/*.d2`
+- **Rendered diagrams:** `docs/diagrams/svg/*.svg`
+- **Regenerate all:** `./scripts/render_d2.sh`
+- **Documentation:** [docs/diagrams/README.md](docs/diagrams/README.md)
 
-- [Architecture Overview](docs/SUCCESSION_FLOW_ARCHITECTURE.md) - Legacy flow documentation
-- [Field Documentation](docs/field-documentation-succession.md) - Detailed field specifications
-- [docs/archive/2025-10-14/](docs/archive/2025-10-14/) - Historical documentation and audit reports
+**Available Diagrams:**
+- Component Architecture (UI → Controller → Automation → Data)
+- Automation Sequence (Trigger-based pathway task creation)
+- Case State Machine (4-phase workflow)
+- Data Model ERD (Standard objects and relationships)
 
 ## 🧪 Testing
 
@@ -301,22 +304,6 @@ Proprietary - Schwab Charitable Fund
 ---
 
 **Version:** 1.0.0  
-**Last Updated:** October 2025  
+**Last Updated:** November 2025  
 **Target Org:** schwab-sandbox (josh.rojas.charfsc@schwab.com.fscjosh)
-
-
-## Documentation
-
-[Read auto-generated documentation of the SFDX project](docs/index.md)
-
-## Doc HTML Pages
-
-To read the documentation as HTML pages, run the following code (you need [**Python**](https://www.python.org/downloads/) on your computer)
-
-```python
-pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists || python -m pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists || py -m pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists
-mkdocs serve -v || python -m mkdocs serve -v || py -m mkdocs serve -v
-```
-
-To just generate HTML pages that you can host anywhere, run `mkdocs build -v || python -m mkdocs build -v || py -m mkdocs build -v`
 
