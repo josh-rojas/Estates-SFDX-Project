@@ -9,115 +9,159 @@ title: {
 }
 
 ui: UI Layer {
-  style.fill: "#e3f2fd"
-  style.stroke: "#1976d2"
+  style.fill: "#1976d2"
+  style.stroke: "#0d47a1"
+  style.font-color: "#ffffff"
   
   lwc1: successionContactCadence {
     shape: rectangle
-    style.fill: "#bbdefb"
+    style.fill: "#1976d2"
+    style.stroke: "#0d47a1"
+    style.font-color: "#ffffff"
   }
   lwc2: recordPathwaySelection {
     shape: rectangle
-    style.fill: "#bbdefb"
+    style.fill: "#1976d2"
+    style.stroke: "#0d47a1"
+    style.font-color: "#ffffff"
   }
   lwc3: successionPublicForm {
     shape: rectangle
-    style.fill: "#bbdefb"
+    style.fill: "#1976d2"
+    style.stroke: "#0d47a1"
+    style.font-color: "#ffffff"
   }
   lwc4: caseHierarchyViewer {
     shape: rectangle
-    style.fill: "#bbdefb"
+    style.fill: "#1976d2"
+    style.stroke: "#0d47a1"
+    style.font-color: "#ffffff"
   }
   lwc5: createSuccessionCase {
     shape: rectangle
-    style.fill: "#bbdefb"
+    style.fill: "#1976d2"
+    style.stroke: "#0d47a1"
+    style.font-color: "#ffffff"
   }
 }
 
 controllers: Controller Layer {
-  style.fill: "#fff3e0"
-  style.stroke: "#f57c00"
+  style.fill: "#e65100"
+  style.stroke: "#bf360c"
+  style.font-color: "#ffffff"
   
   ctrl1: ContactCadenceController {
     shape: rectangle
-    style.fill: "#ffe0b2"
+    style.fill: "#e65100"
+    style.stroke: "#bf360c"
+    style.font-color: "#ffffff"
   }
   ctrl2: CreateSuccessionCaseController {
     shape: rectangle
-    style.fill: "#ffe0b2"
+    style.fill: "#e65100"
+    style.stroke: "#bf360c"
+    style.font-color: "#ffffff"
   }
   ctrl3: SuccessionPublicFormController {
     shape: rectangle
-    style.fill: "#ffe0b2"
+    style.fill: "#e65100"
+    style.stroke: "#bf360c"
+    style.font-color: "#ffffff"
   }
   ctrl4: CaseHierarchyController {
     shape: rectangle
-    style.fill: "#ffe0b2"
+    style.fill: "#e65100"
+    style.stroke: "#bf360c"
+    style.font-color: "#ffffff"
   }
   ctrl5: SuccessionUtilities {
     shape: rectangle
-    style.fill: "#ffe0b2"
+    style.fill: "#e65100"
+    style.stroke: "#bf360c"
+    style.font-color: "#ffffff"
   }
 }
 
 automation: Automation Layer {
-  style.fill: "#f3e5f5"
-  style.stroke: "#7b1fa2"
+  style.fill: "#6a1b9a"
+  style.stroke: "#4a148c"
+  style.font-color: "#ffffff"
   
   trigger: SuccessionCaseTrigger {
     shape: hexagon
-    style.fill: "#e1bee7"
+    style.fill: "#6a1b9a"
+    style.stroke: "#4a148c"
+    style.font-color: "#ffffff"
   }
   generator: SuccessionTaskGenerator {
     shape: rectangle
-    style.fill: "#e1bee7"
+    style.fill: "#6a1b9a"
+    style.stroke: "#4a148c"
+    style.font-color: "#ffffff"
     label: "SuccessionTaskGenerator\n(SYSTEM_MODE)"
   }
   invocable1: SuccessionTaskCreator {
     shape: rectangle
-    style.fill: "#e1bee7"
+    style.fill: "#6a1b9a"
+    style.stroke: "#4a148c"
+    style.font-color: "#ffffff"
   }
   invocable2: SuccessionChatterPoster {
     shape: rectangle
-    style.fill: "#e1bee7"
+    style.fill: "#6a1b9a"
+    style.stroke: "#4a148c"
+    style.font-color: "#ffffff"
   }
 }
 
 data: Data Layer {
-  style.fill: "#e8f5e9"
-  style.stroke: "#388e3c"
+  style.fill: "#2e7d32"
+  style.stroke: "#1b5e20"
+  style.font-color: "#ffffff"
   
   case: Case {
     shape: cylinder
-    style.fill: "#c8e6c9"
+    style.fill: "#2e7d32"
+    style.stroke: "#1b5e20"
+    style.font-color: "#ffffff"
   }
   task: Task {
     shape: cylinder
-    style.fill: "#c8e6c9"
+    style.fill: "#2e7d32"
+    style.stroke: "#1b5e20"
+    style.font-color: "#ffffff"
   }
   account: Account\n(Person Account) {
     shape: cylinder
-    style.fill: "#c8e6c9"
+    style.fill: "#2e7d32"
+    style.stroke: "#1b5e20"
+    style.font-color: "#ffffff"
   }
   finacct: FinancialAccount {
     shape: cylinder
-    style.fill: "#c8e6c9"
+    style.fill: "#2e7d32"
+    style.stroke: "#1b5e20"
+    style.font-color: "#ffffff"
   }
   finrole: FinancialAccountRole {
     shape: cylinder
-    style.fill: "#c8e6c9"
+    style.fill: "#2e7d32"
+    style.stroke: "#1b5e20"
+    style.font-color: "#ffffff"
   }
 }
 
 flows: Inactive Flows {
-  style.fill: "#ffebee"
-  style.stroke: "#c62828"
+  style.fill: "#c62828"
+  style.stroke: "#b71c1c"
   style.stroke-dash: 5
+  style.font-color: "#ffffff"
   
   note: "5 flows present\nbut INACTIVE\nin source control" {
     shape: text
     style.font-size: 14
     style.italic: true
+    style.font-color: "#ffffff"
   }
 }
 
@@ -164,15 +208,18 @@ data.account -> data.case: "related contact"
 # Legend
 legend: {
   shape: rectangle
-  style.fill: "#fafafa"
-  style.stroke: "#757575"
+  style.fill: "#424242"
+  style.stroke: "#212121"
+  style.font-color: "#ffffff"
   
   primary: "Primary Automation Path\n(Trigger-based)" {
     shape: text
     style.font-size: 12
+    style.font-color: "#ffffff"
   }
   inactive: "Inactive Flows\n(present but not active)" {
     shape: text
     style.font-size: 12
+    style.font-color: "#ffffff"
   }
 }
