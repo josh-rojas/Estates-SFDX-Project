@@ -2,6 +2,12 @@
 
 Complete succession management solution for Schwab Charitable Fund, built on Salesforce Financial Services Cloud.
 
+## ⚠️ Current Automation Status
+
+**Primary automation is trigger-based via Apex.** All flows present in this repository are marked as `Inactive` in source control. The system uses `SuccessionCaseTrigger` → `SuccessionTaskGenerator` for pathway task automation.
+
+See [Architecture](#-architecture) section below for details.
+
 ## 🎯 Overview
 
 Automated succession processing system managing deceased donor account transitions through three distinct pathways:
@@ -13,7 +19,7 @@ Automated succession processing system managing deceased donor account transitio
 ## ✨ Key Features
 
 - ✅ **Multi-Pathway Processing** - Three succession pathways with guided workflows
-- ✅ **Action Plan Automation** - Auto-assigned pathway-specific task templates
+- ✅ **Trigger-Based Task Automation** - Pathway tasks auto-created via Apex trigger
 - ✅ **Task-Based Contact Cadence** - Date-gated task system (Days 0, 5, 35, 65, 95)
 - ✅ **SLA Tracking** - Real-time monitoring via list views (24h, 8h, 24h, 30d, 60d)
 - ✅ **Hierarchical Case Management** - Multi-successor scenario handling
@@ -21,58 +27,72 @@ Automated succession processing system managing deceased donor account transitio
 
 ## 📦 Components
 
-### Apex Classes (8)
+### Apex Classes (Production: 8)
 
 | Class                                  | Purpose                                    |
 | -------------------------------------- | ------------------------------------------ |
-| `BeginSuccessionProcessingController`  | Workflow trigger via Quick Action          |
 | `CaseHierarchyController`              | Visualize multi-successor case hierarchies |
 | `ContactCadenceController`             | Manage date-gated contact attempts         |
 | `CreateSuccessionCaseController`       | Multi-successor case creation & validation |
+| `SuccessionChatterPoster`              | Invocable Apex for Chatter notifications   |
 | `SuccessionPublicFormController`       | Guest user form submission handler         |
-| `SuccessionTaskCreator`                | Invocable Apex for flow-based task creation|
-| `SuccessionTaskGenerator`              | Pathway-specific task creation (trigger)   |
+| `SuccessionTaskCreator`                | Invocable Apex for contact task creation   |
+| `SuccessionTaskGenerator`              | **PRIMARY AUTOMATION** - Pathway task creation via trigger |
 | `SuccessionUtilities`                  | Shared utility class (email, Chatter, etc) |
 
-### Flow Automations (6)
+**Note:** Additional test classes exist in the codebase (e.g., `*_Test.cls`, `*Test.cls`).
 
-| Flow                                  | Trigger                                     |
-| ------------------------------------- | ------------------------------------------- |
-| `Case_Create_Initial_Contact_Attempt` | Creates first contact task on case creation |
-| `Task_Create_Next_Contact_Attempt`    | Auto-creates next task on completion        |
-| `Task_Succession_Contact_Update`      | Circuit breaker for contact established     |
-| `Case_Parent_Closure_Handler`         | Multi-successor parent case auto-closure    |
-| `Case_Status_Coordination`            | Automatic Status field coordination         |
-| `Case_Succession_Segment_Transition`  | Pathway transitions and Chatter posts       |
+### Trigger (1)
 
-### Lightning Web Components (11 total: 6 active, 5 deprecated)
+| Trigger                  | Purpose                                                |
+| ------------------------ | ------------------------------------------------------ |
+| `SuccessionCaseTrigger`  | Fires `SuccessionTaskGenerator` when `Pathway_Confirmed__c` changes |
 
-**Active Components (6):**
+**File:** `force-app/main/default/triggers/SuccessionCaseTrigger.trigger`
 
-- `beginSuccessionProcessing` - Quick action to trigger workflow start
-- `caseHierarchyViewer` - Visual case hierarchy tree for multi-successor cases
-- `createSuccessionCase` - Quick action for creating succession cases
-- `recordPathwaySelection` - Quick action pathway selector
-- `successionContactCadence` - **Primary UI** - Date-gated contact attempt tracker
-- `successionPublicForm` - Guest user pathway selection form
+### Flow Automations (5 - All Inactive in Source Control)
 
-**Deprecated Components (5)** (part of deprecated flows):
+**⚠️ All flows in this repository are marked as `Inactive`.** The system's primary automation is trigger-based (see above).
 
-- `successionDisclaimDetails` - Disclaim pathway form
-- `successionDocumentUpload` - Document management
-- `successionGrantBeneficiaries` - Beneficiary management
-- `successionNewDafDetails` - New DAF pathway form
-- `successionPathwaySelector` - Pathway selection wizard
+| Flow                                        | Intended Purpose (if active)                |
+| ------------------------------------------- | ------------------------------------------- |
+| `Succession_Start_Contact_Process`          | Would create first contact task on case creation |
+| `Succession_Schedule_Next_Contact`          | Would auto-create next task on completion   |
+| `Succession_Mark_Contact_Established`       | Would set contact established flag          |
+| `Succession_Close_Multi_Successor_Parent`   | Would auto-close parent cases               |
+| `Succession_Update_Case_Status_And_Notify`  | Would update case status and post Chatter   |
 
-### Action Plan Templates (3)
+**File Location:** `force-app/main/default/flows/`
 
-Pathway-specific task templates auto-assigned when successors select their pathway:
+**Legacy Flow Name Mapping:**
+- Old docs may reference `Case_Create_Initial_Contact_Attempt` → now `Succession_Start_Contact_Process` (Inactive)
+- Old docs may reference `Task_Create_Next_Contact_Attempt` → now `Succession_Schedule_Next_Contact` (Inactive)
+- Old docs may reference `Case_Status_Coordination` → functionality in `Succession_Update_Case_Status_And_Notify` (Inactive)
 
-| Template                             | Tasks | Timeline |
-| ------------------------------------ | ----- | -------- |
-| `Succession_Final_Grant_Pathway`     | 5     | Day 2-20 |
-| `Succession_New_DAF_Account_Pathway` | 4     | Day 2-18 |
-| `Succession_Disclaim_Assets_Pathway` | 4     | Day 3-20 |
+### Lightning Web Components (5 Active)
+
+| Component                      | Purpose                                    | File Path |
+| ------------------------------ | ------------------------------------------ | --------- |
+| `caseHierarchyViewer`          | Visual case hierarchy tree for multi-successor cases | `force-app/main/default/lwc/caseHierarchyViewer/` |
+| `createSuccessionCase`         | Quick action for creating succession cases | `force-app/main/default/lwc/createSuccessionCase/` |
+| `recordPathwaySelection`       | **KEY COMPONENT** - Quick action pathway selector (sets `Pathway_Confirmed__c`) | `force-app/main/default/lwc/recordPathwaySelection/` |
+| `successionContactCadence`     | **Primary UI** - Date-gated contact attempt tracker | `force-app/main/default/lwc/successionContactCadence/` |
+| `successionPublicForm`         | Guest user pathway selection form          | `force-app/main/default/lwc/successionPublicForm/` |
+
+### Pathway Task Automation (Apex-Based)
+
+**Replaces Action Plan Templates** - Tasks are now created via Apex trigger instead of Action Plan metadata.
+
+When `Pathway_Confirmed__c` is set on a Case, `SuccessionCaseTrigger` fires and `SuccessionTaskGenerator` creates pathway-specific tasks:
+
+| Pathway                  | Tasks | Timeline | Implementation |
+| ------------------------ | ----- | -------- | -------------- |
+| Final Grant              | 5     | Day 2-20 | `SuccessionTaskGenerator.generateFinalGrantTasks()` |
+| New DAF Account          | 4     | Day 2-18 | `SuccessionTaskGenerator.generateNewDAFTasks()` |
+| Disclaim Assets          | 4     | Day 3-20 | `SuccessionTaskGenerator.generateDisclaimTasks()` |
+
+**File:** `force-app/main/default/classes/SuccessionTaskGenerator.cls` (lines 102-250)  
+**Security:** Uses `SYSTEM_MODE` for task creation (lines 82, 92) to enable automation
 
 ### Custom Objects
 
@@ -123,28 +143,30 @@ Pathway-specific task templates auto-assigned when successors select their pathw
 
 ### Core Documentation
 
-| Document                                                         | Description                                            |
-| ---------------------------------------------------------------- | ------------------------------------------------------ |
-| [AGENTS.md](AGENTS.md)                                           | **Primary guide** - Commands, architecture, patterns   |
-| [CLAUDE.md](CLAUDE.md)                                           | Legacy guide retained for reference                    |
-| [docs/01-SYSTEM-ARCHITECTURE.md](docs/01-SYSTEM-ARCHITECTURE.md) | Complete system architecture and data model            |
-| [docs/02-DEPLOYMENT-AND-CICD.md](docs/02-DEPLOYMENT-AND-CICD.md) | Deployment procedures and CI/CD with CumulusCI         |
-| [docs/03-ADMIN-RUNBOOK.md](docs/03-ADMIN-RUNBOOK.md)             | Service Cloud setup, Email-to-Case, demo preparation   |
-| [docs/04-FIELD-REFERENCE.md](docs/04-FIELD-REFERENCE.md)         | Custom field definitions with Person Account notes     |
-| [docs/05-TESTING-AND-DATA.md](docs/05-TESTING-AND-DATA.md)       | Multi-successor testing and Snowfakery data generation |
-| [docs/06-SECURITY.md](docs/06-SECURITY.md)                       | Security audit, permissions, email compliance          |
+| Document                                                                     | Description                                            |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------ |
+| [docs/00-quick-start.md](docs/00-quick-start.md)                             | **Start here** - 5-minute setup and end-to-end test    |
+| [docs/01-architecture-automation-data.md](docs/01-architecture-automation-data.md) | Complete system architecture with D2 diagrams          |
+| [docs/02-components.md](docs/02-components.md)                               | LWC and Apex class inventory with detailed descriptions |
+| [docs/03-security.md](docs/03-security.md)                                   | Permission sets, Apex security modes, and compliance   |
+| [docs/04-deployment-ci.md](docs/04-deployment-ci.md)                         | Deployment procedures and CI/CD with CumulusCI         |
+| [docs/05-runbook.md](docs/05-runbook.md)                                     | Admin runbook for demos and troubleshooting            |
+| [CLAUDE.md](CLAUDE.md)                                                       | AI assistant context and patterns                      |
 
-### Diagrams
+### D2 Diagrams
 
-- Curated index: `docs/00 - INDEX.md#🗺️-diagrams-index`
-- Images folder: `docs/diagrams/images` (PlantUML, Mermaid, ERD)
-- Re-render all: `scripts/render_diagrams.sh`
+All documentation includes embedded D2 diagrams showing architecture, automation flow, state machine, and data model.
 
-### Additional Resources
+- **Diagram sources:** `docs/diagrams/d2/*.d2`
+- **Rendered diagrams:** `docs/diagrams/svg/*.svg`
+- **Regenerate all:** `./scripts/render_d2.sh`
+- **Documentation:** [docs/diagrams/README.md](docs/diagrams/README.md)
 
-- [Architecture Overview](docs/SUCCESSION_FLOW_ARCHITECTURE.md) - Legacy flow documentation
-- [Field Documentation](docs/field-documentation-succession.md) - Detailed field specifications
-- [docs/archive/2025-10-14/](docs/archive/2025-10-14/) - Historical documentation and audit reports
+**Available Diagrams:**
+- Component Architecture (UI → Controller → Automation → Data)
+- Automation Sequence (Trigger-based pathway task creation)
+- Case State Machine (4-phase workflow)
+- Data Model ERD (Standard objects and relationships)
 
 ## 🧪 Testing
 
@@ -180,9 +202,10 @@ FinancialAccountRole
 
 ### Security Model
 
-- Permission Sets: `Succession_Management_Access`, `Succession_Field_Access`
+- Permission Sets: `Succession_Management_Access`, `Succession_Field_Access`, `Succession_Guest_Access`
 - Field-Level Security on all succession fields
-- All Apex uses `WITH USER_MODE` for proper security enforcement
+- Most Apex controllers use `WITH USER_MODE` for proper security enforcement
+- **Exception:** `SuccessionTaskGenerator` uses `SYSTEM_MODE` for automated task creation (required for guest user scenarios)
 
 ## 🔧 Configuration
 
@@ -221,11 +244,10 @@ All templates located in `Succession_Management` and `Succession_Templates` fold
 
 ## 🔐 Security
 
-- ✅ All database operations use `WITH USER_MODE`
+- ✅ Most database operations use `WITH USER_MODE` (exception: `SuccessionTaskGenerator` uses `SYSTEM_MODE` for automation)
 - ✅ Field-level security enforced
-- ✅ Token-based form authentication
-- ✅ Secure token generation with expiration
 - ✅ Guest user access restricted to submission form only
+- ✅ Permission sets control access: `Succession_Management_Access`, `Succession_Field_Access`, `Succession_Guest_Access`
 
 ## 🛠️ Development
 
@@ -233,17 +255,18 @@ All templates located in `Succession_Management` and `Succession_Templates` fold
 
 ```
 force-app/main/default/
-├── actionPlanTemplates/  # Action Plan Templates (3)
-├── classes/              # Apex classes (3)
-├── flows/                # Flow definitions (7)
+├── classes/              # Apex classes (8 production + test classes)
+├── triggers/             # Apex triggers (1: SuccessionCaseTrigger)
+├── flows/                # Flow definitions (5 - all Inactive in source)
 ├── email/                # Email templates (6)
-├── lwc/                  # Lightning Web Components (12)
+├── lwc/                  # Lightning Web Components (5 active)
 ├── objects/              # Object metadata & fields (standard objects only)
-├── permissionsets/       # Permission sets (2)
-├── serviceChannels/      # Service Cloud channels
-├── queues/               # Service Cloud queues
+├── permissionsets/       # Permission sets (3)
+├── quickActions/         # Quick Actions
 └── [additional metadata]
 ```
+
+**Note:** No `actionPlanTemplates/` directory - pathway tasks are created via `SuccessionTaskGenerator` Apex class.
 
 ### Build Commands
 
@@ -281,22 +304,6 @@ Proprietary - Schwab Charitable Fund
 ---
 
 **Version:** 1.0.0  
-**Last Updated:** October 2025  
+**Last Updated:** November 2025  
 **Target Org:** schwab-sandbox (josh.rojas.charfsc@schwab.com.fscjosh)
-
-
-## Documentation
-
-[Read auto-generated documentation of the SFDX project](docs/index.md)
-
-## Doc HTML Pages
-
-To read the documentation as HTML pages, run the following code (you need [**Python**](https://www.python.org/downloads/) on your computer)
-
-```python
-pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists || python -m pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists || py -m pip install mkdocs-material mkdocs-exclude-search mdx_truly_sane_lists
-mkdocs serve -v || python -m mkdocs serve -v || py -m mkdocs serve -v
-```
-
-To just generate HTML pages that you can host anywhere, run `mkdocs build -v || python -m mkdocs build -v || py -m mkdocs build -v`
 
