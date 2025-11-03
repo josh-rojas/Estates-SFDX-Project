@@ -248,8 +248,6 @@ public with sharing class ContactCadenceController {
   private static Map<Integer, String> queryAndMapNotes(Id caseId) {
     Map<Integer, String> notesByAttempt = new Map<Integer, String>();
 
-    System.debug('DEBUG: Querying notes for Case: ' + caseId);
-
     // Query ContentDocumentLink to find documents linked to the case
     List<ContentDocumentLink> cdLinks = [
       SELECT ContentDocumentId
@@ -257,8 +255,6 @@ public with sharing class ContactCadenceController {
       WHERE LinkedEntityId = :caseId
       ORDER BY SystemModstamp DESC
     ];
-
-    System.debug('DEBUG: Found ' + cdLinks.size() + ' ContentDocumentLinks');
 
     if (cdLinks.isEmpty()) {
       return notesByAttempt;
@@ -282,37 +278,25 @@ public with sharing class ContactCadenceController {
       ORDER BY CreatedDate DESC
     ];
 
-    System.debug(
-      'DEBUG: Found ' +
-      contentVersions.size() +
-      ' ContentNotes (FileType=SNOTE)'
-    );
-
     for (ContentVersion cv : contentVersions) {
       // Parse the title to extract attempt number
       String title = cv.Title;
-      System.debug('DEBUG: Processing ContentVersion with Title: ' + title);
 
       if (title.contains('Succession Contact Attempt ')) {
         Integer attemptNum = extractAttemptNumberFromTitle(title);
-        System.debug('DEBUG: Extracted attempt number: ' + attemptNum);
 
         if (attemptNum != null) {
           String content = cv.VersionData.toString();
-          System.debug('DEBUG: Content preview (first 200 chars): ' + content.substring(0, Math.min(200, content.length())));
 
           String userNotes = extractUserNotesFromContent(content);
-          System.debug('DEBUG: Extracted user notes: ' + userNotes);
 
           if (String.isNotBlank(userNotes)) {
             notesByAttempt.put(attemptNum, userNotes);
-            System.debug('DEBUG: Added notes for attempt ' + attemptNum);
           }
         }
       }
     }
 
-    System.debug('DEBUG: Final notesByAttempt map size: ' + notesByAttempt.size());
     return notesByAttempt;
   }
 
@@ -431,17 +415,6 @@ public with sharing class ContactCadenceController {
       attemptData.userNotes = String.isNotBlank(contentNoteNotes)
         ? contentNoteNotes
         : taskDescriptionNotes;
-
-      System.debug(
-        'DEBUG: Attempt ' +
-        i +
-        ' notes - ContentNote: ' +
-        (String.isNotBlank(contentNoteNotes) ? 'YES' : 'NO') +
-        ', Description: ' +
-        (String.isNotBlank(taskDescriptionNotes) ? 'YES' : 'NO') +
-        ', Final: ' +
-        attemptData.userNotes
-      );
 
       cadenceData.attempts.add(attemptData);
     }
@@ -613,15 +586,12 @@ public with sharing class ContactCadenceController {
 
       // IMPORTANT: Notes are saved to BOTH Description (immediate backup) and ContentNote (structured format)
       // This ensures notes are always available even if ContentNote creation fails or is delayed
-      System.debug('DEBUG: Saving notes to Task.Description: ' + notes);
-
       upsert attemptTask;
 
       // Create ContentNote and Chatter post if notes were provided
       // NOTE: Notes are ALREADY saved to Task.Description (above) as immediate backup
       // ContentNote and Chatter are supplementary - if they fail, notes still exist
       if (String.isNotBlank(notes)) {
-        System.debug('DEBUG: Creating ContentNote for attempt ' + attemptNumber);
         try {
           // Use shared utility for ContentNote creation
           String noteTitle = SuccessionUtilities.buildContactAttemptNoteTitle(
@@ -637,29 +607,12 @@ public with sharing class ContactCadenceController {
             noteTitle,
             noteBody
           );
-          System.debug(
-            'DEBUG: ContentNote created successfully for attempt ' +
-            attemptNumber
-          );
         } catch (Exception noteEx) {
           // Log but don't fail - ContentNote creation is supplementary
           // Notes are already saved to Task.Description, so this is not critical
-          System.debug(LoggingLevel.WARN, 'WARNING: ContentNote creation failed');
-          System.debug(
-            LoggingLevel.WARN,
-            'ContentNote error (attempt ' +
-            attemptNumber +
-            '): ' +
-            noteEx.getMessage()
-          );
-          System.debug(LoggingLevel.WARN, 'Stack trace: ' + noteEx.getStackTraceString());
-          System.debug(
-            LoggingLevel.INFO,
-            'Notes are preserved in Task.Description field'
-          );
+          System.debug(LoggingLevel.WARN, 'ContentNote creation failed for attempt ' + attemptNumber + ': ' + noteEx.getMessage());
         }
 
-        System.debug('DEBUG: Creating Chatter post for attempt ' + attemptNumber);
         try {
           // Use shared utility for Chatter post creation
           String postBody = SuccessionUtilities.buildContactAttemptPostBody(
@@ -668,21 +621,9 @@ public with sharing class ContactCadenceController {
             notes
           );
           SuccessionUtilities.createChatterPost(caseId, postBody, false);
-          System.debug(
-            'DEBUG: Chatter post created successfully for attempt ' +
-            attemptNumber
-          );
         } catch (Exception chatterEx) {
           // Log but don't fail - Chatter post creation is supplementary
-          System.debug(LoggingLevel.WARN, 'WARNING: Chatter post creation failed');
-          System.debug(
-            LoggingLevel.WARN,
-            'Chatter error (attempt ' +
-            attemptNumber +
-            '): ' +
-            chatterEx.getMessage()
-          );
-          System.debug(LoggingLevel.WARN, 'Stack trace: ' + chatterEx.getStackTraceString());
+          System.debug(LoggingLevel.WARN, 'Chatter post creation failed for attempt ' + attemptNumber + ': ' + chatterEx.getMessage());
         }
       }
 
