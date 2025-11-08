@@ -90,8 +90,9 @@ export default class CreateSuccessionCase extends NavigationMixin(
     // Close the Quick Action modal
     this.dispatchEvent(new CloseActionScreenEvent());
 
-    // Navigate to the created case
-    this.navigateToCase(result.seedCaseId);
+    // Navigate to parent case if multi-successor, otherwise navigate to the single case
+    const targetCaseId = result.parentCaseId || result.seedCaseId;
+    this.navigateToCase(targetCaseId);
   }
 
   /**
@@ -172,9 +173,9 @@ export default class CreateSuccessionCase extends NavigationMixin(
   get successorInfo() {
     if (this.successorCount === 0) return "";
     if (this.successorCount === 1) {
-      return "Click 'Begin Succession Processing' on the case to start the contact cadence workflow.";
+      return "Contact cadence workflow has started automatically.";
     }
-    return `${this.successorCount} successors detected. Click 'Begin Succession Processing' to create parent and child cases and start the workflow.`;
+    return `${this.successorCount} successors detected. Parent and child cases created. Contact cadence workflows have started automatically for all child cases.`;
   }
 
   /**
