@@ -18,6 +18,21 @@ jest.mock(
   { virtual: true }
 );
 
+const mockNavigate = jest.fn();
+jest.mock(
+  "lightning/navigation",
+  () => {
+    const NavigationMixin = (Base) => {
+      return class extends Base {
+        [NavigationMixin.Navigate] = mockNavigate;
+      };
+    };
+    NavigationMixin.Navigate = Symbol("Navigate");
+    return { NavigationMixin };
+  },
+  { virtual: true }
+);
+
 describe("c-create-succession-case", () => {
   afterEach(() => {
     // Reset DOM
@@ -153,5 +168,66 @@ describe("c-create-succession-case", () => {
 
     element.recordId = "test123";
     expect(element.recordId).toBe("test123");
+  });
+
+  it("navigates to parent case for multi-successor scenario", () => {
+    const element = createElement("c-create-succession-case", {
+      is: CreateSuccessionCase
+    });
+    element.recordId = "a0012345678901";
+
+    const mockResult = {
+      success: true,
+      message: "Cases created successfully",
+      parentCaseId: "500PARENT123",
+      seedCaseId: "500CHILD456",
+      successorCount: 3
+    };
+    createSuccessionCase.mockResolvedValue(mockResult);
+
+    document.body.appendChild(element);
+
+    element.invoke();
+
+    return Promise.resolve().then(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({
+        type: "standard__recordPage",
+        attributes: {
+          recordId: "500PARENT123",
+          objectApiName: "Case",
+          actionName: "view"
+        }
+      });
+    });
+  });
+
+  it("navigates to seed case for single-successor scenario", () => {
+    const element = createElement("c-create-succession-case", {
+      is: CreateSuccessionCase
+    });
+    element.recordId = "a0012345678901";
+
+    const mockResult = {
+      success: true,
+      message: "Case created successfully",
+      seedCaseId: "500SINGLE789",
+      successorCount: 1
+    };
+    createSuccessionCase.mockResolvedValue(mockResult);
+
+    document.body.appendChild(element);
+
+    element.invoke();
+
+    return Promise.resolve().then(() => {
+      expect(mockNavigate).toHaveBeenCalledWith({
+        type: "standard__recordPage",
+        attributes: {
+          recordId: "500SINGLE789",
+          objectApiName: "Case",
+          actionName: "view"
+        }
+      });
+    });
   });
 });

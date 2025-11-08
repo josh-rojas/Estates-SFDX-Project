@@ -147,6 +147,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 - Validation: ensures successors exist and allocations sum to 100%
 - Creates parent case + child cases for multi-successor scenarios
 - Auto-populates case fields (Type, Status, etc.)
+- Navigation: Opens parent case for multi-successor scenarios, single case for single successor
 
 **Controller:** `CreateSuccessionCaseController.cls`
 
@@ -159,10 +160,13 @@ This document provides a comprehensive inventory of all Lightning Web Components
 - `validateSuccessors()` - Ensures valid successor selection
 
 **Multi-Successor Logic:**
-- If 1 successor: creates single case
-- If 2+ successors: creates parent case + child cases (one per successor)
+- If 1 successor: creates single case and navigates to it
+- If 2+ successors: creates parent case + child cases (one per successor) and navigates to parent case
 - Parent case Type: "Multi-Account Succession Master"
 - Child case Type: "Named Successor Enactment"
+
+**Navigation Behavior:**
+When multiple successors are detected, the Quick Action navigates to the parent "Multi-Account Succession Master" case after creation. This allows users to view the case hierarchy and all child cases via the caseHierarchyViewer component. For single successor scenarios, the Quick Action navigates directly to the created successor case.
 
 ---
 
