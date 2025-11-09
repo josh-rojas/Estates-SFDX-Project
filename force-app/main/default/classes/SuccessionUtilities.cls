@@ -155,10 +155,10 @@ public with sharing class SuccessionUtilities {
 
   /**
    * Build Lightning record URL for hyperlinks in Chatter posts
-   * Creates absolute URL using Salesforce base URL
+   * Creates relative URL for Lightning record view
    *
    * @param recordId Record ID to build URL for
-   * @return Absolute Lightning record URL
+   * @return Relative Lightning record URL
    */
   public static String buildLightningRecordUrl(Id recordId) {
     if (recordId == null) {
@@ -169,9 +169,8 @@ public with sharing class SuccessionUtilities {
       // Get SObject type name from ID
       String sObjectName = recordId.getSObjectType().getDescribe().getName();
 
-      // Build absolute URL using Salesforce base URL
-      String baseUrl = URL.getSalesforceBaseUrl().toExternalForm();
-      return baseUrl + '/lightning/r/' + sObjectName + '/' + recordId + '/view';
+      // Build relative URL (works in all contexts and API versions)
+      return '/lightning/r/' + sObjectName + '/' + recordId + '/view';
     } catch (Exception e) {
       System.debug(
         LoggingLevel.WARN,
@@ -180,12 +179,7 @@ public with sharing class SuccessionUtilities {
           ': ' +
           e.getMessage()
       );
-      // Fallback to relative URL
-      return '/lightning/r/' +
-        recordId.getSObjectType().getDescribe().getName() +
-        '/' +
-        recordId +
-        '/view';
+      return '';
     }
   }
 
