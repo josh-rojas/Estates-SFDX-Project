@@ -1,0 +1,174 @@
+{
+  "namespaceToExclude": [],
+  "outputFormat": ["csv", "json"],
+  "count": 10,
+  "sObjects": [
+    {
+      "Account": {
+        "count": 20,
+        "fieldsToExclude": ["Fax", "Website", "Jigsaw", "AccountSource", "SicDesc"],
+        "fieldsToConsider": {
+          "PersonEmail": [
+            "john.smith@example.com",
+            "mary.johnson@example.com",
+            "robert.williams@example.com",
+            "patricia.brown@example.com",
+            "michael.jones@example.com",
+            "linda.garcia@example.com",
+            "william.martinez@example.com",
+            "elizabeth.rodriguez@example.com",
+            "david.wilson@example.com",
+            "jennifer.anderson@example.com",
+            "james.taylor@example.com",
+            "sarah.thomas@example.com",
+            "charles.hernandez@example.com",
+            "nancy.moore@example.com",
+            "joseph.martin@example.com",
+            "karen.jackson@example.com",
+            "thomas.thompson@example.com",
+            "betty.white@example.com",
+            "christopher.lopez@example.com",
+            "helen.lee@example.com"
+          ],
+          "PersonHasOptedOutOfEmail": [false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true],
+          "PersonMobilePhone": [
+            "555-0101",
+            "555-0102",
+            "555-0103",
+            "555-0104",
+            "555-0105",
+            "555-0106",
+            "555-0107",
+            "555-0108",
+            "555-0109",
+            "555-0110",
+            "555-0111",
+            "555-0112",
+            "555-0113",
+            "555-0114",
+            "555-0115",
+            "555-0116",
+            "555-0117",
+            "555-0118",
+            "555-0119",
+            "555-0120"
+          ]
+        },
+        "pickLeftFields": true
+      }
+    },
+    {
+      "FinServ__FinancialAccount__c": {
+        "count": 15,
+        "fieldsToExclude": ["FinServ__Household__c"],
+        "fieldsToConsider": {
+          "Name": [
+            "DAF Account 001",
+            "DAF Account 002",
+            "DAF Account 003",
+            "DAF Account 004",
+            "DAF Account 005",
+            "DAF Account 006",
+            "DAF Account 007",
+            "DAF Account 008",
+            "DAF Account 009",
+            "DAF Account 010",
+            "DAF Account 011",
+            "DAF Account 012",
+            "DAF Account 013",
+            "DAF Account 014",
+            "DAF Account 015"
+          ],
+          "FinServ__Status__c": ["Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Pending"],
+          "FinServ__Balance__c": [
+            50000.00,
+            75000.00,
+            100000.00,
+            125000.00,
+            150000.00,
+            200000.00,
+            250000.00,
+            300000.00,
+            350000.00,
+            400000.00,
+            450000.00,
+            500000.00,
+            550000.00,
+            600000.00,
+            750000.00
+          ],
+          "FinServ__FinancialAccountType__c": ["DAF/Donor Advised Fund", "DAF/Donor Advised Fund", "DAF/Donor Advised Fund", "DAF/Donor Advised Fund", "DAF/Donor Advised Fund"]
+        },
+        "pickLeftFields": true
+      }
+    },
+    {
+      "Case": {
+        "count": 10,
+        "fieldsToExclude": ["SuppliedEmail", "SuppliedName", "SuppliedPhone", "SuppliedCompany"],
+        "fieldsToConsider": {
+          "Subject": [
+            "Estate Administration Case 1",
+            "Estate Administration Case 2",
+            "Estate Administration Case 3",
+            "Estate Administration Case 4",
+            "Estate Administration Case 5",
+            "Estate Administration Case 6",
+            "Estate Administration Case 7",
+            "Estate Administration Case 8",
+            "Estate Administration Case 9",
+            "Estate Administration Case 10"
+          ],
+          "Status": [
+            "New",
+            "In Progress",
+            "In Progress",
+            "In Progress",
+            "In Progress",
+            "New",
+            "In Progress",
+            "Awaiting Response",
+            "In Progress",
+            "Closed"
+          ],
+          "Priority": ["Medium", "Medium", "High", "High", "High", "High", "Medium", "Medium", "High", "Low"],
+          "Origin": ["Phone", "Phone", "Email", "Email", "Phone", "Phone", "Email", "Phone", "Email", "Phone"]
+        },
+        "pickLeftFields": true
+      }
+    },
+    {
+      "Task": {
+        "count": 20,
+        "fieldsToExclude": ["CallDurationInSeconds", "CallType", "CallDisposition"],
+        "fieldsToConsider": {
+          "Subject": [
+            "Contact Attempt 1",
+            "Contact Attempt 2",
+            "Contact Attempt 3",
+            "Review Documentation",
+            "Validate Information",
+            "Process Request",
+            "Complete Task",
+            "Follow Up Call",
+            "Contact Attempt 1",
+            "Contact Attempt 2",
+            "Contact Attempt 1",
+            "Contact Attempt 2",
+            "Contact Attempt 3",
+            "Review Documentation",
+            "Validate Information",
+            "Process Request",
+            "Contact Attempt 1",
+            "Contact Attempt 2",
+            "Contact Attempt 3",
+            "Follow Up Call"
+          ],
+          "Status": ["Completed", "Completed", "Completed", "In Progress", "Not Started", "Completed", "Completed", "In Progress", "Not Started", "Not Started", "Completed", "Completed", "In Progress", "Not Started", "Completed", "Completed", "In Progress", "Not Started", "Completed", "In Progress"],
+          "Priority": ["Normal", "Normal", "Normal", "Normal", "Normal", "High", "High", "High", "Normal", "Normal", "High", "High", "High", "Normal", "High", "High", "High", "Normal", "Normal", "Normal"]
+        },
+        "pickLeftFields": true
+      }
+    }
+  ]
+}

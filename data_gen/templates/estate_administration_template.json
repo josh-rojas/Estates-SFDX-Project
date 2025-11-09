@@ -1,0 +1,211 @@
+{
+  "namespaceToExclude": [],
+  "outputFormat": ["csv", "json"],
+  "count": 10,
+  "sObjects": [
+    {
+      "Account": {
+        "count": 20,
+        "fieldsToExclude": ["Fax", "Website", "Jigsaw", "AccountSource", "SicDesc"],
+        "fieldsToConsider": {
+          "PersonEmail": [
+            "john.smith@example.com",
+            "mary.johnson@example.com",
+            "robert.williams@example.com",
+            "patricia.brown@example.com",
+            "michael.jones@example.com",
+            "linda.garcia@example.com",
+            "william.martinez@example.com",
+            "elizabeth.rodriguez@example.com",
+            "david.wilson@example.com",
+            "jennifer.anderson@example.com",
+            "james.taylor@example.com",
+            "sarah.thomas@example.com",
+            "charles.hernandez@example.com",
+            "nancy.moore@example.com",
+            "joseph.martin@example.com",
+            "karen.jackson@example.com",
+            "thomas.thompson@example.com",
+            "betty.white@example.com",
+            "christopher.lopez@example.com",
+            "helen.lee@example.com"
+          ],
+          "PersonHasOptedOutOfEmail": [false, false, false, false, false, false, false, false, false, true],
+          "PersonMobilePhone": [
+            "555-0101",
+            "555-0102",
+            "555-0103",
+            "555-0104",
+            "555-0105",
+            "555-0106",
+            "555-0107",
+            "555-0108",
+            "555-0109",
+            "555-0110"
+          ],
+          "Deceased__c": [false, false, false, false, false, true, true, true, false, false],
+          "Date_of_Death__c": ["2024-01-15", "2024-02-20", "2024-03-10", null, null, null, null, null, null, null]
+        },
+        "pickLeftFields": true
+      }
+    },
+    {
+      "FinServ__FinancialAccount__c": {
+        "count": 15,
+        "fieldsToExclude": ["FinServ__Household__c"],
+        "fieldsToConsider": {
+          "Name": [
+            "DAF Account 001",
+            "DAF Account 002",
+            "DAF Account 003",
+            "DAF Account 004",
+            "DAF Account 005",
+            "DAF Account 006",
+            "DAF Account 007",
+            "DAF Account 008",
+            "DAF Account 009",
+            "DAF Account 010",
+            "DAF Account 011",
+            "DAF Account 012",
+            "DAF Account 013",
+            "DAF Account 014",
+            "DAF Account 015"
+          ],
+          "FinServ__Status__c": ["Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Open", "Pending"],
+          "FinServ__Balance__c": [
+            50000.00,
+            75000.00,
+            100000.00,
+            125000.00,
+            150000.00,
+            200000.00,
+            250000.00,
+            300000.00,
+            350000.00,
+            400000.00,
+            450000.00,
+            500000.00,
+            550000.00,
+            600000.00,
+            750000.00
+          ],
+          "FinServ__FinancialAccountType__c": ["DAF/Donor Advised Fund", "DAF/Donor Advised Fund", "DAF/Donor Advised Fund", "DAF/Donor Advised Fund", "DAF/Donor Advised Fund"]
+        },
+        "pickLeftFields": true
+      }
+    },
+    {
+      "FinServ__FinancialAccountRole__c": {
+        "count": 25,
+        "fieldsToExclude": ["FinServ__Editable__c"],
+        "fieldsToConsider": {
+          "FinServ__Role__c": ["Primary Owner", "Successor", "Successor", "Successor", "Primary Owner", "Successor", "Primary Owner", "Successor", "Successor", "Primary Owner"],
+          "FinServ__Active__c": [true, true, true, true, true, true, true, true, true, true],
+          "SuccessorAllocation__c": [null, 100.0, 50.0, 50.0, null, 100.0, null, 33.33, 33.33, null],
+          "FinServ__StartDate__c": ["2020-01-01", "2020-01-01", "2020-01-01", "2020-01-01", "2021-01-01", "2021-01-01", "2022-01-01", "2022-01-01", "2022-01-01", "2023-01-01"]
+        },
+        "pickLeftFields": true
+      }
+    },
+    {
+      "Case": {
+        "count": 12,
+        "fieldsToExclude": ["SuppliedEmail", "SuppliedName", "SuppliedPhone", "SuppliedCompany"],
+        "fieldsToConsider": {
+          "Type": [
+            "Named Successor Enactment",
+            "Named Successor Enactment",
+            "Named Successor Enactment",
+            "Named Successor Enactment",
+            "Named Successor Enactment",
+            "Multi-Account Succession Master",
+            "Named Successor Enactment",
+            "Named Successor Enactment",
+            "Named Successor Enactment",
+            "Named Successor Enactment",
+            "Named Successor Enactment",
+            "Named Successor Enactment"
+          ],
+          "Status": [
+            "New",
+            "In Progress",
+            "In Progress",
+            "In Progress",
+            "In Progress",
+            "New",
+            "In Progress",
+            "Awaiting Response",
+            "In Progress",
+            "Closed",
+            "New",
+            "In Progress"
+          ],
+          "Priority": ["Medium", "Medium", "High", "High", "High", "High", "Medium", "Medium", "High", "Low", "Medium", "Medium"],
+          "Origin": ["Phone", "Phone", "Email", "Email", "Phone", "Phone", "Email", "Phone", "Email", "Phone", "Email", "Phone"],
+          "Verification_Status__c": [
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified",
+            "Complete - Verified"
+          ],
+          "Contact_Established__c": [false, false, true, true, true, false, false, true, true, true, false, false],
+          "Contact_Attempt_Count__c": [1, 2, 3, 4, 5, 1, 2, 3, 5, 5, 1, 2],
+          "Pathway_Confirmed__c": [null, null, null, "Final Grant", "New DAF Account", null, null, null, "Disclaim Assets", "Final Grant", null, null],
+          "Execution_Status__c": [null, null, null, "In Progress", "In Progress", null, null, null, "In Progress", "Completed", null, null]
+        },
+        "pickLeftFields": true
+      }
+    },
+    {
+      "Task": {
+        "count": 30,
+        "fieldsToExclude": ["CallDurationInSeconds", "CallType", "CallDisposition"],
+        "fieldsToConsider": {
+          "Subject": [
+            "Succession Contact Attempt 1",
+            "Succession Contact Attempt 2",
+            "Succession Contact Attempt 3",
+            "Succession Contact Attempt 4",
+            "Succession Contact Attempt 5",
+            "Review Grant Direction Documentation",
+            "Validate Charitable Organization",
+            "Process Final Grant Distribution",
+            "Complete Tax Documentation",
+            "Close Deceased Donor Account",
+            "Review New DAF Application",
+            "Process Transfer Authorization",
+            "Execute Account Transfer",
+            "Confirm Transfer and Close Case",
+            "Review Disclaimer Documentation",
+            "Identify Alternate Beneficiary",
+            "Process Alternative Distribution",
+            "Close and Document Case",
+            "Succession Contact Attempt 1",
+            "Succession Contact Attempt 2",
+            "Succession Contact Attempt 1",
+            "Succession Contact Attempt 2",
+            "Succession Contact Attempt 3",
+            "Review Grant Direction Documentation",
+            "Validate Charitable Organization",
+            "Process Final Grant Distribution",
+            "Succession Contact Attempt 1",
+            "Succession Contact Attempt 2",
+            "Succession Contact Attempt 3",
+            "Succession Contact Attempt 4"
+          ],
+          "Status": ["Completed", "Completed", "Completed", "In Progress", "Not Started", "Completed", "Completed", "In Progress", "Not Started", "Not Started", "Completed", "Completed", "In Progress", "Not Started", "Completed", "Completed", "In Progress", "Not Started", "Completed", "In Progress", "Completed", "In Progress", "Not Started", "Completed", "Completed", "Completed", "Completed", "Completed", "In Progress", "Not Started"],
+          "Priority": ["Normal", "Normal", "Normal", "Normal", "Normal", "High", "High", "High", "Normal", "Normal", "High", "High", "High", "Normal", "High", "High", "High", "Normal", "Normal", "Normal", "Normal", "Normal", "Normal", "High", "High", "High", "Normal", "Normal", "Normal", "Normal"]
+        },
+        "pickLeftFields": true
+      }
+    }
+  ]
+}

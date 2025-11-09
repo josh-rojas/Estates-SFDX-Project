@@ -1,0 +1,22 @@
+
+{
+  "namespaceToExclude": [],
+  "outputFormat": ["csv", "json"],
+  "count": 1,
+  "sObjects": [
+    {"account": {}},
+    {"contact": {}},
+    {
+      "lead": {
+        "count": 5,
+        "fieldsToExclude": ["fax", "website"],
+        "fieldsToConsider": {
+          "email": ["smockit@gmail.com"],
+          "phone": ["9090909090","6788899990"]
+        },
+        "pickLeftFields": true
+      }
+    }
+  ]
+}
+    

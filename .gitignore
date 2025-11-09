@@ -102,3 +102,6 @@ Support/Code/User/globalStorage/salesforce.salesforcedx-einstein-gpt/settings/a4
 datasets/*.json
 datasets/*.csv
 datasets/output/
+
+# Smock-it generated data
+data_gen/output/
