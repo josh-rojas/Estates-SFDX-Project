@@ -21,6 +21,7 @@ sf plugins | grep smock-it
 ```
 
 You should see:
+
 ```
 smock-it 3.0.3
 ```
@@ -32,27 +33,35 @@ Smock-it provides several commands for test data generation:
 ### Core Commands
 
 1. **Template Initialization**
+
    ```bash
    sf smockit template init --default
    ```
+
    Creates the default directory structure and template file.
 
 2. **Template Validation**
+
    ```bash
    sf smockit template validate -t <template-name> -a <org-alias>
    ```
+
    Validates template against Salesforce org schema.
 
 3. **Data Generation**
+
    ```bash
    sf smockit data generate -t <template-name> -a <org-alias>
    ```
+
    Generates test data based on template configuration.
 
 4. **Data Upload**
+
    ```bash
    sf smockit data upload -u <file-name> -a <org-alias> -s <sobject>
    ```
+
    Uploads generated data to Salesforce org.
 
 5. **AI-Powered Template Generation**
@@ -129,6 +138,7 @@ Each object can specify:
 **File**: `estate_administration_template.json`
 
 Generates comprehensive test data including:
+
 - 20 Person Accounts with email addresses
 - 15 Financial Accounts (DAF accounts)
 - 25 Financial Account Roles (successors)
@@ -136,6 +146,7 @@ Generates comprehensive test data including:
 - 30 Tasks (contact attempts and pathway tasks)
 
 **Usage**:
+
 ```bash
 sf smockit template validate -t estate_administration_template -a schwab-sandbox
 sf smockit data generate -t estate_administration_template -a schwab-sandbox
@@ -148,12 +159,14 @@ sf smockit data generate -t estate_administration_template -a schwab-sandbox
 **File**: `estate_administration_simple.json`
 
 Generates basic test data with standard picklist values:
+
 - 20 Person Accounts
 - 15 Financial Accounts
 - 10 Cases
 - 20 Tasks
 
 **Usage**:
+
 ```bash
 sf smockit template validate -t estate_administration_simple -a schwab-sandbox
 sf smockit data generate -t estate_administration_simple -a schwab-sandbox
@@ -179,6 +192,7 @@ sf smockit template validate -t estate_administration_simple -a schwab-sandbox
 ```
 
 This will check:
+
 - Object existence
 - Field accessibility
 - Picklist value validity
@@ -191,6 +205,7 @@ sf smockit data generate -t estate_administration_simple -a schwab-sandbox
 ```
 
 Generated files will be saved to `data_gen/output/`:
+
 - `generated_output.json` - JSON format
 - `*.csv` files - CSV format (if specified in template)
 
@@ -228,7 +243,8 @@ Update your template with valid values.
 
 **Error**: `Fields do not exist or cannot be accessed: X`
 
-**Solution**: 
+**Solution**:
+
 - Verify field API names using `sf sobject describe`
 - Check field-level security permissions
 - For Person Accounts, use `PersonEmail`, `PersonMobilePhone`, etc. instead of standard Contact fields
@@ -252,6 +268,7 @@ sf data query -q "SELECT Id, Name, DeveloperName FROM RecordType WHERE SObjectTy
 ### Validation Best Practices
 
 1. **Always validate templates before generating data**
+
    ```bash
    sf smockit template validate -t <template> -a <org-alias>
    ```
@@ -259,10 +276,11 @@ sf data query -q "SELECT Id, Name, DeveloperName FROM RecordType WHERE SObjectTy
 2. **Start with simple templates** and gradually add complexity
 
 3. **Query org for valid values** before adding to templates:
+
    ```bash
    # Get picklist values
    sf sobject describe -s Case -o schwab-sandbox --json | grep -A 50 '"name": "Status"'
-   
+
    # Get existing records for reference
    sf data query -q "SELECT Id, Status, Type FROM Case LIMIT 5" -o schwab-sandbox
    ```
@@ -276,6 +294,7 @@ The Estate Administration system uses Person Accounts (Financial Services Cloud)
 ### Person Account Fields
 
 Use these field names for Person Accounts:
+
 - `PersonEmail` (not `Email`)
 - `PersonMobilePhone` (not `MobilePhone`)
 - `PersonHasOptedOutOfEmail` (not `HasOptedOutOfEmail`)
@@ -334,6 +353,7 @@ sf smockit promptify
 ```
 
 Example prompts:
+
 - "Generate 100 Person Accounts with valid email addresses and phone numbers"
 - "Create 50 Financial Accounts with balances between $50,000 and $1,000,000"
 - "Generate Estate Administration Cases with various statuses"
@@ -378,6 +398,7 @@ cci task run load_demo_ui_showcase
 ```
 
 Smock-it provides an alternative approach with:
+
 - Simpler JSON-based configuration
 - Direct Salesforce CLI integration
 - No Python dependencies
