@@ -614,13 +614,19 @@ public with sharing class ContactCadenceController {
         }
 
         try {
-          // Use shared utility for Chatter post creation
+          // Use shared utility for Chatter post creation with Task link
           String postBody = SuccessionUtilities.buildContactAttemptPostBody(
             attemptNumber,
             contactEstablished,
             notes
           );
-          SuccessionUtilities.createChatterPost(caseId, postBody, false);
+          SuccessionUtilities.createChatterPostWithRecordLink(
+            caseId,
+            postBody,
+            attemptTask.Id,
+            'View Task',
+            false
+          );
         } catch (Exception chatterEx) {
           // Log but don't fail - Chatter post creation is supplementary
           System.debug(LoggingLevel.WARN, 'Chatter post creation failed for attempt ' + attemptNumber + ': ' + chatterEx.getMessage());

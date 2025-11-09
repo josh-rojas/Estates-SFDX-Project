@@ -28,7 +28,7 @@ public with sharing class SuccessionTaskGenerator {
     Map<Id, Case> oldCaseMap
   ) {
     List<Task> tasksToCreate = new List<Task>();
-    List<FeedItem> chatterPostsToCreate = new List<FeedItem>();
+    Map<Id, String> chatterPostsByCaseId = new Map<Id, String>();
 
     // Guard against null oldCaseMap (shouldn't happen in after update, but defensive)
     if (oldCaseMap == null) {
@@ -66,12 +66,7 @@ public with sharing class SuccessionTaskGenerator {
             c.Pathway_Confirmed__c,
             pathwayTasks.size()
           );
-          FeedItem post = new FeedItem(
-            ParentId = c.Id,
-            Body = postBody,
-            Type = 'TextPost'
-          );
-          chatterPostsToCreate.add(post);
+          chatterPostsByCaseId.put(c.Id, postBody);
         }
       }
     }
@@ -86,12 +81,25 @@ public with sharing class SuccessionTaskGenerator {
       }
     }
 
-    // Insert Chatter posts (SYSTEM_MODE for automation reliability)
-    if (!chatterPostsToCreate.isEmpty()) {
-      try {
-        Database.insert(chatterPostsToCreate, false, AccessLevel.SYSTEM_MODE);
-      } catch (DmlException e) {
-        System.debug('Error creating Chatter posts: ' + e.getMessage());
+    // Create Chatter posts using SuccessionUtilities with Case links
+    if (!chatterPostsByCaseId.isEmpty()) {
+      for (Id caseId : chatterPostsByCaseId.keySet()) {
+        try {
+          SuccessionUtilities.createChatterPostWithRecordLink(
+            caseId,
+            chatterPostsByCaseId.get(caseId),
+            caseId,
+            'View Case',
+            true // Use SYSTEM_MODE for automation reliability
+          );
+        } catch (Exception e) {
+          System.debug(
+            'Error creating Chatter post for case ' +
+              caseId +
+              ': ' +
+              e.getMessage()
+          );
+        }
       }
     }
   }

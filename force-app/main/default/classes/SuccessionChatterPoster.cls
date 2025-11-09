@@ -104,16 +104,18 @@ public with sharing class SuccessionChatterPoster {
           continue;
         }
 
-        // Create Chatter post using SuccessionUtilities
+        // Create Chatter post using SuccessionUtilities with Case link
         // Use user mode (false) for flow context - respects sharing
-        FeedItem post = SuccessionUtilities.createChatterPost(
+        FeedItem post = SuccessionUtilities.createChatterPostWithRecordLink(
           req.caseId,
           messageBody,
+          req.caseId,
+          'View Case',
           false
         );
 
         response.postCreated = true;
-        response.feedItemId = post.Id;
+        response.feedItemId = post != null ? post.Id : null;
         response.message =
           'Transition posted: ' + req.transitionType;
       } catch (Exception e) {

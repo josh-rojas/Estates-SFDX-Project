@@ -115,6 +115,16 @@ public with sharing class SuccessionUtilities {
     String postBody,
     Boolean useSystemMode
   ) {
+    // Guard against blank messages - skip posting if body is empty
+    if (String.isBlank(postBody)) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Skipping Chatter post creation - body is blank for record: ' +
+          recordId
+      );
+      return null;
+    }
+
     FeedItem post = new FeedItem();
     post.ParentId = recordId;
     post.Body = postBody;
@@ -129,6 +139,85 @@ public with sharing class SuccessionUtilities {
     }
 
     return post;
+  }
+
+  /**
+   * Create a Chatter post on a record (2-arg overload)
+   * Defaults to user mode (useSystemMode = false)
+   *
+   * @param recordId Parent record ID (Case, Account, etc.)
+   * @param postBody Post body text (pre-formatted)
+   * @return FeedItem created (ID populated after insert)
+   */
+  public static FeedItem createChatterPost(Id recordId, String postBody) {
+    return createChatterPost(recordId, postBody, false);
+  }
+
+  /**
+   * Build Lightning record URL for hyperlinks in Chatter posts
+   * Creates absolute URL using Salesforce base URL
+   *
+   * @param recordId Record ID to build URL for
+   * @return Absolute Lightning record URL
+   */
+  public static String buildLightningRecordUrl(Id recordId) {
+    if (recordId == null) {
+      return '';
+    }
+
+    try {
+      // Get SObject type name from ID
+      String sObjectName = recordId.getSObjectType().getDescribe().getName();
+
+      // Build absolute URL using Salesforce base URL
+      String baseUrl = URL.getSalesforceBaseUrl().toExternalForm();
+      return baseUrl + '/lightning/r/' + sObjectName + '/' + recordId + '/view';
+    } catch (Exception e) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Error building Lightning URL for record ' +
+          recordId +
+          ': ' +
+          e.getMessage()
+      );
+      // Fallback to relative URL
+      return '/lightning/r/' +
+        recordId.getSObjectType().getDescribe().getName() +
+        '/' +
+        recordId +
+        '/view';
+    }
+  }
+
+  /**
+   * Create a Chatter post with a hyperlinked record reference
+   * Appends "linkLabel: <URL>" to the message body
+   *
+   * @param parentId Parent record ID to post on (Case, Account, etc.)
+   * @param baseMessage Base message text
+   * @param linkRecordId Record ID to link to
+   * @param linkLabel Label for the link (e.g., "View Case", "View Task")
+   * @param useSystemMode Use SYSTEM_MODE for automation context
+   * @return FeedItem created (ID populated after insert)
+   */
+  public static FeedItem createChatterPostWithRecordLink(
+    Id parentId,
+    String baseMessage,
+    Id linkRecordId,
+    String linkLabel,
+    Boolean useSystemMode
+  ) {
+    // Build message with link
+    String messageWithLink = baseMessage;
+
+    if (linkRecordId != null && String.isNotBlank(linkLabel)) {
+      String recordUrl = buildLightningRecordUrl(linkRecordId);
+      if (String.isNotBlank(recordUrl)) {
+        messageWithLink += '\n\n' + linkLabel + ': ' + recordUrl;
+      }
+    }
+
+    return createChatterPost(parentId, messageWithLink, useSystemMode);
   }
 
   /**
