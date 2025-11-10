@@ -185,12 +185,12 @@ public with sharing class SuccessionUtilities {
 
   /**
    * Create a Chatter post with a hyperlinked record reference
-   * Appends "linkLabel: <URL>" to the message body
+   * Creates a LinkPost with the linkTitle as the clickable hyperlink text
    *
    * @param parentId Parent record ID to post on (Case, Account, etc.)
-   * @param baseMessage Base message text
+   * @param baseMessage Base message text (appears in Body)
    * @param linkRecordId Record ID to link to
-   * @param linkLabel Label for the link (e.g., "View Case", "View Task")
+   * @param linkTitle Title for the link (e.g., "Case-00001234", "Task Subject")
    * @param useSystemMode Use SYSTEM_MODE for automation context
    * @return FeedItem created (ID populated after insert)
    */
@@ -198,20 +198,56 @@ public with sharing class SuccessionUtilities {
     Id parentId,
     String baseMessage,
     Id linkRecordId,
-    String linkLabel,
+    String linkTitle,
     Boolean useSystemMode
   ) {
-    // Build message with link
-    String messageWithLink = baseMessage;
-
-    if (linkRecordId != null && String.isNotBlank(linkLabel)) {
-      String recordUrl = buildLightningRecordUrl(linkRecordId);
-      if (String.isNotBlank(recordUrl)) {
-        messageWithLink += '\n\n' + linkLabel + ': ' + recordUrl;
-      }
+    // Guard against blank messages - skip posting if body is empty
+    if (String.isBlank(baseMessage)) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Skipping Chatter post creation - body is blank for record: ' +
+          parentId
+      );
+      return null;
     }
 
-    return createChatterPost(parentId, messageWithLink, useSystemMode);
+    // Guard against missing link information
+    if (linkRecordId == null || String.isBlank(linkTitle)) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Missing link information - falling back to TextPost for record: ' +
+          parentId
+      );
+      return createChatterPost(parentId, baseMessage, useSystemMode);
+    }
+
+    // Build LinkPost with clickable title
+    String recordUrl = buildLightningRecordUrl(linkRecordId);
+    if (String.isBlank(recordUrl)) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Unable to build URL - falling back to TextPost for record: ' +
+          parentId
+      );
+      return createChatterPost(parentId, baseMessage, useSystemMode);
+    }
+
+    FeedItem post = new FeedItem();
+    post.ParentId = parentId;
+    post.Body = baseMessage;
+    post.Type = 'LinkPost';
+    post.Title = linkTitle;
+    post.LinkUrl = recordUrl;
+
+    if (useSystemMode) {
+      // Automation context - use SYSTEM_MODE
+      Database.insert(post, AccessLevel.SYSTEM_MODE);
+    } else {
+      // User context - use default access (respects sharing)
+      insert post;
+    }
+
+    return post;
   }
 
   /**

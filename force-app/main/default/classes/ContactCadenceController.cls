@@ -620,11 +620,17 @@ public with sharing class ContactCadenceController {
             contactEstablished,
             notes
           );
+
+          // Use Task Subject as link title (we already have the Task object)
+          String linkTitle = String.isNotBlank(attemptTask.Subject)
+            ? attemptTask.Subject
+            : 'Contact Attempt ' + attemptNumber;
+
           SuccessionUtilities.createChatterPostWithRecordLink(
             caseId,
             postBody,
             attemptTask.Id,
-            'View Task',
+            linkTitle,
             false
           );
         } catch (Exception chatterEx) {

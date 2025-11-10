@@ -83,13 +83,32 @@ public with sharing class SuccessionTaskGenerator {
 
     // Create Chatter posts using SuccessionUtilities with Case links
     if (!chatterPostsByCaseId.isEmpty()) {
+      // Bulk query Case details for link titles
+      Map<Id, Case> casesById = new Map<Id, Case>([
+        SELECT Id, CaseNumber, Subject
+        FROM Case
+        WHERE Id IN :chatterPostsByCaseId.keySet()
+      ]);
+
       for (Id caseId : chatterPostsByCaseId.keySet()) {
         try {
+          // Get Case details for link title
+          String linkTitle = 'View Case';
+          Case caseRecord = casesById.get(caseId);
+          if (caseRecord != null) {
+            // Prefer CaseNumber, fallback to Subject
+            linkTitle = String.isNotBlank(caseRecord.CaseNumber)
+              ? caseRecord.CaseNumber
+              : (String.isNotBlank(caseRecord.Subject)
+                  ? caseRecord.Subject
+                  : 'Case ' + caseId);
+          }
+
           SuccessionUtilities.createChatterPostWithRecordLink(
             caseId,
             chatterPostsByCaseId.get(caseId),
             caseId,
-            'View Case',
+            linkTitle,
             true // Use SYSTEM_MODE for automation reliability
           );
         } catch (Exception e) {
