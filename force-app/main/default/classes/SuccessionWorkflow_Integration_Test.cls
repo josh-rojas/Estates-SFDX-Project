@@ -12,7 +12,10 @@ private class SuccessionWorkflow_Integration_Test {
   @testSetup
   static void setup() {
     // Create Person Account (FSC) - Deceased Donor
-    Id personAcctRecordTypeId = Schema.SObjectType.Account.getDescribe().getRecordTypeInfosByDeveloperName()
+    Id personAcctRecordTypeId = Schema.getGlobalDescribe()
+      .get('Account')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('PersonAccount')
       .getRecordTypeId();
 
@@ -101,7 +104,10 @@ private class SuccessionWorkflow_Integration_Test {
     ];
 
     // Get Estate Administration Record Type
-    Id estateRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+    Id estateRecordTypeId = Schema.getGlobalDescribe()
+      .get('Case')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('EstateAdministration')
       .getRecordTypeId();
 
@@ -249,7 +255,10 @@ private class SuccessionWorkflow_Integration_Test {
       LIMIT 1
     ];
 
-    Id estateRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+    Id estateRecordTypeId = Schema.getGlobalDescribe()
+      .get('Case')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('EstateAdministration')
       .getRecordTypeId();
 
@@ -318,7 +327,10 @@ private class SuccessionWorkflow_Integration_Test {
       LIMIT 1
     ];
 
-    Id estateRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+    Id estateRecordTypeId = Schema.getGlobalDescribe()
+      .get('Case')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('EstateAdministration')
       .getRecordTypeId();
 
@@ -387,7 +399,10 @@ private class SuccessionWorkflow_Integration_Test {
       LIMIT 1
     ];
 
-    Id estateRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+    Id estateRecordTypeId = Schema.getGlobalDescribe()
+      .get('Case')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('EstateAdministration')
       .getRecordTypeId();
 
@@ -460,7 +475,10 @@ private class SuccessionWorkflow_Integration_Test {
   @isTest
   static void testEmailValidation() {
     // Create person account with opted-out email
-    Id personAcctRecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName()
+    Id personAcctRecordTypeId = Schema.getGlobalDescribe()
+      .get('Account')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('PersonAccount')
       .getRecordTypeId();
 
@@ -480,7 +498,10 @@ private class SuccessionWorkflow_Integration_Test {
       LIMIT 1
     ];
 
-    Id estateRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+    Id estateRecordTypeId = Schema.getGlobalDescribe()
+      .get('Case')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('EstateAdministration')
       .getRecordTypeId();
 
@@ -533,7 +554,10 @@ private class SuccessionWorkflow_Integration_Test {
     ];
 
     // Create second successor
-    Id personAcctRecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName()
+    Id personAcctRecordTypeId = Schema.getGlobalDescribe()
+      .get('Account')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('PersonAccount')
       .getRecordTypeId();
 
@@ -656,7 +680,10 @@ private class SuccessionWorkflow_Integration_Test {
       LIMIT 1
     ];
 
-    Id estateRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+    Id estateRecordTypeId = Schema.getGlobalDescribe()
+      .get('Case')
+      .getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('EstateAdministration')
       .getRecordTypeId();
 
