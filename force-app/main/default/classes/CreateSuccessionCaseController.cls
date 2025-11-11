@@ -275,6 +275,10 @@ public with sharing class CreateSuccessionCaseController {
 
   /**
    * Get ContactId for a successor (handles Person Accounts)
+   *
+   * Note: Uses SYSTEM_MODE for PersonContactId access since this is a
+   * system-level automation check (similar to case creation and task generation).
+   * PersonContactId is a virtual field that may not be accessible with USER_MODE.
    */
   private static Id getContactIdForSuccessor(
     FinServ__FinancialAccountRole__c successor
@@ -287,19 +291,12 @@ public with sharing class CreateSuccessionCaseController {
         SELECT PersonContactId, IsPersonAccount
         FROM Account
         WHERE Id = :successor.FinServ__RelatedAccount__c
-        WITH USER_MODE
+        WITH SYSTEM_MODE
         LIMIT 1
       ];
 
       if (!successorAccounts.isEmpty()) {
-        SObjectAccessDecision decision = Security.stripInaccessible(
-          AccessType.READABLE,
-          successorAccounts
-        );
-        List<Account> filteredAccounts = (List<Account>) decision.getRecords();
-        if (!filteredAccounts.isEmpty()) {
-          contactId = filteredAccounts[0].PersonContactId;
-        }
+        contactId = successorAccounts[0].PersonContactId;
       }
     }
 
