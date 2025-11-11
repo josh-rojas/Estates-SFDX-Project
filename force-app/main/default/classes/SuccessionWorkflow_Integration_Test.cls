@@ -20,7 +20,8 @@ private class SuccessionWorkflow_Integration_Test {
       FirstName = 'Deceased',
       LastName = 'Donor',
       PersonEmail = 'deceased@test.com',
-      RecordTypeId = personAcctRecordTypeId
+      RecordTypeId = personAcctRecordTypeId,
+      Deceased__c = true // Required for controller's getDeceasedDonorAccount() query
     );
     insert deceasedDonor;
 
