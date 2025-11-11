@@ -226,7 +226,7 @@ private class SuccessionWorkflow_Integration_Test {
 
     Test.startTest();
 
-    // Create and progress case through workflow
+    // Create case first (without pathway)
     Case successionCase = new Case(
       Subject = 'Succession - New DAF',
       RecordTypeId = estateRecordTypeId,
@@ -237,11 +237,14 @@ private class SuccessionWorkflow_Integration_Test {
       Successor__c = successor.PersonContactId,
       Status = 'New',
       Verification_Status__c = 'Complete - Verified',
-      Contact_Established__c = true,
-      Pathway_Confirmed__c = 'New DAF Account',
-      Form_Completed_Date__c = DateTime.now()
+      Contact_Established__c = true
     );
     insert successionCase;
+
+    // Update case to set pathway (triggers SuccessionTaskGenerator)
+    successionCase.Pathway_Confirmed__c = 'New DAF Account';
+    successionCase.Form_Completed_Date__c = DateTime.now();
+    update successionCase;
 
     Test.stopTest();
 
@@ -292,7 +295,7 @@ private class SuccessionWorkflow_Integration_Test {
 
     Test.startTest();
 
-    // Create case with Disclaim pathway
+    // Create case first (without pathway)
     Case successionCase = new Case(
       Subject = 'Succession - Disclaim',
       RecordTypeId = estateRecordTypeId,
@@ -303,11 +306,14 @@ private class SuccessionWorkflow_Integration_Test {
       Successor__c = successor.PersonContactId,
       Status = 'New',
       Verification_Status__c = 'Complete - Verified',
-      Contact_Established__c = true,
-      Pathway_Confirmed__c = 'Disclaim Assets',
-      Form_Completed_Date__c = DateTime.now()
+      Contact_Established__c = true
     );
     insert successionCase;
+
+    // Update case to set pathway (triggers SuccessionTaskGenerator)
+    successionCase.Pathway_Confirmed__c = 'Disclaim Assets';
+    successionCase.Form_Completed_Date__c = DateTime.now();
+    update successionCase;
 
     Test.stopTest();
 
@@ -534,7 +540,14 @@ private class SuccessionWorkflow_Integration_Test {
     );
     insert role2;
 
-    // Update first successor to 50%
+    // Update first successor to 50% and set RelatedContact
+    Account successor1 = [
+      SELECT Id, PersonContactId
+      FROM Account
+      WHERE LastName = 'Successor'
+      LIMIT 1
+    ];
+
     FinServ__FinancialAccountRole__c role1 = [
       SELECT Id, SuccessorAllocation__c
       FROM FinServ__FinancialAccountRole__c
@@ -542,6 +555,7 @@ private class SuccessionWorkflow_Integration_Test {
       LIMIT 1
     ];
     role1.SuccessorAllocation__c = 50;
+    role1.FinServ__RelatedContact__c = successor1.PersonContactId; // Required for contact cadence
     update role1;
 
     Test.startTest();
@@ -612,7 +626,7 @@ private class SuccessionWorkflow_Integration_Test {
       .get('EstateAdministration')
       .getRecordTypeId();
 
-    // Create case with pathway already selected
+    // Create case first (without pathway)
     Case successionCase = new Case(
       Subject = 'Succession - Task Completion Test',
       RecordTypeId = estateRecordTypeId,
@@ -623,17 +637,20 @@ private class SuccessionWorkflow_Integration_Test {
       Successor__c = successor.PersonContactId,
       Status = 'New',
       Verification_Status__c = 'Complete - Verified',
-      Contact_Established__c = true,
-      Pathway_Confirmed__c = 'Final Grant',
-      Form_Completed_Date__c = DateTime.now()
+      Contact_Established__c = true
     );
     insert successionCase;
+
+    // Update case to set pathway (triggers SuccessionTaskGenerator)
+    successionCase.Pathway_Confirmed__c = 'Final Grant';
+    successionCase.Form_Completed_Date__c = DateTime.now();
+    update successionCase;
 
     // Get all pathway tasks
     List<Task> pathwayTasks = [
       SELECT Id, Status
       FROM Task
-      WHERE WhatId = :successionCase.Id
+      WHERE WhatId = :successionCase.Id AND TaskSubtype = 'Task'
     ];
 
     System.assertEquals(
