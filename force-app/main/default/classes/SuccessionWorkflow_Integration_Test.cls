@@ -577,7 +577,11 @@ private class SuccessionWorkflow_Integration_Test {
     Test.stopTest();
 
     // Verify multi-successor handling
-    System.assertEquals(true, result.success, 'Case creation should succeed');
+    System.assertEquals(
+      true,
+      result.success,
+      'Case creation should succeed. Error: ' + result.message
+    );
     System.assertEquals(
       2,
       result.successorCount,
