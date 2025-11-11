@@ -34,6 +34,14 @@ private class SuccessionWorkflow_Integration_Test {
     );
     insert successor;
 
+    // Re-query to get PersonContactId (virtual field populated after insert)
+    successor = [
+      SELECT Id, PersonContactId
+      FROM Account
+      WHERE Id = :successor.Id
+      LIMIT 1
+    ];
+
     // Create Financial Account
     FinServ__FinancialAccount__c financialAccount = new FinServ__FinancialAccount__c(
       Name = 'DAF-12345',
@@ -46,6 +54,7 @@ private class SuccessionWorkflow_Integration_Test {
     FinServ__FinancialAccountRole__c role = new FinServ__FinancialAccountRole__c(
       FinServ__FinancialAccount__c = financialAccount.Id,
       FinServ__RelatedAccount__c = successor.Id,
+      FinServ__RelatedContact__c = successor.PersonContactId, // Required for contact cadence
       FinServ__Role__c = 'Successor',
       SuccessorAllocation__c = 100
     );
@@ -248,11 +257,11 @@ private class SuccessionWorkflow_Integration_Test {
 
     Test.stopTest();
 
-    // Verify pathway-specific tasks
+    // Verify pathway-specific tasks (exclude contact tasks)
     List<Task> pathwayTasks = [
       SELECT Id, Subject, ActivityDate
       FROM Task
-      WHERE WhatId = :successionCase.Id
+      WHERE WhatId = :successionCase.Id AND TaskSubtype = 'Task'
       ORDER BY ActivityDate
     ];
 
@@ -317,11 +326,11 @@ private class SuccessionWorkflow_Integration_Test {
 
     Test.stopTest();
 
-    // Verify pathway-specific tasks
+    // Verify pathway-specific tasks (exclude contact tasks)
     List<Task> pathwayTasks = [
       SELECT Id, Subject, ActivityDate
       FROM Task
-      WHERE WhatId = :successionCase.Id
+      WHERE WhatId = :successionCase.Id AND TaskSubtype = 'Task'
       ORDER BY ActivityDate
     ];
 
