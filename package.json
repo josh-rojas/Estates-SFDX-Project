@@ -4,14 +4,29 @@
   "version": "1.0.0",
   "description": "Salesforce App",
   "scripts": {
-    "lint": "eslint **/{aura,lwc}/**/*.js",
+    "// === VALIDATION SCRIPTS (Read-only checks) ===": "",
+    "lint": "npm run lint:eslint && npm run lint:prettier",
+    "lint:eslint": "eslint **/lwc/**/*.js",
+    "lint:prettier": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+    "lint:apex": "sf scanner run --target \"force-app/main/default/classes/**/*.cls,force-app/main/default/triggers/**/*.trigger\" --format table",
+    "// === FORMATTING SCRIPTS (Auto-fix) ===": "",
+    "format": "npm run format:prettier && npm run format:eslint",
+    "format:eslint": "eslint --fix **/lwc/**/*.js",
+    "format:prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+    "// === TESTING SCRIPTS ===": "",
     "test": "npm run test:unit",
     "test:unit": "sfdx-lwc-jest",
     "test:unit:watch": "sfdx-lwc-jest --watch",
     "test:unit:debug": "sfdx-lwc-jest --debug",
     "test:unit:coverage": "sfdx-lwc-jest --coverage",
-    "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "prettier:verify": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+    "// === COMBINED WORKFLOWS ===": "",
+    "validate": "npm run lint && npm run test:unit",
+    "validate:ci": "npm run lint:eslint && npm run lint:prettier && npm run test:unit:coverage",
+    "precommit:check": "npm run lint && npm run test:unit -- --bail --findRelatedTests",
+    "// === LEGACY ALIASES (Use format:* instead) ===": "",
+    "prettier": "npm run format:prettier",
+    "prettier:verify": "npm run lint:prettier",
+    "// === GIT HOOKS ===": "",
     "prepare": "husky || true",
     "precommit": "lint-staged"
   },
@@ -36,7 +51,7 @@
       "prettier --write"
     ],
     "**/{aura,lwc}/**/*.js": [
-      "eslint"
+      "eslint --fix"
     ],
     "**/lwc/**": [
       "sfdx-lwc-jest -- --bail --findRelatedTests --passWithNoTests"

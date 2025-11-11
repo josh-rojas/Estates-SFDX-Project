@@ -4,8 +4,11 @@ import getFormData from "@salesforce/apex/SuccessionPublicFormController.getForm
 import savePathwaySelection from "@salesforce/apex/SuccessionPublicFormController.savePathwaySelection";
 
 export default class SuccessionPublicForm extends LightningElement {
-  // URL parameters
+  // URL parameters (public API for parent components)
   @api caseId = null;
+
+  // Internal case ID (used throughout component to avoid mutating @api property)
+  _internalCaseId = null;
 
   // Form data from Apex
   formData = null;
@@ -45,20 +48,23 @@ export default class SuccessionPublicForm extends LightningElement {
     // Log form load attempt for debugging
     console.log("Succession Public Form: Component loaded");
 
-    // Extract caseId from URL parameters
+    // Extract caseId from URL parameters or use @api property
     const params = new URLSearchParams(window.location.search);
-    this.caseId = params.get("caseId");
+    this._internalCaseId = params.get("caseId") || this.caseId;
 
-    console.log("Succession Public Form: Case ID from URL:", this.caseId);
+    console.log(
+      "Succession Public Form: Case ID from URL:",
+      this._internalCaseId
+    );
 
     // Validate caseId before attempting to load data
-    if (!this.caseId) {
+    if (!this._internalCaseId) {
       this.setError("url", "missing-parameter");
       this.loading = false;
       return; // Stop here - don't try to load data
     }
 
-    if (!this.isValidSalesforceId(this.caseId)) {
+    if (!this.isValidSalesforceId(this._internalCaseId)) {
       this.setError("url", "invalid-format");
       this.loading = false;
       return; // Stop here - don't try to load data
@@ -98,17 +104,24 @@ export default class SuccessionPublicForm extends LightningElement {
     this.error = null;
 
     try {
-      console.log("Succession Public Form: Loading data for case", this.caseId);
+      console.log(
+        "Succession Public Form: Loading data for case",
+        this._internalCaseId
+      );
 
       // Call Apex imperatively with validated caseId
-      const data = await getFormData({ caseId: this.caseId });
+      const data = await getFormData({ caseId: this._internalCaseId });
 
       console.log("Succession Public Form: Data loaded successfully");
       this.formData = data;
       this.retryCount = 0; // Reset retry count on success
     } catch (error) {
       const errorInfo = this.parseApexError(error);
-      this.setError(errorInfo.type, errorInfo.subtype, errorInfo.originalError || error);
+      this.setError(
+        errorInfo.type,
+        errorInfo.subtype,
+        errorInfo.originalError || error
+      );
       this.formData = null;
     } finally {
       this.loading = false;
@@ -123,7 +136,7 @@ export default class SuccessionPublicForm extends LightningElement {
       type,
       subtype,
       originalError,
-      caseId: this.caseId,
+      caseId: this._internalCaseId,
       retryCount: this.retryCount
     });
 
@@ -229,7 +242,9 @@ export default class SuccessionPublicForm extends LightningElement {
       this.errorState = {
         type: "validation",
         title: "Validation Error",
-        message: originalError?.message || "There was a problem with the data submitted.",
+        message:
+          originalError?.message ||
+          "There was a problem with the data submitted.",
         guidance:
           "Please review your selections and try again. If you continue to see this error, contact our Estate Administration team.",
         canRetry: false,
@@ -344,7 +359,9 @@ export default class SuccessionPublicForm extends LightningElement {
     }
 
     this.retryCount++;
-    console.log(`Succession Public Form: Retry attempt ${this.retryCount}/${this.maxRetries}`);
+    console.log(
+      `Succession Public Form: Retry attempt ${this.retryCount}/${this.maxRetries}`
+    );
 
     // Reset error state
     this.error = null;
@@ -386,8 +403,8 @@ export default class SuccessionPublicForm extends LightningElement {
    * Get last 6 characters of caseId for support reference
    */
   get caseIdSuffix() {
-    if (!this.caseId) return "N/A";
-    return this.caseId.slice(-6);
+    if (!this._internalCaseId) return "N/A";
+    return this._internalCaseId.slice(-6);
   }
 
   handlePathwayChange(event) {
@@ -400,7 +417,7 @@ export default class SuccessionPublicForm extends LightningElement {
 
   async handleSubmit() {
     console.log("Succession Public Form: Submitting pathway selection:", {
-      caseId: this.caseId,
+      caseId: this._internalCaseId,
       pathway: this.selectedPathway,
       hasNotes: !!this.additionalNotes
     });
@@ -415,7 +432,7 @@ export default class SuccessionPublicForm extends LightningElement {
 
       // Call Apex to save pathway selection
       const result = await savePathwaySelection({
-        caseId: this.caseId,
+        caseId: this._internalCaseId,
         pathwaySelection: this.selectedPathway,
         formData: formDataJson
       });
@@ -431,7 +448,11 @@ export default class SuccessionPublicForm extends LightningElement {
 
       // Parse and categorize the error
       const errorInfo = this.parseApexError(error);
-      this.setError(errorInfo.type, errorInfo.subtype, errorInfo.originalError || error);
+      this.setError(
+        errorInfo.type,
+        errorInfo.subtype,
+        errorInfo.originalError || error
+      );
 
       // Show detailed error toast
       this.showToast(
@@ -460,6 +481,7 @@ export default class SuccessionPublicForm extends LightningElement {
 
   handleCancel() {
     // Confirm cancellation with user
+    // eslint-disable-next-line no-alert, no-restricted-globals -- Guest user context requires native confirm() dialog; no LWC alternative available for unauthenticated users
     const confirmed = confirm(
       "Are you sure you want to cancel? Your selections will not be saved."
     );
@@ -473,7 +495,8 @@ export default class SuccessionPublicForm extends LightningElement {
       this.dispatchEvent(
         new ShowToastEvent({
           title: "Form Cancelled",
-          message: "Your selections were not saved. You may now close this browser tab. If you need assistance, please contact our Estate Administration team.",
+          message:
+            "Your selections were not saved. You may now close this browser tab. If you need assistance, please contact our Estate Administration team.",
           variant: "info",
           mode: "sticky" // Keep message visible
         })
@@ -486,9 +509,11 @@ export default class SuccessionPublicForm extends LightningElement {
       try {
         window.close();
         // If close succeeds, great! If not, user sees the toast message above
-      } catch (e) {
+      } catch {
         // window.close() blocked - user will see toast message instructing manual close
-        console.log("window.close() blocked by browser - user must close tab manually");
+        console.log(
+          "window.close() blocked by browser - user must close tab manually"
+        );
       }
     }
   }

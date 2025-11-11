@@ -1,6 +1,5 @@
 import { createElement } from "lwc";
 import SuccessionContactCadence from "c/successionContactCadence";
-import getContactCadence from "@salesforce/apex/ContactCadenceController.getContactCadence";
 
 // Mock Apex method
 jest.mock(
