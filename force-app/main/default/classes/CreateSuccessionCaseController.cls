@@ -338,6 +338,10 @@ public with sharing class CreateSuccessionCaseController {
    *
    * @param financialAccountId - ID of the FinancialAccount
    * @return Account ID of deceased primary owner, or null if not found
+   *
+   * Note: Uses SYSTEM_MODE for Deceased__c field access since this is a
+   * system-level business logic check (similar to SuccessionTaskGenerator).
+   * The Deceased__c field is a critical system field for succession workflows.
    */
   private static Id getDeceasedDonorAccount(Id financialAccountId) {
     List<FinServ__FinancialAccountRole__c> deceasedOwners = [
@@ -347,7 +351,7 @@ public with sharing class CreateSuccessionCaseController {
         FinServ__FinancialAccount__c = :financialAccountId
         AND FinServ__Role__c LIKE '%Primary%'
         AND FinServ__RelatedAccount__r.Deceased__c = TRUE
-      WITH USER_MODE
+      WITH SYSTEM_MODE
       ORDER BY CreatedDate DESC
       LIMIT 2
     ];
@@ -363,16 +367,7 @@ public with sharing class CreateSuccessionCaseController {
       return null;
     }
 
-    // Apply field-level security
-    SObjectAccessDecision decision = Security.stripInaccessible(
-      AccessType.READABLE,
-      deceasedOwners
-    );
-    List<FinServ__FinancialAccountRole__c> filteredOwners = decision.getRecords();
-
-    return filteredOwners.isEmpty()
-      ? null
-      : filteredOwners[0].FinServ__RelatedAccount__c;
+    return deceasedOwners[0].FinServ__RelatedAccount__c;
   }
 
   /**
@@ -406,7 +401,6 @@ public with sharing class CreateSuccessionCaseController {
     );
     return decision.getRecords();
   }
-
 
   /**
    * Get FinancialAccount name for case subject
