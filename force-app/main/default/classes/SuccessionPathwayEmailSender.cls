@@ -96,9 +96,8 @@ public with sharing class SuccessionPathwayEmailSender {
         if (c.Form_Sent_Date__c != null) {
           response.success = true;
           response.message =
-            'Email already sent on ' +
-            c.Form_Sent_Date__c.format();
-          response.emailSentDate = c.Form_Sent_Date__c;
+            'Email already sent on ' + c.Form_Sent_Date__c.format();
+          response.emailSentDate = Date.valueOf(c.Form_Sent_Date__c);
           responses.add(response);
           continue;
         }
@@ -141,8 +140,7 @@ public with sharing class SuccessionPathwayEmailSender {
 
         if (validation.hasOptedOut) {
           response.success = false;
-          response.message =
-            'Cannot send email: Successor has opted out of email communications';
+          response.message = 'Cannot send email: Successor has opted out of email communications';
           responses.add(response);
           continue;
         }
@@ -187,24 +185,23 @@ public with sharing class SuccessionPathwayEmailSender {
 
           response.success = true;
           response.message =
-            'Pathway form email sent successfully to ' +
-            emailAddress;
-          response.emailSentDate = c.Form_Sent_Date__c;
+            'Pathway form email sent successfully to ' + emailAddress;
+          response.emailSentDate = Date.valueOf(c.Form_Sent_Date__c);
 
           // Create Chatter post
           SuccessionUtilities.createChatterPost(
             c.Id,
             '📧 Pathway form invitation email sent to ' +
-            emailAddress +
-            ' (' +
-            c.Form_Sent_Date__c.format() +
-            ')'
+              emailAddress +
+              ' (' +
+              c.Form_Sent_Date__c.format() +
+              ')',
+            false // useSystemMode
           );
         } else {
           response.success = false;
           response.message =
-            'Email send failed: ' +
-            results[0].getErrors()[0].getMessage();
+            'Email send failed: ' + results[0].getErrors()[0].getMessage();
         }
       } catch (Exception e) {
         response.success = false;
