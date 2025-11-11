@@ -572,7 +572,12 @@ public with sharing class ContactCadenceController {
       } else {
         // Query existing task
         attemptTask = [
-          SELECT Id, WhatId, Status, Succession_Contact_Established__c, Description
+          SELECT
+            Id,
+            WhatId,
+            Status,
+            Succession_Contact_Established__c,
+            Description
           FROM Task
           WHERE Id = :taskId
           LIMIT 1
@@ -610,7 +615,13 @@ public with sharing class ContactCadenceController {
         } catch (Exception noteEx) {
           // Log but don't fail - ContentNote creation is supplementary
           // Notes are already saved to Task.Description, so this is not critical
-          System.debug(LoggingLevel.WARN, 'ContentNote creation failed for attempt ' + attemptNumber + ': ' + noteEx.getMessage());
+          System.debug(
+            LoggingLevel.WARN,
+            'ContentNote creation failed for attempt ' +
+              attemptNumber +
+              ': ' +
+              noteEx.getMessage()
+          );
         }
 
         try {
@@ -623,7 +634,13 @@ public with sharing class ContactCadenceController {
           SuccessionUtilities.createChatterPost(caseId, postBody, false);
         } catch (Exception chatterEx) {
           // Log but don't fail - Chatter post creation is supplementary
-          System.debug(LoggingLevel.WARN, 'Chatter post creation failed for attempt ' + attemptNumber + ': ' + chatterEx.getMessage());
+          System.debug(
+            LoggingLevel.WARN,
+            'Chatter post creation failed for attempt ' +
+              attemptNumber +
+              ': ' +
+              chatterEx.getMessage()
+          );
         }
       }
 
@@ -772,13 +789,16 @@ public with sharing class ContactCadenceController {
       SuccessionUtilities.createChatterPost(
         c.Id,
         '📧 Pathway form invitation email sent manually via email composer (' +
-        c.Form_Sent_Date__c.format() +
-        ')'
+          c.Form_Sent_Date__c.format() +
+          ')',
+        false // USER_MODE - user-initiated action via email composer
       );
 
       return 'Pathway form email marked as sent';
     } catch (Exception e) {
-      throw new AuraHandledException('Error marking email as sent: ' + e.getMessage());
+      throw new AuraHandledException(
+        'Error marking email as sent: ' + e.getMessage()
+      );
     }
   }
 }
