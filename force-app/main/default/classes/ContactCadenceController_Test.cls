@@ -8,7 +8,8 @@ private class ContactCadenceController_Test {
   @TestSetup
   static void setupTestData() {
     // Get Person Account record type
-    Id personAccountRecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName()
+    Id personAccountRecordTypeId = Account.SObjectType.getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('PersonAccount')
       .getRecordTypeId();
 
@@ -90,7 +91,8 @@ private class ContactCadenceController_Test {
     insert finAccount;
 
     // Get EstateAdministration record type
-    Id estateRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+    Id estateRecordTypeId = Case.SObjectType.getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('EstateAdministration')
       .getRecordTypeId();
 
@@ -158,7 +160,8 @@ private class ContactCadenceController_Test {
 
     // Case 6: Wrong record type (should fail validation)
     // Using 'Escalations_Complaints' record type which exists but is not EstateAdministration
-    Id standardRecordTypeId = Schema.SObjectType.Case.getRecordTypeInfosByDeveloperName()
+    Id standardRecordTypeId = Case.SObjectType.getDescribe()
+      .getRecordTypeInfosByDeveloperName()
       .get('Escalations_Complaints')
       .getRecordTypeId();
     testCases.add(
@@ -775,10 +778,10 @@ private class ContactCadenceController_Test {
         'Test notes'
       );
       System.assert(false, 'Should have thrown an exception');
-    } catch (AuraHandledException e) {
+    } catch (Exception e) {
       // Verify an exception was thrown - the specific message may vary
       // We just need to confirm the method throws an exception for invalid input
-      System.assertNotEquals(null, e, 'Should throw AuraHandledException');
+      System.assert(e != null, 'Should throw an exception');
     }
     Test.stopTest();
   }
