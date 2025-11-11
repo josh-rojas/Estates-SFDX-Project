@@ -569,24 +569,22 @@ private class SuccessionWorkflow_Integration_Test {
     );
     insert role2;
 
-    // Update first successor to 50% and set RelatedContact
-    Account successor1 = [
-      SELECT Id, PersonContactId
-      FROM Account
-      WHERE LastName = 'Successor'
-      LIMIT 1
-    ];
-
+    // Update first successor to 50% (the one created in test setup)
     FinServ__FinancialAccountRole__c role1 = [
-      SELECT Id, SuccessorAllocation__c
+      SELECT
+        Id,
+        SuccessorAllocation__c,
+        FinServ__RelatedAccount__c,
+        FinServ__RelatedAccount__r.PersonContactId
       FROM FinServ__FinancialAccountRole__c
       WHERE
-        FinServ__RelatedAccount__c = :successor1.Id
+        FinServ__FinancialAccount__c = :finAccount.Id
         AND FinServ__Role__c = 'Successor'
+        AND FinServ__RelatedAccount__c != :successor2.Id
       LIMIT 1
     ];
     role1.SuccessorAllocation__c = 50;
-    role1.FinServ__RelatedContact__c = successor1.PersonContactId; // Required for contact cadence
+    role1.FinServ__RelatedContact__c = role1.FinServ__RelatedAccount__r.PersonContactId; // Required for contact cadence
     update role1;
 
     Test.startTest();
