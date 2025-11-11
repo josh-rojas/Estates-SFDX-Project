@@ -50,15 +50,34 @@ private class SuccessionWorkflow_Integration_Test {
     );
     insert financialAccount;
 
+    // Re-query deceased donor to get PersonContactId
+    deceasedDonor = [
+      SELECT Id, PersonContactId
+      FROM Account
+      WHERE Id = :deceasedDonor.Id
+      LIMIT 1
+    ];
+
+    // Create Financial Account Role (Primary Owner - Deceased)
+    FinServ__FinancialAccountRole__c primaryOwnerRole = new FinServ__FinancialAccountRole__c(
+      FinServ__FinancialAccount__c = financialAccount.Id,
+      FinServ__RelatedAccount__c = deceasedDonor.Id,
+      FinServ__RelatedContact__c = deceasedDonor.PersonContactId,
+      FinServ__Role__c = 'Primary Owner',
+      FinServ__Active__c = true
+    );
+    insert primaryOwnerRole;
+
     // Create Financial Account Role (Successor designation)
-    FinServ__FinancialAccountRole__c role = new FinServ__FinancialAccountRole__c(
+    FinServ__FinancialAccountRole__c successorRole = new FinServ__FinancialAccountRole__c(
       FinServ__FinancialAccount__c = financialAccount.Id,
       FinServ__RelatedAccount__c = successor.Id,
       FinServ__RelatedContact__c = successor.PersonContactId, // Required for contact cadence
       FinServ__Role__c = 'Successor',
-      SuccessorAllocation__c = 100
+      SuccessorAllocation__c = 100,
+      FinServ__Active__c = true
     );
-    insert role;
+    insert successorRole;
   }
 
   /**
