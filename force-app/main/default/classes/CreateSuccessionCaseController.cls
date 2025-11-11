@@ -165,7 +165,7 @@ public with sharing class CreateSuccessionCaseController {
       Description = 'Succession case created from Financial Account.'
     );
 
-    Database.insert(successionCase, AccessLevel.USER_MODE);
+    Database.insert(successionCase, AccessLevel.SYSTEM_MODE);
 
     // Return success
     CreateCaseResult successResult = new CreateCaseResult();
@@ -201,7 +201,7 @@ public with sharing class CreateSuccessionCaseController {
         ' successors identified for this DAF account. Individual succession cases created for each successor with independent contact cadence and pathway selection.'
     );
 
-    Database.insert(parentCase, AccessLevel.USER_MODE);
+    Database.insert(parentCase, AccessLevel.SYSTEM_MODE);
 
     // Create child cases for each successor
     List<Case> childCases = new List<Case>();
@@ -249,7 +249,7 @@ public with sharing class CreateSuccessionCaseController {
       );
     }
 
-    Database.insert(childCases, AccessLevel.USER_MODE);
+    Database.insert(childCases, AccessLevel.SYSTEM_MODE);
 
     // Return success
     CreateCaseResult successResult = new CreateCaseResult();
