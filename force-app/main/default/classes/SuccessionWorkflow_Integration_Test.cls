@@ -580,7 +580,9 @@ private class SuccessionWorkflow_Integration_Test {
     FinServ__FinancialAccountRole__c role1 = [
       SELECT Id, SuccessorAllocation__c
       FROM FinServ__FinancialAccountRole__c
-      WHERE FinServ__RelatedAccount__c != :successor2.Id
+      WHERE
+        FinServ__RelatedAccount__c = :successor1.Id
+        AND FinServ__Role__c = 'Successor'
       LIMIT 1
     ];
     role1.SuccessorAllocation__c = 50;
