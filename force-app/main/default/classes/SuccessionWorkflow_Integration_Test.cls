@@ -12,7 +12,7 @@ private class SuccessionWorkflow_Integration_Test {
   @testSetup
   static void setup() {
     // Create Person Account (FSC) - Deceased Donor
-    Id personAcctRecordTypeId = Schema.SObjectType.Account.getRecordTypeInfosByDeveloperName()
+    Id personAcctRecordTypeId = Schema.SObjectType.Account.getDescribe().getRecordTypeInfosByDeveloperName()
       .get('PersonAccount')
       .getRecordTypeId();
 
@@ -565,7 +565,8 @@ private class SuccessionWorkflow_Integration_Test {
       FinServ__RelatedAccount__c = successor2.Id,
       FinServ__RelatedContact__c = successor2.PersonContactId, // Required for contact cadence
       FinServ__Role__c = 'Successor',
-      SuccessorAllocation__c = 50
+      SuccessorAllocation__c = 50,
+      FinServ__Active__c = true // Required for controller query filter
     );
     insert role2;
 
