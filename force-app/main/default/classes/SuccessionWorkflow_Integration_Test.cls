@@ -78,12 +78,13 @@ private class SuccessionWorkflow_Integration_Test {
 
     Test.startTest();
 
-    // PHASE 1: Create succession case
+    // PHASE 1: Create succession case (workflow starts automatically in v1.1)
     Case successionCase = new Case(
       Subject = 'Succession - Donor Estate',
       RecordTypeId = estateRecordTypeId,
       Type = 'Named Successor Enactment',
       AccountId = deceasedDonor.Id,
+      ContactId = successor.PersonContactId, // Required for flow trigger
       Deceased_Donor__c = deceasedDonor.Id,
       Successor__c = successor.PersonContactId,
       Status = 'New',
@@ -92,23 +93,7 @@ private class SuccessionWorkflow_Integration_Test {
     );
     insert successionCase;
 
-    // Verify initial state
-    Case verifyCase1 = [
-      SELECT Id, Verification_Status__c, Status
-      FROM Case
-      WHERE Id = :successionCase.Id
-    ];
-    System.assertEquals(
-      'Not Started',
-      verifyCase1.Verification_Status__c,
-      'Verification should start as Not Started'
-    );
-
-    // PHASE 2: Begin succession processing (mark verification complete)
-    successionCase.Verification_Status__c = 'Complete - Verified';
-    update successionCase;
-
-    // Verify flow created initial contact task
+    // Verify flow created initial contact task automatically (v1.1 - no verification step)
     List<Task> contactTasks = [
       SELECT Id, Subject, Contact_Attempt_Number__c, Status
       FROM Task
@@ -247,6 +232,7 @@ private class SuccessionWorkflow_Integration_Test {
       RecordTypeId = estateRecordTypeId,
       Type = 'Named Successor Enactment',
       AccountId = deceasedDonor.Id,
+      ContactId = successor.PersonContactId, // Required for flow trigger
       Deceased_Donor__c = deceasedDonor.Id,
       Successor__c = successor.PersonContactId,
       Status = 'New',
@@ -312,6 +298,7 @@ private class SuccessionWorkflow_Integration_Test {
       RecordTypeId = estateRecordTypeId,
       Type = 'Named Successor Enactment',
       AccountId = deceasedDonor.Id,
+      ContactId = successor.PersonContactId, // Required for flow trigger
       Deceased_Donor__c = deceasedDonor.Id,
       Successor__c = successor.PersonContactId,
       Status = 'New',
@@ -375,6 +362,7 @@ private class SuccessionWorkflow_Integration_Test {
       RecordTypeId = estateRecordTypeId,
       Type = 'Named Successor Enactment',
       AccountId = deceasedDonor.Id,
+      ContactId = successor.PersonContactId, // Required for flow trigger
       Deceased_Donor__c = deceasedDonor.Id,
       Successor__c = successor.PersonContactId,
       Status = 'New',
@@ -621,6 +609,7 @@ private class SuccessionWorkflow_Integration_Test {
       RecordTypeId = estateRecordTypeId,
       Type = 'Named Successor Enactment',
       AccountId = deceasedDonor.Id,
+      ContactId = successor.PersonContactId, // Required for flow trigger
       Deceased_Donor__c = deceasedDonor.Id,
       Successor__c = successor.PersonContactId,
       Status = 'New',
