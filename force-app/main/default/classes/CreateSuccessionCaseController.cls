@@ -372,11 +372,14 @@ public with sharing class CreateSuccessionCaseController {
    *
    * @param financialAccountId - ID of the FinancialAccount
    * @return List of successor FinancialAccountRole records
+   *
+   * Note: Uses SYSTEM_MODE for system-level automation (similar to case creation).
+   * This ensures all successor roles are retrieved regardless of user permissions.
    */
   private static List<FinServ__FinancialAccountRole__c> getSuccessors(
     Id financialAccountId
   ) {
-    List<FinServ__FinancialAccountRole__c> successors = [
+    return [
       SELECT
         Id,
         FinServ__RelatedContact__c,
@@ -387,16 +390,9 @@ public with sharing class CreateSuccessionCaseController {
         FinServ__FinancialAccount__c = :financialAccountId
         AND FinServ__Role__c LIKE '%Successor%'
         AND FinServ__Active__c = TRUE
-      WITH USER_MODE
+      WITH SYSTEM_MODE
       ORDER BY CreatedDate ASC
     ];
-
-    // Enforce field-level security
-    SObjectAccessDecision decision = Security.stripInaccessible(
-      AccessType.READABLE,
-      successors
-    );
-    return decision.getRecords();
   }
 
   /**
