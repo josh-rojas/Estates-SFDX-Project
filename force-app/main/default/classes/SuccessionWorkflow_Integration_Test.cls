@@ -510,6 +510,14 @@ private class SuccessionWorkflow_Integration_Test {
     );
     insert successor2;
 
+    // Re-query to get PersonContactId (virtual field populated after insert)
+    successor2 = [
+      SELECT Id, PersonContactId
+      FROM Account
+      WHERE Id = :successor2.Id
+      LIMIT 1
+    ];
+
     // Add second successor to financial account
     FinServ__FinancialAccount__c finAccount = [
       SELECT Id
@@ -520,6 +528,7 @@ private class SuccessionWorkflow_Integration_Test {
     FinServ__FinancialAccountRole__c role2 = new FinServ__FinancialAccountRole__c(
       FinServ__FinancialAccount__c = finAccount.Id,
       FinServ__RelatedAccount__c = successor2.Id,
+      FinServ__RelatedContact__c = successor2.PersonContactId, // Required for contact cadence
       FinServ__Role__c = 'Successor',
       SuccessorAllocation__c = 50
     );

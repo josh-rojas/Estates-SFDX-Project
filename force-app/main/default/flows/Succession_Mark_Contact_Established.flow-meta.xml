@@ -94,6 +94,12 @@
                 <booleanValue>true</booleanValue>
             </value>
         </inputAssignments>
+        <inputAssignments>
+            <field>Contact_Attempt_Count__c</field>
+            <value>
+                <elementReference>$Record.Contact_Attempt_Number__c</elementReference>
+            </value>
+        </inputAssignments>
         <object>Case</object>
     </recordUpdates>
     <start>
