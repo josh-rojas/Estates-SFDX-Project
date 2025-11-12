@@ -4,31 +4,15 @@
   "version": "1.0.0",
   "description": "Salesforce App",
   "scripts": {
-    "// === VALIDATION SCRIPTS (Read-only checks) ===": "",
-    "lint": "npm run lint:eslint && npm run lint:prettier",
-    "lint:eslint": "eslint **/lwc/**/*.js",
-    "lint:prettier": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "lint:apex": "sf scanner run --target \"force-app/main/default/classes/**/*.cls,force-app/main/default/triggers/**/*.trigger\" --format table",
-    "// === FORMATTING SCRIPTS (Auto-fix) ===": "",
-    "format": "npm run format:prettier && npm run format:eslint",
-    "format:eslint": "eslint --fix **/lwc/**/*.js",
-    "format:prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
-    "// === TESTING SCRIPTS ===": "",
-    "test": "npm run test:unit",
-    "test:unit": "sfdx-lwc-jest",
-    "test:unit:watch": "sfdx-lwc-jest --watch",
-    "test:unit:debug": "sfdx-lwc-jest --debug",
-    "test:unit:coverage": "sfdx-lwc-jest --coverage",
-    "// === COMBINED WORKFLOWS ===": "",
-    "validate": "npm run lint && npm run test:unit",
-    "validate:ci": "npm run lint:eslint && npm run lint:prettier && npm run test:unit:coverage",
-    "precommit:check": "npm run lint && npm run test:unit -- --bail --findRelatedTests",
-    "// === LEGACY ALIASES (Use format:* instead) ===": "",
-    "prettier": "npm run format:prettier",
-    "prettier:verify": "npm run lint:prettier",
-    "// === GIT HOOKS ===": "",
-    "prepare": "husky || true",
-    "precommit": "lint-staged"
+    "//": "=== DAILY WORK ===",
+    "cleanup": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\" && eslint --fix \"**/lwc/**/*.js\"",
+    "test": "sfdx-lwc-jest",
+    "auto-test": "sfdx-lwc-jest --watch",
+    "// ": "=== BEFORE GIT COMMIT ===",
+    "ready-to-commit": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\" && eslint \"**/lwc/**/*.js\" && sfdx-lwc-jest",
+    "//  ": "=== AUTOMATED PIPELINE ===",
+    "full-check": "prettier --check \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\" && eslint \"**/lwc/**/*.js\" && sfdx-lwc-jest --coverage && sf scanner run --target \"force-app/main/default/classes/**/*.cls,force-app/main/default/triggers/**/*.trigger\" --format table",
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "@lwc/eslint-plugin-lwc": "^3.1.0",
@@ -47,14 +31,8 @@
     "prettier-plugin-apex": "^2.2.6"
   },
   "lint-staged": {
-    "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [
-      "prettier --write"
-    ],
-    "**/{aura,lwc}/**/*.js": [
-      "eslint --fix"
-    ],
-    "**/lwc/**": [
-      "sfdx-lwc-jest -- --bail --findRelatedTests --passWithNoTests"
-    ]
+    "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": "prettier --write",
+    "**/lwc/**/*.js": "eslint --fix",
+    "**/lwc/**": "sfdx-lwc-jest --bail --findRelatedTests --passWithNoTests"
   }
 }
