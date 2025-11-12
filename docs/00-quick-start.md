@@ -35,7 +35,7 @@ cd Estates-SFDX-Project
 
 ```bash
 # Authenticate via web browser
-sf org login web --alias succession-org --set-default
+sf org login web --alias schwab-sandbox --set-default
 
 # Verify authentication
 sf org display
@@ -45,7 +45,7 @@ sf org display
 
 ```bash
 # Deploy all metadata
-sf project deploy start --target-org succession-org
+sf project deploy start --target-org schwab-sandbox
 
 # This will deploy:
 # - 8 Apex classes + 8 test classes
@@ -62,15 +62,15 @@ sf project deploy start --target-org succession-org
 
 ```bash
 # Assign to yourself
-sf org assign permset --name Succession_Management_Access --target-org succession-org
-sf org assign permset --name Succession_Field_Access --target-org succession-org
+sf org assign permset --name Succession_Management_Access --target-org schwab-sandbox
+sf org assign permset --name Succession_Field_Access --target-org schwab-sandbox
 ```
 
 ### Step 5: Open Org and Test
 
 ```bash
 # Open org in browser
-sf org open --target-org succession-org
+sf org open --target-org schwab-sandbox
 ```
 
 **You're ready to go!** 🎉
@@ -86,6 +86,7 @@ sf org open --target-org succession-org
 #### 1. Create Person Accounts
 
 **Deceased Donor:**
+
 1. Navigate to **Accounts** tab
 2. Click **New**
 3. Select **Person Account** record type
@@ -98,6 +99,7 @@ sf org open --target-org succession-org
 5. **Save**
 
 **Successor:**
+
 1. Navigate to **Accounts** tab
 2. Click **New**
 3. Select **Person Account** record type
@@ -152,7 +154,7 @@ sf org open --target-org succession-org
 5. Check **Contact Established** checkbox
 6. Click **Save**
 7. **Verify:**
-   - Contact_Established__c = `true` on Case
+   - Contact_Established\_\_c = `true` on Case
    - Status changed to `Awaiting Response`
    - Remaining contact attempts disabled (circuit breaker)
 
@@ -162,7 +164,7 @@ sf org open --target-org succession-org
 2. Select pathway: `Final Grant`
 3. Click **Save**
 4. **Verify:**
-   - Pathway_Confirmed__c = `Final Grant` on Case
+   - Pathway_Confirmed\_\_c = `Final Grant` on Case
    - **5 pathway tasks created automatically** (trigger-based automation)
    - Tasks visible in Tasks related list:
      - Day 2: Review grant request
@@ -178,12 +180,12 @@ sf org open --target-org succession-org
 2. Complete each task:
    - Click task → Change Status to `Completed` → Save
 3. After all tasks completed:
-   - Set Execution_Status__c = `Completed`
+   - Set Execution_Status\_\_c = `Completed`
    - Set Status = `Closed`
 4. **Verify:**
    - All pathway tasks completed
    - Case Status = `Closed`
-   - Execution_Completed_Date__c populated
+   - Execution_Completed_Date\_\_c populated
 
 **✅ Test Complete!** You've successfully tested the end-to-end succession workflow.
 
@@ -196,6 +198,7 @@ sf org open --target-org succession-org
 **Location:** Case record page → Succession Contact Cadence component
 
 **Features:**
+
 - 5 contact attempts (Days 0, 5, 35, 65, 95)
 - Sequential unlock pattern
 - Date-gating (can't complete until ActivityDate)
@@ -203,6 +206,7 @@ sf org open --target-org succession-org
 - Circuit breaker (stops when contact established)
 
 **Try:**
+
 - Complete contact attempts in sequence
 - Try to complete future attempts (should be disabled)
 - Mark contact established (should disable remaining attempts)
@@ -212,11 +216,13 @@ sf org open --target-org succession-org
 **Location:** Case record page → Quick Actions → Record Pathway Selection
 
 **Features:**
+
 - Pathway dropdown (Final Grant, New DAF, Disclaim)
 - **Triggers automation** when saved
-- Sets Pathway_Confirmed__c field
+- Sets Pathway_Confirmed\_\_c field
 
 **Try:**
+
 - Select different pathways
 - Observe different task templates created
 
@@ -225,11 +231,13 @@ sf org open --target-org succession-org
 **Location:** Case record page → Case Hierarchy component (multi-successor cases only)
 
 **Features:**
+
 - Tree visualization of parent-child cases
 - Status indicators
 - Successor allocation percentages
 
 **Try:**
+
 - Create multi-successor case (2+ successors)
 - View hierarchy on parent case
 
@@ -238,6 +246,7 @@ sf org open --target-org succession-org
 **Location:** Experience Cloud site (requires setup)
 
 **Features:**
+
 - Public-facing pathway selection form
 - Token-based authentication
 - Mobile-responsive
@@ -251,6 +260,7 @@ sf org open --target-org succession-org
 ### Trigger-Based Automation
 
 **Primary Mechanism:**
+
 ```
 User sets Pathway_Confirmed__c
     ↓
@@ -264,10 +274,12 @@ Chatter notification posted
 ```
 
 **Key Files:**
+
 - Trigger: `force-app/main/default/triggers/SuccessionCaseTrigger.trigger`
 - Generator: `force-app/main/default/classes/SuccessionTaskGenerator.cls`
 
 **Why SYSTEM_MODE?**
+
 - Guest users (successors) cannot create Tasks directly
 - Automation must work regardless of user permissions
 - Tasks are system-generated, not user-created
@@ -275,6 +287,7 @@ Chatter notification posted
 ### Inactive Flows
 
 **5 flows exist but are Inactive:**
+
 - Succession_Start_Contact_Process
 - Succession_Schedule_Next_Contact
 - Succession_Mark_Contact_Established
@@ -282,6 +295,7 @@ Chatter notification posted
 - Succession_Update_Case_Status_And_Notify
 
 **Why Inactive?**
+
 - System migrated to trigger-based automation
 - Flows retained for reference
 - Primary automation is more reliable and performant
@@ -358,9 +372,10 @@ Chatter notification posted
 **Symptom:** Selected pathway but no tasks created
 
 **Solution:**
+
 1. Verify trigger is active: Setup → Apex Triggers → SuccessionCaseTrigger
-2. Check debug logs: `sf apex log tail --target-org succession-org`
-3. Verify Pathway_Confirmed__c field changed from null to value
+2. Check debug logs: `sf apex log tail --target-org schwab-sandbox`
+3. Verify Pathway_Confirmed\_\_c field changed from null to value
 4. Check user has permission to view Tasks
 
 ### Issue: Contact Cadence Not Showing
@@ -368,6 +383,7 @@ Chatter notification posted
 **Symptom:** Succession Contact Cadence component is blank
 
 **Solution:**
+
 1. Verify component added to page layout: Setup → Object Manager → Case → Lightning Record Pages
 2. Check user has Succession_Management_Access permission set
 3. Verify contact attempt tasks exist on Case
@@ -377,6 +393,7 @@ Chatter notification posted
 **Symptom:** Create Succession Case or Record Pathway Selection not showing
 
 **Solution:**
+
 1. Add Quick Actions to page layout: Setup → Object Manager → Case → Page Layouts → Estate Administration Layout
 2. Verify user has access to LWC components
 3. Clear browser cache and reload
@@ -414,6 +431,7 @@ Chatter notification posted
 ### Getting Help
 
 **Documentation:**
+
 - Architecture: `docs/01-architecture-automation-data.md`
 - Components: `docs/02-components.md`
 - Security: `docs/03-security.md`
@@ -421,11 +439,13 @@ Chatter notification posted
 - Runbook: `docs/05-runbook.md`
 
 **Troubleshooting:**
+
 - Check debug logs: `sf apex log tail`
 - Review flow errors: Setup → Flows → Flow Errors tab
 - Test Apex: `sf apex run test --test-level RunLocalTests`
 
 **Community:**
+
 - GitHub Issues: https://github.com/josh-rojas/Estates-SFDX-Project/issues
 - Salesforce Trailblazer Community
 

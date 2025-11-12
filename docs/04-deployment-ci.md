@@ -16,21 +16,24 @@ This document provides comprehensive deployment instructions and CI/CD guidance 
 ### Required Tools
 
 1. **Salesforce CLI (sf)**
+
    ```bash
    # Install via npm
    npm install -g @salesforce/cli
-   
+
    # Verify installation
    sf --version
    ```
 
 2. **Git**
+
    ```bash
    # Verify installation
    git --version
    ```
 
 3. **Node.js & npm** (for LWC development)
+
    ```bash
    # Verify installation
    node --version
@@ -38,19 +41,21 @@ This document provides comprehensive deployment instructions and CI/CD guidance 
    ```
 
 4. **CumulusCI** (optional, for advanced automation)
+
    ```bash
    # Install via pip
    pip install cumulusci
-   
+
    # Verify installation
    cci version
    ```
 
 5. **D2** (for diagram regeneration)
+
    ```bash
    # Install D2
    curl -fsSL https://d2lang.com/install.sh | sh -s --
-   
+
    # Verify installation
    d2 --version
    ```
@@ -63,38 +68,38 @@ This document provides comprehensive deployment instructions and CI/CD guidance 
 
 ```bash
 # Authenticate via web browser
-sf org login web --alias succession-org
+sf org login web --alias schwab-sandbox
 
 # Or use JWT for CI/CD
 sf org login jwt --username user@example.com \
   --jwt-key-file server.key \
   --client-id <connected-app-client-id> \
-  --alias succession-org
+  --alias schwab-sandbox
 ```
 
 ### 2. Deploy All Metadata
 
 ```bash
 # Deploy all metadata to target org
-sf project deploy start --target-org succession-org
+sf project deploy start --target-org schwab-sandbox
 
 # Or deploy specific components
-sf project deploy start --source-dir force-app/main/default --target-org succession-org
+sf project deploy start --source-dir force-app/main/default --target-org schwab-sandbox
 ```
 
 ### 3. Assign Permission Sets
 
 ```bash
 # Assign permission sets to users
-sf org assign permset --name Succession_Management_Access --target-org succession-org
-sf org assign permset --name Succession_Field_Access --target-org succession-org
+sf org assign permset --name Succession_Management_Access --target-org schwab-sandbox
+sf org assign permset --name Succession_Field_Access --target-org schwab-sandbox
 ```
 
 ### 4. Load Demo Data (Optional)
 
 ```bash
 # Using CumulusCI
-cci task run load_demo_ui_showcase --org succession-org
+cci task run load_demo_ui_showcase --org schwab-sandbox
 
 # Or manually create test data via UI
 ```
@@ -125,38 +130,38 @@ pip install cumulusci
 
 ```bash
 # Authenticate to target org
-sf org login web --alias succession-org --set-default
+sf org login web --alias schwab-sandbox --set-default
 
 # Verify authentication
-sf org display --target-org succession-org
+sf org display --target-org schwab-sandbox
 ```
 
 ### Step 4: Validate Deployment
 
 ```bash
 # Validate deployment without deploying (dry run)
-sf project deploy validate --manifest manifest/package.xml --target-org succession-org
+sf project deploy validate --manifest manifest/package.xml --target-org schwab-sandbox
 
 # Check validation results
-sf project deploy report --target-org succession-org
+sf project deploy report --target-org schwab-sandbox
 ```
 
 ### Step 5: Deploy Metadata
 
 ```bash
 # Deploy all metadata
-sf project deploy start --manifest manifest/package.xml --target-org succession-org
+sf project deploy start --manifest manifest/package.xml --target-org schwab-sandbox
 
 # Monitor deployment
-sf project deploy report --target-org succession-org
+sf project deploy report --target-org schwab-sandbox
 ```
 
 ### Step 6: Post-Deployment Configuration
 
 ```bash
 # Assign permission sets
-sf org assign permset --name Succession_Management_Access --target-org succession-org
-sf org assign permset --name Succession_Field_Access --target-org succession-org
+sf org assign permset --name Succession_Management_Access --target-org schwab-sandbox
+sf org assign permset --name Succession_Field_Access --target-org schwab-sandbox
 
 # Create public group (if needed)
 # Manual step: Setup → Public Groups → New → "Succession Management Team"
@@ -169,10 +174,10 @@ sf org assign permset --name Succession_Field_Access --target-org succession-org
 
 ```bash
 # Run Apex tests
-sf apex run test --test-level RunLocalTests --code-coverage --target-org succession-org
+sf apex run test --test-level RunLocalTests --code-coverage --target-org schwab-sandbox
 
 # Check test results
-sf apex get test --test-run-id <test-run-id> --target-org succession-org
+sf apex get test --test-run-id <test-run-id> --target-org schwab-sandbox
 ```
 
 ---
@@ -184,7 +189,7 @@ sf apex get test --test-run-id <test-run-id> --target-org succession-org
 **File Location:** `manifest/package.xml`
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
         <members>*</members>
@@ -225,6 +230,7 @@ sf apex get test --test-run-id <test-run-id> --target-org succession-org
 ### Deployed Components
 
 **Apex Classes (8 production + 8 test):**
+
 - ContactCadenceController + Test
 - CreateSuccessionCaseController + Test
 - SuccessionPublicFormController + Test
@@ -235,9 +241,11 @@ sf apex get test --test-run-id <test-run-id> --target-org succession-org
 - SuccessionUtilities + Test
 
 **Apex Triggers (1):**
+
 - SuccessionCaseTrigger
 
 **Lightning Web Components (5):**
+
 - successionContactCadence
 - recordPathwaySelection
 - successionPublicForm
@@ -245,6 +253,7 @@ sf apex get test --test-run-id <test-run-id> --target-org succession-org
 - createSuccessionCase
 
 **Flows (5 - Inactive):**
+
 - Succession_Start_Contact_Process
 - Succession_Schedule_Next_Contact
 - Succession_Mark_Contact_Established
@@ -252,21 +261,25 @@ sf apex get test --test-run-id <test-run-id> --target-org succession-org
 - Succession_Update_Case_Status_And_Notify
 
 **Permission Sets (3):**
+
 - Succession_Management_Access
 - Succession_Field_Access
 - Succession_Guest_Access
 
 **Custom Fields:**
+
 - Case: ~16 fields
 - Task: 2 fields
 - Account: 2 fields
 - FinancialAccountRole: 1 field
 
 **Email Templates (6):**
+
 - 5 contact cadence templates
 - 1 pathway form invitation template
 
 **Quick Actions:**
+
 - Case.Create_Succession_Case
 - Case.Record_Pathway_Selection
 
@@ -292,23 +305,23 @@ cci flow info deploy_succession
 
 ```bash
 # Connect to org
-cci org connect succession-org
+cci org connect schwab-sandbox
 
 # Deploy metadata
-cci flow run deploy_succession --org succession-org
+cci flow run deploy_succession --org schwab-sandbox
 
 # Deploy without test data
-cci flow run deploy_succession_no_data --org succession-org
+cci flow run deploy_succession_no_data --org schwab-sandbox
 ```
 
 ### Load Test Data
 
 ```bash
 # Load demo data
-cci task run load_demo_ui_showcase --org succession-org
+cci task run load_demo_ui_showcase --org schwab-sandbox
 
 # Load specific dataset
-cci task run snowfakery --recipe datasets/succession_data.recipe.yml --org succession-org
+cci task run snowfakery --recipe datasets/succession_data.recipe.yml --org schwab-sandbox
 ```
 
 ---
@@ -336,24 +349,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Install Salesforce CLI
         run: npm install -g @salesforce/cli
-      
+
       - name: Authenticate to Dev Hub
         run: |
           echo "${{ secrets.SFDX_AUTH_URL }}" > auth.txt
           sf org login sfdx-url --sfdx-url-file auth.txt --alias devhub --set-default-dev-hub
-      
+
       - name: Create Scratch Org
         run: sf org create scratch --definition-file config/project-scratch-def.json --alias scratch-org --set-default
-      
+
       - name: Deploy Metadata
         run: sf project deploy start --target-org scratch-org
-      
+
       - name: Run Apex Tests
         run: sf apex run test --test-level RunLocalTests --code-coverage --target-org scratch-org
-      
+
       - name: Delete Scratch Org
         if: always()
         run: sf org delete scratch --target-org scratch-org --no-prompt
@@ -362,9 +375,11 @@ jobs:
 ### Required Secrets
 
 **GitHub Secrets to Configure:**
+
 - `SFDX_AUTH_URL` - Salesforce authentication URL for Dev Hub
 
 **Generate Auth URL:**
+
 ```bash
 # Authenticate to Dev Hub
 sf org login web --alias devhub --set-default-dev-hub
@@ -381,22 +396,24 @@ sf org display --verbose --target-org devhub
 
 ```bash
 # Run all tests
-sf apex run test --test-level RunLocalTests --code-coverage --target-org succession-org
+sf apex run test --test-level RunLocalTests --code-coverage --target-org schwab-sandbox
 
 # Run specific test class
-sf apex run test --tests ContactCadenceController_Test --target-org succession-org
+sf apex run test --tests ContactCadenceController_Test --target-org schwab-sandbox
 
 # Run tests with detailed output
-sf apex run test --test-level RunLocalTests --code-coverage --detailed-coverage --target-org succession-org
+sf apex run test --test-level RunLocalTests --code-coverage --detailed-coverage --target-org schwab-sandbox
 ```
 
 ### Test Coverage Requirements
 
 **Current Coverage:**
+
 - All production classes: 100% coverage
 - Overall org coverage: 95%+
 
 **Minimum Requirements:**
+
 - Production classes: 75% (Salesforce minimum)
 - Recommended: 85%+ for production deployments
 
@@ -456,13 +473,13 @@ sf org create scratch --definition-file config/project-scratch-def.json --alias 
 sf project deploy start --target-org scratch-org
 
 # Assign permission sets
-sf org assign permset --name Succession_Management_Access --target-org scratch-org
+sf org assign permset --name Succession_Management_Access --target-org schwab-sandbox
 
 # Open scratch org
-sf org open --target-org scratch-org
+sf org open --target-org schwab-sandbox
 
 # Delete scratch org (when done)
-sf org delete scratch --target-org scratch-org --no-prompt
+sf org delete scratch --target-org schwab-sandbox --no-prompt
 ```
 
 ---
@@ -472,27 +489,30 @@ sf org delete scratch --target-org scratch-org --no-prompt
 ### Rollback Strategy
 
 **Option 1: Destructive Changes**
+
 ```bash
 # Create destructive changes manifest
 # File: manifest/destructiveChanges.xml
 
 # Deploy destructive changes
-sf project deploy start --manifest manifest/package.xml --post-destructive-changes manifest/destructiveChanges.xml --target-org succession-org
+sf project deploy start --manifest manifest/package.xml --post-destructive-changes manifest/destructiveChanges.xml --target-org schwab-sandbox
 ```
 
 **Option 2: Restore from Backup**
+
 ```bash
 # Use Salesforce Data Loader or Workbench to restore data
 # Manually deactivate triggers/flows via Setup UI
 ```
 
 **Option 3: Revert to Previous Version**
+
 ```bash
 # Checkout previous version
 git checkout <previous-commit-hash>
 
 # Deploy previous version
-sf project deploy start --target-org succession-org
+sf project deploy start --target-org schwab-sandbox
 ```
 
 ---
@@ -502,22 +522,27 @@ sf project deploy start --target-org succession-org
 ### Common Deployment Issues
 
 **Issue:** Deployment fails with "FIELD_CUSTOM_VALIDATION_EXCEPTION"
+
 - **Cause:** Validation rule blocking deployment
 - **Solution:** Deactivate validation rules before deployment, reactivate after
 
 **Issue:** Deployment fails with "INSUFFICIENT_ACCESS"
+
 - **Cause:** User lacks deployment permissions
 - **Solution:** Ensure user has "Modify All Data" or "Author Apex" permission
 
 **Issue:** Apex tests fail during deployment
+
 - **Cause:** Test data issues or code changes
 - **Solution:** Run tests locally, fix failing tests, redeploy
 
 **Issue:** LWC components not deploying
+
 - **Cause:** Missing meta.xml files or incorrect structure
 - **Solution:** Verify LWC structure (js, html, css, meta.xml files)
 
 **Issue:** Permission sets not assigning
+
 - **Cause:** Permission set not deployed or user not found
 - **Solution:** Verify permission set deployed, check user exists
 
@@ -525,13 +550,13 @@ sf project deploy start --target-org succession-org
 
 ```bash
 # Enable debug logs for user
-sf apex log tail --target-org succession-org
+sf apex log tail --target-org schwab-sandbox
 
 # Get recent debug logs
-sf apex log list --target-org succession-org
+sf apex log list --target-org schwab-sandbox
 
 # Get specific debug log
-sf apex log get --log-id <log-id> --target-org succession-org
+sf apex log get --log-id <log-id> --target-org schwab-sandbox
 ```
 
 ---
@@ -584,11 +609,13 @@ d2 --layout elk --theme 200 --pad 20 --sketch=false docs/diagrams/d2/architectur
 ### Deployment Windows
 
 **Recommended:**
+
 - Sandbox: Anytime
 - Production: Off-peak hours (weekends, evenings)
 - Critical fixes: Coordinate with stakeholders
 
 **Avoid:**
+
 - During business hours (9 AM - 5 PM)
 - During month-end/quarter-end processing
 - During major Salesforce releases
@@ -622,12 +649,14 @@ d2 --layout elk --theme 200 --pad 20 --sketch=false docs/diagrams/d2/architectur
 ### Deployment Support
 
 **For deployment issues:**
+
 1. Check debug logs
 2. Review deployment report
 3. Consult troubleshooting section
 4. Contact Salesforce support (if needed)
 
 **Escalation Path:**
+
 1. Developer → Team Lead
 2. Team Lead → Architect
 3. Architect → Salesforce Support

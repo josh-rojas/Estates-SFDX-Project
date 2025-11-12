@@ -37,6 +37,7 @@ docs/diagrams/
 **Purpose:** Component architecture diagram showing system layers
 
 **Shows:**
+
 - UI Layer: 5 Lightning Web Components
 - Controller Layer: 5 Apex classes
 - Automation Layer: Trigger + Generator
@@ -45,6 +46,7 @@ docs/diagrams/
 **Used In:** `docs/01-architecture-automation-data.md`
 
 **Key Features:**
+
 - Primary automation path (trigger-based) shown with thick purple lines
 - Inactive flows shown with dashed red lines
 - Data flow from UI → Controller → Automation → Data
@@ -56,6 +58,7 @@ docs/diagrams/
 **Purpose:** Sequence-like flow diagram showing trigger-based automation
 
 **Shows:**
+
 - User → LWC → Case → Trigger → Generator → Tasks → Chatter
 - Step-by-step pathway task automation
 - Key implementation details
@@ -63,6 +66,7 @@ docs/diagrams/
 **Used In:** `docs/01-architecture-automation-data.md`
 
 **Key Features:**
+
 - Shows exact file locations for each component
 - Highlights SYSTEM_MODE usage in task creation
 - Notes that flows are inactive
@@ -74,6 +78,7 @@ docs/diagrams/
 **Purpose:** State machine diagram for 4-phase workflow
 
 **Shows:**
+
 - Contact Cadence → Pathway Selection → Pathway Execution → Closure
 - State transitions with guard conditions
 - Circuit breaker loop for contact cadence
@@ -81,6 +86,7 @@ docs/diagrams/
 **Used In:** `docs/01-architecture-automation-data.md`
 
 **Key Features:**
+
 - Shows key Case fields that drive transitions
 - Includes SLA tracking notes
 - Shows multi-successor handling
@@ -92,6 +98,7 @@ docs/diagrams/
 **Purpose:** Entity-relationship diagram for standard objects
 
 **Shows:**
+
 - Case, Task, Account, Contact, FinancialAccount, FinancialAccountRole
 - Relationships: 1:N, N:1, self-referential
 - Key fields used by automation
@@ -99,6 +106,7 @@ docs/diagrams/
 **Used In:** `docs/01-architecture-automation-data.md`
 
 **Key Features:**
+
 - Person Account pattern highlighted
 - Automation entry point noted
 - Relationship cardinalities shown
@@ -110,6 +118,7 @@ docs/diagrams/
 ### Prerequisites
 
 **Install D2:**
+
 ```bash
 # Install D2 (if not already installed)
 curl -fsSL https://d2lang.com/install.sh | sh -s --
@@ -119,6 +128,7 @@ d2 --version
 ```
 
 **Expected Output:**
+
 ```
 v0.7.1
 ```
@@ -128,12 +138,14 @@ v0.7.1
 ### Quick Regeneration
 
 **Regenerate all diagrams:**
+
 ```bash
 # From repository root
 ./scripts/render_d2.sh
 ```
 
 **This will:**
+
 1. Render all `.d2` files in `docs/diagrams/d2/`
 2. Output SVG files to `docs/diagrams/svg/`
 3. Use ELK layout engine (default)
@@ -146,12 +158,14 @@ v0.7.1
 ### Custom Layout Engine
 
 **Use TALA layout engine (if available):**
+
 ```bash
 # Set D2_LAYOUT environment variable
 D2_LAYOUT=tala ./scripts/render_d2.sh
 ```
 
 **Available Layout Engines:**
+
 - `elk` - Eclipse Layout Kernel (default, bundled with D2)
 - `dagre` - Dagre layout algorithm (bundled with D2)
 - `tala` - Terrastruct Automatic Layout Algorithm (requires license)
@@ -163,6 +177,7 @@ D2_LAYOUT=tala ./scripts/render_d2.sh
 ### Manual Rendering
 
 **Render a specific diagram:**
+
 ```bash
 # Ensure D2 is in PATH
 export PATH="$HOME/.local/bin:$PATH"
@@ -185,6 +200,7 @@ d2 --layout tala --theme 200 --pad 20 --sketch=false \
 ### D2 Syntax Basics
 
 **Nodes:**
+
 ```d2
 # Simple node
 node_name: Node Label
@@ -196,6 +212,7 @@ node_name: Node Label {
 ```
 
 **Connections:**
+
 ```d2
 # Simple connection
 node1 -> node2
@@ -211,17 +228,19 @@ node1 -> node2: Label {
 ```
 
 **Containers:**
+
 ```d2
 # Container with children
 container: Container Label {
   child1: Child 1
   child2: Child 2
-  
+
   child1 -> child2
 }
 ```
 
 **Styling:**
+
 ```d2
 # Node styling
 node: Label {
@@ -248,7 +267,7 @@ node1 -> node2: {
 # Add new LWC to UI layer
 ui_layer: UI Layer {
   # ... existing components ...
-  
+
   # Add new component
   new_lwc: newComponentName {
     shape: rectangle
@@ -262,11 +281,13 @@ ui_layer.new_lwc -> controller_layer.new_controller: calls
 ```
 
 **Regenerate:**
+
 ```bash
 ./scripts/render_d2.sh
 ```
 
 **Verify:**
+
 ```bash
 # View SVG in browser or editor
 open docs/diagrams/svg/architecture.svg
@@ -307,6 +328,7 @@ D2 includes several built-in themes:
 - `200` - Origami (used in this project)
 
 **Change theme:**
+
 ```bash
 # Edit scripts/render_d2.sh
 # Change --theme 200 to --theme <number>
@@ -319,11 +341,13 @@ D2 includes several built-in themes:
 ### Issue: D2 Command Not Found
 
 **Symptom:**
+
 ```
 bash: d2: command not found
 ```
 
 **Solution:**
+
 ```bash
 # Add D2 to PATH
 export PATH="$HOME/.local/bin:$PATH"
@@ -337,11 +361,13 @@ curl -fsSL https://d2lang.com/install.sh | sh -s --
 ### Issue: Render Script Not Executable
 
 **Symptom:**
+
 ```
 bash: ./scripts/render_d2.sh: Permission denied
 ```
 
 **Solution:**
+
 ```bash
 # Make script executable
 chmod +x scripts/render_d2.sh
@@ -355,12 +381,14 @@ chmod +x scripts/render_d2.sh
 ### Issue: TALA Layout Not Available
 
 **Symptom:**
+
 ```
 Error: layout engine "tala" not found
 ```
 
 **Solution:**
 TALA is not available in the bundled D2 version. Use ELK instead:
+
 ```bash
 # Use default (ELK)
 ./scripts/render_d2.sh
@@ -374,12 +402,15 @@ D2_LAYOUT=elk ./scripts/render_d2.sh
 ### Issue: Diagram Not Rendering Correctly
 
 **Symptom:**
+
 - Nodes overlapping
 - Connections crossing incorrectly
 - Layout looks wrong
 
 **Solution:**
+
 1. Try different layout engine:
+
    ```bash
    D2_LAYOUT=dagre ./scripts/render_d2.sh
    ```
@@ -434,6 +465,7 @@ D2_LAYOUT=elk ./scripts/render_d2.sh
 ### When to Update Diagrams
 
 **Update diagrams when:**
+
 - Adding new LWC components
 - Adding new Apex classes
 - Changing automation logic

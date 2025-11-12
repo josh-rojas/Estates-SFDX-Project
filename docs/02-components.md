@@ -20,6 +20,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **File Location:** `force-app/main/default/lwc/successionContactCadence/`
 
 **Key Features:**
+
 - Displays 5 contact attempts (Days 0, 5, 35, 65, 95)
 - Sequential unlock pattern: next task unlocks only when prior is completed
 - Date-gating: tasks cannot be completed until ActivityDate arrives
@@ -33,6 +34,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **Usage:** Embedded on Case record page (EstateAdministration record type)
 
 **Key Methods:**
+
 - `@wire(getContactCadence)` - Retrieves contact attempt data
 - `handleSaveAttempt()` - Saves task outcome and updates Case
 - `validateEmail()` - Checks email format and opt-out status
@@ -48,6 +50,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **File Location:** `force-app/main/default/lwc/recordPathwaySelection/`
 
 **Key Features:**
+
 - Quick Action UI (modal dialog)
 - Pathway selection dropdown (Final Grant, New DAF, Disclaim)
 - Sets `Pathway_Confirmed__c` field on Case (line 55 in recordPathwaySelection.js)
@@ -60,6 +63,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **Usage:** Quick Action on Case record page
 
 **Key Methods:**
+
 - `handlePathwayChange()` - Updates selected pathway
 - `handleSave()` - Sets `Pathway_Confirmed__c` and closes modal
 - `handleCancel()` - Closes modal without saving
@@ -75,6 +79,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **File Location:** `force-app/main/default/lwc/successionPublicForm/`
 
 **Key Features:**
+
 - Public-facing (guest user accessible)
 - URL parameter-based access (case ID + token)
 - Pathway selection with descriptions
@@ -88,6 +93,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **Usage:** Embedded in Experience Cloud site (public page)
 
 **Key Methods:**
+
 - `@wire(getFormData)` - Retrieves case data with token validation
 - `handleSubmit()` - Saves pathway selection
 - `validateToken()` - Verifies access token
@@ -103,6 +109,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **File Location:** `force-app/main/default/lwc/caseHierarchyViewer/`
 
 **Key Features:**
+
 - Tree visualization of case hierarchy
 - Parent case at top, child cases below
 - Status indicators for each case
@@ -115,11 +122,13 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **Usage:** Embedded on Case record page (multi-successor parent cases)
 
 **Key Methods:**
+
 - `@wire(getCaseHierarchy)` - Retrieves parent and child cases
 - `handleCaseClick()` - Navigates to selected case
 - `buildTreeData()` - Constructs tree structure from flat data
 
 **Data Structure:**
+
 ```javascript
 {
   caseId: 'xxx',
@@ -140,6 +149,7 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **File Location:** `force-app/main/default/lwc/createSuccessionCase/`
 
 **Key Features:**
+
 - Quick Action UI (modal dialog)
 - Financial Account lookup
 - Successor selection (from FinancialAccountRoles)
@@ -154,12 +164,14 @@ This document provides a comprehensive inventory of all Lightning Web Components
 **Usage:** Quick Action on Financial Account record page
 
 **Key Methods:**
+
 - `handleFinancialAccountChange()` - Loads successors for selected account
 - `handleSuccessorSelection()` - Updates selected successors
 - `handleCreate()` - Creates case(s) and closes modal
 - `validateSuccessors()` - Ensures valid successor selection
 
 **Multi-Successor Logic:**
+
 - If 1 successor: creates single case and navigates to it
 - If 2+ successors: creates parent case + child cases (one per successor) and navigates to parent case
 - Parent case Type: "Multi-Account Succession Master"
@@ -183,12 +195,14 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 **Key Methods:**
 
 #### `getContactCadence(String caseId)`
+
 - **@AuraEnabled(cacheable=true)**
 - Returns contact attempt tasks for a case
 - Queries Task records with `Contact_Attempt_Number__c` field
 - Ordered by `Contact_Attempt_Number__c` ASC
 
 #### `saveAttemptOutcome(String taskId, String outcome, Boolean contactEstablished)`
+
 - **@AuraEnabled**
 - Updates task status and outcome
 - Sets `Succession_Contact_Established__c` on task
@@ -196,6 +210,7 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 - Returns success/failure status
 
 #### `validateEmailAddress(String caseId)`
+
 - **@AuraEnabled**
 - Checks successor email format and opt-out status
 - Returns validation result with warnings
@@ -216,6 +231,7 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 **Key Methods:**
 
 #### `createSuccessionCase(String financialAccountId, List<String> successorIds)`
+
 - **@AuraEnabled**
 - Creates succession case(s) from Financial Account
 - Validates successors exist and allocations sum to 100%
@@ -223,12 +239,14 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 - Returns created case ID(s)
 
 #### `validateSuccessors(String financialAccountId, List<String> successorIds)`
+
 - **@AuraEnabled**
 - Validates successor selection
 - Checks allocation percentages
 - Returns validation result
 
 #### `createMultiSuccessorStructure(String financialAccountId, List<FinancialAccountRole> successors)`
+
 - **Private helper method**
 - Creates parent case (Type: "Multi-Account Succession Master")
 - Creates child cases (one per successor)
@@ -250,6 +268,7 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 **Key Methods:**
 
 #### `getFormData(String caseId, String token)`
+
 - **@AuraEnabled(cacheable=true)**
 - Retrieves case data for public form
 - Validates access token
@@ -257,6 +276,7 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 - Throws exception if token invalid
 
 #### `savePathwaySelection(String caseId, String token, String pathway)`
+
 - **@AuraEnabled**
 - Saves pathway selection from guest user
 - Validates token before saving
@@ -265,6 +285,7 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 - Returns success/failure status
 
 #### `validateToken(String caseId, String token)`
+
 - **Private helper method**
 - Validates access token against case record
 - Checks token expiration
@@ -285,6 +306,7 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 **Key Methods:**
 
 #### `getCaseHierarchy(String caseId)`
+
 - **@AuraEnabled(cacheable=true)**
 - Retrieves parent and child cases
 - Queries FinancialAccountRole for successor allocations
@@ -292,14 +314,21 @@ When multiple successors are detected, the Quick Action navigates to the parent 
 - Returns tree data for visualization
 
 **Data Structure:**
+
 ```apex
 public class CaseHierarchyNode {
-    @AuraEnabled public String caseId;
-    @AuraEnabled public String caseNumber;
-    @AuraEnabled public String status;
-    @AuraEnabled public String successorName;
-    @AuraEnabled public Decimal allocation;
-    @AuraEnabled public List<CaseHierarchyNode> children;
+  @AuraEnabled
+  public String caseId;
+  @AuraEnabled
+  public String caseNumber;
+  @AuraEnabled
+  public String status;
+  @AuraEnabled
+  public String successorName;
+  @AuraEnabled
+  public Decimal allocation;
+  @AuraEnabled
+  public List<CaseHierarchyNode> children;
 }
 ```
 
@@ -318,6 +347,7 @@ public class CaseHierarchyNode {
 **Key Methods:**
 
 #### `createPathwayTasks(List<Case> newCases, Map<Id, Case> oldCaseMap)`
+
 - **Public static method** (called from trigger)
 - Detects `Pathway_Confirmed__c` field changes
 - Routes to appropriate task generation method based on pathway
@@ -325,6 +355,7 @@ public class CaseHierarchyNode {
 - Duplicate prevention: checks for existing pathway tasks
 
 #### `generateFinalGrantTasks(Case c)`
+
 - **Private helper method**
 - Creates 5 tasks for Final Grant pathway
 - Timeline: Days 2, 5, 10, 15, 20
@@ -332,6 +363,7 @@ public class CaseHierarchyNode {
 - Returns list of tasks
 
 #### `generateNewDAFTasks(Case c)`
+
 - **Private helper method**
 - Creates 4 tasks for New DAF pathway
 - Timeline: Days 2, 7, 12, 18
@@ -339,6 +371,7 @@ public class CaseHierarchyNode {
 - Returns list of tasks
 
 #### `generateDisclaimTasks(Case c)`
+
 - **Private helper method**
 - Creates 4 tasks for Disclaim pathway
 - Timeline: Days 3, 8, 13, 20
@@ -362,6 +395,7 @@ public class CaseHierarchyNode {
 **Key Methods:**
 
 #### `createContactAttemptTasks(List<ContactAttemptRequest> requests)`
+
 - **@InvocableMethod**
 - Creates contact attempt tasks from flows
 - Duplicate prevention: checks for existing tasks
@@ -369,10 +403,13 @@ public class CaseHierarchyNode {
 - Returns list of created task IDs
 
 **Input Wrapper:**
+
 ```apex
 public class ContactAttemptRequest {
-    @InvocableVariable public String caseId;
-    @InvocableVariable public Integer attemptNumber;
+  @InvocableVariable
+  public String caseId;
+  @InvocableVariable
+  public Integer attemptNumber;
 }
 ```
 
@@ -393,17 +430,22 @@ public class ContactAttemptRequest {
 **Key Methods:**
 
 #### `postChatterUpdate(List<ChatterPostRequest> requests)`
+
 - **@InvocableMethod**
 - Posts Chatter feed updates to Case records
 - Supports pathway name and additional context
 - Returns success/failure status
 
 **Input Wrapper:**
+
 ```apex
 public class ChatterPostRequest {
-    @InvocableVariable public String caseId;
-    @InvocableVariable public String message;
-    @InvocableVariable public String pathwayName;
+  @InvocableVariable
+  public String caseId;
+  @InvocableVariable
+  public String message;
+  @InvocableVariable
+  public String pathwayName;
 }
 ```
 
@@ -424,23 +466,27 @@ public class ChatterPostRequest {
 **Key Methods:**
 
 #### `validateEmail(String email)`
+
 - **Public static method**
 - Validates email format using regex
 - Returns boolean
 
 #### `createChatterPost(String caseId, String message)`
+
 - **Public static method**
 - Creates Chatter feed post on Case
 - Used by multiple controllers
 - Returns FeedItem ID
 
 #### `getRecordTypeId(String objectName, String recordTypeName)`
+
 - **Public static method**
 - Retrieves RecordType ID by name
 - Cached for performance
 - Returns RecordType ID
 
 #### `createContentNote(String parentId, String title, String content)`
+
 - **Public static method**
 - Creates ContentNote linked to record
 - Used for documentation
@@ -454,16 +500,16 @@ public class ChatterPostRequest {
 
 All production classes have corresponding test classes with high coverage:
 
-| Test Class | Coverage | Tests |
-|------------|----------|-------|
-| `ContactCadenceController_Test` | 100% | 5 tests |
-| `CreateSuccessionCaseController_Test` | 100% | 6 tests |
-| `SuccessionPublicFormController_Test` | 100% | 4 tests |
-| `CaseHierarchyController_Test` | 100% | 3 tests |
-| `SuccessionTaskGenerator_Test` | 100% | 7 tests |
-| `SuccessionTaskCreator_Test` | 100% | 4 tests |
-| `SuccessionChatterPoster_Test` | 100% | 3 tests |
-| `SuccessionUtilities_Test` | 100% | 6 tests |
+| Test Class                            | Coverage | Tests   |
+| ------------------------------------- | -------- | ------- |
+| `ContactCadenceController_Test`       | 100%     | 5 tests |
+| `CreateSuccessionCaseController_Test` | 100%     | 6 tests |
+| `SuccessionPublicFormController_Test` | 100%     | 4 tests |
+| `CaseHierarchyController_Test`        | 100%     | 3 tests |
+| `SuccessionTaskGenerator_Test`        | 100%     | 7 tests |
+| `SuccessionTaskCreator_Test`          | 100%     | 4 tests |
+| `SuccessionChatterPoster_Test`        | 100%     | 3 tests |
+| `SuccessionUtilities_Test`            | 100%     | 6 tests |
 
 **File Location:** `force-app/main/default/classes/*_Test.cls`
 
@@ -503,14 +549,14 @@ SuccessionCaseTrigger → SuccessionTaskGenerator
 
 ### Lines of Code (Approximate)
 
-| Component Type | Count | Total LOC |
-|----------------|-------|-----------|
-| LWC JavaScript | 5 | ~2,500 |
-| LWC HTML | 5 | ~800 |
-| LWC CSS | 5 | ~600 |
-| Apex Classes | 8 | ~1,800 |
-| Apex Test Classes | 8 | ~1,500 |
-| Apex Triggers | 1 | ~10 |
+| Component Type    | Count | Total LOC |
+| ----------------- | ----- | --------- |
+| LWC JavaScript    | 5     | ~2,500    |
+| LWC HTML          | 5     | ~800      |
+| LWC CSS           | 5     | ~600      |
+| Apex Classes      | 8     | ~1,800    |
+| Apex Test Classes | 8     | ~1,500    |
+| Apex Triggers     | 1     | ~10       |
 
 **Total:** ~7,210 lines of code
 
@@ -525,19 +571,23 @@ SuccessionCaseTrigger → SuccessionTaskGenerator
 ## Naming Conventions
 
 ### LWC Components
+
 - **Pattern:** `succession<ComponentName>` (camelCase)
 - **Examples:** `successionContactCadence`, `recordPathwaySelection`
 
 ### Apex Classes
+
 - **Pattern:** `Succession<ClassName>` (PascalCase)
 - **Examples:** `SuccessionTaskGenerator`, `SuccessionUtilities`
 
 ### Apex Test Classes
+
 - **Pattern:** `<ClassName>_Test`
 - **Examples:** `SuccessionTaskGenerator_Test`, `ContactCadenceController_Test`
 
 ### Custom Fields
-- **Pattern:** `<Field_Name>__c` (snake_case with __c suffix)
+
+- **Pattern:** `<Field_Name>__c` (snake_case with \_\_c suffix)
 - **Examples:** `Contact_Established__c`, `Pathway_Confirmed__c`
 
 ---
@@ -545,18 +595,21 @@ SuccessionCaseTrigger → SuccessionTaskGenerator
 ## Best Practices Followed
 
 ### Security
+
 - ✅ All controllers use `WITH USER_MODE` or `@SuppressWarnings` with documentation
 - ✅ Exception: `SuccessionTaskGenerator` uses `SYSTEM_MODE` (documented rationale)
 - ✅ Field-level security enforced via permission sets
 - ✅ Guest user access restricted to submission form only
 
 ### Performance
+
 - ✅ Bulk-safe: all Apex methods handle collections
 - ✅ No SOQL in loops
 - ✅ Efficient queries with selective WHERE clauses
 - ✅ Cacheable `@wire` methods in LWCs
 
 ### Maintainability
+
 - ✅ Clear separation of concerns (UI → Controller → Data)
 - ✅ Shared utility class for common patterns
 - ✅ Comprehensive test coverage (100% on all classes)
@@ -564,6 +617,7 @@ SuccessionCaseTrigger → SuccessionTaskGenerator
 - ✅ Inline comments for complex logic
 
 ### User Experience
+
 - ✅ Progress visualization in contact cadence
 - ✅ Validation feedback before saving
 - ✅ Success/error notifications

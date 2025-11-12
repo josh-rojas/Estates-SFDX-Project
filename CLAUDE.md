@@ -453,26 +453,18 @@ sf project deploy start --source-dir force-app/main/default/flows
 sf project deploy start --target-org schwab-sandbox
 ```
 
-### Testing
+### Code Quality & Testing
 
 ```bash
 # Run Apex tests
 sf apex run test --test-level RunLocalTests --code-coverage
 
-# Run LWC tests
-npm run test:unit
-
-# Watch mode
-npm run test:unit:watch
-
-# Coverage report
-npm run test:unit:coverage
-
-# Lint
-npm run lint
-
-# Format code
-npm run prettier
+# LWC tests and code quality (see docs/LINTING_AND_FORMATTING.md for details)
+npm run cleanup           # Clean up code formatting
+npm test                  # Run LWC tests
+npm run auto-test         # Auto-test as you code (watch mode)
+npm run ready-to-commit   # Pre-commit validation (format + lint + test)
+npm run full-check        # Complete validation with coverage + security scan
 ```
 
 ### Permission Sets
@@ -632,6 +624,7 @@ cci task run load_demo_ui_showcase
 
 **Core Docs (docs/):**
 - `README.md` - Project overview and quick start
+- `LINTING_AND_FORMATTING.md` - Code quality guide with jargon-free npm script explanations (for stakeholders and year 1 devs)
 - `field-documentation-succession.md` - Complete field reference
 - `PERSON_ACCOUNT_FIXES.md` - FSC Person Account compatibility
 - `TIER_1_FIXES_SUMMARY.md` - Email validation fixes

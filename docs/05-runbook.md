@@ -44,6 +44,7 @@ cci task run load_demo_ui_showcase --org demo-org
 #### 4. Configure Page Layouts
 
 **Manual Steps:**
+
 1. Navigate to Setup → Object Manager → Case → Page Layouts
 2. Edit "Estate Administration Layout"
 3. Add Quick Actions:
@@ -57,6 +58,7 @@ cci task run load_demo_ui_showcase --org demo-org
 #### 5. Test End-to-End Flow
 
 **Test Scenario:**
+
 1. Create Financial Account with successor
 2. Create succession case
 3. Complete contact attempts
@@ -78,8 +80,8 @@ cci task run load_demo_ui_showcase --org demo-org
    - First Name: "John"
    - Last Name: "Donor"
    - Email: "john.donor@example.com"
-   - Deceased__c: ✅ (checked)
-   - Date_of_Death__c: (today's date - 30 days)
+   - Deceased\_\_c: ✅ (checked)
+   - Date_of_Death\_\_c: (today's date - 30 days)
 5. Save
 
 ### Create Person Account (Successor)
@@ -91,7 +93,7 @@ cci task run load_demo_ui_showcase --org demo-org
    - First Name: "Jane"
    - Last Name: "Successor"
    - Email: "jane.successor@example.com"
-   - Deceased__c: ❌ (unchecked)
+   - Deceased\_\_c: ❌ (unchecked)
 5. Save
 
 ### Create Financial Account
@@ -147,6 +149,7 @@ sf org assign permset --name Succession_Management_Access --target-org prod --on
 ### Task 2: Create Public Group for Sharing
 
 **Manual Steps:**
+
 1. Navigate to Setup → Public Groups
 2. Click "New"
 3. Fill in:
@@ -158,6 +161,7 @@ sf org assign permset --name Succession_Management_Access --target-org prod --on
 ### Task 3: Configure Sharing Rule
 
 **Manual Steps:**
+
 1. Navigate to Setup → Sharing Settings
 2. Click "Case Sharing Rules" → "New"
 3. Fill in:
@@ -171,6 +175,7 @@ sf org assign permset --name Succession_Management_Access --target-org prod --on
 ### Task 4: Activate Flows (If Needed)
 
 **Manual Steps:**
+
 1. Navigate to Setup → Flows
 2. Find flow: "Succession_Start_Contact_Process"
 3. Click "Activate"
@@ -181,6 +186,7 @@ sf org assign permset --name Succession_Management_Access --target-org prod --on
 ### Task 5: Configure Email Templates
 
 **Manual Steps:**
+
 1. Navigate to Setup → Email Templates
 2. Navigate to "Succession_Management" folder
 3. Edit templates as needed:
@@ -196,6 +202,7 @@ sf org assign permset --name Succession_Management_Access --target-org prod --on
 ### Task 6: Monitor Flow Errors
 
 **Manual Steps:**
+
 1. Navigate to Setup → Flows
 2. Click "Flow Errors" tab
 3. Review errors by:
@@ -229,15 +236,18 @@ sf data update bulk --sobject Case --csv-file cases.csv --target-org prod
 ### Issue: Pathway Tasks Not Created
 
 **Symptoms:**
+
 - User selects pathway via recordPathwaySelection LWC
 - No tasks created on Case
 
 **Diagnosis:**
+
 1. Check if `Pathway_Confirmed__c` field was set
 2. Check if trigger is active
 3. Review debug logs for errors
 
 **Resolution:**
+
 ```bash
 # Enable debug logs
 sf apex log tail --target-org prod
@@ -247,12 +257,14 @@ sf apex log tail --target-org prod
 ```
 
 **Common Causes:**
+
 - Trigger not deployed or inactive
 - User lacks permission to create Tasks
 - Duplicate prevention logic blocking creation
 - Field value didn't change (was already set)
 
 **Fix:**
+
 1. Verify trigger deployed: Setup → Apex Triggers → SuccessionCaseTrigger
 2. Check user permissions: Setup → Users → [User] → Permission Sets
 3. Clear existing pathway tasks if duplicate prevention blocking
@@ -263,15 +275,18 @@ sf apex log tail --target-org prod
 ### Issue: Guest User Cannot Submit Form
 
 **Symptoms:**
+
 - Guest user receives "Insufficient Access" error
 - Form doesn't load or submit fails
 
 **Diagnosis:**
+
 1. Check if Succession_Guest_Access permission set assigned to guest user profile
 2. Verify token is valid and not expired
 3. Check sharing settings for Case
 
 **Resolution:**
+
 1. Assign permission set:
    - Setup → Profiles → [Guest User Profile] → Permission Set Assignments
    - Add "Succession_Guest_Access"
@@ -288,19 +303,22 @@ sf apex log tail --target-org prod
 ### Issue: Contact Cadence Not Displaying
 
 **Symptoms:**
+
 - successionContactCadence LWC shows blank or error
 - Tasks not loading
 
 **Diagnosis:**
+
 1. Check if contact attempt tasks exist
 2. Review debug logs for query errors
 3. Verify user has access to Tasks
 
 **Resolution:**
+
 1. Create contact attempt tasks manually:
    - Navigate to Case → Tasks → New
    - Subject: "Contact Attempt #1"
-   - Contact_Attempt_Number__c: 1
+   - Contact_Attempt_Number\_\_c: 1
    - ActivityDate: (today)
    - Status: "Not Started"
 2. Check user permissions:
@@ -316,15 +334,18 @@ sf apex log tail --target-org prod
 ### Issue: Multi-Successor Parent Case Not Closing
 
 **Symptoms:**
+
 - All child cases are Closed
 - Parent case remains Open
 
 **Diagnosis:**
+
 1. Check if all child cases have Status = "Closed" or "Canceled"
 2. Verify parent case has ParentId = null (is actually parent)
 3. Check if flow "Succession_Close_Multi_Successor_Parent" is active
 
 **Resolution:**
+
 1. Verify child case statuses:
    ```sql
    SELECT Id, CaseNumber, Status, ParentId
@@ -345,14 +366,17 @@ sf apex log tail --target-org prod
 ### Issue: Email Validation Warnings
 
 **Symptoms:**
+
 - successionContactCadence shows email validation warning
 - "Successor has opted out of email" message
 
 **Diagnosis:**
+
 1. Check successor Account.PersonHasOptedOutOfEmail field
 2. Verify email format is valid
 
 **Resolution:**
+
 1. Update opt-out status:
    - Open successor Account record
    - Uncheck "Email Opt Out" (PersonHasOptedOutOfEmail)
@@ -368,15 +392,18 @@ sf apex log tail --target-org prod
 ### Issue: Apex Test Failures
 
 **Symptoms:**
+
 - Deployment fails due to test failures
 - Test coverage below 75%
 
 **Diagnosis:**
+
 1. Run tests locally to identify failures
 2. Review test error messages
 3. Check if test data setup is correct
 
 **Resolution:**
+
 ```bash
 # Run specific test class
 sf apex run test --tests ContactCadenceController_Test --target-org prod --detailed-coverage
@@ -388,12 +415,14 @@ sf apex get test --test-run-id <test-run-id> --target-org prod
 ```
 
 **Common Causes:**
+
 - Test data not set up correctly
 - Validation rules blocking test data
 - Governor limits exceeded in tests
 - Hardcoded IDs in test classes
 
 **Fix:**
+
 1. Review test class setup methods
 2. Use `@TestSetup` for test data creation
 3. Avoid hardcoded IDs (use dynamic queries)
@@ -404,15 +433,18 @@ sf apex get test --test-run-id <test-run-id> --target-org prod
 ### Issue: LWC Not Displaying on Page
 
 **Symptoms:**
+
 - LWC component not visible on Case record page
 - Error message in console
 
 **Diagnosis:**
+
 1. Check if LWC is added to page layout
 2. Verify user has access to LWC
 3. Review browser console for JavaScript errors
 
 **Resolution:**
+
 1. Add LWC to page layout:
    - Setup → Object Manager → Case → Lightning Record Pages
    - Edit "Estate Administration Record Page"
@@ -433,12 +465,14 @@ sf apex get test --test-run-id <test-run-id> --target-org prod
 ### Monitor Query Performance
 
 **Check SOQL Queries:**
+
 1. Navigate to Setup → System Overview → System Logs
 2. Filter by "SOQL_EXECUTE_BEGIN"
 3. Identify slow queries (>1 second)
 4. Add indexes or optimize WHERE clauses
 
 **Optimize Queries:**
+
 ```apex
 // Bad: Non-selective query
 List<Case> cases = [SELECT Id FROM Case];
@@ -456,11 +490,13 @@ List<Case> cases = [
 ### Monitor Apex Performance
 
 **Check Apex Execution Time:**
+
 1. Navigate to Setup → Apex Jobs
 2. Review job duration and status
 3. Identify long-running jobs
 
 **Optimize Apex:**
+
 - Use bulk processing (avoid loops)
 - Minimize SOQL queries (use maps)
 - Avoid nested loops
@@ -469,12 +505,14 @@ List<Case> cases = [
 ### Monitor LWC Performance
 
 **Check LWC Load Time:**
+
 1. Open browser developer tools (F12)
 2. Navigate to Network tab
 3. Reload page
 4. Check LWC bundle load time
 
 **Optimize LWC:**
+
 - Use `@wire` with `cacheable=true`
 - Minimize imperative Apex calls
 - Use Lightning Data Service when possible
@@ -487,12 +525,14 @@ List<Case> cases = [
 ### Backup Procedures
 
 **Weekly Backup:**
+
 ```bash
 # Export all Case data
 sf data export tree --query "SELECT Id, CaseNumber, Status, Pathway_Confirmed__c, (SELECT Id, Subject, Status FROM Tasks) FROM Case WHERE RecordType.Name = 'EstateAdministration'" --output-dir ./backup/$(date +%Y%m%d) --target-org prod
 ```
 
 **Monthly Backup:**
+
 ```bash
 # Full metadata backup
 sf project retrieve start --target-org prod --output-dir ./backup/metadata/$(date +%Y%m%d)
@@ -501,12 +541,14 @@ sf project retrieve start --target-org prod --output-dir ./backup/metadata/$(dat
 ### Recovery Procedures
 
 **Restore Case Data:**
+
 ```bash
 # Import Case data from backup
 sf data import tree --plan ./backup/20251102/Case-plan.json --target-org prod
 ```
 
 **Restore Metadata:**
+
 ```bash
 # Deploy metadata from backup
 sf project deploy start --source-dir ./backup/metadata/20251102 --target-org prod
@@ -546,6 +588,7 @@ sf project deploy start --source-dir ./backup/metadata/20251102 --target-org pro
 ### Create Reports
 
 **Report 1: Cases by Status**
+
 1. Navigate to Reports tab
 2. Click "New Report"
 3. Select "Cases" report type
@@ -556,24 +599,26 @@ sf project deploy start --source-dir ./backup/metadata/20251102 --target-org pro
 7. Save as "Succession Cases by Status"
 
 **Report 2: Pathway Distribution**
+
 1. Navigate to Reports tab
 2. Click "New Report"
 3. Select "Cases" report type
 4. Add filters:
    - Record Type = "EstateAdministration"
-   - Pathway_Confirmed__c ≠ null
-5. Group by: Pathway_Confirmed__c
+   - Pathway_Confirmed\_\_c ≠ null
+5. Group by: Pathway_Confirmed\_\_c
 6. Add chart: Bar chart
 7. Save as "Succession Pathway Distribution"
 
 **Report 3: SLA Compliance**
+
 1. Navigate to Reports tab
 2. Click "New Report"
 3. Select "Cases" report type
 4. Add filters:
    - Record Type = "EstateAdministration"
 5. Add formula fields:
-   - Initial Response Met: IF(CreatedDate + 1 > Contact_Established_Date__c, "Yes", "No")
+   - Initial Response Met: IF(CreatedDate + 1 > Contact_Established_Date\_\_c, "Yes", "No")
 6. Group by: Initial Response Met
 7. Save as "Succession SLA Compliance"
 
@@ -582,17 +627,20 @@ sf project deploy start --source-dir ./backup/metadata/20251102 --target-org pro
 ## Maintenance Schedule
 
 ### Daily Tasks
+
 - [ ] Monitor debug logs for errors
 - [ ] Review flow error logs
 - [ ] Check case queue for stuck cases
 
 ### Weekly Tasks
+
 - [ ] Review SLA compliance reports
 - [ ] Backup case data
 - [ ] Review user feedback
 - [ ] Update documentation (if needed)
 
 ### Monthly Tasks
+
 - [ ] Full metadata backup
 - [ ] Review and optimize queries
 - [ ] Update email templates (if needed)
@@ -600,6 +648,7 @@ sf project deploy start --source-dir ./backup/metadata/20251102 --target-org pro
 - [ ] Conduct security audit
 
 ### Quarterly Tasks
+
 - [ ] Review and update runbook
 - [ ] Conduct disaster recovery drill
 - [ ] Review and optimize page layouts
@@ -613,21 +662,25 @@ sf project deploy start --source-dir ./backup/metadata/20251102 --target-org pro
 ### Escalation Path
 
 **Level 1: Developer**
+
 - Review debug logs
 - Fix code issues
 - Deploy hotfixes
 
 **Level 2: Team Lead**
+
 - Coordinate with stakeholders
 - Approve emergency deployments
 - Escalate to architect if needed
 
 **Level 3: Architect**
+
 - Review system design
 - Approve major changes
 - Escalate to Salesforce support if needed
 
 **Level 4: Salesforce Support**
+
 - Critical platform issues
 - Performance degradation
 - Data loss incidents
