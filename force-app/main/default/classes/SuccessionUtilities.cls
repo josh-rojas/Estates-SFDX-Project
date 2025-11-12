@@ -251,14 +251,33 @@ public with sharing class SuccessionUtilities {
     String noteTitle,
     String noteBody
   ) {
+    System.debug('DEBUG: createLinkedContentNote ENTRY');
+    System.debug('DEBUG: recordId: ' + recordId);
+    System.debug('DEBUG: noteTitle: ' + noteTitle);
+    System.debug('DEBUG: noteBody length: ' + noteBody.length());
+
     // Create ContentNote
     ContentNote note = new ContentNote();
     note.Title = noteTitle;
     note.Content = Blob.valueOf(noteBody);
-    Database.insert(note, AccessLevel.USER_MODE);
 
-    System.debug('DEBUG: Created ContentNote with Title: ' + noteTitle);
-    System.debug('DEBUG: ContentNote Id: ' + note.Id);
+    System.debug('DEBUG: About to insert ContentNote');
+    try {
+      Database.insert(note, AccessLevel.USER_MODE);
+      System.debug('DEBUG: ContentNote insert successful');
+      System.debug('DEBUG: Created ContentNote with Title: ' + noteTitle);
+      System.debug('DEBUG: ContentNote Id: ' + note.Id);
+    } catch (Exception e) {
+      System.debug('DEBUG: ContentNote insert FAILED');
+      System.debug('DEBUG: Exception type: ' + e.getTypeName());
+      System.debug('DEBUG: Exception message: ' + e.getMessage());
+      throw e;
+    }
+
+    if (note.Id == null) {
+      System.debug('DEBUG: WARNING - ContentNote.Id is NULL after insert!');
+      return null;
+    }
 
     // Query ContentDocument using LatestPublishedVersionId
     // ContentNote is a subtype of ContentVersion

@@ -53,7 +53,10 @@ public with sharing class SuccessionTaskCreator {
     )
     public Boolean taskCreated;
 
-    @InvocableVariable(label='Task ID' description='ID of created task (null if skipped)')
+    @InvocableVariable(
+      label='Task ID'
+      description='ID of created task (null if skipped)'
+    )
     public Id taskId;
 
     @InvocableVariable(label='Message' description='Status message')
@@ -88,10 +91,7 @@ public with sharing class SuccessionTaskCreator {
     }
 
     // Query existing tasks in bulk (duplicate prevention)
-    Map<String, Task> existingTasks = queryExistingTasks(
-      caseIds,
-      requestMap
-    );
+    Map<String, Task> existingTasks = queryExistingTasks(caseIds, requestMap);
 
     // Process each request
     List<Task> tasksToCreate = new List<Task>();
@@ -178,9 +178,7 @@ public with sharing class SuccessionTaskCreator {
     List<Task> tasks = [
       SELECT Id, WhatId, Contact_Attempt_Number__c
       FROM Task
-      WHERE
-        WhatId IN :caseIds
-        AND Contact_Attempt_Number__c IN :attemptNumbers
+      WHERE WhatId IN :caseIds AND Contact_Attempt_Number__c IN :attemptNumbers
       WITH USER_MODE
     ];
 

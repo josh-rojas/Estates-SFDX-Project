@@ -52,11 +52,7 @@ private class SuccessionTaskCreator_Test {
     // Verify response
     System.assertEquals(1, responses.size(), 'Should return 1 response');
     SuccessionTaskCreator.CreateTaskResponse response = responses[0];
-    System.assertEquals(
-      true,
-      response.taskCreated,
-      'Task should be created'
-    );
+    System.assertEquals(true, response.taskCreated, 'Task should be created');
     System.assertNotEquals(null, response.taskId, 'Task ID should be set');
     System.assertEquals(
       'Task for Attempt 2 created successfully',
@@ -93,7 +89,11 @@ private class SuccessionTaskCreator_Test {
       createdTask.Status,
       'Status should be Not Started'
     );
-    System.assertEquals('High', createdTask.Priority, 'Priority should be High');
+    System.assertEquals(
+      'High',
+      createdTask.Priority,
+      'Priority should be High'
+    );
     System.assertEquals(
       2,
       createdTask.Contact_Attempt_Number__c,
@@ -435,11 +435,7 @@ private class SuccessionTaskCreator_Test {
     for (Task t : createdTasks) {
       caseIds.add(t.WhatId);
     }
-    System.assertEquals(
-      3,
-      caseIds.size(),
-      'Each case should have one task'
-    );
+    System.assertEquals(3, caseIds.size(), 'Each case should have one task');
   }
 
   // ========================================
@@ -503,7 +499,11 @@ private class SuccessionTaskCreator_Test {
       FROM Task
       WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 2
     ];
-    System.assertEquals(1, tasks.size(), 'Should only have 1 task (no duplicate)');
+    System.assertEquals(
+      1,
+      tasks.size(),
+      'Should only have 1 task (no duplicate)'
+    );
     System.assertEquals(
       existingTask.Id,
       tasks[0].Id,
@@ -543,17 +543,11 @@ private class SuccessionTaskCreator_Test {
     // Try to create tasks for Attempts 2, 3, 4, 5
     List<SuccessionTaskCreator.CreateTaskRequest> requests = new List<SuccessionTaskCreator.CreateTaskRequest>();
 
-    for (
-      Integer i = 0;
-      i < 4;
-      i++
-    ) {
+    for (Integer i = 0; i < 4; i++) {
       SuccessionTaskCreator.CreateTaskRequest req = new SuccessionTaskCreator.CreateTaskRequest();
       req.caseId = testCase.Id;
       req.attemptNumber = i + 2; // Attempts 2, 3, 4, 5
-      req.daysOffset = (i == 0)
-        ? 5
-        : (i == 1) ? 35 : (i == 2) ? 65 : 95;
+      req.daysOffset = (i == 0) ? 5 : (i == 1) ? 35 : (i == 2) ? 65 : 95;
       req.caseCreatedDate = testCase.CreatedDate;
       requests.add(req);
     }
@@ -784,11 +778,7 @@ private class SuccessionTaskCreator_Test {
 
     // Verify no tasks created
     List<Task> tasks = [SELECT Id FROM Task];
-    System.assertEquals(
-      0,
-      tasks.size(),
-      'Should not create any tasks'
-    );
+    System.assertEquals(0, tasks.size(), 'Should not create any tasks');
   }
 
   /**
@@ -945,11 +935,7 @@ private class SuccessionTaskCreator_Test {
     Test.stopTest();
 
     // Verify all 200 responses
-    System.assertEquals(
-      200,
-      responses.size(),
-      'Should return 200 responses'
-    );
+    System.assertEquals(200, responses.size(), 'Should return 200 responses');
 
     // Verify all tasks created
     Integer successCount = 0;
@@ -958,11 +944,7 @@ private class SuccessionTaskCreator_Test {
         successCount++;
       }
     }
-    System.assertEquals(
-      200,
-      successCount,
-      'All 200 tasks should be created'
-    );
+    System.assertEquals(200, successCount, 'All 200 tasks should be created');
 
     // Verify 200 tasks in database
     List<Task> allTasks = [SELECT Id FROM Task];
