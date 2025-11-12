@@ -321,7 +321,7 @@ cci flow run deploy_succession_no_data --org schwab-sandbox
 cci task run load_demo_ui_showcase --org schwab-sandbox
 
 # Load specific dataset
-cci task run snowfakery --recipe datasets/succession_data.recipe.yml --org schwab-sandbox
+# NOTE: Snowfakery-based data seeding is not used in the current demo path.
 ```
 
 ---

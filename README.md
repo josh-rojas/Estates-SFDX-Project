@@ -172,15 +172,6 @@ All documentation includes embedded D2 diagrams showing architecture, automation
 
 ## 🧪 Testing
 
-### Using CumulusCI + Snowfakery
-
-```bash
-# Load test data
-cci task run snowfakery --recipe datasets/succession_data.recipe.yml
-
-# Run all succession tests
-cci task run robot --test tests/succession/
-```
 
 ## 🏗️ Architecture
 
