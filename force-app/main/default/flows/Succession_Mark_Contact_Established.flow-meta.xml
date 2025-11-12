@@ -97,7 +97,8 @@
         <inputAssignments>
             <field>Contact_Attempt_Count__c</field>
             <value>
-                <elementReference>$Record.Contact_Attempt_Number__c</elementReference>
+                <elementReference
+        >$Record.Contact_Attempt_Number__c</elementReference>
             </value>
         </inputAssignments>
         <object>Case</object>

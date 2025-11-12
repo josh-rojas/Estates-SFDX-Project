@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
     <flexiPageRegions>
         <itemInstances>
@@ -54,8 +54,10 @@
                     <name>variant</name>
                     <value>linear</value>
                 </componentInstanceProperties>
-                <componentName>runtime_sales_pathassistant:pathAssistant</componentName>
-                <identifier>runtime_sales_pathassistant_pathAssistant</identifier>
+                <componentName
+        >runtime_sales_pathassistant:pathAssistant</componentName>
+                <identifier
+        >runtime_sales_pathassistant_pathAssistant</identifier>
             </componentInstance>
         </itemInstances>
         <name>header</name>
@@ -212,19 +214,24 @@
         <itemInstances>
             <fieldInstance>
                 <fieldItem>Record.Deceased_Donor__r.Date_of_Death__c</fieldItem>
-                <identifier>RecordDeceased_Donor_rDate_of_Death_cField</identifier>
+                <identifier
+        >RecordDeceased_Donor_rDate_of_Death_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
-                <fieldItem>Record.Deceased_Donor__r.FinServ__NextInteraction__c</fieldItem>
-                <identifier>RecordDeceased_Donor_rFinServ_NextInteraction_cField</identifier>
+                <fieldItem
+        >Record.Deceased_Donor__r.FinServ__NextInteraction__c</fieldItem>
+                <identifier
+        >RecordDeceased_Donor_rFinServ_NextInteraction_cField</identifier>
             </fieldInstance>
         </itemInstances>
         <itemInstances>
             <fieldInstance>
-                <fieldItem>Record.Deceased_Donor__r.FinServ__LastFourDigitSSN__pc</fieldItem>
-                <identifier>RecordDeceased_Donor_rFinServ_LastFourDigitSSN_pcField</identifier>
+                <fieldItem
+        >Record.Deceased_Donor__r.FinServ__LastFourDigitSSN__pc</fieldItem>
+                <identifier
+        >RecordDeceased_Donor_rFinServ_LastFourDigitSSN_pcField</identifier>
             </fieldInstance>
         </itemInstances>
         <name>Facet-b6919eda-f447-4d79-a503-7c11d8933e7a</name>
@@ -419,7 +426,8 @@
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>childCaseFields</name>
-                    <value>Status,Contact_Attempt_Count__c,SLA_Status__c,Pathway_Confirmed__c</value>
+                    <value
+          >Status,Contact_Attempt_Count__c,SLA_Status__c,Pathway_Confirmed__c</value>
                 </componentInstanceProperties>
                 <componentInstanceProperties>
                     <name>excludeStatuses</name>
@@ -468,7 +476,8 @@
                     <name>hideHeader</name>
                     <value>false</value>
                 </componentInstanceProperties>
-                <componentName>force:relatedListQuickLinksContainer</componentName>
+                <componentName
+        >force:relatedListQuickLinksContainer</componentName>
                 <identifier>force_relatedListQuickLinksContainer</identifier>
             </componentInstance>
         </itemInstances>
@@ -488,7 +497,8 @@
                     <name>showLegacyActivityComposer</name>
                     <value>true</value>
                 </componentInstanceProperties>
-                <componentName>runtime_sales_activities:activityPanel</componentName>
+                <componentName
+        >runtime_sales_activities:activityPanel</componentName>
                 <identifier>runtime_sales_activities_activityPanel</identifier>
             </componentInstance>
         </itemInstances>
@@ -501,7 +511,8 @@
         <name>flexipage:recordHomeWithSubheaderTemplateDesktop</name>
         <properties>
             <name>saveOptions</name>
-            <value>[{&quot;name&quot;:&quot;UseDefaultAssignmentRule&quot;,&quot;value&quot;:&quot;SHOW_CHECKBOX_WITH_DEFAULT_OFF&quot;},{&quot;name&quot;:&quot;triggerOtherEmail&quot;,&quot;value&quot;:&quot;NONE&quot;}]</value>
+            <value
+      >[{&quot;name&quot;:&quot;UseDefaultAssignmentRule&quot;,&quot;value&quot;:&quot;SHOW_CHECKBOX_WITH_DEFAULT_OFF&quot;},{&quot;name&quot;:&quot;triggerOtherEmail&quot;,&quot;value&quot;:&quot;NONE&quot;}]</value>
         </properties>
     </template>
     <type>RecordPage</type>

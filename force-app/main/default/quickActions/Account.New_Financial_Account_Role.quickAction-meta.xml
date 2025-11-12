@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Create a new Financial Account Role for this Person Account (pre-populates contact via PersonContactId).</description>
+    <description
+  >Create a new Financial Account Role for this Person Account (pre-populates contact via PersonContactId).</description>
     <label>New Financial Account Role</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
@@ -35,7 +36,8 @@
         </quickActionLayoutColumns>
     </quickActionLayout>
     <standardLabel>Create</standardLabel>
-    <successMessage>Financial Account Role created successfully for this Person Account.</successMessage>
+    <successMessage
+  >Financial Account Role created successfully for this Person Account.</successMessage>
     <targetObject>FinServ__FinancialAccountRole__c</targetObject>
     <targetParentField>FinServ__RelatedContact__c</targetParentField>
     <targetRecordType>FinServ__FinancialAccountRole__c.Master</targetRecordType>

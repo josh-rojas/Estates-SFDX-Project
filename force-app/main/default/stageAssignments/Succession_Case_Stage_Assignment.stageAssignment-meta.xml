@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StageAssignment xmlns="http://soap.sforce.com/2006/04/metadata">
+  <active>false</active>
+  <masterLabel>Succession Case Stage Assignment</masterLabel>
+  <referenceObject>Case</referenceObject>
+  <!-- Design-only: limit to EstateAdministration + Named Successor Enactment.
+       When/if activated, this criteria ensures only succession cases use this model. -->
+  <ruleCriteria>
+    <condition>
+      <fieldName>Case.RecordType.DeveloperName</fieldName>
+      <operator>Equals</operator>
+      <sequenceNumber>1</sequenceNumber>
+      <value>EstateAdministration</value>
+    </condition>
+    <condition>
+      <fieldName>Case.Type</fieldName>
+      <operator>Equals</operator>
+      <sequenceNumber>2</sequenceNumber>
+      <value>Named Successor Enactment</value>
+    </condition>
+    <criteriaType>AND</criteriaType>
+    <logicalExpression>1 AND 2</logicalExpression>
+    <name>Estate Administration - Named Successor Enactment</name>
+    <priority>1</priority>
+    <stageDefinition>Succession_Case_Stage_Model</stageDefinition>
+  </ruleCriteria>
+</StageAssignment>
