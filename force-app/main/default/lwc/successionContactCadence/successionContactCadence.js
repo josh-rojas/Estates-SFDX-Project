@@ -984,13 +984,15 @@ export default class SuccessionContactCadence extends NavigationMixin(
       // Quick Action pattern (Account.SendEmail / Contact.SendEmail) is more reliable
 
       // Determine which action to use based on record type
-      const actionName = isPersonAccount ? 'Account.SendEmail' : 'Contact.SendEmail';
+      const actionName = isPersonAccount
+        ? "Account.SendEmail"
+        : "Contact.SendEmail";
 
       this[NavigationMixin.Navigate]({
         type: "standard__quickAction",
         attributes: {
           actionName: actionName,
-          objectApiName: isPersonAccount ? 'Account' : 'Contact',
+          objectApiName: isPersonAccount ? "Account" : "Contact",
           recordId: recordId // Recipient: Contact or Account (Person Account)
           // Note: relatedEntityId not available in quick action pattern
           // Agent must manually reference Case fields if needed

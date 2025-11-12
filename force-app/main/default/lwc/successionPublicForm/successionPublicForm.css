@@ -1,37 +1,36 @@
 .succession-scope {
   font-family: "Salesforce Sans", Arial, sans-serif;
-  background-color: #f3f3f3;
-  padding: 2rem;
+
   min-height: 100vh;
 }
 
-.slds-page-header {
+.succession-page-header {
   background: linear-gradient(135deg, #1b5297 0%, #0070d2 100%);
-  color: white;
-  padding: 2rem;
-  border-radius: 0.25rem;
+  color: var(--slds-g-color-brand-header-contrast-inverse, #ffffff);
+
+  border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
 }
 
-.slds-page-header__title {
-  color: white;
+.succession-page-header-title {
+  color: var(--slds-g-color-brand-header-contrast-inverse, #ffffff);
 }
 
 /* Component-scoped styling (not global SLDS overrides) */
-.succession-scope .slds-page-header .slds-text-body_regular {
+.succession-scope .succession-page-header .succession-text-body {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.succession-scope .slds-card {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.succession-scope .succession-card {
+  box-shadow: var(--lwc-spacingNone, 0) var(--lwc-borderWidthThick, 2px) var(--lwc-spacingXxSmall, 4px) rgba(0, 0, 0, 0.1);
 }
 
-.succession-scope .slds-dl_horizontal__label {
+.succession-scope .succession-label {
   font-weight: 600;
   color: var(--slds-g-color-neutral-base-10, #181818);
 }
 
 .succession-scope .form-section-heading {
-  font-weight: 700;
+  font-weight: var(--lwc-fontWeightBold, 700);
   color: var(--slds-g-color-brand-base-70, #0070d2);
 }
 
@@ -39,26 +38,28 @@
 
 /* Error Card Sections */
 lightning-card .slds-p-around_medium > div {
-  border-bottom: 1px solid #e5e5e5;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
+  border-bottom: var(--lwc-borderWidthThin, 1px) solid var(--lwc-colorBorder, #e5e5e5);
 }
 
 lightning-card .slds-p-around_medium > div:last-child {
   border-bottom: none;
-  margin-bottom: 0;
 }
 
 /* Support Info Box */
-.slds-box.slds-theme_shade {
-  background-color: #f3f3f3;
+.succession-support-box {
   border-left: 3px solid #0070d2;
 }
 
+.succession-theme-shade {
+  background-color: var(--lwc-colorBackground, #f3f2f2);
+  border: var(--lwc-borderWidthThin, 1px) solid var(--lwc-colorBorder, #c9c7c7);
+  border-radius: var(--lwc-borderRadiusMedium, 0.25rem);
+}
+
 .slds-box.slds-theme_shade code {
-  background-color: #ffffff;
-  padding: 0.125rem 0.25rem;
-  border-radius: 0.25rem;
+  background-color: var(--slds-g-color-neutral-base-100, #ffffff);
+  padding: var(--lwc-borderWidthThick, 0.125rem) var(--lwc-varSpacingHorizontalXxSmall, 0.25rem);
+  border-radius: var(--lwc-spacingXxSmall, 0.25rem);
   font-family: "Courier New", Courier, monospace;
   color: #c81e1e;
   font-weight: 600;
@@ -70,6 +71,6 @@ lightning-button[icon-name="utility:refresh"] {
 }
 
 /* Error Type Badge */
-.slds-text-body_small strong {
-  color: #3e3e3c;
+lightning-badge {
+  margin-left: var(--lwc-varSpacingHorizontalXxSmall, 0.25rem);
 }

@@ -79,8 +79,9 @@ export default class CreateSuccessionCase extends NavigationMixin(
    * Show success toast and navigate to case
    */
   showSuccessToast(result) {
-    const isMultiSuccessor = Boolean(result.parentCaseId) || (result.successorCount || 0) > 1;
-    
+    const isMultiSuccessor =
+      Boolean(result.parentCaseId) || (result.successorCount || 0) > 1;
+
     const toastMessage = isMultiSuccessor
       ? `${result.message} Opening parent "Multi-Account Succession Master" case.`
       : `${result.message} Opening successor case.`;

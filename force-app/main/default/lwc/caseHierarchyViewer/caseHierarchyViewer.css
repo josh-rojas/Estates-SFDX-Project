@@ -23,11 +23,23 @@
   border: var(--slds-g-border-width-thin) solid
     var(--slds-g-color-border-base-1);
   cursor: pointer;
-  transition: background-color var(--slds-g-duration-1) ease;
+  transition: background-color var(--slds-g-duration-1) ease,
+    box-shadow var(--slds-g-duration-1) ease;
 }
 
 .child-case-header:hover {
   background-color: var(--slds-g-color-neutral-base-50);
+  box-shadow: var(--slds-g-shadow-raised);
+}
+
+.child-case-header:focus {
+  outline: var(--slds-g-border-width-thick) solid
+    var(--slds-g-color-brand-base-60);
+  outline-offset: var(--slds-g-spacing-xx-small);
+}
+
+.child-case-header:active {
+  background-color: var(--slds-g-color-neutral-base-40);
 }
 
 /* Expanded Content */
@@ -116,7 +128,8 @@
 }
 
 .successor-item:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 var(--slds-g-spacing-xx-small) var(--slds-g-spacing-xx-small)
+    rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Adjustments */

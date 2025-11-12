@@ -29,7 +29,7 @@ export default class CaseHierarchyViewer extends NavigationMixin(
   hierarchyData;
   error;
   isLoading = true;
-  expandedSections = new Set(); // Track which sections are expanded
+  expandedSections = new Set();
 
   /**
    * Wire adapter to fetch case hierarchy data
@@ -47,14 +47,6 @@ export default class CaseHierarchyViewer extends NavigationMixin(
     if (data) {
       this.hierarchyData = data;
       this.error = undefined;
-      // Auto-expand first child case by default if configured
-      if (
-        this.expandFirstChild &&
-        data.childCases &&
-        data.childCases.length > 0
-      ) {
-        this.expandedSections.add(data.childCases[0].caseRecord.Id);
-      }
     } else if (error) {
       this.error = error;
       this.hierarchyData = undefined;
@@ -98,12 +90,15 @@ export default class CaseHierarchyViewer extends NavigationMixin(
     if (!this.hierarchyData || !this.hierarchyData.childCases) return "$0.00";
 
     let total = 0;
+    const seenAccounts = new Set();
+
     this.hierarchyData.childCases.forEach((childData) => {
-      if (
-        childData.financialAccount &&
-        childData.financialAccount.FinServ__Balance__c
-      ) {
-        total += childData.financialAccount.FinServ__Balance__c;
+      const fa = childData.financialAccount;
+      if (fa && fa.Id && !seenAccounts.has(fa.Id)) {
+        seenAccounts.add(fa.Id);
+        if (fa.FinServ__Balance__c) {
+          total += fa.FinServ__Balance__c;
+        }
       }
     });
 
@@ -139,7 +134,8 @@ export default class CaseHierarchyViewer extends NavigationMixin(
         slaClass: this.getSLAClass(caseRecord.SLA_Status__c),
         pathwayClass: this.getPathwayClass(caseRecord.Pathway_Confirmed__c),
         hasSuccessors: childData.successors && childData.successors.length > 0,
-        successorsWithProps: this.formatSuccessors(childData.successors)
+        successorsWithProps: this.formatSuccessors(childData.successors),
+        cardAriaLabel: `Navigate to case ${caseRecord.CaseNumber} for ${caseRecord.Contact ? caseRecord.Contact.Name : "No Contact"}`
       };
     });
   }
@@ -160,26 +156,11 @@ export default class CaseHierarchyViewer extends NavigationMixin(
   }
 
   /**
-   * Toggle expand/collapse for a child case section
-   */
-  handleToggleSection(event) {
-    const caseId = event.currentTarget.dataset.caseId;
-
-    if (this.expandedSections.has(caseId)) {
-      this.expandedSections.delete(caseId);
-    } else {
-      this.expandedSections.add(caseId);
-    }
-
-    // Force re-render
-    this.expandedSections = new Set(this.expandedSections);
-  }
-
-  /**
-   * Navigate to case record
+   * Navigate to case record from header click
    */
   navigateToCase(event) {
     event.preventDefault();
+    event.stopPropagation();
     const caseId = event.currentTarget.dataset.caseId;
 
     this[NavigationMixin.Navigate]({
@@ -190,6 +171,19 @@ export default class CaseHierarchyViewer extends NavigationMixin(
         actionName: "view"
       }
     });
+  }
+
+  /**
+   * Handle keyboard navigation for case header (Enter/Space keys)
+   */
+  handleCardKeyDown(event) {
+    // Only trigger on Enter or Space key
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      event.stopPropagation();
+      // Trigger click handler
+      this.navigateToCase(event);
+    }
   }
 
   /**
@@ -240,7 +234,11 @@ export default class CaseHierarchyViewer extends NavigationMixin(
    * Get safe error message with null checks
    */
   get errorMessage() {
-    return this.error?.body?.message || this.error?.message || "Unknown error occurred";
+    return (
+      this.error?.body?.message ||
+      this.error?.message ||
+      "Unknown error occurred"
+    );
   }
 
   /**
