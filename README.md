@@ -70,7 +70,7 @@ Automated succession processing system managing deceased donor account transitio
 - Old docs may reference `Task_Create_Next_Contact_Attempt` → now `Succession_Schedule_Next_Contact` (Inactive)
 - Old docs may reference `Case_Status_Coordination` → functionality in `Succession_Update_Case_Status_And_Notify` (Inactive)
 
-### Lightning Web Components (5 Active)
+### Lightning Web Components (Core Set)
 
 | Component                  | Purpose                                                                         | File Path                                              |
 | -------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------ |

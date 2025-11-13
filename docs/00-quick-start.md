@@ -415,7 +415,7 @@ Chatter notification posted
 1. **Email Templates:** Setup → Email Templates → Succession_Management folder
 2. **Page Layouts:** Setup → Object Manager → Case → Page Layouts
 3. **Sharing Rules:** Setup → Sharing Settings → Case Sharing Rules
-4. **Workflows:** Activate flows if needed (Setup → Flows)
+4. **Workflows:** For the standard demo path, leave Flows Inactive; primary automation is trigger-based (`SuccessionCaseTrigger`  `SuccessionTaskGenerator`).
 
 ### Extend
 

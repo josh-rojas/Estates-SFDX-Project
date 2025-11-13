@@ -657,14 +657,14 @@ public with sharing class ContactCadenceController {
       ];
 
       // If contact established, update case
-      // Task_Succession_Contact_Update flow will handle this too, but we update here for immediate feedback
+      // SuccessionTaskGenerator trigger will handle next task creation, but we update here for immediate feedback
       if (contactEstablished && !parentCase.Contact_Established__c) {
         parentCase.Contact_Established__c = true;
         parentCase.Contact_Established_Date__c = Date.today();
         update parentCase;
       }
 
-      // Flow Task_Create_Next_Contact_Attempt will auto-create next task when this task completes
+      // SuccessionTaskGenerator trigger will auto-create next task when pathway is confirmed
       // No manual intervention needed
 
       return 'Success';

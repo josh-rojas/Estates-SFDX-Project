@@ -1,4 +1,4 @@
-# System Architecture, Automation & Data Model
+e# System Architecture, Automation & Data Model
 
 **Last Updated:** November 2, 2025  
 **Version:** 1.0

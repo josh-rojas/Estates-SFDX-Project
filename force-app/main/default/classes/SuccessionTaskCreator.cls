@@ -2,7 +2,7 @@
  * SuccessionTaskCreator
  *
  * Invocable Apex class for creating succession contact attempt tasks from flows.
- * Provides reusable task creation logic to eliminate duplication in Task_Create_Next_Contact_Attempt flow.
+ * Provides reusable task creation logic for flow-based task creation (flows are Inactive in production).
  *
  * USAGE: Call from Flow using "Create Contact Attempt Task" action
  *

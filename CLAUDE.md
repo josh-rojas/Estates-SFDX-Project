@@ -553,6 +553,8 @@ cci flow run qa_full_setup
 
 ### Flow Development Guidelines
 
+(Design reference only; all Salesforce Flows in this repo remain Inactive. Do not enable without aligning with `SuccessionCaseTrigger` → `SuccessionTaskGenerator`.)
+
 **Self-Terminating Scheduled Paths:**
 - Use decision nodes to check gate fields
 - Exit gracefully if conditions not met
