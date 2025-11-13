@@ -74,8 +74,8 @@ export default class SuccessionContactCadence extends NavigationMixin(
    * Total cadence duration: 95 days (5 + 30 + 30 + 30 days)
    *
    * CONFIGURATION NOTE: These durations are hardcoded to match Task.ActivityDate values
-   * set by flows (Case_Create_Initial_Contact_Attempt, Task_Create_Next_Contact_Attempt).
-   * Any changes here must be coordinated with corresponding flow date formulas.
+   * set by SuccessionTaskGenerator trigger-based automation.
+   * Any changes here must be coordinated with corresponding task generation logic.
    *
    * FUTURE ENHANCEMENT: Consider moving to Custom Metadata Type for admin configuration
    * without code deployment (Succession_Contact_Cadence__mdt with Wait_Days__c field)
@@ -984,13 +984,15 @@ export default class SuccessionContactCadence extends NavigationMixin(
       // Quick Action pattern (Account.SendEmail / Contact.SendEmail) is more reliable
 
       // Determine which action to use based on record type
-      const actionName = isPersonAccount ? 'Account.SendEmail' : 'Contact.SendEmail';
+      const actionName = isPersonAccount
+        ? "Account.SendEmail"
+        : "Contact.SendEmail";
 
       this[NavigationMixin.Navigate]({
         type: "standard__quickAction",
         attributes: {
           actionName: actionName,
-          objectApiName: isPersonAccount ? 'Account' : 'Contact',
+          objectApiName: isPersonAccount ? "Account" : "Contact",
           recordId: recordId // Recipient: Contact or Account (Person Account)
           // Note: relatedEntityId not available in quick action pattern
           // Agent must manually reference Case fields if needed

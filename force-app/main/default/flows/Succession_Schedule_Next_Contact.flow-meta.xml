@@ -36,7 +36,7 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Inactive</status>
+    <status>Draft</status>
 
     <!-- Get Parent Case -->
     <recordLookups>
@@ -166,7 +166,8 @@
             <name>Is_Attempt_5</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
-                <leftValueReference>$Record.Contact_Attempt_Number__c</leftValueReference>
+                <leftValueReference
+        >$Record.Contact_Attempt_Number__c</leftValueReference>
                 <operator>EqualTo</operator>
                 <rightValue>
                     <numberValue>5.0</numberValue>

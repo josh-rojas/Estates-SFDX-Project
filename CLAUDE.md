@@ -148,7 +148,7 @@ The system uses **only standard Salesforce objects** - no custom objects:
 - `createContactAttemptTasks()` - Creates contact attempt tasks from flows with duplicate prevention
 
 **Pattern:** Invocable method for flow-based task creation
-**Usage:** **ACTIVE** - Called from `Task_Create_Next_Contact_Attempt` flow (refactored Oct 2025)
+**Usage:** Invocable Apex class for contact task creation (referenced by inactive flows)
 **Features:**
 - Bulk processing support with centralized logic
 - Advanced duplicate prevention (bulk query with composite keys)
@@ -175,7 +175,7 @@ The system uses **only standard Salesforce objects** - no custom objects:
 - Optional pathway name and additional context
 - Response wrapper with success/failure status
 - Replaces hardcoded strings in flows with reusable Apex
-**Note:** Previously called from Case_Succession_Segment_Transition (deprecated in v1.1)
+**Note:** Referenced by inactive flows in this codebase
 
 ### SuccessionUtilities
 **Purpose:** Shared utility class for common patterns
@@ -386,7 +386,9 @@ Quick Actions automatically appear in related list action menus when:
 **Filter:** Role = "Successor"
 **Usage:** Quick access to all successor designations for succession planning
 
-## Flow Automation (5 active, 2 deprecated)
+## Flow Automation (5 flows - All Inactive in Source Control)
+
+**⚠️ IMPORTANT: All flows in this repository are marked as `Inactive` in source control.** The system's primary automation is trigger-based via `SuccessionCaseTrigger` → `SuccessionTaskGenerator`.
 
 **Migration History:**
 
@@ -395,78 +397,41 @@ Quick Actions automatically appear in related list action menus when:
 - `Case_Multiple_Successors_Handler` → Implemented in `CreateSuccessionCaseController.cls`
 - Reason: Complex logic handling, validation, reduced flow complexity
 
-**v1.1 → Flow Consolidation (October 2025):**
-- `Case_Status_Coordination` + `Case_Succession_Segment_Transition` → Consolidated into `Case_After_Update_Handler`
-- Reason: Performance optimization - both flows triggered on same Case UPDATE events, causing 2x flow executions
-- Impact: 24% reduction in flow executions per case lifecycle (21 → 16 interviews)
-- Status: Original flows marked Inactive with deprecation notices
+**Current State:**
+- All flows present in source control are Inactive
+- Primary automation is trigger-based (see SuccessionCaseTrigger + SuccessionTaskGenerator)
+- Flow files exist for reference but are not active in this codebase
 
-### Case_Create_Initial_Contact_Attempt
-**Trigger:** Case CREATE (automatic start when case is created)
-**Purpose:** Creates Task #1 (Day 0 contact attempt) automatically via SuccessionTaskCreator invocable class
-**Implementation:** Calls SuccessionTaskCreator.createContactAttemptTasks() for centralized logic
-**Duplicate Prevention:** Checks Contact_Attempt_Count__c is NULL + invocable class duplicate detection
-**Benefits:** Immediate workflow start, consistent with Attempts 2-5, centralized task creation, better error handling
-**Note:** Updated in v1.1 to trigger on CREATE only (removed verification phase requirement)
+### Succession_Start_Contact_Process (Inactive)
+**File:** `force-app/main/default/flows/Succession_Start_Contact_Process.flow-meta.xml`
+**Status:** Inactive in source control
+**Intended Purpose:** Would create Task #1 (Day 0 contact attempt) automatically via SuccessionTaskCreator invocable class
+**Legacy Name:** Previously referenced as `Case_Create_Initial_Contact_Attempt` in older docs
 
-### Task_Create_Next_Contact_Attempt
-**Trigger:** Task UPDATE when Status = "Completed"
-**Purpose:** Creates next contact task (Day 5, 35, 65, 95) via SuccessionTaskCreator invocable class
-**Implementation:** Calls SuccessionTaskCreator.createContactAttemptTasks() for centralized logic
-**Gate Check:** Contact_Established__c = FALSE (stops if contact made)
-**Date Calculation:** Invocable class calculates Case.CreatedDate + [days offset]
-**Benefits:** Eliminates code duplication, better error handling, advanced duplicate prevention
+### Succession_Schedule_Next_Contact (Inactive)
+**File:** `force-app/main/default/flows/Succession_Schedule_Next_Contact.flow-meta.xml`
+**Status:** Inactive in source control
+**Intended Purpose:** Would create next contact task (Day 5, 35, 65, 95) via SuccessionTaskCreator invocable class
+**Legacy Name:** Previously referenced as `Task_Create_Next_Contact_Attempt` in older docs
 
-### Task_Succession_Contact_Update
-**Trigger:** Task UPDATE when Status = "Completed"
-**Purpose:** Circuit breaker - sets Contact_Established__c on Case
-**Condition:** Task.Succession_Contact_Established__c = TRUE
+### Succession_Mark_Contact_Established (Inactive)
+**File:** `force-app/main/default/flows/Succession_Mark_Contact_Established.flow-meta.xml`
+**Status:** Inactive in source control
+**Intended Purpose:** Would set Contact_Established__c on Case when task marked as successful
 
-### Case_Parent_Closure_Handler
-**Trigger:** Child case Status = "Closed" or "Canceled"
-**Purpose:** Auto-closes parent when all children complete
-**Pattern:** Queries all siblings, checks if all have terminal status
+### Succession_Close_Multi_Successor_Parent (Inactive)
+**File:** `force-app/main/default/flows/Succession_Close_Multi_Successor_Parent.flow-meta.xml`
+**Status:** Inactive in source control
+**Intended Purpose:** Would auto-close parent case when all child cases complete
+**Legacy Name:** Previously referenced as `Case_Parent_Closure_Handler` in older docs
 
-### Case_After_Update_Handler ⭐ NEW - CONSOLIDATED (v1.1)
-**Trigger:** Case UPDATE for Estate Administration cases (not closed)
-**Purpose:** CONSOLIDATED FLOW - Handles all Case after-update automation (Status coordination + Chatter notifications)
-**Replaces:** Case_Status_Coordination + Case_Succession_Segment_Transition (deprecated)
+### Succession_Update_Case_Status_And_Notify (Inactive)
+**File:** `force-app/main/default/flows/Succession_Update_Case_Status_And_Notify.flow-meta.xml`
+**Status:** Inactive in source control
+**Intended Purpose:** Would update Case.Status based on workflow phase transitions and post Chatter notifications
+**Legacy Names:** Previously referenced as `Case_Status_Coordination`, `Case_Succession_Segment_Transition`, or `Case_After_Update_Handler` in older docs
 
-**What It Does:**
-- Updates Case.Status based on workflow phase transitions (4-phase model)
-- Posts Chatter feed updates when key milestones reached (aids demos & agent handoffs)
-- Handles 5 phase transitions in single flow execution
-
-**Phase Transitions:**
-1. Verification Complete (auto) → Status = "In Progress" (no Chatter - silent)
-2. Contact Established → Status = "Awaiting Response" + Chatter post
-3. Form Completed → Status = "In Review" + Chatter post with pathway name
-4. Pathway Execution Started → Status = "In Progress" (no Chatter - tasks visible)
-5. Execution Complete → Status = "Closed" (no Chatter - case closure self-evident)
-
-**Performance:** Consolidates 2 flows into 1 = 50% reduction in flow executions per Case UPDATE event
-
-**Dependencies:**
-- SuccessionChatterPoster.cls - Invocable class for standardized Chatter posts
-- Contact_Established__c, Form_Completed_Date__c, Pathway_Confirmed__c, Execution_Status__c fields
-
-**Related Flows:**
-- Task_Succession_Contact_Update - Sets Contact_Established__c when task marked YES
-- Case_Create_Initial_Contact_Attempt - Creates first contact task on case creation
-
----
-
-### Case_Status_Coordination ⚠️ DEPRECATED (v1.1)
-**Status:** Inactive - DO NOT ACTIVATE
-**Replaced By:** Case_After_Update_Handler (consolidated flow)
-**Original Purpose:** Automatic Status field coordination based on phase progression
-**Deprecation Reason:** Performance - this flow + Case_Succession_Segment_Transition both triggered on same Case UPDATE events, causing 2x flow executions
-
-### Case_Succession_Segment_Transition ⚠️ DEPRECATED (v1.1)
-**Status:** Inactive - DO NOT ACTIVATE
-**Replaced By:** Case_After_Update_Handler (consolidated flow)
-**Original Purpose:** Posted Chatter transition messages via SuccessionChatterPoster invocable class
-**Deprecation Reason:** Performance - this flow + Case_Status_Coordination both triggered on same Case UPDATE events, causing 2x flow executions
+**Note:** The flow `Case_After_Update_Handler` mentioned in older documentation does not exist in this repository.
 
 ## Essential Commands
 
@@ -488,26 +453,18 @@ sf project deploy start --source-dir force-app/main/default/flows
 sf project deploy start --target-org schwab-sandbox
 ```
 
-### Testing
+### Code Quality & Testing
 
 ```bash
 # Run Apex tests
 sf apex run test --test-level RunLocalTests --code-coverage
 
-# Run LWC tests
-npm run test:unit
-
-# Watch mode
-npm run test:unit:watch
-
-# Coverage report
-npm run test:unit:coverage
-
-# Lint
-npm run lint
-
-# Format code
-npm run prettier
+# LWC tests and code quality (see docs/LINTING_AND_FORMATTING.md for details)
+npm run cleanup           # Clean up code formatting
+npm test                  # Run LWC tests
+npm run auto-test         # Auto-test as you code (watch mode)
+npm run ready-to-commit   # Pre-commit validation (format + lint + test)
+npm run full-check        # Complete validation with coverage + security scan
 ```
 
 ### Permission Sets
@@ -550,8 +507,8 @@ cci flow run qa_full_setup
 ### Contact Cadence Development
 
 **Task Creation Pattern:**
-- Attempt 1: Created by `Case_Create_Initial_Contact_Attempt` flow
-- Attempts 2-5: Created by `Task_Create_Next_Contact_Attempt` flow
+- Attempt 1: Would be created by `Succession_Start_Contact_Process` flow (Inactive)
+- Attempts 2-5: Would be created by `Succession_Schedule_Next_Contact` flow (Inactive)
 - Tasks created immediately but **date-gated** via ActivityDate
 - Agent cannot complete task until ActivityDate arrives
 
@@ -595,6 +552,8 @@ cci flow run qa_full_setup
 - Reset state after save operations
 
 ### Flow Development Guidelines
+
+(Design reference only; all Salesforce Flows in this repo remain Inactive. Do not enable without aligning with `SuccessionCaseTrigger` → `SuccessionTaskGenerator`.)
 
 **Self-Terminating Scheduled Paths:**
 - Use decision nodes to check gate fields
@@ -667,6 +626,7 @@ cci task run load_demo_ui_showcase
 
 **Core Docs (docs/):**
 - `README.md` - Project overview and quick start
+- `LINTING_AND_FORMATTING.md` - Code quality guide with jargon-free npm script explanations (for stakeholders and year 1 devs)
 - `field-documentation-succession.md` - Complete field reference
 - `PERSON_ACCOUNT_FIXES.md` - FSC Person Account compatibility
 - `TIER_1_FIXES_SUMMARY.md` - Email validation fixes

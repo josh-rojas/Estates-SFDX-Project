@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Create a new Financial Account Role record to designate successors, beneficiaries, or account relationships.</description>
+    <description
+  >Create a new Financial Account Role record to designate successors, beneficiaries, or account relationships.</description>
     <label>New Financial Account Role</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>
@@ -39,7 +40,8 @@
         </quickActionLayoutColumns>
     </quickActionLayout>
     <standardLabel>Create</standardLabel>
-    <successMessage>Financial Account Role created successfully.</successMessage>
+    <successMessage
+  >Financial Account Role created successfully.</successMessage>
     <targetObject>FinServ__FinancialAccountRole__c</targetObject>
     <type>Create</type>
 </QuickAction>

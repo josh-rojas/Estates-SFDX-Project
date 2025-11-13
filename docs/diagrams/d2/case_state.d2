@@ -1,0 +1,261 @@
+direction: right
+
+title: {
+  label: Succession Case - 4-Phase Workflow State Machine
+  near: top-center
+  shape: text
+  style.font-size: 24
+  style.bold: true
+}
+
+# States
+phase1: Phase 1: Contact Cadence {
+  shape: rectangle
+  style.fill: "#1976d2"
+  style.stroke: "#0d47a1"
+  style.stroke-width: 2
+  style.font-color: "#ffffff"
+  
+  status: "Status: New → In Progress" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  tasks: "Tasks: 5 contact attempts\n(Days 0, 5, 35, 65, 95)" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  goal: "Goal: Establish contact\nwith successor" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+}
+
+phase2: Phase 2: Pathway Selection {
+  shape: rectangle
+  style.fill: "#e65100"
+  style.stroke: "#bf360c"
+  style.stroke-width: 2
+  style.font-color: "#ffffff"
+  
+  status: "Status: Awaiting Response" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  action: "Action: Email form link\nto successor" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  goal: "Goal: Successor selects\npathway (Final Grant/\nNew DAF/Disclaim)" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+}
+
+phase3: Phase 3: Pathway Execution {
+  shape: rectangle
+  style.fill: "#6a1b9a"
+  style.stroke: "#4a148c"
+  style.stroke-width: 2
+  style.font-color: "#ffffff"
+  
+  status: "Status: In Review → In Progress" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  automation: "Automation: Trigger creates\n4-5 pathway-specific tasks" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  goal: "Goal: Complete all\npathway tasks" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+}
+
+phase4: Phase 4: Case Closure {
+  shape: rectangle
+  style.fill: "#2e7d32"
+  style.stroke: "#1b5e20"
+  style.stroke-width: 2
+  style.font-color: "#ffffff"
+  
+  status: "Status: Closed" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  condition: "Condition: All tasks\ncompleted, Execution_Status__c\n= 'Completed'" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  goal: "Goal: Succession process\ncomplete" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+}
+
+# Transitions
+phase1 -> phase2: "Contact_Established__c = true\n(Circuit Breaker)" {
+  style.stroke: "#1976d2"
+  style.stroke-width: 3
+}
+
+phase2 -> phase3: "Pathway_Confirmed__c set\n(e.g., 'Final Grant')\n→ Triggers SuccessionCaseTrigger" {
+  style.stroke: "#f57c00"
+  style.stroke-width: 3
+}
+
+phase3 -> phase4: "Execution_Status__c = 'Completed'\nAll pathway tasks done" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 3
+}
+
+# Circuit breaker loop
+phase1 -> phase1: "Contact_Established__c = false\nContinue attempts (max 5)" {
+  style.stroke: "#1976d2"
+  style.stroke-width: 2
+  style.stroke-dash: 5
+}
+
+# Key fields box
+fields: {
+  shape: rectangle
+  style.fill: "#f9a825"
+  style.stroke: "#f57f17"
+  style.font-color: "#000000"
+  
+  title: "Key Case Fields" {
+    shape: text
+    style.font-size: 16
+    style.bold: true
+    style.font-color: "#000000"
+  }
+  
+  field1: "• Contact_Attempt_Count__c (1-5)" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#000000"
+  }
+  
+  field2: "• Contact_Established__c (boolean)" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#000000"
+  }
+  
+  field3: "• Contact_Established_Date__c" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#000000"
+  }
+  
+  field4: "• Form_Sent_Date__c" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#000000"
+  }
+  
+  field5: "• Form_Completed_Date__c" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#000000"
+  }
+  
+  field6: "• Pathway_Confirmed__c (picklist)" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#000000"
+  }
+  
+  field7: "• Execution_Status__c (picklist)" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#000000"
+  }
+  
+  field8: "• Status (standard field)" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#000000"
+  }
+}
+
+# SLA tracking
+sla: {
+  shape: rectangle
+  style.fill: "#c62828"
+  style.stroke: "#b71c1c"
+  style.font-color: "#ffffff"
+  
+  title: "SLA Tracking" {
+    shape: text
+    style.font-size: 16
+    style.bold: true
+    style.font-color: "#ffffff"
+  }
+  
+  sla1: "• Initial Response: 24 hours" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  sla2: "• Pathway Selection: 30 days" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  sla3: "• Standard Resolution: 90 days" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  sla4: "• Critical Escalation: 80 days" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+}
+
+# Multi-successor note
+multi: {
+  shape: rectangle
+  style.fill: "#00695c"
+  style.stroke: "#004d40"
+  style.font-color: "#ffffff"
+  
+  title: "Multi-Successor Cases" {
+    shape: text
+    style.font-size: 16
+    style.bold: true
+    style.font-color: "#ffffff"
+  }
+  
+  note: "Parent case auto-closes when\nall child cases reach Phase 4\n(Closed/Canceled status)" {
+    shape: text
+    style.font-size: 12
+    style.italic: true
+    style.font-color: "#ffffff"
+  }
+}

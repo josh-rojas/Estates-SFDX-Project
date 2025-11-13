@@ -6,8 +6,8 @@
   >Updates case status and notifies stakeholders as succession cases progress through workflow phases.</description>
     <environments>Default</environments>
     <interviewLabel
-  >Succession - Update Case Status & Notify {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Succession - Update Case Status & Notify</label>
+  >Succession - Update Case Status &amp; Notify {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Succession - Update Case Status &amp; Notify</label>
     <processMetadataValues>
         <name>BuilderType</name>
         <value>
@@ -303,7 +303,8 @@
         <inputParameters>
             <name>pathwayName</name>
             <value>
-                <elementReference>$Record.Pathway_Confirmed__c</elementReference>
+                <elementReference
+        >$Record.Pathway_Confirmed__c</elementReference>
             </value>
         </inputParameters>
         <nameSegment>SuccessionChatterPoster</nameSegment>
@@ -326,5 +327,5 @@
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Inactive</status>
+    <status>Draft</status>
 </Flow>

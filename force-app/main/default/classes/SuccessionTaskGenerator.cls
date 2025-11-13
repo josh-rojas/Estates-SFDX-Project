@@ -112,7 +112,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Review the successor\'s grant direction from the pathway form. Verify charity information against IRS database. Contact successor if clarification needed on beneficiary details or grant amounts. Guidance checkpoint—use judgment on next steps.',
         Priority = 'High',
         ActivityDate = startDate.addDays(2),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -121,7 +122,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'If the account holds investments requiring liquidation, coordinate with MyQ/G360 for trading. Monitor settlement (typically T+3). No action needed if account is already in cash. Document coordination insights in Chatter.',
         Priority = 'High',
         ActivityDate = startDate.addDays(5),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -130,7 +132,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Enter grant instructions in Charities Profile and route through Internal Grants Office approval. Ensure documentation is complete before submission. Note any compliance concerns for follow-up.',
         Priority = 'High',
         ActivityDate = startDate.addDays(10),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -139,7 +142,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Verify all grant distributions completed successfully. Coordinate with Finance if settlement confirmation is needed. Capture final payout notes on the case timeline.',
         Priority = 'Normal',
         ActivityDate = startDate.addDays(15),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -148,7 +152,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Complete final case summary, attach supporting documents, and update Financial Account status. Prepare the case for closure review with leadership.',
         Priority = 'Normal',
         ActivityDate = startDate.addDays(20),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       )
     };
   }
@@ -169,7 +174,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Review the successor\'s new account application for completeness. Reach out if any fields need clarification. Capture key notes so downstream teams understand context.',
         Priority = 'High',
         ActivityDate = startDate.addDays(2),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -178,7 +184,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Coordinate internal journal entry to move assets to the successor\'s new DAF. Suppress external documentation per policy. Track progress in case chatter.',
         Priority = 'High',
         ActivityDate = startDate.addDays(7),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -187,7 +194,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Update both the legacy and new Financial Account records. Confirm successor portal access and document the outcome for reporting.',
         Priority = 'Normal',
         ActivityDate = startDate.addDays(12),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -196,7 +204,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Confirm asset transfer completion, capture successor satisfaction notes, and prepare the case for closure with summarized outcomes.',
         Priority = 'Normal',
         ActivityDate = startDate.addDays(18),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       )
     };
   }
@@ -217,7 +226,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Review formal disclaimer submission for completeness and validity. Escalate to legal if anything is unclear or missing. Capture key notes for the audit trail.',
         Priority = 'High',
         ActivityDate = startDate.addDays(3),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -226,7 +236,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Review succession plan for alternate successors or beneficiary charities. If none exist, consult philanthropy guidelines to determine next best distribution. Document reasoning clearly.',
         Priority = 'High',
         ActivityDate = startDate.addDays(8),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -235,7 +246,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Execute the planned distribution (alternate successor, charity, or Philanthropy Fund). Coordinate with MyQ/G360 if trading or liquidation required. Capture updates in Chatter.',
         Priority = 'Normal',
         ActivityDate = startDate.addDays(15),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       ),
       new Task(
         WhatId = caseId,
@@ -244,7 +256,8 @@ public with sharing class SuccessionTaskGenerator {
         Description = 'Finalize compliance review, update Financial Account status, and summarize outcomes. Prepare the case for leadership sign-off and closure.',
         Priority = 'Normal',
         ActivityDate = startDate.addDays(20),
-        Status = 'Not Started'
+        Status = 'Not Started',
+        TaskSubtype = 'Task'
       )
     };
   }

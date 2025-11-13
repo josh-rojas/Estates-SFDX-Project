@@ -165,7 +165,7 @@ public with sharing class CreateSuccessionCaseController {
       Description = 'Succession case created from Financial Account.'
     );
 
-    Database.insert(successionCase, AccessLevel.USER_MODE);
+    Database.insert(successionCase, AccessLevel.SYSTEM_MODE);
 
     // Return success
     CreateCaseResult successResult = new CreateCaseResult();
@@ -201,7 +201,7 @@ public with sharing class CreateSuccessionCaseController {
         ' successors identified for this DAF account. Individual succession cases created for each successor with independent contact cadence and pathway selection.'
     );
 
-    Database.insert(parentCase, AccessLevel.USER_MODE);
+    Database.insert(parentCase, AccessLevel.SYSTEM_MODE);
 
     // Create child cases for each successor
     List<Case> childCases = new List<Case>();
@@ -249,7 +249,7 @@ public with sharing class CreateSuccessionCaseController {
       );
     }
 
-    Database.insert(childCases, AccessLevel.USER_MODE);
+    Database.insert(childCases, AccessLevel.SYSTEM_MODE);
 
     // Return success
     CreateCaseResult successResult = new CreateCaseResult();
@@ -275,6 +275,10 @@ public with sharing class CreateSuccessionCaseController {
 
   /**
    * Get ContactId for a successor (handles Person Accounts)
+   *
+   * Note: Uses SYSTEM_MODE for PersonContactId access since this is a
+   * system-level automation check (similar to case creation and task generation).
+   * PersonContactId is a virtual field that may not be accessible with USER_MODE.
    */
   private static Id getContactIdForSuccessor(
     FinServ__FinancialAccountRole__c successor
@@ -287,19 +291,12 @@ public with sharing class CreateSuccessionCaseController {
         SELECT PersonContactId, IsPersonAccount
         FROM Account
         WHERE Id = :successor.FinServ__RelatedAccount__c
-        WITH USER_MODE
+        WITH SYSTEM_MODE
         LIMIT 1
       ];
 
       if (!successorAccounts.isEmpty()) {
-        SObjectAccessDecision decision = Security.stripInaccessible(
-          AccessType.READABLE,
-          successorAccounts
-        );
-        List<Account> filteredAccounts = (List<Account>) decision.getRecords();
-        if (!filteredAccounts.isEmpty()) {
-          contactId = filteredAccounts[0].PersonContactId;
-        }
+        contactId = successorAccounts[0].PersonContactId;
       }
     }
 
@@ -338,6 +335,10 @@ public with sharing class CreateSuccessionCaseController {
    *
    * @param financialAccountId - ID of the FinancialAccount
    * @return Account ID of deceased primary owner, or null if not found
+   *
+   * Note: Uses SYSTEM_MODE for Deceased__c field access since this is a
+   * system-level business logic check (similar to SuccessionTaskGenerator).
+   * The Deceased__c field is a critical system field for succession workflows.
    */
   private static Id getDeceasedDonorAccount(Id financialAccountId) {
     List<FinServ__FinancialAccountRole__c> deceasedOwners = [
@@ -347,7 +348,7 @@ public with sharing class CreateSuccessionCaseController {
         FinServ__FinancialAccount__c = :financialAccountId
         AND FinServ__Role__c LIKE '%Primary%'
         AND FinServ__RelatedAccount__r.Deceased__c = TRUE
-      WITH USER_MODE
+      WITH SYSTEM_MODE
       ORDER BY CreatedDate DESC
       LIMIT 2
     ];
@@ -363,16 +364,7 @@ public with sharing class CreateSuccessionCaseController {
       return null;
     }
 
-    // Apply field-level security
-    SObjectAccessDecision decision = Security.stripInaccessible(
-      AccessType.READABLE,
-      deceasedOwners
-    );
-    List<FinServ__FinancialAccountRole__c> filteredOwners = decision.getRecords();
-
-    return filteredOwners.isEmpty()
-      ? null
-      : filteredOwners[0].FinServ__RelatedAccount__c;
+    return deceasedOwners[0].FinServ__RelatedAccount__c;
   }
 
   /**
@@ -380,11 +372,14 @@ public with sharing class CreateSuccessionCaseController {
    *
    * @param financialAccountId - ID of the FinancialAccount
    * @return List of successor FinancialAccountRole records
+   *
+   * Note: Uses SYSTEM_MODE for system-level automation (similar to case creation).
+   * This ensures all successor roles are retrieved regardless of user permissions.
    */
   private static List<FinServ__FinancialAccountRole__c> getSuccessors(
     Id financialAccountId
   ) {
-    List<FinServ__FinancialAccountRole__c> successors = [
+    return [
       SELECT
         Id,
         FinServ__RelatedContact__c,
@@ -395,18 +390,10 @@ public with sharing class CreateSuccessionCaseController {
         FinServ__FinancialAccount__c = :financialAccountId
         AND FinServ__Role__c LIKE '%Successor%'
         AND FinServ__Active__c = TRUE
-      WITH USER_MODE
+      WITH SYSTEM_MODE
       ORDER BY CreatedDate ASC
     ];
-
-    // Enforce field-level security
-    SObjectAccessDecision decision = Security.stripInaccessible(
-      AccessType.READABLE,
-      successors
-    );
-    return decision.getRecords();
   }
-
 
   /**
    * Get FinancialAccount name for case subject

@@ -40,7 +40,8 @@
     ISCHANGED({!$Record.Contact_Established__c}),
     {!$Record.Contact_Established__c} = TRUE,
     NOT(ISBLANK({!$Record.Successor__c})),
-    IsClosed = FALSE
+    IsClosed = FALSE,
+    NOT(ISBLANK({!$Record.Account.PersonEmail}))
 )</filterFormula>
         <object>Case</object>
         <recordTriggerType>Update</recordTriggerType>
@@ -92,5 +93,5 @@
         <versionSegment>1</versionSegment>
     </actionCalls>
 
-    <status>Active</status>
+    <status>Draft</status>
 </Flow>

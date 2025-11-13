@@ -1,6 +1,5 @@
 import { createElement } from "lwc";
 import SuccessionContactCadence from "c/successionContactCadence";
-import getContactCadence from "@salesforce/apex/ContactCadenceController.getContactCadence";
 
 // Mock Apex method
 jest.mock(
@@ -71,17 +70,6 @@ describe("c-succession-contact-cadence", () => {
     expect(cardTitle.textContent).toContain("Contact Cadence Progress");
   });
 
-  it("has toggle button for collapsible functionality", () => {
-    const element = createElement("c-succession-contact-cadence", {
-      is: SuccessionContactCadence
-    });
-    element.recordId = "500xx000000000AAAA";
-    document.body.appendChild(element);
-
-    // Verify toggle button exists
-    const toggleButton = element.shadowRoot.querySelector(".toggle-button");
-    expect(toggleButton).not.toBeNull();
-  });
 
   it("renders with proper SLDS alert styling for warnings", () => {
     const element = createElement("c-succession-contact-cadence", {

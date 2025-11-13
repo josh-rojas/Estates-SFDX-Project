@@ -83,39 +83,23 @@
             key={childData.caseRecord.Id}
             class="child-case-section slds-var-m-bottom_medium"
           >
-            <!-- Child Case Header (Collapsible) -->
+            <!-- Child Case Card Header (Clickable) -->
             <div
               class="child-case-header slds-var-p-around_medium slds-box"
               data-case-id={childData.caseRecord.Id}
-              onclick={handleToggleSection}
+              onclick={navigateToCase}
+              onkeydown={handleCardKeyDown}
+              role="button"
+              tabindex="0"
+              aria-label={childData.cardAriaLabel}
             >
               <div class="slds-grid slds-grid_align-spread slds-wrap">
                 <!-- Left: Case Info -->
                 <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-3">
                   <div class="slds-media">
-                    <div class="slds-media__figure">
-                      <template if:true={childData.isExpanded}>
-                        <lightning-icon
-                          icon-name="utility:chevrondown"
-                          size="x-small"
-                        ></lightning-icon>
-                      </template>
-                      <template if:false={childData.isExpanded}>
-                        <lightning-icon
-                          icon-name="utility:chevronright"
-                          size="x-small"
-                        ></lightning-icon>
-                      </template>
-                    </div>
                     <div class="slds-media__body">
                       <h4 class="slds-text-heading_small">
-                        <a
-                          href="#"
-                          data-case-id={childData.caseRecord.Id}
-                          onclick={navigateToCase}
-                        >
-                          {childData.caseRecord.CaseNumber}
-                        </a>
+                        {childData.caseRecord.CaseNumber}
                         - {childData.contactName}
                       </h4>
                       <div class="slds-var-m-top_xx-small">
@@ -145,10 +129,8 @@
                   </p>
                 </div>
               </div>
-            </div>
 
-            <!-- Expanded Content -->
-            <template if:true={childData.isExpanded}>
+              <!-- Consolidated Details: Successor + Financial Account -->
               <div
                 class="expanded-content slds-var-p-around_medium slds-box slds-box_x-small slds-var-m-top_x-small"
               >
@@ -296,7 +278,7 @@
                   </template>
                 </template>
               </div>
-            </template>
+            </div>
           </div>
         </template>
       </div>
