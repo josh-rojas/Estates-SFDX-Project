@@ -1,0 +1,164 @@
+direction: right
+
+title: {
+  label: Pathway Task Automation - Trigger-Based Flow
+  near: top-center
+  shape: text
+  style.font-size: 24
+  style.bold: true
+}
+
+# Actors and Components
+user: Agent/Successor {
+  shape: person
+  style.fill: "#1976d2"
+  style.stroke: "#0d47a1"
+  style.font-color: "#ffffff"
+}
+
+lwc: recordPathwaySelection\nLWC {
+  shape: rectangle
+  style.fill: "#1976d2"
+  style.stroke: "#0d47a1"
+  style.font-color: "#ffffff"
+}
+
+case: Case Record {
+  shape: cylinder
+  style.fill: "#2e7d32"
+  style.stroke: "#1b5e20"
+  style.font-color: "#ffffff"
+}
+
+trigger: SuccessionCaseTrigger {
+  shape: hexagon
+  style.fill: "#6a1b9a"
+  style.stroke: "#4a148c"
+  style.font-color: "#ffffff"
+}
+
+generator: SuccessionTaskGenerator {
+  shape: rectangle
+  style.fill: "#6a1b9a"
+  style.stroke: "#4a148c"
+  style.font-color: "#ffffff"
+  label: "SuccessionTaskGenerator\n(SYSTEM_MODE)"
+}
+
+tasks: Pathway Tasks\n(4-5 tasks) {
+  shape: cylinder
+  style.fill: "#2e7d32"
+  style.stroke: "#1b5e20"
+  style.font-color: "#ffffff"
+}
+
+chatter: Chatter Post {
+  shape: document
+  style.fill: "#f9a825"
+  style.stroke: "#f57f17"
+  style.font-color: "#000000"
+}
+
+# Sequence flow
+user -> lwc: "1. Selects pathway\n(Final Grant/New DAF/Disclaim)" {
+  style.stroke: "#1976d2"
+  style.stroke-width: 2
+}
+
+lwc -> case: "2. Sets Pathway_Confirmed__c\n(e.g., 'Final Grant')" {
+  style.stroke: "#1976d2"
+  style.stroke-width: 2
+}
+
+case -> trigger: "3. After Update event\ndetects field change" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 3
+}
+
+trigger -> generator: "4. Calls createPathwayTasks()\nwith Trigger.new, Trigger.oldMap" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 3
+}
+
+generator -> generator: "5. Checks if Pathway_Confirmed__c\nchanged from null to value" {
+  style.stroke: "#7b1fa2"
+  style.stroke-width: 2
+  style.stroke-dash: 5
+}
+
+generator -> tasks: "6. Creates pathway-specific tasks\nFinal Grant: 5 tasks (Day 2-20)\nNew DAF: 4 tasks (Day 2-18)\nDisclaim: 4 tasks (Day 3-20)" {
+  style.stroke: "#388e3c"
+  style.stroke-width: 3
+}
+
+generator -> chatter: "7. Posts Chatter notification\n'Pathway tasks created'" {
+  style.stroke: "#f57c00"
+  style.stroke-width: 2
+}
+
+# Key details box
+details: {
+  shape: rectangle
+  style.fill: "#e65100"
+  style.stroke: "#bf360c"
+  style.font-color: "#ffffff"
+  
+  title: "Key Implementation Details" {
+    shape: text
+    style.font-size: 16
+    style.bold: true
+    style.font-color: "#ffffff"
+  }
+  
+  detail1: "• Trigger: after update on Case" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  detail2: "• Detection: Pathway_Confirmed__c changed" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  detail3: "• Security: SYSTEM_MODE (required for guest scenarios)" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  detail4: "• Duplicate Prevention: Checks existing tasks" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  detail5: "• File: force-app/main/default/triggers/SuccessionCaseTrigger.trigger" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+  
+  detail6: "• File: force-app/main/default/classes/SuccessionTaskGenerator.cls" {
+    shape: text
+    style.font-size: 12
+    style.font-color: "#ffffff"
+  }
+}
+
+# Note about inactive flows
+note: {
+  shape: rectangle
+  style.fill: "#c62828"
+  style.stroke: "#b71c1c"
+  style.stroke-dash: 5
+  style.font-color: "#ffffff"
+  
+  text: "Note: 5 flows exist in repo but are INACTIVE.\nPrimary automation is this trigger-based flow." {
+    shape: text
+    style.font-size: 14
+    style.italic: true
+    style.font-color: "#ffffff"
+  }
+}

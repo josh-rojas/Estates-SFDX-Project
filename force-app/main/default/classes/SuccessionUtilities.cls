@@ -115,10 +115,129 @@ public with sharing class SuccessionUtilities {
     String postBody,
     Boolean useSystemMode
   ) {
+    // Guard against blank messages - skip posting if body is empty
+    if (String.isBlank(postBody)) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Skipping Chatter post creation - body is blank for record: ' +
+          recordId
+      );
+      return null;
+    }
+
     FeedItem post = new FeedItem();
     post.ParentId = recordId;
     post.Body = postBody;
     post.Type = 'TextPost';
+
+    if (useSystemMode) {
+      // Automation context - use SYSTEM_MODE
+      Database.insert(post, AccessLevel.SYSTEM_MODE);
+    } else {
+      // User context - use default access (respects sharing)
+      insert post;
+    }
+
+    return post;
+  }
+
+  /**
+   * Create a Chatter post on a record (2-arg overload)
+   * Defaults to user mode (useSystemMode = false)
+   *
+   * @param recordId Parent record ID (Case, Account, etc.)
+   * @param postBody Post body text (pre-formatted)
+   * @return FeedItem created (ID populated after insert)
+   */
+  public static FeedItem createChatterPost(Id recordId, String postBody) {
+    return createChatterPost(recordId, postBody, false);
+  }
+
+  /**
+   * Build Lightning record URL for hyperlinks in Chatter posts
+   * Creates relative URL for Lightning record view
+   *
+   * @param recordId Record ID to build URL for
+   * @return Relative Lightning record URL
+   */
+  public static String buildLightningRecordUrl(Id recordId) {
+    if (recordId == null) {
+      return '';
+    }
+
+    try {
+      // Get SObject type name from ID
+      String sObjectName = recordId.getSObjectType().getDescribe().getName();
+
+      // Build relative URL (works in all contexts and API versions)
+      return '/lightning/r/' + sObjectName + '/' + recordId + '/view';
+    } catch (Exception e) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Error building Lightning URL for record ' +
+          recordId +
+          ': ' +
+          e.getMessage()
+      );
+      return '';
+    }
+  }
+
+  /**
+   * Create a Chatter post with a hyperlinked record reference
+   * Creates a LinkPost with the linkTitle as the clickable hyperlink text
+   *
+   * @param parentId Parent record ID to post on (Case, Account, etc.)
+   * @param baseMessage Base message text (appears in Body)
+   * @param linkRecordId Record ID to link to
+   * @param linkTitle Title for the link (e.g., "Case-00001234", "Task Subject")
+   * @param useSystemMode Use SYSTEM_MODE for automation context
+   * @return FeedItem created (ID populated after insert)
+   */
+  public static FeedItem createChatterPostWithRecordLink(
+    Id parentId,
+    String baseMessage,
+    Id linkRecordId,
+    String linkTitle,
+    Boolean useSystemMode
+  ) {
+    // Guard against blank messages - skip posting if body is empty
+    if (String.isBlank(baseMessage)) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Skipping Chatter post creation - body is blank for record: ' +
+          parentId
+      );
+      return null;
+    }
+
+    // Guard against missing link information
+    if (linkRecordId == null || String.isBlank(linkTitle)) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Missing link information - falling back to TextPost for record: ' +
+          parentId
+      );
+      return createChatterPost(parentId, baseMessage, useSystemMode);
+    }
+
+    // Build LinkPost with clickable title
+    String recordUrl = buildLightningRecordUrl(linkRecordId);
+    if (String.isBlank(recordUrl)) {
+      System.debug(
+        LoggingLevel.WARN,
+        'Unable to build URL - falling back to TextPost for record: ' +
+          parentId
+      );
+      return createChatterPost(parentId, baseMessage, useSystemMode);
+    }
+
+    FeedItem post = new FeedItem();
+    post.ParentId = parentId;
+    post.Body = baseMessage;
+    post.Type = 'LinkPost';
+    post.Title = linkTitle;
+    post.LinkUrl = recordUrl;
 
     if (useSystemMode) {
       // Automation context - use SYSTEM_MODE

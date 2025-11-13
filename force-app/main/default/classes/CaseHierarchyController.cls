@@ -93,13 +93,18 @@ public with sharing class CaseHierarchyController {
                 'FROM Case WHERE ParentId = :parentCaseId';
 
             // Add status exclusion filter if provided
+            // OPTIMIZATION: Use bind variable instead of string concatenation for better performance
             if (String.isNotBlank(excludeStatusString)) {
-                List<String> excludedStatuses = excludeStatusString.split(',');
-                List<String> escapedStatuses = new List<String>();
-                for (String status : excludedStatuses) {
-                    escapedStatuses.add('\'' + String.escapeSingleQuotes(status.trim()) + '\'');
+                Set<String> excludedStatuses = new Set<String>();
+                for (String status : excludeStatusString.split(',')) {
+                    String trimmed = status.trim();
+                    if (String.isNotBlank(trimmed)) {
+                        excludedStatuses.add(trimmed);
+                    }
                 }
-                childQuery += ' AND Status NOT IN (' + String.join(escapedStatuses, ',') + ')';
+                if (!excludedStatuses.isEmpty()) {
+                    childQuery += ' AND Status NOT IN :excludedStatuses';
+                }
             }
 
             childQuery += ' ORDER BY CreatedDate ASC';
@@ -146,17 +151,15 @@ public with sharing class CaseHierarchyController {
                         'WHERE FinServ__FinancialAccount__c IN :financialAccountIds AND FinServ__Active__c = TRUE';
 
                     // Add role filter if provided
+                    // REFACTOR: Use SuccessionUtilities helper for consistent LIKE condition building
                     if (String.isNotBlank(roleFilterString)) {
-                        // Parse comma-separated roles
-                        List<String> roleFilters = roleFilterString.split(',');
-                        List<String> roleConditions = new List<String>();
-
-                        for (String roleFilter : roleFilters) {
-                            String trimmedRole = roleFilter.trim();
-                            roleConditions.add('FinServ__Role__c LIKE \'%' + String.escapeSingleQuotes(trimmedRole) + '%\'');
+                        String likeConditions = SuccessionUtilities.buildSafeLikeConditions(
+                            roleFilterString,
+                            'FinServ__Role__c'
+                        );
+                        if (String.isNotBlank(likeConditions)) {
+                            roleQuery += ' AND (' + likeConditions + ')';
                         }
-
-                        roleQuery += ' AND (' + String.join(roleConditions, ' OR ') + ')';
                     }
 
                     roleQuery += ' ORDER BY SuccessorAllocation__c DESC NULLS LAST';

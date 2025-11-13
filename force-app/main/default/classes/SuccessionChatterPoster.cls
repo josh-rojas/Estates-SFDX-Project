@@ -85,6 +85,26 @@ public with sharing class SuccessionChatterPoster {
   ) {
     List<TransitionResponse> responses = new List<TransitionResponse>();
 
+    // Collect Case IDs for bulk query
+    Set<Id> caseIds = new Set<Id>();
+    for (TransitionRequest req : requests) {
+      if (req.caseId != null) {
+        caseIds.add(req.caseId);
+      }
+    }
+
+    // Bulk query Case details for link titles
+    Map<Id, Case> casesById = new Map<Id, Case>();
+    if (!caseIds.isEmpty()) {
+      for (Case c : [
+        SELECT Id, CaseNumber, Subject
+        FROM Case
+        WHERE Id IN :caseIds
+      ]) {
+        casesById.put(c.Id, c);
+      }
+    }
+
     for (TransitionRequest req : requests) {
       TransitionResponse response = new TransitionResponse();
 
@@ -104,16 +124,30 @@ public with sharing class SuccessionChatterPoster {
           continue;
         }
 
-        // Create Chatter post using SuccessionUtilities
+        // Get Case details for link title
+        String linkTitle = 'View Case';
+        Case caseRecord = casesById.get(req.caseId);
+        if (caseRecord != null) {
+          // Prefer CaseNumber, fallback to Subject
+          linkTitle = String.isNotBlank(caseRecord.CaseNumber)
+            ? caseRecord.CaseNumber
+            : (String.isNotBlank(caseRecord.Subject)
+                ? caseRecord.Subject
+                : 'Case ' + req.caseId);
+        }
+
+        // Create Chatter post using SuccessionUtilities with Case link
         // Use user mode (false) for flow context - respects sharing
-        FeedItem post = SuccessionUtilities.createChatterPost(
+        FeedItem post = SuccessionUtilities.createChatterPostWithRecordLink(
           req.caseId,
           messageBody,
+          req.caseId,
+          linkTitle,
           false
         );
 
         response.postCreated = true;
-        response.feedItemId = post.Id;
+        response.feedItemId = post != null ? post.Id : null;
         response.message =
           'Transition posted: ' + req.transitionType;
       } catch (Exception e) {
