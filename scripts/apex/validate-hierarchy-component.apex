@@ -21,7 +21,7 @@ System.debug('══════════════════════
 System.debug('Multi-Successor Hierarchy Component Validation');
 System.debug('═══════════════════════════════════════════════════════════\n');
 
-// STEP 1: Generate or find test data
+// STEP 1: Locate existing test data (no auto-generation)
 System.debug('STEP 1: Finding or Creating Test Data...');
 System.debug('─────────────────────────────────────────────────────────────');
 
@@ -37,34 +37,10 @@ List<Case> parentCases = [
 String parentCaseId;
 
 if (parentCases.isEmpty()) {
-    System.debug('⚠️  No existing parent cases found. Generating test data...\n');
-
-    try {
-        // Generate multi-successor test scenario
-        SuccessionTestDataFactory.SuccessionScenarioData scenario =
-            SuccessionTestDataFactory.generateMultipleSuccessorsScenario();
-
-        // Query the parent case that was created by the flow
-        List<Case> newParentCases = [
-            SELECT Id, CaseNumber, Subject
-            FROM Case
-            WHERE Type = 'Multi-Account Succession Master'
-            AND AccountId = :scenario.deceasedDonor.Id
-            LIMIT 1
-        ];
-
-        if (!newParentCases.isEmpty()) {
-            parentCaseId = newParentCases[0].Id;
-            System.debug('✅ Test data generated successfully!');
-            System.debug('   Parent Case: ' + newParentCases[0].CaseNumber + ' - ' + newParentCases[0].Subject);
-        } else {
-            System.debug('❌ Flow did not create parent case. Check Case_Multiple_Successors_Handler flow activation.');
-            return;
-        }
-    } catch (Exception e) {
-        System.debug('❌ Error generating test data: ' + e.getMessage());
-        return;
-    }
+    System.debug('⚠️  No existing parent cases found.');
+    System.debug('   This validation script no longer auto-generates data.');
+    System.debug('   Please create a parent "Multi-Account Succession Master" case and re-run.');
+    return;
 } else {
     parentCaseId = parentCases[0].Id;
     System.debug('✅ Found existing parent case: ' + parentCases[0].CaseNumber + ' - ' + parentCases[0].Subject);
@@ -191,7 +167,7 @@ if (parentCase.FinServ__FinancialAccount__c == null) {
     if (successors.isEmpty()) {
         System.debug('❌ No active successors found!');
         System.debug('   Expected: FinancialAccountRole records with Role containing "Successor"');
-        System.debug('   Check: SuccessionTestDataFactory created FinancialAccountRole records');
+        System.debug('   Tip: Create successor FinancialAccountRole records for the account linked to the parent case');
     } else {
         System.debug('✅ Found ' + successors.size() + ' successor(s):\n');
 

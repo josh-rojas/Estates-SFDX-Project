@@ -49,9 +49,9 @@ describe("c-succession-public-form", () => {
     });
     document.body.appendChild(element);
 
-    // Verify error message is displayed in DOM
+    // Verify error message is displayed in DOM (current rich error copy)
     const errorText = element.shadowRoot.textContent;
-    expect(errorText).toContain("Invalid URL");
-    expect(errorText).toContain("Case ID parameter is missing");
+    expect(errorText).toContain("Missing Case Information");
+    expect(errorText).toContain("The link you used is missing required information (Case ID).");
   });
 });
