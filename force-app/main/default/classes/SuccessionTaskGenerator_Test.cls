@@ -63,10 +63,12 @@ private class SuccessionTaskGenerator_Test {
         System.assertEquals('High', tasks[0].Priority);
         System.assertEquals('Not Started', tasks[0].Status);
         
-        // Verify due dates are staggered correctly (use >= for timezone tolerance)
-        System.assert(tasks[0].ActivityDate >= Date.today().addDays(1), 'Task 1 should be at least 2 days from start');
-        System.assert(tasks[1].ActivityDate >= Date.today().addDays(4), 'Task 2 should be at least 5 days from start');
-        System.assert(tasks[2].ActivityDate >= Date.today().addDays(9), 'Task 3 should be at least 10 days from start');
+        // Verify due dates are staggered correctly
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(2), tasks[0].ActivityDate, 'Task 1 should be 2 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(5), tasks[1].ActivityDate, 'Task 2 should be 5 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(10), tasks[2].ActivityDate, 'Task 3 should be 10 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(15), tasks[3].ActivityDate, 'Task 4 should be 15 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(20), tasks[4].ActivityDate, 'Task 5 should be 20 days from start');
         
         // Verify Chatter post was created
         List<FeedItem> posts = [SELECT Id, Body FROM FeedItem WHERE ParentId = :testCase.Id];
@@ -97,8 +99,10 @@ private class SuccessionTaskGenerator_Test {
         System.assertEquals(4, tasks.size(), 'Should create 4 New DAF pathway tasks');
         System.assertEquals('Review New Account Application', tasks[0].Subject);
         System.assertEquals('Process Transfer Authorization', tasks[1].Subject);
-        System.assert(tasks[0].ActivityDate >= Date.today().addDays(1), 'First task due date should be within range');
-        System.assert(tasks[3].ActivityDate >= Date.today().addDays(17), 'Last task due date should be within range');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(2), tasks[0].ActivityDate, 'Task 1 should be 2 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(7), tasks[1].ActivityDate, 'Task 2 should be 7 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(12), tasks[2].ActivityDate, 'Task 3 should be 12 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(18), tasks[3].ActivityDate, 'Task 4 should be 18 days from start');
     }
     
     @isTest
@@ -124,8 +128,10 @@ private class SuccessionTaskGenerator_Test {
         System.assertEquals(4, tasks.size(), 'Should create 4 Disclaim pathway tasks');
         System.assertEquals('Review Disclaimer Documentation', tasks[0].Subject);
         System.assertEquals('Identify Alternate Distribution Path', tasks[1].Subject);
-        System.assert(tasks[0].ActivityDate >= Date.today().addDays(2), 'First task due date should be within range');
-        System.assert(tasks[3].ActivityDate >= Date.today().addDays(19), 'Last task due date should be within range');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(3), tasks[0].ActivityDate, 'Task 1 should be 3 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(8), tasks[1].ActivityDate, 'Task 2 should be 8 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(15), tasks[2].ActivityDate, 'Task 3 should be 15 days from start');
+        System.assertEquals(testCase.Form_Completed_Date__c.addDays(20), tasks[3].ActivityDate, 'Task 4 should be 20 days from start');
     }
     
     @isTest
