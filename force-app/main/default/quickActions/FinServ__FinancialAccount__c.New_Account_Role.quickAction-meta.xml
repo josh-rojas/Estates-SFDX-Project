@@ -34,10 +34,9 @@
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
     </quickActionLayout>
-    <standardLabel>Create</standardLabel>
+
     <successMessage>Account Role created successfully.</successMessage>
     <targetObject>FinServ__FinancialAccountRole__c</targetObject>
     <targetParentField>FinServ__FinancialAccount__c</targetParentField>
-    <targetRecordType>FinServ__FinancialAccountRole__c.Master</targetRecordType>
     <type>Create</type>
 </QuickAction>
