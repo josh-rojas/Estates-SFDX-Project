@@ -38,7 +38,7 @@
             </quickActionLayoutItems>
         </quickActionLayoutColumns>
     </quickActionLayout>
-    <standardLabel>Create</standardLabel>
+
     <successMessage>Financial Account Role created successfully.</successMessage>
     <targetObject>FinServ__FinancialAccountRole__c</targetObject>
     <type>Create</type>
