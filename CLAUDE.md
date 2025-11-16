@@ -54,11 +54,12 @@ The system uses **only standard Salesforce objects** - no custom objects:
 **Workflow starts automatically when case is created** - No manual verification step required. The CreateSuccessionCaseController validates successors and allocations during case creation, so verification is implicit and complete before the case is created.
 
 **Phase 1: Contact Cadence** (5 attempts over 95 days)
-- Day 0, 5, 35, 65, 95 contact schedule
+- Day 0, 5, 35, 65, 95 contact schedule (configurable via Custom Metadata)
 - First contact task created automatically when case is created
 - Phone calls are **informational only** - agent cannot accept pathway decisions
 - successionContactCadence LWC displays progress + email validation
 - Tasks created automatically by flows
+- **Custom Metadata Type:** `Succession_Contact_Cadence__mdt` allows admins to configure wait durations without code deployment
 
 **Phase 2: Pathway Selection**
 - Email sent automatically when contact established
@@ -90,12 +91,13 @@ The system uses **only standard Salesforce objects** - no custom objects:
 
 **Note:** Multi-successor detection was migrated from Flow to Apex for better performance and complex logic handling.
 
-## Apex Classes (8 active, 1 deprecated)
+## Apex Classes (10 active)
 
 ### ContactCadenceController
-**Purpose:** Manages contact attempt data + email validation
+**Purpose:** Manages contact attempt data + email validation + Custom Metadata configuration
 **Key Methods:**
 - `getContactCadence()` - Returns 5 attempts with date-gating + email validation
+- `getAttemptWaitDurations()` - Retrieves configurable wait durations from Custom Metadata (with caching)
 - `saveAttemptOutcome()` - Saves contact outcome, creates ContentNote + Chatter post
 - `validateEmailAddress()` - Checks email existence, format, opt-out status
 
@@ -136,11 +138,27 @@ The system uses **only standard Salesforce objects** - no custom objects:
 **Pattern:** Replaces Flow-based case creation for better complex logic handling
 **Validation:** Checks 100% allocation total, successor contact existence
 
-### BeginSuccessionProcessingController
-**Status:** DEPRECATED - No longer needed as of v1.1
-**Legacy Purpose:** Workflow trigger via Quick Action
+### SuccessionIntegrationTest
+**Purpose:** Comprehensive integration tests for end-to-end succession workflows
+**Status:** ACTIVE - Added in v1.2
+**Test Scenarios:**
+- Single successor workflow
+- Multi-successor workflow
+- Email validation and sending
+- Error recovery scenarios
+- Concurrent user access
 
-**Note:** The verification phase was removed in v1.1. Workflows now start automatically when cases are created. This controller and its associated Quick Action (beginSuccessionProcessing) are retained for backward compatibility but are no longer used in the standard workflow.
+**Pattern:** Self-contained inline test helpers (no external test data factory dependency)
+
+### SuccessionPerformanceTestSuite
+**Purpose:** Performance-oriented tests for high-volume succession scenarios
+**Status:** ACTIVE - Added in v1.2
+**Test Scenarios:**
+- Bulk case creation (10 cases with governor limit awareness)
+- Contact task creation performance
+- Pathway task generation at scale
+
+**Pattern:** Exercises bulk behavior while staying within Salesforce governor limits
 
 ### SuccessionTaskCreator
 **Purpose:** Invocable Apex for flow-based contact task creation
