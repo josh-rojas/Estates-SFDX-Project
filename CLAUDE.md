@@ -2,678 +2,318 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
-
-**Succession Management System v1.0** - A Salesforce Financial Services Cloud application for Schwab Charitable Fund that automates deceased donor account transitions through three succession pathways: Final Grant, New DAF Account, and Disclaim Assets.
-
-**Environment:** Demo/sandbox environment optimized for live demonstrations
-**Target Org:** schwab-sandbox (josh.rojas.charfsc@schwab.com.fscjosh)
-
-## ⚠️ Critical: Demo Environment
-
-This is a demonstration project built in a sandbox environment:
-
-- **Demo-first development** - Features designed to showcase capabilities
-- **No validation rules** - Removed to prevent blocking demo scenarios
-- **Simplified workflows** - Optimized for demonstration clarity
-- **Email validation enforced** - Prevents demo failures with opted-out users
-- **DO NOT add production constraints** - Keep demos flexible and easy to execute
-
-## Core Architecture
-
-### Data Model - Standard Objects Only
-
-The system uses **only standard Salesforce objects** - no custom objects:
-
-**Case (Record Type: EstateAdministration)**
-- Type: "Named Successor Enactment" or "Multi-Account Succession Master"
-- Custom fields track 5-phase workflow progression
-- Parent-child hierarchy for multi-successor scenarios
-
-**Account (Person Accounts - FSC)**
-- Individual donors using Person Account model
-- Fields: PersonEmail, PersonMobilePhone, PersonHasOptedOutOfEmail
-- Virtual Contact relationship via PersonContactId
-
-**FinancialAccount (FinServ__FinancialAccount__c)**
-- DAF accounts with balance tracking
-- Links to Account via FinServ__PrimaryOwner__c
-
-**FinancialAccountRole (FinServ__FinancialAccountRole__c)**
-- Successor designation with allocation percentages
-- Custom field: SuccessorAllocation__c (percentage)
-
-**Task**
-- Contact attempt tracking with custom fields
-- Contact_Attempt_Number__c (1-5)
-- Succession_Contact_Established__c (outcome tracking)
-- ActivityDate for date-gating
-
-### 4-Phase Workflow (Automatic Start)
-
-**Workflow starts automatically when case is created** - No manual verification step required. The CreateSuccessionCaseController validates successors and allocations during case creation, so verification is implicit and complete before the case is created.
-
-**Phase 1: Contact Cadence** (5 attempts over 95 days)
-- Day 0, 5, 35, 65, 95 contact schedule (configurable via Custom Metadata)
-- First contact task created automatically when case is created
-- Phone calls are **informational only** - agent cannot accept pathway decisions
-- successionContactCadence LWC displays progress + email validation
-- Tasks created automatically by flows
-- **Custom Metadata Type:** `Succession_Contact_Cadence__mdt` allows admins to configure wait durations without code deployment
-
-**Phase 2: Pathway Selection**
-- Email sent automatically when contact established
-- Successor completes public form (successionPublicForm LWC)
-- Three pathways: Final Grant, New DAF Account, Disclaim Assets
-
-**Phase 3: Pathway Execution**
-- SuccessionTaskGenerator creates pathway-specific tasks
-- Final Grant: 5 tasks over 20 days
-- New DAF: 4 tasks over 18 days
-- Disclaim: 4 tasks over 20 days
-
-**Phase 4: Case Closure**
-- All pathway tasks completed
-- Financial account status updated
-- Case closed
-
-## Multi-Successor Pattern
-
-**Critical Pattern:** When 2+ successors exist:
-
-1. `CreateSuccessionCaseController` (Apex) detects multiple FinancialAccountRole records
-2. Creates parent case (Type: "Multi-Account Succession Master")
-3. Creates child case for each successor (Type: "Named Successor Enactment")
-4. Each child case has independent workflow
-5. Parent auto-closes when all children complete (Flow: `Case_Parent_Closure_Handler`)
-
-**Component:** `caseHierarchyViewer` LWC displays parent + child hierarchy
-
-**Note:** Multi-successor detection was migrated from Flow to Apex for better performance and complex logic handling.
-
-## Apex Classes (10 active)
-
-### ContactCadenceController
-**Purpose:** Manages contact attempt data + email validation + Custom Metadata configuration
-**Key Methods:**
-- `getContactCadence()` - Returns 5 attempts with date-gating + email validation
-- `getAttemptWaitDurations()` - Retrieves configurable wait durations from Custom Metadata (with caching)
-- `saveAttemptOutcome()` - Saves contact outcome, creates ContentNote + Chatter post
-- `validateEmailAddress()` - Checks email existence, format, opt-out status
-
-**Email Validation:** CRITICAL compliance feature
-- Validates PersonEmail/Contact.Email exists
-- Checks HasOptedOutOfEmail field (legal requirement)
-- Regex validation for email format
-- Returns warnings for UI display
-
-### CaseHierarchyController
-**Purpose:** Displays parent-child case hierarchy for multi-successor scenarios
-**Key Method:**
-- `getCaseHierarchy()` - Returns parent + all child cases with financial accounts
-
-### SuccessionPublicFormController
-**Purpose:** Guest user form for pathway selection (no authentication)
-**Key Methods:**
-- `getFormData()` - Pre-fills form with case/account/successor data
-- `savePathwaySelection()` - Saves pathway selection, triggers workflow
-
-**Security:** Uses URL parameter obscurity (caseId) for guest access
-
-### SuccessionTaskGenerator
-**Purpose:** Creates pathway-specific tasks when pathway selected
-**Pattern:** Trigger-based task creation (called from Case trigger)
-**Templates:**
-- Final Grant: 5 tasks (Day 2-20)
-- New DAF: 4 tasks (Day 2-18)
-- Disclaim: 4 tasks (Day 3-20)
-
-### CreateSuccessionCaseController
-**Purpose:** Multi-successor case creation with validation
-**Key Methods:**
-- `createSuccessionCase()` - Creates single or multi-successor cases
-- `validateSuccessors()` - Validates allocation percentages and contact data
-- `createMultiSuccessorStructure()` - Creates parent + child case hierarchy
-
-**Pattern:** Replaces Flow-based case creation for better complex logic handling
-**Validation:** Checks 100% allocation total, successor contact existence
-
-### SuccessionIntegrationTest
-**Purpose:** Comprehensive integration tests for end-to-end succession workflows
-**Status:** ACTIVE - Added in v1.2
-**Test Scenarios:**
-- Single successor workflow
-- Multi-successor workflow
-- Email validation and sending
-- Error recovery scenarios
-- Concurrent user access
-
-**Pattern:** Self-contained inline test helpers (no external test data factory dependency)
-
-### SuccessionPerformanceTestSuite
-**Purpose:** Performance-oriented tests for high-volume succession scenarios
-**Status:** ACTIVE - Added in v1.2
-**Test Scenarios:**
-- Bulk case creation (10 cases with governor limit awareness)
-- Contact task creation performance
-- Pathway task generation at scale
-
-**Pattern:** Exercises bulk behavior while staying within Salesforce governor limits
-
-### SuccessionTaskCreator
-**Purpose:** Invocable Apex for flow-based contact task creation
-**Key Method:**
-- `createContactAttemptTasks()` - Creates contact attempt tasks from flows with duplicate prevention
-
-**Pattern:** Invocable method for flow-based task creation
-**Usage:** Invocable Apex class for contact task creation (referenced by inactive flows)
-**Features:**
-- Bulk processing support with centralized logic
-- Advanced duplicate prevention (bulk query with composite keys)
-- Date-gated scheduling (Days 0, 5, 35, 65, 95)
-- Response wrapper with success/skip status and error messages
-- Eliminates code duplication (replaced 400+ lines of flow XML)
-
-### SuccessionChatterPoster
-**Purpose:** Invocable Apex for posting succession workflow transition messages to Chatter
-**Key Method:**
-- `postTransitions()` - Posts workflow transition messages with standardized formatting
-
-**Pattern:** Invocable method for Chatter transition notifications
-**Usage:** **ACTIVE** - Called from `Case_After_Update_Handler` flow (consolidated flow in v1.1)
-**Transition Types:**
-- `CONTACT_ESTABLISHED` - Successor contact made, ready to send form
-- `FORM_COMPLETED` - Pathway form submitted by successor
-- `PATHWAY_CONFIRMED` - Pathway execution tasks generated
-- `VERIFICATION_COMPLETE` - Verification phase completed
-- `EXECUTION_COMPLETE` - All pathway tasks completed
-**Features:**
-- Centralized message templates with emojis and formatting
-- Uses SuccessionUtilities.createChatterPost() for consistency
-- Optional pathway name and additional context
-- Response wrapper with success/failure status
-- Replaces hardcoded strings in flows with reusable Apex
-**Note:** Referenced by inactive flows in this codebase
-
-### SuccessionUtilities
-**Purpose:** Shared utility class for common patterns
-**Key Methods:**
-- `validateEmail()` - Email compliance validation (RFC 5322 format, opt-out check)
-- `createChatterPost()` - Standardized Chatter post creation
-- `getRecordTypeId()` - Cached record type lookup for performance
-- `createContentNote()` - ContentNote creation with error handling
-
-**Pattern:** Static utility methods with WITH SHARING for security
-**Refactored From:** ContactCadenceController, CreateSuccessionCaseController
-**Benefits:** Reduces code duplication, centralizes validation logic, improves maintainability
-
-## Lightning Web Components (5 active, 1 deprecated)
-
-### successionContactCadence
-**Location:** `force-app/main/default/lwc/successionContactCadence/`
-**Purpose:** PRIMARY UI - Contact attempt tracker with email validation
-**Features:**
-- Progress bar (0-100%)
-- 5 kanban-style attempt cards
-- Sequential lock UX (complete attempts in order)
-- Email validation warnings
-- Optional email sending after negative outcomes
-- Double-click prevention for email composer
-
-**Email Validation Display:**
-- Warning alert shown if opted-out, missing email, or invalid format
-- "Send Email" button disabled when validation fails
-- Email prompt persists until agent clicks "Skip"
-
-**Key Pattern:** Date-gating - tasks locked until ActivityDate arrives
-
-### caseHierarchyViewer
-**Location:** `force-app/main/default/lwc/caseHierarchyViewer/`
-**Purpose:** Displays multi-successor hierarchy tree
-**Features:**
-- Parent case + all child cases
-- Financial account details
-- Successor allocations
-- Expandable sections
-
-**Usage:** Add to parent "Multi-Account Succession Master" cases only
-
-### successionPublicForm
-**Location:** `force-app/main/default/lwc/successionPublicForm/`
-**Purpose:** Guest user pathway selection form
-**Features:**
-- Reads caseId from URL parameter
-- Pre-fills account + successor data
-- Three pathway radio buttons
-- Optional notes field
-
-**Deployment:** Experience Cloud Site or Force.com Site with guest user access
-
-### recordPathwaySelection
-**Location:** `force-app/main/default/lwc/recordPathwaySelection/`
-**Purpose:** Quick Action for agents to record pathway
-**Features:**
-- Three buttons (Final Grant, New DAF, Disclaim)
-- Auto-sets Contact_Established__c if not set
-- Updates Pathway_Confirmed__c field
-
-**Usage:** Agent-facing Quick Action for fast pathway recording
-
-### createSuccessionCase
-**Location:** `force-app/main/default/lwc/createSuccessionCase/`
-**Purpose:** Quick Action for creating succession cases from Financial Account
-**Features:**
-- Financial account selection
-- Deceased donor validation
-- Successor detection and display
-- Multi-successor allocation validation
-
-**Usage:** Placed on FinancialAccount record page as Quick Action
-
-### beginSuccessionProcessing
-**Status:** DEPRECATED - No longer needed as of v1.1
-**Location:** `force-app/main/default/lwc/beginSuccessionProcessing/`
-**Legacy Purpose:** Quick Action to trigger workflow start
-
-**Note:** The verification phase was removed in v1.1. Workflows now start automatically when cases are created. This component is retained for backward compatibility but is no longer used in the standard workflow. Consider removing this Quick Action from Case record page layouts.
-
-## Quick Actions for FinancialAccountRole Creation
-
-**Purpose:** Enable creation of Financial Account Role records (successors, beneficiaries, co-owners) from multiple contexts with field pre-population.
-
-**⚠️ Person Account Note:** This project uses Person Accounts (Financial Services Cloud). The virtual Contact (PersonContactId) is automatically populated when creating roles from Person Account context.
-
-### Quick Actions (3 total)
-
-#### 1. Object-Level Quick Action
-**File:** `FinServ__FinancialAccountRole__c.New_Financial_Account_Role.quickAction-meta.xml`
-**Label:** New Financial Account Role
-**Context:** FinancialAccountRole list views and record pages
-**Fields:**
-- FinServ__FinancialAccount__c (Required)
-- FinServ__RelatedContact__c (Required)
-- FinServ__Role__c (Required - Successor, Primary Owner, Beneficiary, etc.)
-- SuccessorAllocation__c (Optional - percentage for multi-successor scenarios)
-- FinServ__Active__c (Optional - defaults to true)
-- FinServ__StartDate__c (Optional)
-- FinServ__EndDate__c (Optional)
-
-**Availability:**
-- FinancialAccountRole object home page
-- FinancialAccountRole list views (All, Successors, etc.)
-- FinancialAccountRole record pages (via Clone)
-
----
-
-#### 2. FinancialAccount Context Quick Action
-**File:** `FinServ__FinancialAccount__c.New_Account_Role.quickAction-meta.xml`
-**Label:** New Account Role
-**Context:** FinancialAccount record pages and related lists
-**Pre-populated:** FinServ__FinancialAccount__c (automatically from parent record)
-**Fields Shown:**
-- FinServ__RelatedContact__c (Required - select Person Account's virtual contact)
-- FinServ__Role__c (Required)
-- SuccessorAllocation__c (Optional)
-- FinServ__Active__c (Optional)
-- FinServ__StartDate__c (Optional)
-- FinServ__EndDate__c (Optional)
-
-**Usage:** Create roles for a specific financial account without manually selecting the account
-
-**Where to Add:**
-1. Setup → Object Manager → Financial Account → Lightning Record Pages
-2. Edit existing page → Highlights Panel → Mobile & Lightning Actions
-3. Add "New Account Role" to action list
-4. Also available on FinancialAccountRole related lists on any object's page layout
-
----
-
-#### 3. Person Account (Account) Context Quick Action
-**File:** `Account.New_Financial_Account_Role.quickAction-meta.xml`
-**Label:** New Financial Account Role
-**Context:** Person Account record pages
-**Pre-populated:** FinServ__RelatedContact__c (automatically via Account.PersonContactId)
-**Fields Shown:**
-- FinServ__FinancialAccount__c (Required - select which account this person is a successor/beneficiary for)
-- FinServ__Role__c (Required)
-- SuccessorAllocation__c (Optional)
-- FinServ__Active__c (Optional)
-- FinServ__StartDate__c (Optional)
-- FinServ__EndDate__c (Optional)
-
-**Usage:** Designate a Person Account as successor/beneficiary across multiple financial accounts
-
-**Where to Add:**
-1. Setup → Object Manager → Account → Lightning Record Pages
-2. Edit existing Person Account page → Highlights Panel → Mobile & Lightning Actions
-3. Add "New Financial Account Role" to action list
-4. Works with Person Account model - automatically links to PersonContactId
-
----
-
-### Adding Quick Actions to Existing Lightning Pages
-
-**Financial Services Cloud Note:** Account and FinancialAccount objects use FSC default Lightning pages. Quick Actions must be added via Setup:
-
-**For FinancialAccount Pages:**
-```
-Setup → Object Manager → FinServ__FinancialAccount__c → Lightning Record Pages
-→ Edit active page → Highlights Panel (top of page)
-→ Override Global Publisher Layout → Add "New Account Role"
-```
-
-**For Person Account Pages:**
-```
-Setup → Object Manager → Account → Lightning Record Pages
-→ Edit Person Account page → Highlights Panel
-→ Override Global Publisher Layout → Add "New Financial Account Role"
-```
-
-**For Related Lists:**
-Quick Actions automatically appear in related list action menus when:
-- Related list is added to any Lightning page
-- "Enable inline editing" is checked on related list component
-- Action bar is enabled on the related list
-
----
-
-### List Views
-
-#### All Financial Account Roles
-**File:** `All_Financial_Account_Roles.listView-meta.xml`
-**Columns:**
-- Name
-- Financial Account
-- Related Contact
-- Role
-- Successor Allocation %
-- Active
-- Start Date
-- End Date
-**Filter:** None (shows all roles)
-
-#### Successors
-**File:** `Successors.listView-meta.xml`
-**Columns:**
-- Name
-- Financial Account
-- Related Contact
-- Successor Allocation %
-- Active
-- Start Date
-**Filter:** Role = "Successor"
-**Usage:** Quick access to all successor designations for succession planning
-
-## Flow Automation (5 flows - All Inactive in Source Control)
-
-**⚠️ IMPORTANT: All flows in this repository are marked as `Inactive` in source control.** The system's primary automation is trigger-based via `SuccessionCaseTrigger` → `SuccessionTaskGenerator`.
-
-**Migration History:**
-
-**v1.0 → Apex Migration:**
-- `Case_Estate_Administration_Defaults` → Implemented in `CreateSuccessionCaseController.cls`
-- `Case_Multiple_Successors_Handler` → Implemented in `CreateSuccessionCaseController.cls`
-- Reason: Complex logic handling, validation, reduced flow complexity
-
-**Current State:**
-- All flows present in source control are Inactive
-- Primary automation is trigger-based (see SuccessionCaseTrigger + SuccessionTaskGenerator)
-- Flow files exist for reference but are not active in this codebase
-
-### Succession_Start_Contact_Process (Inactive)
-**File:** `force-app/main/default/flows/Succession_Start_Contact_Process.flow-meta.xml`
-**Status:** Inactive in source control
-**Intended Purpose:** Would create Task #1 (Day 0 contact attempt) automatically via SuccessionTaskCreator invocable class
-**Legacy Name:** Previously referenced as `Case_Create_Initial_Contact_Attempt` in older docs
-
-### Succession_Schedule_Next_Contact (Inactive)
-**File:** `force-app/main/default/flows/Succession_Schedule_Next_Contact.flow-meta.xml`
-**Status:** Inactive in source control
-**Intended Purpose:** Would create next contact task (Day 5, 35, 65, 95) via SuccessionTaskCreator invocable class
-**Legacy Name:** Previously referenced as `Task_Create_Next_Contact_Attempt` in older docs
-
-### Succession_Mark_Contact_Established (Inactive)
-**File:** `force-app/main/default/flows/Succession_Mark_Contact_Established.flow-meta.xml`
-**Status:** Inactive in source control
-**Intended Purpose:** Would set Contact_Established__c on Case when task marked as successful
-
-### Succession_Close_Multi_Successor_Parent (Inactive)
-**File:** `force-app/main/default/flows/Succession_Close_Multi_Successor_Parent.flow-meta.xml`
-**Status:** Inactive in source control
-**Intended Purpose:** Would auto-close parent case when all child cases complete
-**Legacy Name:** Previously referenced as `Case_Parent_Closure_Handler` in older docs
-
-### Succession_Update_Case_Status_And_Notify (Inactive)
-**File:** `force-app/main/default/flows/Succession_Update_Case_Status_And_Notify.flow-meta.xml`
-**Status:** Inactive in source control
-**Intended Purpose:** Would update Case.Status based on workflow phase transitions and post Chatter notifications
-**Legacy Names:** Previously referenced as `Case_Status_Coordination`, `Case_Succession_Segment_Transition`, or `Case_After_Update_Handler` in older docs
-
-**Note:** The flow `Case_After_Update_Handler` mentioned in older documentation does not exist in this repository.
-
-## Essential Commands
-
-### Salesforce Deployment
-
-```bash
-# Authenticate
-sf org login web --alias succession-org
-
-# Deploy all metadata
-sf project deploy start --manifest manifest/package.xml
-
-# Deploy specific components
-sf project deploy start --source-dir force-app/main/default/classes
-sf project deploy start --source-dir force-app/main/default/lwc
-sf project deploy start --source-dir force-app/main/default/flows
-
-# Retrieve from org
-sf project deploy start --target-org schwab-sandbox
-```
+## Build, Test, and Deployment Commands
 
 ### Testing
 
 ```bash
-# Run Apex tests
+# LWC/JavaScript tests
+npm test                           # Run all LWC Jest tests
+npm run test:unit:watch            # Watch mode for development
+npm run test:unit:coverage         # Generate coverage report
+
+# Apex tests (use Salesforce CLI)
 sf apex run test --test-level RunLocalTests --code-coverage
-
-# Run LWC tests
-npm run test:unit
-
-# Watch mode
-npm run test:unit:watch
-
-# Coverage report
-npm run test:unit:coverage
-
-# Lint
-npm run lint
-
-# Format code
-npm run prettier
+sf apex run test --tests ClassName_Test  # Run single test class
 ```
 
-### Permission Sets
+### Linting & Formatting
 
 ```bash
-# Assign required permission sets
+npm run lint                       # Run ESLint + Prettier checks
+npm run format                     # Auto-fix all formatting issues
+npm run lint:apex                  # Apex static analysis via SF Scanner
+npm run validate                   # Full validation: lint + test
+```
+
+### Salesforce Deployment
+
+```bash
+# Deploy to org
+sf project deploy start --manifest manifest/package.xml
+
+# Deploy and validate without tests
+sf project deploy start --target-org sandbox
+
+# Validate deployment (check-only)
+sf project deploy validate --manifest manifest/package.xml
+
+# Retrieve metadata from org
+sf project retrieve start --manifest manifest/package.xml
+```
+
+### Permission Set Assignment
+
+```bash
 sf org assign permset --name Succession_Management_Access
 sf org assign permset --name Succession_Field_Access
 ```
 
-### CumulusCI Workflows
+## Architecture Overview
+
+**Technology Stack:** Salesforce Financial Services Cloud (API v65.0) using SFDX source format
+
+**Key Principle:** This is a **standard-objects-only** implementation. No custom objects are used. All functionality is built on Case, Task, Account, Contact, FinancialAccount, and FinancialAccountRole.
+
+### Primary Automation Pattern
+
+The system uses **trigger-based Apex automation** as its primary mechanism:
+
+1. **SuccessionCaseTrigger** (after update) → monitors `Case.Pathway_Confirmed__c` changes
+2. **SuccessionTaskGenerator.createPathwayTasks()** → creates pathway-specific milestone tasks
+3. **Contact cadence auto-progression** → `ContactCadenceController.saveAttemptOutcome()` creates next attempt tasks
+4. Tasks are standard Salesforce Tasks (no Action Plan Templates)
+
+**Important:** All Flow metadata in `force-app/main/default/flows/` is marked as `Inactive`. Flows were replaced with Apex automation for better performance and bulk processing.
+
+### Pathway Task Generation
+
+When `Pathway_Confirmed__c` is set on a Case, the trigger automatically creates a series of milestone tasks:
+
+- **Final Grant:** 5 tasks over 20 days (Day 2, 5, 8, 15, 20)
+- **New DAF Account:** 4 tasks over 18 days (Day 2, 5, 12, 18)
+- **Disclaim Assets:** 4 tasks over 20 days (Day 3, 7, 14, 20)
+
+Implementation: [SuccessionTaskGenerator.cls](force-app/main/default/classes/SuccessionTaskGenerator.cls) lines 102-250
+
+### Contact Cadence Pattern
+
+Contact attempts are managed via **Apex automation** with **Custom Metadata Type** configuration:
+
+- Days offset from case creation (0, 5, 35, 65, 95)
+- **Auto-progression**: Next attempt task automatically created when current attempt completes
+- **Idempotency**: Prevents duplicate tasks on repeated saves
+- Custom Metadata (`Succession_Contact_Cadence__mdt`) defines wait durations
+- Email validation with Person Account vs Contact field resolution
+
+Controller: [ContactCadenceController.cls](force-app/main/default/classes/ContactCadenceController.cls)
+UI Component: [successionContactCadence LWC](force-app/main/default/lwc/successionContactCadence/)
+
+### Multi-Successor Pattern
+
+Cases support hierarchical structures for multiple successors:
+
+- Parent Case: `Type = "Multi-Account Succession Master"`
+- Child Cases: `Type = "Named Successor Enactment"` with `ParentId` populated
+- UI: [caseHierarchyViewer LWC](force-app/main/default/lwc/caseHierarchyViewer/)
+
+## Code Architecture
+
+### Apex Classes (9 production classes + 12 test classes)
+
+**Controllers (5):**
+
+- `CaseHierarchyController` - Apex controller for case hierarchy visualization
+- `ContactCadenceController` - Contact attempt task management
+- `CreateSuccessionCaseController` - Multi-successor case creation
+- `SuccessionPublicFormController` - Guest user pathway form handler
+- `SuccessionPathwayEmailSender` - Pathway-based email sending
+
+**Automation & Invocables (2):**
+
+- `SuccessionTaskGenerator` - **PRIMARY** pathway task automation (trigger handler)
+- `SuccessionTaskCreator` - @InvocableMethod for contact task creation
+
+**Utilities & Helpers (2):**
+
+- `SuccessionUtilities` - Shared methods (email validation, Chatter posts, ContentNotes)
+- `SuccessionChatterPoster` - @InvocableMethod for Chatter notifications
+
+**Test Classes (12):**
+All test classes follow naming convention `ClassName_Test.cls` or `ClassNameTest.cls` and include:
+
+- Unit tests with `@TestSetup` methods for shared test data
+- Integration tests (`SuccessionIntegrationTest`, `SuccessionWorkflow_Integration_Test`)
+- Performance test suite (`SuccessionPerformanceTestSuite`)
+
+### Lightning Web Components (5)
+
+| Component                  | Purpose                                                     | Location                                               |
+| -------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ |
+| `successionContactCadence` | Primary UI - Date-gated contact attempt tracker             | `force-app/main/default/lwc/successionContactCadence/` |
+| `recordPathwaySelection`   | Quick action pathway selector (sets `Pathway_Confirmed__c`) | `force-app/main/default/lwc/recordPathwaySelection/`   |
+| `caseHierarchyViewer`      | Visual case hierarchy tree                                  | `force-app/main/default/lwc/caseHierarchyViewer/`      |
+| `createSuccessionCase`     | Multi-successor case creation form                          | `force-app/main/default/lwc/createSuccessionCase/`     |
+| `successionPublicForm`     | Guest user pathway selection                                | `force-app/main/default/lwc/successionPublicForm/`     |
+
+### Custom Fields (23 across Case, Task, Account)
+
+**Case Fields (14):**
+
+- `Pathway_Confirmed__c` - **Trigger field** for automation (Final Grant, New DAF, Disclaim)
+- `Contact_Attempt_Count__c`, `Contact_Established__c`, `Contact_Established_Date__c`
+- `Form_Sent_Date__c`, `Form_Completed_Date__c`
+- `Successor__c`, `Successor_Email__c`, `Successor_Phone__c`
+- `Execution_Status__c`, `Verification_Status__c`, `SLA_Status__c`
+- `Deceased_Donor__c` (lookup to Account)
+- `New_DAF_Account_Number__c`
+
+**Task Fields (2):**
+
+- `Contact_Attempt_Number__c` (1-5)
+- `Succession_Contact_Established__c` (checkbox)
+
+See [manifest/package.xml](manifest/package.xml) for complete metadata inventory.
+
+## Security Model
+
+### Apex Security Patterns
+
+**Default:** `WITH USER_MODE` or `AccessLevel.USER_MODE` on all Database operations
+**Exception:** `SuccessionTaskGenerator` uses `SYSTEM_MODE` (lines 82, 92) for automated task creation in guest user scenarios
+
+### Permission Sets
+
+- `Succession_Management_Access` - Core app access for case workers
+- `Succession_Field_Access` - Field-level security on succession fields
+- `Succession_Guest_Access` - Limited access for external form submission
+
+## Idempotency & Data Integrity
+
+### Duplicate Prevention
+
+- **Cases**: `CreateSuccessionCaseController` validates no existing cases for Financial Account before creation (SYSTEM_MODE query + just-in-time recheck)
+- **Contact Attempts**: `ContactCadenceController` checks for existing `Contact_Attempt_Number__c` before creating next attempt
+- **Pathway Tasks**: `SuccessionTaskGenerator` queries existing tasks by Subject before creating pathway series
+
+### Timezone Handling
+
+All date calculations use `Date.newInstance(year, month, day)` for timezone-safe arithmetic across global orgs.
+
+### Accessibility (WCAG 2.1 AA Compliant)
+
+- LWC components use `aria-live` regions for screen reader announcements
+- No reliance on unreliable Experience Cloud toasts
+- Accessible modal dialogs (no `window.confirm()`)
+- Full keyboard navigation support
+
+## Code Style & Patterns
+
+### Apex Conventions
+
+- **Naming:** PascalCase for classes, camelCase for methods/properties, UPPER_CASE for constants
+- **Test classes:** Must include `_Test` or `Test` suffix
+- **Static utilities:** Shared methods in `SuccessionUtilities`
+- **Invocable methods:** Use `@InvocableMethod` with `@InvocableVariable` for Flow integration
+- **Error handling:** Try/catch with descriptive AuraHandledExceptions for LWC communication
+
+### LWC Patterns
+
+- **Data retrieval:** `@wire` decorators with `cacheable: true` for read operations
+- **State management:** `@track` for reactive properties
+- **Validation:** Computed getters (e.g., `get canSendEmail()`)
+- **Navigation:** Import `NavigationMixin` for page navigation
+- **Refresh:** Use `refreshApex()` after mutations
+- **Button protection:** Implement double-click prevention on async operations
+
+### Test Data Strategy
+
+- Use `@TestSetup` methods for shared test data
+- Smock-it plugin available for bulk test data generation (see [docs/SMOCK_IT_GUIDE.md](docs/SMOCK_IT_GUIDE.md))
+- Test data must include proper FinancialAccountRole relationships
+
+## D2 Diagrams
+
+The codebase includes D2 diagrams for architecture visualization:
+
+**Diagram Sources:** `docs/diagrams/d2/*.d2`
+**Rendered SVGs:** `docs/diagrams/svg/*.svg`
+
+**Available Diagrams:**
+
+- `architecture.d2` - Component architecture (UI → Controller → Automation → Data)
+- `automation_sequence.d2` - Trigger-based pathway task creation flow
+- `case_state.d2` - 4-phase case state machine
+- `data_model_erd.d2` - ERD showing standard object relationships
+
+**Regenerate all diagrams:**
 
 ```bash
-# Complete deployment with test data
-cci flow run deploy_succession
-
-# Deploy without test data
-cci flow run deploy_succession_no_data
-
-# Load demo data
-cci task run load_demo_ui_showcase
-
-# QA environment setup
-cci flow run qa_full_setup
+./scripts/render_d2.sh
 ```
 
-## Critical Development Patterns
-
-### Email Validation & Compliance (CRITICAL)
-
-**Always validate email before sending:**
-1. Check email exists (PersonEmail or Contact.Email not NULL)
-2. Validate format: `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
-3. **Check opt-out status** (PersonHasOptedOutOfEmail / HasOptedOutOfEmail)
-4. Display warnings in UI
-5. Disable "Send Email" button if validation fails
-
-**Legal Requirement:** Never send emails to opted-out users
-
-### Contact Cadence Development
-
-**Task Creation Pattern:**
-- Attempt 1: Would be created by `Succession_Start_Contact_Process` flow (Inactive)
-- Attempts 2-5: Would be created by `Succession_Schedule_Next_Contact` flow (Inactive)
-- Tasks created immediately but **date-gated** via ActivityDate
-- Agent cannot complete task until ActivityDate arrives
-
-**UI Display Pattern:**
-- Completed attempts → Read-only with notes
-- Current attempt (date arrived) → "Record Outcome" button enabled
-- Current attempt (date not arrived) → Locked with countdown
-- Future attempts → "Waiting for previous attempt"
-
-**Email Sending Pattern:**
-- Automated: Pathway form invitation (when contact established)
-- Optional: Contact cadence emails (agent choice after negative outcomes)
-- Validation: Always check canSendEmail computed property
-- Persistence: Email prompt stays visible until "Skip" clicked
-
-### Apex Security Requirements
-
-**ALL Apex classes must:**
-- Use `WITH USER_MODE` for database operations
-- Use `Database.query(queryString, AccessLevel.USER_MODE)` for dynamic queries
-- Use `Database.insert/update(records, AccessLevel.USER_MODE)` for DML
-- Enforce field-level security
-- Use `@AuraEnabled(cacheable=true)` for read operations
-- Implement proper try/catch error handling
-
-### LWC Best Practices
-
-**Data Retrieval:**
-- Use `@wire` for initial data load
-- Use `refreshApex()` after mutations
-- Cache with `cacheable=true` Apex methods
-
-**Navigation:**
-- Use NavigationMixin for page navigation
-- Person Account emails: `Account.SendEmail` action
-- Business Account emails: `Contact.SendEmail` action
-
-**State Management:**
-- Track editing state with `@track` properties
-- Use computed properties for validation (`get canSendEmail()`)
-- Reset state after save operations
-
-### Flow Development Guidelines
-
-**Self-Terminating Scheduled Paths:**
-- Use decision nodes to check gate fields
-- Exit gracefully if conditions not met
-- Example: Check `Contact_Established__c` before creating next task
-
-**Multi-Successor Flows:**
-- Check Case Type to avoid triggering on parent cases
-- Use `Type = "Named Successor Enactment"` filter
-- Parent case Type = "Multi-Account Succession Master"
-
-## Test Data Generation
-
-### Via CumulusCI + Snowfakery
+**Use TALA layout engine (if available):**
 
 ```bash
-# Load complete dataset
-cci task run load_succession_test_data
-
-# Load demo data (UI showcase)
-cci task run load_demo_ui_showcase
+D2_LAYOUT=tala ./scripts/render_d2.sh
 ```
 
-**Mapping:** `datasets/succession_mapping.yml`
-**Recipe:** `datasets/succession_demo.recipe.yml`
+## Common Development Tasks
 
-**Objects Created:**
-- Person Accounts with valid emails
-- FinancialAccounts with balances
-- FinancialAccountRoles (successors)
-- Cases with various workflow states
-- Tasks for contact attempts
+### Adding a New Custom Field
 
-## Known Issues & Workarounds
+1. Create field metadata: `force-app/main/default/objects/Case/fields/MyField__c.field-meta.xml`
+2. Add field to relevant permission sets
+3. Update `manifest/package.xml` to include the new field
+4. Update test classes to include the field in test scenarios
 
-**Sandbox Email Deliverability:**
-- Emails only sent to verified addresses
-- Verify test emails in Sandbox Settings before demo
+### Adding a New Apex Class
 
-**Person Account Fields:**
-- Use PersonEmail, PersonMobilePhone (not Contact fields)
-- Query PersonContactId for FinancialAccountRole lookups
+1. Create class: `force-app/main/default/classes/MyClass.cls`
+2. Create test class: `force-app/main/default/classes/MyClass_Test.cls`
+3. Use `WITH USER_MODE` for all Database operations (unless automation requires SYSTEM_MODE)
+4. Add both files to `manifest/package.xml`
+5. Run tests: `sf apex run test --tests MyClass_Test`
 
-**Multi-Successor Scenarios:**
-- Ensure parent case created before children
-- Use caseHierarchyViewer only on parent cases
+### Adding a New LWC Component
 
-## Quick Reference: Key Fields
+1. Create component: `force-app/main/default/lwc/myComponent/`
+2. Create test: `force-app/main/default/lwc/myComponent/__tests__/myComponent.test.js`
+3. Add to `manifest/package.xml`
+4. Run tests: `npm test`
 
-**Case Fields:**
-- `Verification_Status__c` - Workflow trigger ("Not Started", "Complete - Verified")
-- `Contact_Established__c` - Gate field (stops contact cadence)
-- `Contact_Attempt_Count__c` - Tracks attempt number (1-5)
-- `Form_Sent_Date__c` - Email sent timestamp
-- `Form_Completed_Date__c` - Pathway selection timestamp
-- `Pathway_Confirmed__c` - Selected pathway
-- `Execution_Status__c` - Pathway execution progress
+### Modifying Pathway Task Generation
 
-**Task Fields:**
-- `Contact_Attempt_Number__c` - Attempt sequence (1-5)
-- `Succession_Contact_Established__c` - Outcome (YES/NO)
-- `ActivityDate` - Date-gating field
+To change tasks created by pathway automation:
 
-**Account Fields (Person Account):**
-- `PersonEmail` - Email address
-- `PersonHasOptedOutOfEmail` - Opt-out status (compliance)
-- `PersonContactId` - Virtual Contact lookup
+1. Edit [SuccessionTaskGenerator.cls](force-app/main/default/classes/SuccessionTaskGenerator.cls)
+2. Modify one of these methods:
+   - `generateFinalGrantTasks()` (lines 102-146)
+   - `generateNewDAFTasks()` (lines 148-187)
+   - `generateDisclaimTasks()` (lines 189-228)
+3. Update corresponding test: [SuccessionTaskGenerator_Test.cls](force-app/main/default/classes/SuccessionTaskGenerator_Test.cls)
+4. Deploy and run tests
 
-## Documentation Reference
+### Updating Contact Cadence Schedule
 
-**Core Docs (docs/):**
-- `README.md` - Project overview and quick start
-- `field-documentation-succession.md` - Complete field reference
-- `PERSON_ACCOUNT_FIXES.md` - FSC Person Account compatibility
-- `TIER_1_FIXES_SUMMARY.md` - Email validation fixes
-- `MULTI_SUCCESSOR_TESTING_GUIDE.md` - Multi-successor scenarios
-- `FLOW_DESCRIPTIONS_IMPROVED.md` - Comprehensive flow documentation with dependencies, workflow relationships, and migration notes (v1.1)
+Contact cadence is defined in Custom Metadata:
 
-## End-to-End Workflow Summary
+1. Edit records in `force-app/main/default/customMetadata/`
+   - `Succession_Contact_Cadence.Attempt_2.md-meta.xml`
+   - `Succession_Contact_Cadence.Attempt_3.md-meta.xml`
+   - `Succession_Contact_Cadence.Attempt_4.md-meta.xml`
+   - `Succession_Contact_Cadence.Attempt_5.md-meta.xml`
+2. Fields to modify:
+   - `Days_Offset__c` - Days from case creation
+   - `Email_Template_ID__c` - Template for automated emails
+   - `Attempt_Label__c` - Display label
 
-1. **Case Created** → CreateSuccessionCaseController validates successors and creates case
-2. **Workflow Starts Automatically** → Flow creates Task #1 (Day 0 contact attempt) immediately
-3. **Agent Records Outcome** → Uses successionContactCadence LWC
-4. **If Contact Made (YES)** → Flow sets Contact_Established__c = TRUE
-5. **Flow Sends Email** → Automatic pathway form invitation
-6. **Successor Completes Form** → successionPublicForm LWC
-7. **Pathway Tasks Created** → SuccessionTaskGenerator (trigger-based)
-8. **Agent Completes Tasks** → Pathway execution
-9. **Case Closed** → Execution_Status__c = "Completed"
+## Important Notes
 
-**Key Improvement in v1.1:** Verification phase removed - workflow now starts automatically when case is created. No manual "Begin Succession Processing" step required.
+### Demo Environment Constraints
 
-## Version & Status
+- **No validation rules** - System allows flexible data entry for demo purposes
+- **Simplified security** - Some controllers suppress PMD.ApexCRUDViolation warnings
+- **Production readiness** - Additional validation and constraints should be added for production use
 
-- **Version:** 1.1.0 - Automatic workflow start (verification phase removed)
-- **API Version:** 65.0
-- **Last Updated:** October 2025
-- **Environment:** Demo/Sandbox
-- **Status:** Active demonstration system
+### Flow Metadata Status
+
+All flows in `force-app/main/default/flows/` are marked as `Inactive` in source control. The primary automation is trigger-based via `SuccessionCaseTrigger` → `SuccessionTaskGenerator`. Flows are preserved for reference but are not active in the org.
+
+### Working with Financial Services Cloud
+
+- Requires FSC license
+- Uses standard FSC objects: FinancialAccount, FinancialAccountRole
+- Person Account configuration may be required for proper Contact/Account relationships
+- Case Record Type: "Estate Administration" must exist
+
+### MCP Salesforce Tools
+
+If Salesforce MCP tools are available, they can be used for:
+
+- Querying records: `mcp__salesforce__salesforce_query_records`
+- Describing objects: `mcp__salesforce__salesforce_describe_object`
+- Running Apex tests: `mcp__salesforce__salesforce_execute_anonymous`
+- Managing debug logs: `mcp__salesforce__salesforce_manage_debug_logs`
+
+Always prefer MCP tools over manual SOQL/Apex execution when available.

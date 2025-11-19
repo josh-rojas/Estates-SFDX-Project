@@ -32,12 +32,14 @@ Use this guide whenever an AI agent needs to generate, extend, or validate D2 di
 > You are a specialized diagramming agent that writes complete D2 (Declarative Diagramming) code for Salesforce systems. Your mission is to create Salesforce-compliant architecture, integration, data-model, and process diagrams that honor official Salesforce diagramming standards, WCAG 2.1 accessibility, and the Estates project conventions. Use the Tala layout engine by default (`layout-engine: tala`); gracefully fall back to `elk` or `dagre` if Tala is unavailable.
 >
 > **Primary objectives:**
+>
 > 1. Generate production-ready D2 code that can be rendered through `scripts/render_d2.sh` without manual edits.
 > 2. Guarantee accessibility (4.5:1 contrast minimum, Salesforce 50-point color rule, descriptive labels).
 > 3. Produce diagrams readable by technical and business stakeholders, matching Salesforce's visual language (palettes, typography, iconography).
 > 4. Include headers, legends, and annotations that explain scope, assumptions, and key behaviors.
 >
 > **Diagram types you must support:**
+>
 > - Data Models / ERDs (use `sql_table`, show PK/FK/UNQ, cardinality, optionality, Salesforce notation).
 > - System Landscapes (products, systems, integration touchpoints, layers).
 > - Solution Architectures (detailed component interactions, behaviors, implementation details).
@@ -117,6 +119,7 @@ header: {
 ```
 
 Requirements:
+
 - Consume ≥10% height and 100% width.
 - Include clear title and descriptive sentence (or two) explaining scope.
 - Optional logo, company name, and legend.
@@ -142,6 +145,7 @@ ComponentName: {
 ```
 
 Variations:
+
 - **Collapsed:** just label.
 - **Detailed:** label + bullet attributes.
 - **Detailed w/ footer:** include API names or system IDs.
@@ -149,14 +153,14 @@ Variations:
 
 ### 4.4 Entity Formatting
 
-| Type | Fill | Stroke | Notes |
-| --- | --- | --- | --- |
-| Cloud Entity (primary focus) | `sf-blue-70` | same or darker (`sf-blue-90`) | White text |
-| Related Platform Entity | `#FFFFFF` | `sf-gray-90` | Neutral style |
-| Extended Related Entity | `sf-gray-10` | `sf-gray-90` | Optional dotted pattern |
-| External Entity | transparent | `sf-gray-70` dashed | Use `shape: cloud` if virtual |
-| Record Type Entity | follow base entity but `stroke-dash: 3` | indicates RT |
-| Conceptual Entity | `stroke-dash: 1` | dotted outline |
+| Type                         | Fill                                    | Stroke                        | Notes                         |
+| ---------------------------- | --------------------------------------- | ----------------------------- | ----------------------------- |
+| Cloud Entity (primary focus) | `sf-blue-70`                            | same or darker (`sf-blue-90`) | White text                    |
+| Related Platform Entity      | `#FFFFFF`                               | `sf-gray-90`                  | Neutral style                 |
+| Extended Related Entity      | `sf-gray-10`                            | `sf-gray-90`                  | Optional dotted pattern       |
+| External Entity              | transparent                             | `sf-gray-70` dashed           | Use `shape: cloud` if virtual |
+| Record Type Entity           | follow base entity but `stroke-dash: 3` | indicates RT                  |
+| Conceptual Entity            | `stroke-dash: 1`                        | dotted outline                |
 
 ### 4.5 Data Model / ERD
 
@@ -200,13 +204,13 @@ Account.Id -> Contact.AccountId: {
 
 ### 4.6 Connector Standards
 
-| Relationship | Style |
-| --- | --- |
+| Relationship                 | Style                                          |
+| ---------------------------- | ---------------------------------------------- |
 | Parent-Child (Master-Detail) | solid `sf-blue-70`, width 2, diamond at source |
-| Lookup | solid `sf-gray-70`, width 2 |
-| Integration/API | dashed `sf-green-50`, include protocol label |
-| Process Step | solid `sf-blue-70`, width 2, numbered label |
-| Optional link | dashed stroke |
+| Lookup                       | solid `sf-gray-70`, width 2                    |
+| Integration/API              | dashed `sf-green-50`, include protocol label   |
+| Process Step                 | solid `sf-blue-70`, width 2, numbered label    |
+| Optional link                | dashed stroke                                  |
 
 Use elbow/orthogonal routing (Tala does this automatically). Add labels with clear verbs ("Publishes Platform Event", "REST API", etc.).
 
@@ -262,12 +266,12 @@ direction: right
 
 ### 4.11 Typography
 
-| Use Case | Size | Notes |
-| --- | --- | --- |
-| Title | 24 | Bold |
-| Section headings | 18 | Bold optional |
-| Body text (cards, tables) | 12 | Default |
-| Captions/notes | 10 | Use for footers |
+| Use Case                  | Size | Notes           |
+| ------------------------- | ---- | --------------- |
+| Title                     | 24   | Bold            |
+| Section headings          | 18   | Bold optional   |
+| Body text (cards, tables) | 12   | Default         |
+| Captions/notes            | 10   | Use for footers |
 
 ### 4.12 Accessibility Checklist
 
@@ -466,6 +470,7 @@ Document any non-standard flags (e.g., `--layout elk`) inside the guide when sha
 ## 8. Validation & Quality Checklists
 
 ### 8.1 Technical
+
 - D2 syntax passes (`d2 --dry-run file.d2`).
 - `vars.d2-config.layout-engine` set to `tala` (or fallback noted).
 - Direction set explicitly if non-default.
@@ -473,6 +478,7 @@ Document any non-standard flags (e.g., `--layout elk`) inside the guide when sha
 - No orphaned nodes or empty containers.
 
 ### 8.2 Salesforce Standards
+
 - Header present with title + description, optional legend.
 - Entities use proper shape/color per type.
 - Cardinality and optionality shown where relevant.
@@ -480,6 +486,7 @@ Document any non-standard flags (e.g., `--layout elk`) inside the guide when sha
 - Containers/groupings reflect Salesforce architecture layers.
 
 ### 8.3 Accessibility
+
 - Color contrast verified (use e.g., `contrast-ratio.com`).
 - 50-point rule satisfied for text vs. background.
 - Descriptive labels for each node; include alt-text style descriptions where helpful.
@@ -487,6 +494,7 @@ Document any non-standard flags (e.g., `--layout elk`) inside the guide when sha
 - No reliance on color alone to convey meaning.
 
 ### 8.4 Readability
+
 - Logical left-to-right or top-to-bottom flow.
 - Lines remain straight; minimal crossings.
 - Containers keep related elements together.
@@ -499,37 +507,37 @@ Document any non-standard flags (e.g., `--layout elk`) inside the guide when sha
 
 ### 9.1 Shape Mapping
 
-| Use Case | Shape | Example |
-| --- | --- | --- |
-| Salesforce Object | `sql_table` | `Account`, `Case` |
-| System/Component | `rectangle` | `Sales Cloud`, `MuleSoft` |
-| User/Persona | `person` | `Agent`, `Successor` |
-| Database | `cylinder` | `Data Warehouse` |
-| External System | `cloud` or `hexagon` | `AWS S3`, `External API` |
-| Queue/Event | `stored_data` | `Platform Events` |
-| Document | `page` | `Report` |
-| Multiple instances | `shape.multiple: true` | `Multiple Data Marts` |
+| Use Case           | Shape                  | Example                   |
+| ------------------ | ---------------------- | ------------------------- |
+| Salesforce Object  | `sql_table`            | `Account`, `Case`         |
+| System/Component   | `rectangle`            | `Sales Cloud`, `MuleSoft` |
+| User/Persona       | `person`               | `Agent`, `Successor`      |
+| Database           | `cylinder`             | `Data Warehouse`          |
+| External System    | `cloud` or `hexagon`   | `AWS S3`, `External API`  |
+| Queue/Event        | `stored_data`          | `Platform Events`         |
+| Document           | `page`                 | `Report`                  |
+| Multiple instances | `shape.multiple: true` | `Multiple Data Marts`     |
 
 ### 9.2 Constraint Abbreviations
 
-| Constraint | Abbrev | Meaning |
-| --- | --- | --- |
-| `primary_key` | PK | Primary Key |
-| `foreign_key` | FK | Foreign Key |
-| `unique` | UNQ | Unique constraint |
+| Constraint    | Abbrev | Meaning           |
+| ------------- | ------ | ----------------- |
+| `primary_key` | PK     | Primary Key       |
+| `foreign_key` | FK     | Foreign Key       |
+| `unique`      | UNQ    | Unique constraint |
 
 ### 9.3 Salesforce Palette Quick Reference
 
-| Color | Hex | Usage |
-| --- | --- | --- |
-| Blue 70 | `#0176D3` | Primary focus entities |
-| Blue 90 | `#001F3D` | Text over light backgrounds |
-| Blue 10 | `#F3F9FF` | Containers/backgrounds |
-| Gray 90 | `#201F1E` | Text/borders |
-| Gray 10 | `#F3F2F2` | Extended entities |
-| Green 50 | `#3BA755` | Success/integration |
-| Orange 50 | `#FE9339` | Event-driven/warnings |
-| Red 50 | `#EA001E` | Errors/critical paths |
+| Color     | Hex       | Usage                       |
+| --------- | --------- | --------------------------- |
+| Blue 70   | `#0176D3` | Primary focus entities      |
+| Blue 90   | `#001F3D` | Text over light backgrounds |
+| Blue 10   | `#F3F9FF` | Containers/backgrounds      |
+| Gray 90   | `#201F1E` | Text/borders                |
+| Gray 10   | `#F3F2F2` | Extended entities           |
+| Green 50  | `#3BA755` | Success/integration         |
+| Orange 50 | `#FE9339` | Event-driven/warnings       |
+| Red 50    | `#EA001E` | Errors/critical paths       |
 
 ---
 
@@ -671,6 +679,7 @@ When delivering D2 output:
 ---
 
 **Next steps:**
+
 - Point AI agents to this file when generating diagrams.
 - Keep Tala-specific instructions up to date.
 - When spinning into its own repo, carry over both this guide and supporting render scripts so automation remains intact.
