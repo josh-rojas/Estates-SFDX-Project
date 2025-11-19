@@ -1,4 +1,4 @@
-Dear {!Case.Successor__r.Name},
+Dear {!Contact.Name},
 
 We are writing to inform you that you have been named as a successor for the Donor-Advised Fund account held by {!Case.Account.Name}. We extend our sincere condolences during this difficult time.
 

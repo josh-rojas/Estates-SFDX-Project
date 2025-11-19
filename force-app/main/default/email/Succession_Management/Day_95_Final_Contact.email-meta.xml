@@ -3,6 +3,7 @@
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Day 95 - Final Contact (Last Chance)</name>
+    <recipientType>Contact</recipientType>
     <style>none</style>
     <subject
   >Final Contact Regarding DAF Account - Case {!Case.CaseNumber}</subject>

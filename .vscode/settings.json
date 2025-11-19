@@ -1,0 +1,97 @@
+{
+  "// ===== WORKSPACE SETTINGS (applies to both VS Code & VS Code Insiders) =====": "",
+  "// PRECEDENCE: Workspace > Folder > User > Default (these settings override user settings)": "",
+  "// Last Updated: Nov 2025 for Salesforce DX (API 65.0)": "",
+  "// ===== EDITOR CORE SETTINGS =====": "",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    }
+  },
+  "[apex]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "editor.formatOnPaste": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.codeActionsOnSaveTimeout": 2000,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+
+  "// ===== SALESFORCE EXTENSIONS =====": "",
+  "salesforcedx-vscode-core.show-cli-success-msg": false,
+  "salesforcedx-vscode-core.push-or-deploy-on-save.enabled": false,
+  "salesforcedx-vscode-core.retrieve-test-code-coverage": false,
+  "salesforcedx-vscode-apex.enable-sobject-definitions-on-startup": true,
+
+  "// ===== XML VALIDATION & SCHEMA =====": "",
+  "xml.preferences.showSchemaDocumentationType": "none",
+  "xml.validation.enabled": true,
+  "xml.validation.schema.enabled": true,
+  "xml.validation.namespaces.enabled": "always",
+  "xml.validation.resolveExternalEntities": true,
+  "xml.validation.noGrammar": "ignore",
+  "xml.downloadExternalResources.enabled": true,
+  "xml.server.vmargs": "-Xmx2048m -Xms256m",
+
+  "// ===== ESLINT & LINTING =====": "",
+  "eslint.enable": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.run": "onType",
+  "eslint.format.enable": true,
+
+  "// ===== PRETTIER CONFIGURATION =====": "",
+  "prettier.enable": true,
+  "prettier.documentSelectors": [
+    "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}"
+  ],
+  "prettier.requireConfig": false,
+
+  "// ===== SEARCH & EXCLUDE =====": "",
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    ".sfdx": true,
+    ".sf": true,
+    "**/.git": true,
+    "**/coverage": true,
+    "**/*.log": true
+  },
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "**/.tern-port": true,
+    "**/node_modules": true
+  },
+
+  "// ===== THEME & CUSTOMIZATION (merges with user settings) =====": "",
+
+  "// ===== EXTENSION SETTINGS =====": "",
+  "sarif-viewer.connectToGithubCodeScanning": "off",
+  "codium.codeCompletion.enable": true,
+
+  "// ===== MISC =====": "",
+  "extensions.ignoreRecommendations": false,
+  "telemetry.telemetryLevel": "off",
+  "amp.experimental.planMode": true,
+  "amp.experimental.bookkeeper": true,
+  "todo-tree.tree.scanMode": "workspace",
+  "todo-tree.filtering.excludeGlobs": ["**/.git/**", "**/.sf/**", "**/.sfdx/**", "**/node_modules/**"]
+}

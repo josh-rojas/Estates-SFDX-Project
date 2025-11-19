@@ -4,6 +4,9 @@
 
 package.xml
 
+# Agent-specific local guidance (do not deploy)
+CLAUDE.md
+
 # LWC configuration files
 **/jsconfig.json
 **/.eslintrc.json

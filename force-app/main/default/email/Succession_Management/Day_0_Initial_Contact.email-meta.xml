@@ -3,6 +3,7 @@
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Day 0 - Initial Contact</name>
+    <recipientType>Contact</recipientType>
     <style>none</style>
     <subject
   >Information Regarding {!Case.Account.Name}&apos;s Donor-Advised Fund Account</subject>

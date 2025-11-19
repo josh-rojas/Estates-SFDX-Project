@@ -1,4 +1,4 @@
-Dear {!Case.Successor__r.Name},
+Dear {!Contact.Name},
 
 We have made multiple attempts to reach you regarding the Donor-Advised Fund account held by {!Case.Account.Name} at DAFGiving360.
 
