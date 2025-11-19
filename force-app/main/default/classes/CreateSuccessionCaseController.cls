@@ -39,14 +39,14 @@ public with sharing class CreateSuccessionCaseController {
   @AuraEnabled
   public static CreateCaseResult createSuccessionCase(Id financialAccountId) {
     try {
-      System.debug(
+      SuccessionLogger.debug(
         'Starting createSuccessionCase for FA: ' + financialAccountId
       );
 
       // Validate requirements
       String validationError = validateRequirements(financialAccountId);
       if (String.isNotBlank(validationError)) {
-        System.debug('Validation failed: ' + validationError);
+        SuccessionLogger.debug('Validation failed: ' + validationError);
         return createErrorResult(validationError);
       }
 
@@ -106,8 +106,8 @@ public with sharing class CreateSuccessionCaseController {
         );
       }
     } catch (Exception e) {
-      System.debug('Exception occurred: ' + e.getMessage());
-      System.debug('Stack trace: ' + e.getStackTraceString());
+      SuccessionLogger.error('Exception occurred: ' + e.getMessage());
+      SuccessionLogger.error('Stack trace: ' + e.getStackTraceString());
       return createErrorResult(
         'Error creating succession case: ' +
           e.getMessage() +
@@ -165,6 +165,18 @@ public with sharing class CreateSuccessionCaseController {
       Description = 'Succession case created from Financial Account.'
     );
 
+    // SYSTEM_MODE required because:
+    // 1. Invoked via Quick Action from Financial Account context
+    // 2. Running user may be a service account with limited Case create permissions
+    // 3. Ensures automation reliability regardless of who triggers the action
+    // 4. Cases represent system-initiated succession workflow, not user-created support cases
+    // Just-in-time duplicate check to prevent race conditions
+    if (validateRequirements(financialAccountId) != null) {
+      return createErrorResult(
+        'A succession case already exists for this financial account (detected just before creation)'
+      );
+    }
+
     Database.insert(successionCase, AccessLevel.SYSTEM_MODE);
 
     // Return success
@@ -201,6 +213,18 @@ public with sharing class CreateSuccessionCaseController {
         ' successors identified for this DAF account. Individual succession cases created for each successor with independent contact cadence and pathway selection.'
     );
 
+    // SYSTEM_MODE required because:
+    // 1. Parent case is system coordination record for multi-successor workflow
+    // 2. Running user may be a service account with limited Case create permissions
+    // 3. Ensures consistency with single-successor case creation (line 173)
+    // 4. Multi-successor logic requires atomic parent+children creation
+    // Just-in-time duplicate check to prevent race conditions
+    if (validateRequirements(financialAccountId) != null) {
+      return createErrorResult(
+        'A succession case already exists for this financial account (detected just before creation)'
+      );
+    }
+
     Database.insert(parentCase, AccessLevel.SYSTEM_MODE);
 
     // Create child cases for each successor
@@ -212,7 +236,7 @@ public with sharing class CreateSuccessionCaseController {
 
       // Skip successors without valid ContactId (cannot run contact cadence)
       if (contactId == null) {
-        System.debug(
+        SuccessionLogger.warn(
           'Warning: Skipping successor without valid ContactId: ' + successor.Id
         );
         skippedCount++;
@@ -249,6 +273,11 @@ public with sharing class CreateSuccessionCaseController {
       );
     }
 
+    // SYSTEM_MODE required because:
+    // 1. Child cases must be created atomically with parent case (multi-successor workflow)
+    // 2. Running user may be a service account with limited Case create permissions
+    // 3. Each child case triggers contact cadence automation (requires SYSTEM_MODE consistency)
+    // 4. Ensures all successors receive equal treatment regardless of user permissions
     Database.insert(childCases, AccessLevel.SYSTEM_MODE);
 
     // Return success
@@ -275,10 +304,6 @@ public with sharing class CreateSuccessionCaseController {
 
   /**
    * Get ContactId for a successor (handles Person Accounts)
-   *
-   * Note: Uses SYSTEM_MODE for PersonContactId access since this is a
-   * system-level automation check (similar to case creation and task generation).
-   * PersonContactId is a virtual field that may not be accessible with USER_MODE.
    */
   private static Id getContactIdForSuccessor(
     FinServ__FinancialAccountRole__c successor
@@ -287,6 +312,11 @@ public with sharing class CreateSuccessionCaseController {
 
     // If no RelatedContact, try to get PersonContactId from Account
     if (contactId == null && successor.FinServ__RelatedAccount__c != null) {
+      // SYSTEM_MODE required because:
+      // 1. PersonContactId is a virtual field on Person Accounts with special access rules
+      // 2. Field may not be accessible with USER_MODE depending on user profile settings
+      // 3. Query is read-only validation check for case creation (system automation)
+      // 4. Ensures consistent behavior across different user permission levels
       List<Account> successorAccounts = [
         SELECT PersonContactId, IsPersonAccount
         FROM Account
@@ -311,6 +341,11 @@ public with sharing class CreateSuccessionCaseController {
    */
   private static String validateRequirements(Id financialAccountId) {
     // Check for existing cases (idempotency)
+    // SYSTEM_MODE required because:
+    // 1. Must detect cases created with SYSTEM_MODE (lines 173, 214, 267)
+    // 2. Running user may have limited sharing visibility to cases
+    // 3. Prevents duplicate case creation when user can't see existing cases
+    // 4. Ensures consistent idempotency check regardless of user permissions
     List<Case> existingCases = [
       SELECT Id
       FROM Case
@@ -319,7 +354,7 @@ public with sharing class CreateSuccessionCaseController {
         AND (Type = 'Named Successor Enactment'
         OR Type = 'Multi-Account Succession Master')
         AND IsClosed = FALSE
-      WITH USER_MODE
+      WITH SYSTEM_MODE
       LIMIT 1
     ];
 
@@ -335,18 +370,19 @@ public with sharing class CreateSuccessionCaseController {
    *
    * @param financialAccountId - ID of the FinancialAccount
    * @return Account ID of deceased primary owner, or null if not found
-   *
-   * Note: Uses SYSTEM_MODE for Deceased__c field access since this is a
-   * system-level business logic check (similar to SuccessionTaskGenerator).
-   * The Deceased__c field is a critical system field for succession workflows.
    */
   private static Id getDeceasedDonorAccount(Id financialAccountId) {
+    // SYSTEM_MODE required because:
+    // 1. Deceased__c is a sensitive field on Account with restricted visibility
+    // 2. Business logic must reliably identify deceased donors regardless of user permissions
+    // 3. Query filters on Deceased__c = TRUE (field may not be accessible with USER_MODE)
+    // 4. Ensures succession case creation works consistently across user profiles
     List<FinServ__FinancialAccountRole__c> deceasedOwners = [
       SELECT FinServ__RelatedAccount__c, FinServ__RelatedAccount__r.Deceased__c
       FROM FinServ__FinancialAccountRole__c
       WHERE
         FinServ__FinancialAccount__c = :financialAccountId
-        AND FinServ__Role__c LIKE '%Primary%'
+        AND FinServ__Role__c = :SuccessionUtilities.ROLE_PRIMARY_OWNER
         AND FinServ__RelatedAccount__r.Deceased__c = TRUE
       WITH SYSTEM_MODE
       ORDER BY CreatedDate DESC
@@ -354,7 +390,7 @@ public with sharing class CreateSuccessionCaseController {
     ];
 
     if (deceasedOwners.size() > 1) {
-      System.debug(
+      SuccessionLogger.warn(
         'Warning: Multiple deceased primary owners found for FA ' +
         financialAccountId
       );
@@ -372,13 +408,15 @@ public with sharing class CreateSuccessionCaseController {
    *
    * @param financialAccountId - ID of the FinancialAccount
    * @return List of successor FinancialAccountRole records
-   *
-   * Note: Uses SYSTEM_MODE for system-level automation (similar to case creation).
-   * This ensures all successor roles are retrieved regardless of user permissions.
    */
   private static List<FinServ__FinancialAccountRole__c> getSuccessors(
     Id financialAccountId
   ) {
+    // SYSTEM_MODE required because:
+    // 1. Must retrieve ALL successors for accurate case creation (business requirement)
+    // 2. FinancialAccountRole records may have restricted sharing rules
+    // 3. Ensures multi-successor detection works regardless of user permissions
+    // 4. Critical for allocation validation (validateSuccessorAllocations requires complete list)
     return [
       SELECT
         Id,
@@ -388,7 +426,7 @@ public with sharing class CreateSuccessionCaseController {
       FROM FinServ__FinancialAccountRole__c
       WHERE
         FinServ__FinancialAccount__c = :financialAccountId
-        AND FinServ__Role__c LIKE '%Successor%'
+        AND FinServ__Role__c = :SuccessionUtilities.ROLE_SUCCESSOR
         AND FinServ__Active__c = TRUE
       WITH SYSTEM_MODE
       ORDER BY CreatedDate ASC

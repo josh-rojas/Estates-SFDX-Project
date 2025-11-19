@@ -79,8 +79,7 @@ public class SuccessionPerformanceTestSuite {
     insert roles;
 
     Test.startTest();
-    List<CreateSuccessionCaseController.CreateCaseResult> results =
-      new List<CreateSuccessionCaseController.CreateCaseResult>();
+    List<CreateSuccessionCaseController.CreateCaseResult> results = new List<CreateSuccessionCaseController.CreateCaseResult>();
     for (FinServ__FinancialAccount__c fa : financialAccounts) {
       CreateSuccessionCaseController.CreateCaseResult result = CreateSuccessionCaseController.createSuccessionCase(
         fa.Id
@@ -123,7 +122,11 @@ public class SuccessionPerformanceTestSuite {
     List<Case> cases = new List<Case>();
     for (Integer i = 0; i < caseCount; i++) {
       cases.add(
-        new Case(Subject = 'Perf Contact Case ' + i, Status = 'New', Origin = 'Phone')
+        new Case(
+          Subject = 'Perf Contact Case ' + i,
+          Status = 'New',
+          Origin = 'Phone'
+        )
       );
     }
     insert cases;
@@ -135,10 +138,9 @@ public class SuccessionPerformanceTestSuite {
       WHERE Id IN :cases
     ];
 
-    List<SuccessionTaskCreator.CreateTaskRequest> requests =
-      new List<SuccessionTaskCreator.CreateTaskRequest>();
+    List<SuccessionTaskCreator.CreateTaskRequest> requests = new List<SuccessionTaskCreator.CreateTaskRequest>();
 
-    Integer[] offsets = new Integer[]{ 0, 5, 35, 65, 95 };
+    Integer[] offsets = new List<Integer>{ 0, 5, 35, 65, 95 };
 
     for (Case c : cases) {
       for (Integer attempt = 1; attempt <= attemptsPerCase; attempt++) {
@@ -175,4 +177,3 @@ public class SuccessionPerformanceTestSuite {
     );
   }
 }
-

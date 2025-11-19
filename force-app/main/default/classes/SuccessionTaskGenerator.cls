@@ -35,6 +35,38 @@ public with sharing class SuccessionTaskGenerator {
       return;
     }
 
+    // Collect case IDs for pathway confirmation changes
+    Set<Id> caseIdsForPathwayTasks = new Set<Id>();
+    for (Case c : newCases) {
+      Case oldCase = oldCaseMap.get(c.Id);
+      if (
+        c.Pathway_Confirmed__c != null &&
+        (oldCase == null ||
+        c.Pathway_Confirmed__c != oldCase.Pathway_Confirmed__c)
+      ) {
+        caseIdsForPathwayTasks.add(c.Id);
+      }
+    }
+
+    // Query existing pathway tasks to prevent duplicates
+    Map<Id, Set<String>> existingTasksByCaseId = new Map<Id, Set<String>>();
+    if (!caseIdsForPathwayTasks.isEmpty()) {
+      Set<String> allPathwaySubjects = getAllPathwayTaskSubjects();
+      for (Task t : [
+        SELECT WhatId, Subject
+        FROM Task
+        WHERE
+          WhatId IN :caseIdsForPathwayTasks
+          AND Subject IN :allPathwaySubjects
+        WITH SYSTEM_MODE
+      ]) {
+        if (!existingTasksByCaseId.containsKey(t.WhatId)) {
+          existingTasksByCaseId.put(t.WhatId, new Set<String>());
+        }
+        existingTasksByCaseId.get(t.WhatId).add(t.Subject);
+      }
+    }
+
     for (Case c : newCases) {
       Case oldCase = oldCaseMap.get(c.Id);
 
@@ -59,68 +91,135 @@ public with sharing class SuccessionTaskGenerator {
         }
 
         if (pathwayTasks != null && !pathwayTasks.isEmpty()) {
-          tasksToCreate.addAll(pathwayTasks);
+          // Filter out duplicate tasks
+          Set<String> existingForCase = existingTasksByCaseId.get(c.Id);
+          List<Task> tasksToAdd = new List<Task>();
+          Integer skippedCount = 0;
 
-          // Prepare Chatter post using SuccessionUtilities for consistent formatting
-          String postBody = SuccessionUtilities.buildPathwayTaskPostBody(
-            c.Pathway_Confirmed__c,
-            pathwayTasks.size()
-          );
-          chatterPostsByCaseId.put(c.Id, postBody);
+          for (Task t : pathwayTasks) {
+            if (
+              existingForCase == null || !existingForCase.contains(t.Subject)
+            ) {
+              tasksToAdd.add(t);
+            } else {
+              SuccessionLogger.debug(
+                'Skipping duplicate task for case ' + c.Id + ': ' + t.Subject
+              );
+              skippedCount++;
+            }
+          }
+
+          if (!tasksToAdd.isEmpty()) {
+            tasksToCreate.addAll(tasksToAdd);
+
+            // Prepare Chatter post using SuccessionUtilities for consistent formatting
+            String postBody = SuccessionUtilities.buildPathwayTaskPostBody(
+              c.Pathway_Confirmed__c,
+              tasksToAdd.size()
+            );
+            chatterPostsByCaseId.put(c.Id, postBody);
+          } else if (skippedCount > 0) {
+            SuccessionLogger.debug(
+              'All ' +
+                skippedCount +
+                ' pathway tasks already exist for case ' +
+                c.Id
+            );
+          }
         }
       }
     }
 
-    // Insert Tasks (SYSTEM_MODE for automation reliability - guest users can't create Tasks)
+    // SYSTEM_MODE required because:
+    // 1. Guest users submit pathway forms triggering this automation via trigger
+    // 2. Guest user profile lacks Task create permission by security design
+    // 3. Alternative (scheduled batch job) would create poor UX with delayed task creation
+    // 4. Tasks are system-generated workflow milestones, not user-created activities
     if (!tasksToCreate.isEmpty()) {
       try {
         Database.insert(tasksToCreate, false, AccessLevel.SYSTEM_MODE);
-        System.debug('Created ' + tasksToCreate.size() + ' pathway tasks');
+        SuccessionLogger.debug(
+          'Created ' + tasksToCreate.size() + ' pathway tasks'
+        );
       } catch (DmlException e) {
-        System.debug('Error creating pathway tasks: ' + e.getMessage());
+        SuccessionLogger.error(
+          'Error creating pathway tasks: ' + e.getMessage()
+        );
       }
     }
 
     // Create Chatter posts using SuccessionUtilities with Case links
     if (!chatterPostsByCaseId.isEmpty()) {
       // Bulk query Case details for link titles
-      Map<Id, Case> casesById = new Map<Id, Case>([
-        SELECT Id, CaseNumber, Subject
-        FROM Case
-        WHERE Id IN :chatterPostsByCaseId.keySet()
-      ]);
+      Map<Id, Case> casesById = new Map<Id, Case>(
+        [
+          SELECT Id, CaseNumber, Subject
+          FROM Case
+          WHERE Id IN :chatterPostsByCaseId.keySet()
+        ]
+      );
+
+      List<SuccessionUtilities.PostRequest> postRequests = new List<SuccessionUtilities.PostRequest>();
 
       for (Id caseId : chatterPostsByCaseId.keySet()) {
-        try {
-          // Get Case details for link title
-          String linkTitle = 'View Case';
-          Case caseRecord = casesById.get(caseId);
-          if (caseRecord != null) {
-            // Prefer CaseNumber, fallback to Subject
-            linkTitle = String.isNotBlank(caseRecord.CaseNumber)
-              ? caseRecord.CaseNumber
-              : (String.isNotBlank(caseRecord.Subject)
-                  ? caseRecord.Subject
-                  : 'Case ' + caseId);
-          }
+        // Get Case details for link title
+        String linkTitle = 'View Case';
+        Case caseRecord = casesById.get(caseId);
+        if (caseRecord != null) {
+          // Prefer CaseNumber, fallback to Subject
+          linkTitle = String.isNotBlank(caseRecord.CaseNumber)
+            ? caseRecord.CaseNumber
+            : (String.isNotBlank(caseRecord.Subject)
+                ? caseRecord.Subject
+                : 'Case ' + caseId);
+        }
 
-          SuccessionUtilities.createChatterPostWithRecordLink(
+        postRequests.add(
+          new SuccessionUtilities.PostRequest(
             caseId,
             chatterPostsByCaseId.get(caseId),
             caseId,
-            linkTitle,
-            true // Use SYSTEM_MODE for automation reliability
-          );
-        } catch (Exception e) {
-          System.debug(
-            'Error creating Chatter post for case ' +
-              caseId +
-              ': ' +
-              e.getMessage()
-          );
-        }
+            linkTitle
+          )
+        );
+      }
+
+      // Use bulk creation method
+      if (!postRequests.isEmpty()) {
+        SuccessionUtilities.createChatterPostsWithRecordLinks(
+          postRequests,
+          true // Use SYSTEM_MODE for automation reliability
+        );
       }
     }
+  }
+
+  /**
+   * @description Returns all possible pathway task subjects for duplicate detection
+   */
+  private static Set<String> getAllPathwayTaskSubjects() {
+    Set<String> subjects = new Set<String>();
+
+    // Final Grant subjects
+    subjects.add('Review Grant Direction & Beneficiaries');
+    subjects.add('Coordinate Trading / Liquidation');
+    subjects.add('Process Grant Recommendations');
+    subjects.add('Confirm Distributions & Settlement');
+    subjects.add('Finalize Case Documentation');
+
+    // New DAF Account subjects
+    subjects.add('Review New Account Application');
+    subjects.add('Process Transfer Authorization');
+    subjects.add('Update Account Relationships & Status');
+    subjects.add('Finalize Transfer & Close Case');
+
+    // Disclaim Assets subjects
+    subjects.add('Review Disclaimer Documentation');
+    subjects.add('Identify Alternate Distribution Path');
+    subjects.add('Process Asset Distribution');
+    subjects.add('Complete Disclaimer Processing & Close');
+
+    return subjects;
   }
 
   /**

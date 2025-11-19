@@ -193,9 +193,9 @@ public class CreateSuccessionCaseControllerTest {
       'Case Type should be Named Successor Enactment'
     );
     System.assertEquals(
-      'Not Started',
+      'Complete - Verified',
       cases[0].Verification_Status__c,
-      'Verification Status should be Not Started'
+      'Verification Status should be Complete - Verified'
     );
     System.assertEquals(
       fa.Id,
@@ -343,9 +343,9 @@ public class CreateSuccessionCaseControllerTest {
 
     for (Case childCase : childCases) {
       System.assertEquals(
-        'Not Started',
+        'Complete - Verified',
         childCase.Verification_Status__c,
-        'Child case should have Not Started verification status'
+        'Child case should have Complete - Verified verification status'
       );
       System.assertEquals(
         deceasedDonor.Id,

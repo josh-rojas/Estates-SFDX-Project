@@ -72,6 +72,7 @@ private class SuccessionPublicFormController_Test {
       Status = 'New',
       AccountId = testAccount.Id,
       ContactId = successorAccount.PersonContactId,
+      Successor__c = successorAccount.Id, // Set successor to Person Account ID
       FinServ__FinancialAccount__c = finAccount.Id,
       Contact_Established__c = true
     );

@@ -22,6 +22,10 @@ public with sharing class SuccessionUtilities {
   /** Email validation regex pattern (RFC 5322 compliant) */
   private static final String EMAIL_REGEX = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
 
+  /** FinancialAccountRole role values - exact matches required for query precision */
+  public static final String ROLE_PRIMARY_OWNER = 'Primary Owner';
+  public static final String ROLE_SUCCESSOR = 'Successor';
+
   /** DateTime format patterns */
   private static final String FORMAT_SHORT_DATE = 'yyyy-MM-dd';
   private static final String FORMAT_LONG_DATETIME = 'yyyy-MM-dd HH:mm:ss';
@@ -100,6 +104,90 @@ public with sharing class SuccessionUtilities {
   // ========================================
 
   /**
+   * @description Creates multiple Chatter posts with record links in bulk
+   * @param posts List of PostRequest objects containing details for each post
+   * @param useSystemMode Whether to ignore user permissions (needed for guest users)
+   */
+  public static void createChatterPostsWithRecordLinks(
+    List<PostRequest> posts,
+    Boolean useSystemMode
+  ) {
+    if (posts == null || posts.isEmpty()) {
+      return;
+    }
+
+    List<FeedItem> feedItems = new List<FeedItem>();
+
+    for (PostRequest req : posts) {
+      try {
+        // Build relative URL
+        String recordUrl = '/lightning/r/Case/' + req.linkRecordId + '/view';
+
+        // Create rich text body with link
+        String richBody =
+          '<p>' +
+          req.message +
+          '</p><p><a href="' +
+          recordUrl +
+          '" target="_blank">' +
+          req.linkTitle +
+          '</a></p>';
+
+        FeedItem post = new FeedItem();
+        post.ParentId = req.parentId;
+        post.Body = req.message; // Plain text backup
+        post.IsRichText = true;
+        post.Body = richBody; // Sets rich text content
+        feedItems.add(post);
+      } catch (Exception e) {
+        SuccessionLogger.error(
+          'Error preparing Chatter post for ' +
+            req.parentId +
+            ': ' +
+            e.getMessage()
+        );
+      }
+    }
+
+    if (!feedItems.isEmpty()) {
+      try {
+        AccessLevel level = useSystemMode
+          ? AccessLevel.SYSTEM_MODE
+          : AccessLevel.USER_MODE;
+        Database.insert(feedItems, level);
+        SuccessionLogger.debug(
+          'Created ' + feedItems.size() + ' Chatter posts'
+        );
+      } catch (Exception e) {
+        SuccessionLogger.error(
+          'Error inserting bulk Chatter posts: ' + e.getMessage()
+        );
+      }
+    }
+  }
+
+  /**
+   * @description Wrapper class for bulk Chatter post requests
+   */
+  public class PostRequest {
+    public Id parentId;
+    public String message;
+    public Id linkRecordId;
+    public String linkTitle;
+
+    public PostRequest(
+      Id parentId,
+      String message,
+      Id linkRecordId,
+      String linkTitle
+    ) {
+      this.parentId = parentId;
+      this.message = message;
+      this.linkRecordId = linkRecordId;
+      this.linkTitle = linkTitle;
+    }
+  }
+  /**
    * Create a Chatter post on a record
    * Handles formatting and batch/immediate insertion
    *
@@ -117,8 +205,7 @@ public with sharing class SuccessionUtilities {
     if (String.isBlank(postBody)) {
       System.debug(
         LoggingLevel.WARN,
-        'Skipping Chatter post creation - body is blank for record: ' +
-          recordId
+        'Skipping Chatter post creation - body is blank for record: ' + recordId
       );
       return null;
     }
@@ -170,13 +257,7 @@ public with sharing class SuccessionUtilities {
       // Build relative URL (works in all contexts and API versions)
       return '/lightning/r/' + sObjectName + '/' + recordId + '/view';
     } catch (Exception e) {
-      System.debug(
-        LoggingLevel.WARN,
-        'Error building Lightning URL for record ' +
-          recordId +
-          ': ' +
-          e.getMessage()
-      );
+      SuccessionLogger.error('Error creating Chatter post: ' + e.getMessage());
       return '';
     }
   }
@@ -203,8 +284,7 @@ public with sharing class SuccessionUtilities {
     if (String.isBlank(baseMessage)) {
       System.debug(
         LoggingLevel.WARN,
-        'Skipping Chatter post creation - body is blank for record: ' +
-          parentId
+        'Skipping Chatter post creation - body is blank for record: ' + parentId
       );
       return null;
     }
@@ -214,7 +294,7 @@ public with sharing class SuccessionUtilities {
       System.debug(
         LoggingLevel.WARN,
         'Missing link information - falling back to TextPost for record: ' +
-          parentId
+        parentId
       );
       return createChatterPost(parentId, baseMessage, useSystemMode);
     }
@@ -224,8 +304,7 @@ public with sharing class SuccessionUtilities {
     if (String.isBlank(recordUrl)) {
       System.debug(
         LoggingLevel.WARN,
-        'Unable to build URL - falling back to TextPost for record: ' +
-          parentId
+        'Unable to build URL - falling back to TextPost for record: ' + parentId
       );
       return createChatterPost(parentId, baseMessage, useSystemMode);
     }
@@ -313,7 +392,14 @@ public with sharing class SuccessionUtilities {
    * @return Record type ID or null if not found
    */
   public static Id getEstateAdministrationRecordTypeId() {
-    return getCachedRecordTypeId('Case', 'EstateAdministration');
+    try {
+      return getCachedRecordTypeId('Case', 'EstateAdministration');
+    } catch (Exception e) {
+      SuccessionLogger.error(
+        'Error getting Estate Administration record type: ' + e.getMessage()
+      );
+      return null;
+    }
   }
 
   /**
@@ -376,8 +462,10 @@ public with sharing class SuccessionUtilities {
     note.Content = Blob.valueOf(noteBody);
     Database.insert(note, AccessLevel.USER_MODE);
 
-    System.debug('DEBUG: Created ContentNote with Title: ' + noteTitle);
-    System.debug('DEBUG: ContentNote Id: ' + note.Id);
+    SuccessionLogger.debug(
+      'DEBUG: Created ContentNote with Title: ' + noteTitle
+    );
+    SuccessionLogger.debug('DEBUG: ContentNote Id: ' + note.Id);
 
     // Query ContentDocument using LatestPublishedVersionId
     // ContentNote is a subtype of ContentVersion
@@ -393,8 +481,8 @@ public with sharing class SuccessionUtilities {
 
     // Defensive code: Handle async ContentDocument creation
     if (docs.isEmpty()) {
-      System.debug(
-        'DEBUG: ContentDocument not found for ContentNote ' +
+      SuccessionLogger.error(
+        'ContentDocument not found for ContentNote ' +
           note.Id +
           ' - may be created asynchronously'
       );
@@ -404,7 +492,7 @@ public with sharing class SuccessionUtilities {
     }
 
     ContentDocument doc = docs[0];
-    System.debug('DEBUG: Found ContentDocument Id: ' + doc.Id);
+    SuccessionLogger.debug('DEBUG: Found ContentDocument Id: ' + doc.Id);
 
     // Link note to parent record
     ContentDocumentLink cdl = new ContentDocumentLink();
@@ -414,7 +502,9 @@ public with sharing class SuccessionUtilities {
     cdl.Visibility = 'AllUsers'; // Visible to all users with access to record
     Database.insert(cdl, AccessLevel.USER_MODE);
 
-    System.debug('DEBUG: Created ContentDocumentLink to record: ' + recordId);
+    SuccessionLogger.debug(
+      'DEBUG: Created ContentDocumentLink to record: ' + recordId
+    );
 
     return note.Id;
   }
@@ -504,7 +594,7 @@ public with sharing class SuccessionUtilities {
 
       return Integer.valueOf(remainingPart.trim());
     } catch (Exception e) {
-      System.debug('Error parsing integer from string: ' + input);
+      SuccessionLogger.warn('Error parsing integer from string: ' + input);
       return null;
     }
   }
@@ -679,10 +769,10 @@ public with sharing class SuccessionUtilities {
    */
   public static void throwAuraException(String userMessage, Exception e) {
     // Log full exception details
-    System.debug(LoggingLevel.ERROR, 'Exception occurred: ' + userMessage);
-    System.debug(LoggingLevel.ERROR, 'Exception type: ' + e.getTypeName());
-    System.debug(LoggingLevel.ERROR, 'Exception message: ' + e.getMessage());
-    System.debug(LoggingLevel.ERROR, 'Stack trace: ' + e.getStackTraceString());
+    SuccessionLogger.error('Exception occurred: ' + userMessage);
+    SuccessionLogger.error('Exception type: ' + e.getTypeName());
+    SuccessionLogger.error('Exception message: ' + e.getMessage());
+    SuccessionLogger.error('Stack trace: ' + e.getStackTraceString());
 
     // Throw user-friendly exception
     // Note: AuraHandledException requires setMessage() to be called explicitly

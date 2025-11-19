@@ -710,6 +710,38 @@ private class ContactCadenceController_Test {
       updatedCase.Contact_Established__c,
       'Case contact should still be false'
     );
+
+    // Verify NEXT attempt task was auto-created
+    List<Task> nextTasks = [
+      SELECT
+        Subject,
+        Status,
+        Contact_Attempt_Number__c,
+        ActivityDate,
+        Description
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 4
+    ];
+    System.assertEquals(
+      1,
+      nextTasks.size(),
+      'Should have auto-created attempt 4 task'
+    );
+    System.assertEquals(
+      'Not Started',
+      nextTasks[0].Status,
+      'Next task should be Not Started'
+    );
+    System.assertEquals(
+      'Automatically created contact attempt',
+      nextTasks[0].Description,
+      'Description should indicate auto-creation'
+    );
+    // Default wait for attempt 4 is 30 days (fallback) or metadata value
+    System.assert(
+      nextTasks[0].ActivityDate > Date.today(),
+      'Due date should be in future'
+    );
   }
 
   /**
@@ -818,6 +850,307 @@ private class ContactCadenceController_Test {
       1,
       attemptData.attemptNumber,
       'Attempt number should be set'
+    );
+  }
+
+  /**
+   * Test auto-creation of next attempt tasks (attempts 1→2→3→4→5)
+   * Verifies the fix for inactive flow bug - tasks are now created automatically
+   */
+  @isTest
+  static void testAutoCreateNextAttempt() {
+    // Create new case with only attempt 1 task
+    Id personAccountRecordTypeId = Account.SObjectType.getDescribe()
+      .getRecordTypeInfosByDeveloperName()
+      .get('PersonAccount')
+      .getRecordTypeId();
+
+    Account testSuccessor = new Account(
+      RecordTypeId = personAccountRecordTypeId,
+      FirstName = 'Test',
+      LastName = 'AutoCreate',
+      PersonEmail = 'test.autocreate@example.com'
+    );
+    insert testSuccessor;
+
+    testSuccessor = [
+      SELECT Id, PersonContactId
+      FROM Account
+      WHERE Id = :testSuccessor.Id
+    ];
+
+    Id estateRecordTypeId = Case.SObjectType.getDescribe()
+      .getRecordTypeInfosByDeveloperName()
+      .get('EstateAdministration')
+      .getRecordTypeId();
+
+    Case testCase = new Case(
+      RecordTypeId = estateRecordTypeId,
+      Type = 'Succession Management',
+      Subject = 'Auto-Create Test Case',
+      Status = 'New',
+      AccountId = testSuccessor.Id,
+      Successor__c = testSuccessor.PersonContactId,
+      Contact_Established__c = false
+    );
+    insert testCase;
+
+    // Create attempt 1 task
+    Task attempt1 = new Task(
+      WhatId = testCase.Id,
+      Subject = 'Succession Contact Attempt 1',
+      Contact_Attempt_Number__c = 1,
+      ActivityDate = Date.today(),
+      Status = 'Not Started'
+    );
+    insert attempt1;
+
+    Test.startTest();
+
+    // Complete attempt 1 - contact NOT established
+    String result1 = ContactCadenceController.saveAttemptOutcome(
+      testCase.Id,
+      attempt1.Id,
+      1,
+      false, // contact NOT established
+      'Left voicemail'
+    );
+
+    System.assertEquals('Success', result1, 'Attempt 1 should succeed');
+
+    // Verify attempt 2 was auto-created
+    List<Task> attempt2Tasks = [
+      SELECT Id, ActivityDate, Contact_Attempt_Number__c, Status, Subject
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 2
+      WITH SYSTEM_MODE
+    ];
+    System.assertEquals(
+      1,
+      attempt2Tasks.size(),
+      'Attempt 2 should be auto-created'
+    );
+    System.assertEquals(
+      'Not Started',
+      attempt2Tasks[0].Status,
+      'Attempt 2 should be Not Started'
+    );
+    System.assert(
+      attempt2Tasks[0].ActivityDate >= Date.today(),
+      'Attempt 2 should have future due date'
+    );
+
+    // Complete attempt 2 - contact NOT established
+    String result2 = ContactCadenceController.saveAttemptOutcome(
+      testCase.Id,
+      attempt2Tasks[0].Id,
+      2,
+      false,
+      'No answer'
+    );
+
+    System.assertEquals('Success', result2, 'Attempt 2 should succeed');
+
+    // Verify attempt 3 was auto-created
+    List<Task> attempt3Tasks = [
+      SELECT Id, ActivityDate, Contact_Attempt_Number__c
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 3
+    ];
+    System.assertEquals(
+      1,
+      attempt3Tasks.size(),
+      'Attempt 3 should be auto-created'
+    );
+
+    // Complete attempt 3 - contact NOT established
+    String result3 = ContactCadenceController.saveAttemptOutcome(
+      testCase.Id,
+      attempt3Tasks[0].Id,
+      3,
+      false,
+      'No answer again'
+    );
+
+    // Verify attempt 4 was auto-created
+    List<Task> attempt4Tasks = [
+      SELECT Id, Contact_Attempt_Number__c
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 4
+    ];
+    System.assertEquals(
+      1,
+      attempt4Tasks.size(),
+      'Attempt 4 should be auto-created'
+    );
+
+    // Complete attempt 4 - contact NOT established
+    String result4 = ContactCadenceController.saveAttemptOutcome(
+      testCase.Id,
+      attempt4Tasks[0].Id,
+      4,
+      false,
+      'Still no answer'
+    );
+
+    // Verify attempt 5 was auto-created
+    List<Task> attempt5Tasks = [
+      SELECT Id, Contact_Attempt_Number__c
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 5
+    ];
+    System.assertEquals(
+      1,
+      attempt5Tasks.size(),
+      'Attempt 5 should be auto-created'
+    );
+
+    // Complete attempt 5 - contact NOT established
+    String result5 = ContactCadenceController.saveAttemptOutcome(
+      testCase.Id,
+      attempt5Tasks[0].Id,
+      5,
+      false,
+      'Final attempt - no answer'
+    );
+
+    // Verify attempt 6 was NOT created
+    List<Task> attempt6Tasks = [
+      SELECT Id
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 6
+    ];
+    System.assertEquals(
+      0,
+      attempt6Tasks.size(),
+      'Attempt 6 should NOT be created'
+    );
+
+    Test.stopTest();
+
+    // Final verification - all 5 attempts exist, no attempt 6
+    List<Task> allTasks = [
+      SELECT Contact_Attempt_Number__c
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c != NULL
+      ORDER BY Contact_Attempt_Number__c
+    ];
+    System.assertEquals(5, allTasks.size(), 'Should have exactly 5 attempts');
+  }
+
+  /**
+   * Test idempotency - calling saveAttemptOutcome multiple times shouldn't create duplicates
+   */
+  @isTest
+  static void testAutoCreateNextAttempt_Idempotency() {
+    Case testCase = [
+      SELECT Id
+      FROM Case
+      WHERE Subject = 'Succession - Amanda Williams'
+      LIMIT 1
+    ];
+
+    // Create attempt 4 task (no attempt 5 exists)
+    Task attempt4 = new Task(
+      WhatId = testCase.Id,
+      Subject = 'Succession Contact Attempt 4',
+      Contact_Attempt_Number__c = 4,
+      ActivityDate = Date.today(),
+      Status = 'Not Started'
+    );
+    insert attempt4;
+
+    Test.startTest();
+
+    // Complete attempt 4 twice (simulating double-click or retry)
+    ContactCadenceController.saveAttemptOutcome(
+      testCase.Id,
+      attempt4.Id,
+      4,
+      false,
+      'First call'
+    );
+
+    ContactCadenceController.saveAttemptOutcome(
+      testCase.Id,
+      attempt4.Id,
+      4,
+      false,
+      'Second call'
+    );
+
+    Test.stopTest();
+
+    // Verify only ONE attempt 5 was created
+    List<Task> attempt5Tasks = [
+      SELECT Id
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 5
+    ];
+    System.assertEquals(
+      1,
+      attempt5Tasks.size(),
+      'Should only create one attempt 5 task (idempotency)'
+    );
+  }
+
+  /**
+   * Test that next attempt is NOT created when contact is established
+   */
+  @isTest
+  static void testAutoCreateNextAttempt_ContactEstablished() {
+    Case testCase = [
+      SELECT Id
+      FROM Case
+      WHERE Subject = 'Succession - Amanda Williams'
+      LIMIT 1
+    ];
+
+    // Create attempt 4 task
+    Task attempt4 = new Task(
+      WhatId = testCase.Id,
+      Subject = 'Succession Contact Attempt 4',
+      Contact_Attempt_Number__c = 4,
+      ActivityDate = Date.today(),
+      Status = 'Not Started'
+    );
+    insert attempt4;
+
+    Test.startTest();
+
+    // Complete attempt 4 with contact ESTABLISHED
+    ContactCadenceController.saveAttemptOutcome(
+      testCase.Id,
+      attempt4.Id,
+      4,
+      true, // contact ESTABLISHED
+      'Reached successor successfully'
+    );
+
+    Test.stopTest();
+
+    // Verify attempt 5 was NOT created (contact established)
+    List<Task> attempt5Tasks = [
+      SELECT Id
+      FROM Task
+      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 5
+    ];
+    System.assertEquals(
+      0,
+      attempt5Tasks.size(),
+      'Should NOT create attempt 5 when contact established'
+    );
+
+    // Verify case was updated
+    Case updatedCase = [
+      SELECT Contact_Established__c
+      FROM Case
+      WHERE Id = :testCase.Id
+    ];
+    System.assertEquals(
+      true,
+      updatedCase.Contact_Established__c,
+      'Case should be marked as contact established'
     );
   }
 }

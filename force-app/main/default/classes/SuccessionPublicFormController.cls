@@ -108,6 +108,8 @@ public with sharing class SuccessionPublicFormController {
 
       if (isPersonAccount && c.AccountId != null) {
         // Person Account: Query by RelatedAccount
+        // Use exact match with SuccessionUtilities.ROLE_SUCCESSOR constant
+        // instead of LIKE pattern for precise role filtering
         successorRoles = [
           SELECT
             Id,
@@ -117,13 +119,15 @@ public with sharing class SuccessionPublicFormController {
           FROM FinServ__FinancialAccountRole__c
           WHERE
             FinServ__FinancialAccount__c = :c.FinServ__FinancialAccount__c
-            AND FinServ__Role__c LIKE '%Successor%'
+            AND FinServ__Role__c = :SuccessionUtilities.ROLE_SUCCESSOR
             AND FinServ__RelatedAccount__c = :c.AccountId
           WITH USER_MODE
           LIMIT 1
         ];
       } else if (!isPersonAccount && successorLookupId != null) {
         // Business Account: Query by RelatedContact
+        // Use exact match with SuccessionUtilities.ROLE_SUCCESSOR constant
+        // instead of LIKE pattern for precise role filtering
         successorRoles = [
           SELECT
             Id,
@@ -136,7 +140,7 @@ public with sharing class SuccessionPublicFormController {
           FROM FinServ__FinancialAccountRole__c
           WHERE
             FinServ__FinancialAccount__c = :c.FinServ__FinancialAccount__c
-            AND FinServ__Role__c LIKE '%Successor%'
+            AND FinServ__Role__c = :SuccessionUtilities.ROLE_SUCCESSOR
             AND FinServ__RelatedContact__c = :successorLookupId
           WITH USER_MODE
           LIMIT 1
@@ -164,7 +168,7 @@ public with sharing class SuccessionPublicFormController {
 
       return data;
     } catch (Exception e) {
-      System.debug('Error in getFormData: ' + e.getMessage());
+      SuccessionLogger.error('Error in getFormData: ' + e.getMessage());
       throw new AuraHandledException(
         'Error loading form data: ' + e.getMessage()
       );
@@ -194,6 +198,10 @@ public with sharing class SuccessionPublicFormController {
       }
 
       // Query case to verify it exists and is valid
+      // SYSTEM_MODE required because:
+      // 1. This is a guest user context (public form submission)
+      // 2. Guest users have limited sharing access to Case records
+      // 3. Must find case regardless of sharing rules to allow pathway selection
       List<Case> cases = [
         SELECT Id, Status, Pathway_Confirmed__c
         FROM Case
@@ -201,7 +209,7 @@ public with sharing class SuccessionPublicFormController {
           Id = :caseId
           AND RecordType.DeveloperName = 'EstateAdministration'
           AND Type = 'Named Successor Enactment'
-        WITH USER_MODE
+        WITH SYSTEM_MODE
         LIMIT 1
       ];
 
@@ -211,12 +219,21 @@ public with sharing class SuccessionPublicFormController {
 
       Case c = cases[0];
 
+      // Map pathway selection to full picklist values
+      // Pathway_Confirmed__c picklist values: "Not Selected", "Final Grant", "New DAF Account", "Disclaim Assets"
+      // Support both short names (from UI) and full picklist values
+      String pathwayValue = pathwaySelection;
+      if (pathwaySelection == 'New DAF') {
+        pathwayValue = 'New DAF Account';
+      } else if (pathwaySelection == 'Disclaim') {
+        pathwayValue = 'Disclaim Assets';
+      }
+      // 'Final Grant' is already the correct picklist value
+
       // Update case with pathway selection
-      // Pathway_Confirmed__c is a picklist that stores the pathway choice
-      // Valid values: "Not Selected", "Final Grant", "New DAF Account", "Disclaim Assets"
-      c.Pathway_Confirmed__c = pathwaySelection;
+      c.Pathway_Confirmed__c = pathwayValue;
       c.Form_Completed_Date__c = Date.today();
-      c.Status = 'Pathway Selection Received';
+      c.Status = 'Awaiting Response';
 
       // Parse additional form data if provided
       if (String.isNotBlank(formData)) {
@@ -232,11 +249,17 @@ public with sharing class SuccessionPublicFormController {
         // Add more field mappings as needed based on pathway-specific requirements
       }
 
-      Database.update(c, false, AccessLevel.USER_MODE);
+      // SYSTEM_MODE required because:
+      // 1. This is a guest user context (public form submission)
+      // 2. Guest users have limited sharing access to Case records
+      // 3. Must ensure pathway selection is saved regardless of sharing rules
+      Database.update(c, AccessLevel.SYSTEM_MODE);
 
       return 'Pathway selection saved successfully';
     } catch (Exception e) {
-      System.debug('Error in savePathwaySelection: ' + e.getMessage());
+      SuccessionLogger.error(
+        'Error in savePathwaySelection: ' + e.getMessage()
+      );
       throw new AuraHandledException(
         'Error saving pathway selection: ' + e.getMessage()
       );

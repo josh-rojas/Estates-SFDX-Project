@@ -570,7 +570,7 @@ public with sharing class ContactCadenceController {
           Description = notes // Store notes as backup in Description field
         );
       } else {
-        // Query existing task
+        // Query existing task - user-initiated query with USER_MODE
         attemptTask = [
           SELECT
             Id,
@@ -580,6 +580,7 @@ public with sharing class ContactCadenceController {
             Description
           FROM Task
           WHERE Id = :taskId
+          WITH USER_MODE
           LIMIT 1
         ];
 
@@ -589,9 +590,38 @@ public with sharing class ContactCadenceController {
         attemptTask.Description = notes; // Store notes as backup in Description field
       }
 
+      // Update parent case based on outcome FIRST - user-initiated query with USER_MODE
+      // IMPORTANT: This must happen BEFORE updating the Task to prevent race condition with flow
+      // Flow "Succession_Schedule_Next_Contact" fires when Task Status = "Completed"
+      // Flow checks Case.Contact_Established__c to decide whether to create next attempt
+      // If we update Task first, flow sees old Case value and incorrectly creates next attempt
+      Case parentCase = [
+        SELECT
+          Id,
+          Contact_Established__c,
+          Contact_Established_Date__c,
+          Contact_Attempt_Count__c
+        FROM Case
+        WHERE Id = :caseId
+        WITH USER_MODE
+        LIMIT 1
+      ];
+
+      // If contact established, update case
+      // Task_Succession_Contact_Update flow will handle this too, but we update here for immediate feedback
+      if (contactEstablished && !parentCase.Contact_Established__c) {
+        parentCase.Contact_Established__c = true;
+        parentCase.Contact_Established_Date__c = Date.today();
+        // User-initiated update - enforce FLS/CRUD with USER_MODE
+        Database.update(parentCase, AccessLevel.USER_MODE);
+      }
+
       // IMPORTANT: Notes are saved to BOTH Description (immediate backup) and ContentNote (structured format)
       // This ensures notes are always available even if ContentNote creation fails or is delayed
-      upsert attemptTask;
+      // User-initiated update - enforce FLS/CRUD with USER_MODE
+      // NOTE: This Task update triggers flow "Succession_Schedule_Next_Contact" which checks Case.Contact_Established__c
+      // That's why we update the Case FIRST (above) before updating the Task
+      Database.upsert(attemptTask, AccessLevel.USER_MODE);
 
       // Create ContentNote and Chatter post if notes were provided
       // NOTE: Notes are ALREADY saved to Task.Description (above) as immediate backup
@@ -615,8 +645,7 @@ public with sharing class ContactCadenceController {
         } catch (Exception noteEx) {
           // Log but don't fail - ContentNote creation is supplementary
           // Notes are already saved to Task.Description, so this is not critical
-          System.debug(
-            LoggingLevel.WARN,
+          SuccessionLogger.warn(
             'ContentNote creation failed for attempt ' +
               attemptNumber +
               ': ' +
@@ -646,8 +675,7 @@ public with sharing class ContactCadenceController {
           );
         } catch (Exception chatterEx) {
           // Log but don't fail - Chatter post creation is supplementary
-          System.debug(
-            LoggingLevel.WARN,
+          SuccessionLogger.warn(
             'Chatter post creation failed for attempt ' +
               attemptNumber +
               ': ' +
@@ -656,28 +684,55 @@ public with sharing class ContactCadenceController {
         }
       }
 
-      // Update parent case based on outcome
-      Case parentCase = [
-        SELECT
-          Id,
-          Contact_Established__c,
-          Contact_Established_Date__c,
-          Contact_Attempt_Count__c
-        FROM Case
-        WHERE Id = :caseId
-        LIMIT 1
-      ];
+      // AUTO-CREATE NEXT ATTEMPT (replaces inactive flow Task_Create_Next_Contact_Attempt)
+      // Only create attempts 2-5 (never create attempt 6)
+      // Only create if contact was NOT established
+      if (attemptNumber < 5 && !contactEstablished) {
+        // Get wait duration from Custom Metadata
+        Map<Integer, Integer> waitDurations = getAttemptWaitDurations();
+        Integer nextAttemptNumber = attemptNumber + 1;
+        Integer waitDays = waitDurations.get(nextAttemptNumber);
+        Date dueDate = Date.today().addDays(waitDays != null ? waitDays : 30);
 
-      // If contact established, update case
-      // Task_Succession_Contact_Update flow will handle this too, but we update here for immediate feedback
-      if (contactEstablished && !parentCase.Contact_Established__c) {
-        parentCase.Contact_Established__c = true;
-        parentCase.Contact_Established_Date__c = Date.today();
-        update parentCase;
+        // Idempotency check - don't create if next attempt already exists
+        List<Task> existingNext = [
+          SELECT Id
+          FROM Task
+          WHERE
+            WhatId = :caseId
+            AND Contact_Attempt_Number__c = :nextAttemptNumber
+          WITH USER_MODE
+          LIMIT 1
+        ];
+
+        if (existingNext.isEmpty()) {
+          Task nextAttempt = new Task(
+            WhatId = caseId,
+            Contact_Attempt_Number__c = nextAttemptNumber,
+            Status = 'Not Started',
+            Subject = 'Succession Contact Attempt ' + nextAttemptNumber,
+            ActivityDate = dueDate,
+            Description = 'Automatically created contact attempt'
+          );
+          Database.insert(nextAttempt, AccessLevel.SYSTEM_MODE);
+
+          SuccessionLogger.debug(
+            'Created next contact attempt ' +
+              nextAttemptNumber +
+              ' for case ' +
+              caseId +
+              ' with due date ' +
+              dueDate
+          );
+        } else {
+          SuccessionLogger.debug(
+            'Next contact attempt ' +
+              nextAttemptNumber +
+              ' already exists for case ' +
+              caseId
+          );
+        }
       }
-
-      // Flow Task_Create_Next_Contact_Attempt will auto-create next task when this task completes
-      // No manual intervention needed
 
       return 'Success';
     } catch (Exception e) {
@@ -842,10 +897,10 @@ public with sharing class ContactCadenceController {
 
     // Fallback to default values if metadata not configured
     if (waitDurations.isEmpty()) {
-      waitDurations.put(2, 5);   // 5 days for attempt 2
-      waitDurations.put(3, 30);  // 30 days for attempt 3
-      waitDurations.put(4, 30);  // 30 days for attempt 4
-      waitDurations.put(5, 30);  // 30 days for attempt 5
+      waitDurations.put(2, 5); // 5 days for attempt 2
+      waitDurations.put(3, 30); // 30 days for attempt 3
+      waitDurations.put(4, 30); // 30 days for attempt 4
+      waitDurations.put(5, 30); // 30 days for attempt 5
     }
 
     return waitDurations;

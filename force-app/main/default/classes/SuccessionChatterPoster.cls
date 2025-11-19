@@ -23,30 +23,30 @@ public with sharing class SuccessionChatterPoster {
    */
   public class TransitionRequest {
     @InvocableVariable(
-      label = 'Case ID'
-      description = 'ID of the Case to post transition message to'
-      required = true
+      label='Case ID'
+      description='ID of the Case to post transition message to'
+      required=true
     )
     public Id caseId;
 
     @InvocableVariable(
-      label = 'Transition Type'
-      description = 'Type of transition (CONTACT_ESTABLISHED, FORM_COMPLETED, PATHWAY_CONFIRMED, VERIFICATION_COMPLETE, EXECUTION_COMPLETE)'
-      required = true
+      label='Transition Type'
+      description='Type of transition (CONTACT_ESTABLISHED, FORM_COMPLETED, PATHWAY_CONFIRMED, VERIFICATION_COMPLETE, EXECUTION_COMPLETE)'
+      required=true
     )
     public String transitionType;
 
     @InvocableVariable(
-      label = 'Pathway Name'
-      description = 'Name of selected pathway (for FORM_COMPLETED and PATHWAY_CONFIRMED transitions)'
-      required = false
+      label='Pathway Name'
+      description='Name of selected pathway (for FORM_COMPLETED and PATHWAY_CONFIRMED transitions)'
+      required=false
     )
     public String pathwayName;
 
     @InvocableVariable(
-      label = 'Additional Context'
-      description = 'Optional additional context to include in message'
-      required = false
+      label='Additional Context'
+      description='Optional additional context to include in message'
+      required=false
     )
     public String additionalContext;
   }
@@ -56,15 +56,18 @@ public with sharing class SuccessionChatterPoster {
    */
   public class TransitionResponse {
     @InvocableVariable(
-      label = 'Post Created'
-      description = 'True if Chatter post was created successfully'
+      label='Post Created'
+      description='True if Chatter post was created successfully'
     )
     public Boolean postCreated;
 
-    @InvocableVariable(label = 'Feed Item ID' description = 'ID of created FeedItem')
+    @InvocableVariable(
+      label='Feed Item ID'
+      description='ID of created FeedItem'
+    )
     public Id feedItemId;
 
-    @InvocableVariable(label = 'Message' description = 'Status message')
+    @InvocableVariable(label='Message' description='Status message')
     public String message;
   }
 
@@ -76,9 +79,9 @@ public with sharing class SuccessionChatterPoster {
    * @return List of responses indicating success/failure
    */
   @InvocableMethod(
-    label = 'Post Succession Transition'
-    description = 'Posts a succession workflow transition message to the Case Chatter feed with standardized formatting.'
-    category = 'Succession Management'
+    label='Post Succession Transition'
+    description='Posts a succession workflow transition message to the Case Chatter feed with standardized formatting.'
+    category='Succession Management'
   )
   public static List<TransitionResponse> postTransitions(
     List<TransitionRequest> requests
@@ -118,8 +121,7 @@ public with sharing class SuccessionChatterPoster {
 
         if (messageBody == null) {
           response.postCreated = false;
-          response.message =
-            'Invalid transition type: ' + req.transitionType;
+          response.message = 'Invalid transition type: ' + req.transitionType;
           responses.add(response);
           continue;
         }
@@ -148,21 +150,15 @@ public with sharing class SuccessionChatterPoster {
 
         response.postCreated = true;
         response.feedItemId = post != null ? post.Id : null;
-        response.message =
-          'Transition posted: ' + req.transitionType;
+        response.message = 'Transition posted: ' + req.transitionType;
       } catch (Exception e) {
         response.postCreated = false;
         response.feedItemId = null;
-        response.message =
-          'Error posting transition: ' + e.getMessage();
-        System.debug(
-          LoggingLevel.ERROR,
+        response.message = 'Error posting transition: ' + e.getMessage();
+        SuccessionLogger.error(
           'SuccessionChatterPoster error: ' + e.getMessage()
         );
-        System.debug(
-          LoggingLevel.ERROR,
-          'Stack trace: ' + e.getStackTraceString()
-        );
+        SuccessionLogger.error('Stack trace: ' + e.getStackTraceString());
       }
 
       responses.add(response);

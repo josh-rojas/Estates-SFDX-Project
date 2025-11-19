@@ -342,15 +342,15 @@ private class SuccessionUtilities_Test {
     // Check ContentNote object accessibility
     System.debug(
       'DEBUG TEST: ContentNote createable? ' +
-        Schema.sObjectType.ContentNote.isCreateable()
+      Schema.sObjectType.ContentNote.isCreateable()
     );
     System.debug(
       'DEBUG TEST: ContentNote accessible? ' +
-        Schema.sObjectType.ContentNote.isAccessible()
+      Schema.sObjectType.ContentNote.isAccessible()
     );
     System.debug(
       'DEBUG TEST: ContentDocumentLink createable? ' +
-        Schema.sObjectType.ContentDocumentLink.isCreateable()
+      Schema.sObjectType.ContentDocumentLink.isCreateable()
     );
 
     Id result = null;

@@ -7,8 +7,13 @@
  * Called from Flow when Contact_Established__c is set to true.
  * Automatically sets Form_Sent_Date__c after successful email send.
  *
+ * CRITICAL FIX (v1.2): Validates email based on successor's Account, not Case.AccountId.
+ * Case.AccountId points to the deceased donor, not the successor.
+ * This class queries the successor's Contact and Account to get correct email/opt-out status.
+ *
  * @author Claude Code
  * @date 2025-01-29
+ * @updated 2025-11-16 - Fixed Person Account email validation bug
  */
 public with sharing class SuccessionPathwayEmailSender {
   /**
@@ -44,8 +49,11 @@ public with sharing class SuccessionPathwayEmailSender {
    * Send pathway form invitation email to successor
    *
    * PERSON ACCOUNT SUPPORT:
-   * - Person Account: Sends to Case.Successor__c (PersonContactId) using Account.PersonEmail
+   * - Person Account: Sends to Case.Successor__c (PersonContactId) using successor's Account.PersonEmail
    * - Business Account: Sends to Case.Successor__c (ContactId) using Contact.Email
+   *
+   * NOTE: Case.AccountId points to deceased donor, not successor.
+   * This method queries the successor's Contact and Account to validate email/opt-out status.
    *
    * @param requests List of EmailRequest with caseId
    * @return List of EmailResponse with success status
@@ -64,19 +72,10 @@ public with sharing class SuccessionPathwayEmailSender {
       EmailResponse response = new EmailResponse();
 
       try {
-        // Query case with successor and account information
+        // Query case with successor information
+        // NOTE: Case.AccountId points to deceased donor, not successor
         List<Case> cases = [
-          SELECT
-            Id,
-            CaseNumber,
-            Successor__c,
-            AccountId,
-            Account.IsPersonAccount,
-            Account.PersonEmail,
-            Account.PersonHasOptedOutOfEmail,
-            Contact.Email,
-            Contact.HasOptedOutOfEmail,
-            Form_Sent_Date__c
+          SELECT Id, CaseNumber, Successor__c, Form_Sent_Date__c
           FROM Case
           WHERE Id = :request.caseId
           WITH USER_MODE
@@ -94,9 +93,8 @@ public with sharing class SuccessionPathwayEmailSender {
 
         // Check if email already sent
         if (c.Form_Sent_Date__c != null) {
-          response.success = true;
-          response.message =
-            'Email already sent on ' + c.Form_Sent_Date__c.format();
+          response.success = false;
+          response.message = 'Pathway form email already sent for this case';
           response.emailSentDate = Date.valueOf(c.Form_Sent_Date__c);
           responses.add(response);
           continue;
@@ -110,19 +108,46 @@ public with sharing class SuccessionPathwayEmailSender {
           continue;
         }
 
-        // Validate email based on account type
+        // Query successor's Account to get email/opt-out status
+        // Successor__c is a Contact lookup, so we need to get the Account via Contact
+        List<Contact> successorContacts = [
+          SELECT
+            Id,
+            Email,
+            HasOptedOutOfEmail,
+            AccountId,
+            Account.IsPersonAccount,
+            Account.PersonEmail,
+            Account.PersonHasOptedOutOfEmail
+          FROM Contact
+          WHERE Id = :c.Successor__c
+          WITH USER_MODE
+          LIMIT 1
+        ];
+
+        if (successorContacts.isEmpty()) {
+          response.success = false;
+          response.message = 'Successor contact not found';
+          responses.add(response);
+          continue;
+        }
+
+        Contact successorContact = successorContacts[0];
+
+        // Validate email based on successor's account type
         String emailAddress;
         Boolean hasOptedOut;
-        Boolean isPersonAccount = c.Account?.IsPersonAccount ?? false;
+        Boolean isPersonAccount = successorContact.Account?.IsPersonAccount ??
+          false;
 
         if (isPersonAccount) {
-          // Person Account: Use PersonEmail
-          emailAddress = c.Account.PersonEmail;
-          hasOptedOut = c.Account.PersonHasOptedOutOfEmail;
+          // Person Account: Use PersonEmail from successor's Account
+          emailAddress = successorContact.Account.PersonEmail;
+          hasOptedOut = successorContact.Account.PersonHasOptedOutOfEmail;
         } else {
-          // Business Account: Use Contact.Email
-          emailAddress = c.Contact?.Email;
-          hasOptedOut = c.Contact?.HasOptedOutOfEmail;
+          // Business Account: Use Contact.Email from successor Contact
+          emailAddress = successorContact.Email;
+          hasOptedOut = successorContact.HasOptedOutOfEmail;
         }
 
         // Validate email using SuccessionUtilities
@@ -206,7 +231,9 @@ public with sharing class SuccessionPathwayEmailSender {
       } catch (Exception e) {
         response.success = false;
         response.message = 'Error sending email: ' + e.getMessage();
-        System.debug('Error in sendPathwayFormEmail: ' + e.getMessage());
+        SuccessionLogger.error(
+          'Error in sendPathwayFormEmail: ' + e.getMessage()
+        );
       }
 
       responses.add(response);

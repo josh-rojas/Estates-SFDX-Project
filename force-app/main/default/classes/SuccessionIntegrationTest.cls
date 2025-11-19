@@ -20,10 +20,7 @@ public class SuccessionIntegrationTest {
    * Inline helper methods for creating test records
    */
   private static Account createDeceasedDonorAccount(String name) {
-    Account acc = new Account(
-      Name = name,
-      Deceased__c = true
-    );
+    Account acc = new Account(Name = name, Deceased__c = true);
     insert acc;
     return acc;
   }
@@ -118,7 +115,11 @@ public class SuccessionIntegrationTest {
 
     // Verify case created
     System.assert(result.success, 'Case creation should succeed');
-    System.assertNotEquals(null, result.seedCaseId, 'Seed case ID should be populated');
+    System.assertNotEquals(
+      null,
+      result.seedCaseId,
+      'Seed case ID should be populated'
+    );
 
     // Use SuccessionTaskCreator to create initial contact attempt task (contact cadence)
     Case seedCase = [
@@ -140,7 +141,11 @@ public class SuccessionIntegrationTest {
 
     System.assertEquals(1, responses.size(), 'Should return one response');
     // In some orgs, Attempt 1 may already exist from automation; either creation or reuse is acceptable
-    System.assertNotEquals(null, responses[0].taskId, 'Task ID should be populated when task exists');
+    System.assertNotEquals(
+      null,
+      responses[0].taskId,
+      'Task ID should be populated when task exists'
+    );
 
     // Verify contact attempt task exists with correct activity date and attempt number
     List<Task> tasks = [
@@ -148,8 +153,16 @@ public class SuccessionIntegrationTest {
       FROM Task
       WHERE WhatId = :seedCase.Id
     ];
-    System.assertEquals(1, tasks.size(), 'Initial contact task should be created');
-    System.assertEquals(1, tasks[0].Contact_Attempt_Number__c, 'First task should be attempt 1');
+    System.assertEquals(
+      1,
+      tasks.size(),
+      'Initial contact task should be created'
+    );
+    System.assertEquals(
+      1,
+      tasks[0].Contact_Attempt_Number__c,
+      'First task should be attempt 1'
+    );
     System.assertEquals(
       seedCase.CreatedDate.date(),
       tasks[0].ActivityDate,
@@ -195,7 +208,11 @@ public class SuccessionIntegrationTest {
 
     // Verify parent case created
     System.assert(result.success, 'Case creation should succeed');
-    System.assertNotEquals(null, result.parentCaseId, 'Parent case ID should be populated');
+    System.assertNotEquals(
+      null,
+      result.parentCaseId,
+      'Parent case ID should be populated'
+    );
     System.assertEquals(2, result.successorCount, 'Should have 2 successors');
 
     // Verify child cases created
@@ -227,8 +244,15 @@ public class SuccessionIntegrationTest {
     );
 
     // Verify error handling
-    System.assert(!result.success, 'Case creation should fail without successors');
-    System.assertNotEquals(null, result.message, 'Error message should be populated');
+    System.assert(
+      !result.success,
+      'Case creation should fail without successors'
+    );
+    System.assertNotEquals(
+      null,
+      result.message,
+      'Error message should be populated'
+    );
 
     Test.stopTest();
   }
@@ -277,8 +301,7 @@ public class SuccessionIntegrationTest {
     List<Task> pathwayTasks = [
       SELECT Id, Subject, ActivityDate
       FROM Task
-      WHERE WhatId = :result.seedCaseId
-        AND Subject IN :finalGrantSubjects
+      WHERE WhatId = :result.seedCaseId AND Subject IN :finalGrantSubjects
       ORDER BY ActivityDate
     ];
     System.assertEquals(
@@ -295,4 +318,3 @@ public class SuccessionIntegrationTest {
     Test.stopTest();
   }
 }
-

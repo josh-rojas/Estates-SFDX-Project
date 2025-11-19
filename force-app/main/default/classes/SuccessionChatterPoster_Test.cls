@@ -67,10 +67,7 @@ private class SuccessionChatterPoster_Test {
       WHERE ParentId = :testCase.Id
     ];
     Assert.areEqual(1, posts.size(), 'Should create 1 Chatter post');
-    Assert.isTrue(
-      posts[0].Body.contains('📞'),
-      'Should contain contact emoji'
-    );
+    Assert.isTrue(posts[0].Body.contains('📞'), 'Should contain contact emoji');
     Assert.isTrue(
       posts[0].Body.contains('Contact established'),
       'Should contain transition description'
@@ -112,10 +109,7 @@ private class SuccessionChatterPoster_Test {
       posts[0].Body.contains('Final Grant'),
       'Should contain pathway name'
     );
-    Assert.isTrue(
-      posts[0].Body.contains('📋'),
-      'Should contain form emoji'
-    );
+    Assert.isTrue(posts[0].Body.contains('📋'), 'Should contain form emoji');
   }
 
   /**
@@ -146,10 +140,7 @@ private class SuccessionChatterPoster_Test {
       FROM FeedItem
       WHERE ParentId = :testCase.Id
     ];
-    Assert.isTrue(
-      posts[0].Body.contains('🎯'),
-      'Should contain target emoji'
-    );
+    Assert.isTrue(posts[0].Body.contains('🎯'), 'Should contain target emoji');
     Assert.isTrue(
       posts[0].Body.contains('New DAF Account'),
       'Should contain pathway name'
