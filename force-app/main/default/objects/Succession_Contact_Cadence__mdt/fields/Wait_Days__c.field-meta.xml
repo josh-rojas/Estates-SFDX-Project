@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Wait_Days__c</fullName>
     <label>Wait Days</label>
-    <description>Number of days to wait after the previous attempt before this attempt becomes available. Used for date-gating and countdown calculations.</description>
+    <description
+  >Number of days to wait after the previous attempt before this attempt becomes available. Used for date-gating and countdown calculations.</description>
     <type>Number</type>
     <precision>3</precision>
     <scale>0</scale>

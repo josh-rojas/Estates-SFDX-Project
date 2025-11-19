@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
-    <description>Fast pathway recording after phone conversation. Captures successor's pathway selection and related dates; agent can also mark contact established.</description>
+    <description
+  >Fast pathway recording after phone conversation. Captures successor's pathway selection and related dates; agent can also mark contact established.</description>
     <label>📋 Record Pathway Selection</label>
     <optionsCreateFeedItem>false</optionsCreateFeedItem>
     <quickActionLayout>

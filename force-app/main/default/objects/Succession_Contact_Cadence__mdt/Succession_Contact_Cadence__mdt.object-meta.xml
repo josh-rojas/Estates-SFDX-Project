@@ -1,7 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <label>Succession Contact Cadence</label>
     <pluralLabel>Succession Contact Cadences</pluralLabel>
     <visibility>Public</visibility>
-    <description>Configuration for contact attempt wait durations in the succession management contact cadence. Allows admins to configure wait periods between contact attempts without code deployment.</description>
+    <description
+  >Configuration for contact attempt wait durations in the succession management contact cadence. Allows admins to configure wait periods between contact attempts without code deployment.</description>
 </CustomObject>

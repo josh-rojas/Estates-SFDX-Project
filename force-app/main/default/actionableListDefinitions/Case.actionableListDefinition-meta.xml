@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ActionableListDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+<?xml version="1.0" encoding="UTF-8" ?>
+<ActionableListDefinition2 xmlns="http://soap.sforce.com/2006/04/metadata">
     <actionableListDatasetColumns>
         <dataDomain>Dimensions</dataDomain>
         <isDefault>false</isDefault>
@@ -204,4 +204,4 @@
     <isActive>false</isActive>
     <masterLabel>Case</masterLabel>
     <objectName>Case</objectName>
-</ActionableListDefinition>
+</ActionableListDefinition2>

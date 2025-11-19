@@ -1,42 +1,63 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>65.0</apiVersion>
-    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
-    <description
-  >Updates case status and notifies stakeholders as succession cases progress through workflow phases.</description>
-    <environments>Default</environments>
-    <interviewLabel
-  >Succession - Update Case Status &amp; Notify {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Succession - Update Case Status &amp; Notify</label>
-    <processMetadataValues>
-        <name>BuilderType</name>
-        <value>
-            <stringValue>LightningFlowBuilder</stringValue>
-        </value>
-    </processMetadataValues>
-    <processMetadataValues>
-        <name>CanvasMode</name>
-        <value>
-            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
-        </value>
-    </processMetadataValues>
-    <processMetadataValues>
-        <name>OriginBuilderType</name>
-        <value>
-            <stringValue>LightningFlowBuilder</stringValue>
-        </value>
-    </processMetadataValues>
-    <processType>AutoLaunchedFlow</processType>
-
-    <!-- MAIN DECISION: Which Phase Transition Occurred? -->
+    <actionCalls>
+        <name>Post_Contact_Established_Chatter</name>
+        <label>Post Contact Established Chatter</label>
+        <locationX>176</locationX>
+        <locationY>468</locationY>
+        <actionName>SuccessionChatterPoster</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>transitionType</name>
+            <value>
+                <stringValue>CONTACT_ESTABLISHED</stringValue>
+            </value>
+        </inputParameters>
+        <nameSegment>SuccessionChatterPoster</nameSegment>
+    </actionCalls>
+    <actionCalls>
+        <name>Post_Form_Completed_Chatter</name>
+        <label>Post Form Completed Chatter</label>
+        <locationX>302</locationX>
+        <locationY>468</locationY>
+        <actionName>SuccessionChatterPoster</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>caseId</name>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>transitionType</name>
+            <value>
+                <stringValue>FORM_COMPLETED</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>pathwayName</name>
+            <value>
+                <elementReference
+        >$Record.Pathway_Confirmed__c</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>SuccessionChatterPoster</nameSegment>
+    </actionCalls>
+    <apiVersion>62.0</apiVersion>
     <decisions>
         <name>Check_Phase_Transitions</name>
         <label>Check Phase Transitions</label>
         <locationX>302</locationX>
         <locationY>144</locationY>
         <defaultConnectorLabel>No Status Change Needed</defaultConnectorLabel>
-
-        <!-- PHASE 1: Verification Complete (Auto-start in v1.1) -->
         <rules>
             <name>Phase_1_Verification_Complete</name>
             <conditionLogic>and</conditionLogic>
@@ -62,8 +83,6 @@
             </connector>
             <label>Phase 1: Verification Complete</label>
         </rules>
-
-        <!-- PHASE 2: Contact Established + Form Sent -->
         <rules>
             <name>Phase_2_Contact_Established</name>
             <conditionLogic>and</conditionLogic>
@@ -97,8 +116,6 @@
             </connector>
             <label>Phase 2: Contact Established</label>
         </rules>
-
-        <!-- PHASE 3: Form Completed -->
         <rules>
             <name>Phase_3_Form_Completed</name>
             <conditionLogic>and</conditionLogic>
@@ -123,8 +140,6 @@
             </connector>
             <label>Phase 3: Form Completed</label>
         </rules>
-
-        <!-- PHASE 4: Pathway Execution Started -->
         <rules>
             <name>Phase_4_Pathway_Selected</name>
             <conditionLogic>and</conditionLogic>
@@ -150,8 +165,6 @@
             </connector>
             <label>Phase 4: Pathway Selected</label>
         </rules>
-
-        <!-- PHASE 5: Execution Complete -->
         <rules>
             <name>Phase_5_Execution_Complete</name>
             <conditionLogic>and</conditionLogic>
@@ -177,22 +190,31 @@
             <label>Phase 5: Execution Complete</label>
         </rules>
     </decisions>
-
-    <!-- RECORD UPDATES: Status Field Changes -->
-    <recordUpdates>
-        <name>Update_Status_to_In_Progress_Phase1</name>
-        <label>Update Status to In Progress (Phase 1)</label>
-        <locationX>50</locationX>
-        <locationY>360</locationY>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>In Progress</stringValue>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
-
+    <description
+  >Updates case status and notifies stakeholders as succession cases progress through workflow phases.</description>
+    <environments>Default</environments>
+    <interviewLabel
+  >Succession - Update Case Status &amp; Notify {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Succession - Update Case Status &amp; Notify</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
     <recordUpdates>
         <name>Update_Status_to_Awaiting_Response</name>
         <label>Update Status to Awaiting Response</label>
@@ -209,7 +231,45 @@
         </inputAssignments>
         <inputReference>$Record</inputReference>
     </recordUpdates>
-
+    <recordUpdates>
+        <name>Update_Status_to_Closed</name>
+        <label>Update Status to Closed</label>
+        <locationX>554</locationX>
+        <locationY>360</locationY>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Status_to_In_Progress_Phase1</name>
+        <label>Update Status to In Progress (Phase 1)</label>
+        <locationX>50</locationX>
+        <locationY>360</locationY>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>In Progress</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Status_to_In_Progress_Phase4</name>
+        <label>Update Status to In Progress (Phase 4)</label>
+        <locationX>428</locationX>
+        <locationY>360</locationY>
+        <inputAssignments>
+            <field>Status</field>
+            <value>
+                <stringValue>In Progress</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
     <recordUpdates>
         <name>Update_Status_to_In_Review</name>
         <label>Update Status to In Review</label>
@@ -226,92 +286,6 @@
         </inputAssignments>
         <inputReference>$Record</inputReference>
     </recordUpdates>
-
-    <recordUpdates>
-        <name>Update_Status_to_In_Progress_Phase4</name>
-        <label>Update Status to In Progress (Phase 4)</label>
-        <locationX>428</locationX>
-        <locationY>360</locationY>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>In Progress</stringValue>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
-
-    <recordUpdates>
-        <name>Update_Status_to_Closed</name>
-        <label>Update Status to Closed</label>
-        <locationX>554</locationX>
-        <locationY>360</locationY>
-        <inputAssignments>
-            <field>Status</field>
-            <value>
-                <stringValue>Closed</stringValue>
-            </value>
-        </inputAssignments>
-        <inputReference>$Record</inputReference>
-    </recordUpdates>
-
-    <!-- ACTION CALLS: Chatter Feed Posts (via Apex Invocable) -->
-    <actionCalls>
-        <name>Post_Contact_Established_Chatter</name>
-        <label>Post Contact Established Chatter</label>
-        <locationX>176</locationX>
-        <locationY>468</locationY>
-        <actionName>SuccessionChatterPoster</actionName>
-        <actionType>apex</actionType>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>caseId</name>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>transitionType</name>
-            <value>
-                <stringValue>CONTACT_ESTABLISHED</stringValue>
-            </value>
-        </inputParameters>
-        <nameSegment>SuccessionChatterPoster</nameSegment>
-        <versionSegment>1</versionSegment>
-    </actionCalls>
-
-    <actionCalls>
-        <name>Post_Form_Completed_Chatter</name>
-        <label>Post Form Completed Chatter</label>
-        <locationX>302</locationX>
-        <locationY>468</locationY>
-        <actionName>SuccessionChatterPoster</actionName>
-        <actionType>apex</actionType>
-        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
-        <inputParameters>
-            <name>caseId</name>
-            <value>
-                <elementReference>$Record.Id</elementReference>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>transitionType</name>
-            <value>
-                <stringValue>FORM_COMPLETED</stringValue>
-            </value>
-        </inputParameters>
-        <inputParameters>
-            <name>pathwayName</name>
-            <value>
-                <elementReference
-        >$Record.Pathway_Confirmed__c</elementReference>
-            </value>
-        </inputParameters>
-        <nameSegment>SuccessionChatterPoster</nameSegment>
-        <versionSegment>1</versionSegment>
-    </actionCalls>
-
-    <!-- FLOW TRIGGER: After Update on Estate Administration Cases -->
     <start>
         <locationX>176</locationX>
         <locationY>0</locationY>
@@ -319,13 +293,13 @@
             <targetReference>Check_Phase_Transitions</targetReference>
         </connector>
         <filterFormula>AND(
-    RecordType.DeveloperName = &quot;EstateAdministration&quot;,
+    {!$Record.RecordType.DeveloperName} = &quot;EstateAdministration&quot;,
     TEXT({!$Record.Type}) = &quot;Named Successor Enactment&quot;,
-    IsClosed = FALSE
+    {!$Record.IsClosed} = FALSE
 )</filterFormula>
         <object>Case</object>
         <recordTriggerType>Update</recordTriggerType>
         <triggerType>RecordAfterSave</triggerType>
     </start>
-    <status>Active</status>
+    <status>Draft</status>
 </Flow>

@@ -8,5 +8,5 @@
   "name": "Estates SFDX Project",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "65.0"
+  "sourceApiVersion": "62.0"
 }
