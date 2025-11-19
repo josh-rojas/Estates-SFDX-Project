@@ -84,4 +84,36 @@ describe("c-succession-contact-cadence", () => {
     // Alert boxes may be present depending on data state
     expect(alertBoxes).toBeDefined();
   });
+
+  describe("Accessibility", () => {
+    it("renders status announcement region", () => {
+      const element = createElement("c-succession-contact-cadence", {
+        is: SuccessionContactCadence
+      });
+      element.recordId = "500xx000000000AAAA";
+      document.body.appendChild(element);
+
+      const statusRegion = element.shadowRoot.querySelector(
+        '.slds-assistive-text[aria-live="polite"]'
+      );
+      expect(statusRegion).not.toBeNull();
+      expect(statusRegion.getAttribute("aria-atomic")).toBe("true");
+    });
+
+    it("status announcement region exists for screen readers", async () => {
+      const element = createElement("c-succession-contact-cadence", {
+        is: SuccessionContactCadence
+      });
+      element.recordId = "500xx000000000AAAA";
+      document.body.appendChild(element);
+
+      await Promise.resolve();
+
+      const statusRegion = element.shadowRoot.querySelector(
+        '.slds-assistive-text[aria-live="polite"]'
+      );
+      expect(statusRegion).not.toBeNull();
+      expect(statusRegion.getAttribute("aria-atomic")).toBe("true");
+    });
+  });
 });

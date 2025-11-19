@@ -37,6 +37,12 @@ export default class SuccessionPublicForm extends LightningElement {
   selectedPathway = "";
   additionalNotes = "";
 
+  // Accessible confirmation modal
+  showConfirmModal = false;
+  confirmModalTitle = "";
+  confirmModalMessage = "";
+  confirmCallback = null;
+
   // Pathway options
   pathwayOptions = [
     { label: "Final Grant to Charity", value: "Final Grant" },
@@ -480,41 +486,54 @@ export default class SuccessionPublicForm extends LightningElement {
   }
 
   handleCancel() {
-    // Confirm cancellation with user
-    // eslint-disable-next-line no-alert, no-restricted-globals -- Guest user context requires native confirm() dialog; no LWC alternative available for unauthenticated users
-    const confirmed = confirm(
-      "Are you sure you want to cancel? Your selections will not be saved."
-    );
+    this.showConfirm(
+      "Cancel Form",
+      "Are you sure you want to cancel? Your selections will not be saved.",
+      (confirmed) => {
+        if (confirmed) {
+          this.selectedPathway = "";
+          this.additionalNotes = "";
 
-    if (confirmed) {
-      // Reset form
-      this.selectedPathway = "";
-      this.additionalNotes = "";
+          this.dispatchEvent(
+            new ShowToastEvent({
+              title: "Form Cancelled",
+              message:
+                "Your selections were not saved. You may now close this browser tab. If you need assistance, please contact our Estate Administration team.",
+              variant: "info",
+              mode: "sticky"
+            })
+          );
 
-      // Show cancellation message with clear instructions
-      this.dispatchEvent(
-        new ShowToastEvent({
-          title: "Form Cancelled",
-          message:
-            "Your selections were not saved. You may now close this browser tab. If you need assistance, please contact our Estate Administration team.",
-          variant: "info",
-          mode: "sticky" // Keep message visible
-        })
-      );
-
-      // BROWSER LIMITATION: window.close() only works if window was opened by JavaScript
-      // Most browsers block window.close() for user-opened tabs for security reasons
-      // Alternative: Show clear message instructing user to close tab manually
-      // Attempting window.close() anyway in case it works (e.g., popup windows)
-      try {
-        window.close();
-        // If close succeeds, great! If not, user sees the toast message above
-      } catch {
-        // window.close() blocked - user will see toast message instructing manual close
-        console.log(
-          "window.close() blocked by browser - user must close tab manually"
-        );
+          try {
+            window.close();
+          } catch {
+            console.log(
+              "window.close() blocked by browser - user must close tab manually"
+            );
+          }
+        }
       }
+    );
+  }
+
+  showConfirm(title, message, callback) {
+    this.confirmModalTitle = title;
+    this.confirmModalMessage = message;
+    this.confirmCallback = callback;
+    this.showConfirmModal = true;
+  }
+
+  handleConfirmOk() {
+    this.showConfirmModal = false;
+    if (this.confirmCallback) {
+      this.confirmCallback(true);
+    }
+  }
+
+  handleConfirmCancel() {
+    this.showConfirmModal = false;
+    if (this.confirmCallback) {
+      this.confirmCallback(false);
     }
   }
 }

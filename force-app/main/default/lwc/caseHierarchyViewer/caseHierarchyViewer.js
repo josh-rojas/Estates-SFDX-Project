@@ -240,7 +240,11 @@ export default class CaseHierarchyViewer extends NavigationMixin(
    * Get safe error message with null checks
    */
   get errorMessage() {
-    return this.error?.body?.message || this.error?.message || "Unknown error occurred";
+    return (
+      this.error?.body?.message ||
+      this.error?.message ||
+      "Unknown error occurred"
+    );
   }
 
   /**

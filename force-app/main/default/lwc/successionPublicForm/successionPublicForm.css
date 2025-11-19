@@ -1,31 +1,30 @@
 .succession-scope {
   font-family: "Salesforce Sans", Arial, sans-serif;
   background-color: #f3f3f3;
-  padding: 2rem;
   min-height: 100vh;
 }
 
-.slds-page-header {
+.succession-page-header {
   background: linear-gradient(135deg, #1b5297 0%, #0070d2 100%);
   color: white;
   padding: 2rem;
   border-radius: 0.25rem;
 }
 
-.slds-page-header__title {
+.succession-page-header__title {
   color: white;
 }
 
-/* Component-scoped styling (not global SLDS overrides) */
-.succession-scope .slds-page-header .slds-text-body_regular {
+/* Component-scoped styling */
+.succession-page-header__subtitle {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.succession-scope .slds-card {
+.succession-card {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.succession-scope .slds-dl_horizontal__label {
+.succession-dl-label {
   font-weight: 600;
   color: var(--slds-g-color-neutral-base-10, #181818);
 }
@@ -38,24 +37,24 @@
 /* Error notification uses standard SLDS scoped-notification pattern */
 
 /* Error Card Sections */
-lightning-card .slds-p-around_medium > div {
+.succession-card-section {
   border-bottom: 1px solid #e5e5e5;
   padding-bottom: 1rem;
   margin-bottom: 1rem;
 }
 
-lightning-card .slds-p-around_medium > div:last-child {
+.succession-card-section:last-child {
   border-bottom: none;
   margin-bottom: 0;
 }
 
 /* Support Info Box */
-.slds-box.slds-theme_shade {
+.succession-support-box {
   background-color: #f3f3f3;
   border-left: 3px solid #0070d2;
 }
 
-.slds-box.slds-theme_shade code {
+.succession-support-box code {
   background-color: #ffffff;
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
@@ -70,6 +69,6 @@ lightning-button[icon-name="utility:refresh"] {
 }
 
 /* Error Type Badge */
-.slds-text-body_small strong {
+.succession-error-badge {
   color: #3e3e3c;
 }

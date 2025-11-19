@@ -52,6 +52,46 @@ describe("c-succession-public-form", () => {
     // Verify error message is displayed in DOM (current rich error copy)
     const errorText = element.shadowRoot.textContent;
     expect(errorText).toContain("Missing Case Information");
-    expect(errorText).toContain("The link you used is missing required information (Case ID).");
+    expect(errorText).toContain(
+      "The link you used is missing required information (Case ID)."
+    );
+  });
+
+  describe("Accessibility", () => {
+    it("renders error with aria-live region", async () => {
+      delete window.location;
+      window.location = { search: "" };
+
+      const element = createElement("c-succession-public-form", {
+        is: SuccessionPublicForm
+      });
+      document.body.appendChild(element);
+
+      await Promise.resolve();
+
+      const errorDiv = element.shadowRoot.querySelector('[role="alert"]');
+      expect(errorDiv).not.toBeNull();
+      expect(errorDiv.getAttribute("aria-live")).toBe("assertive");
+      expect(errorDiv.getAttribute("aria-atomic")).toBe("true");
+    });
+
+    it("error alerts have proper aria attributes", async () => {
+      delete window.location;
+      window.location = { search: "" };
+
+      const element = createElement("c-succession-public-form", {
+        is: SuccessionPublicForm
+      });
+      document.body.appendChild(element);
+
+      await Promise.resolve();
+
+      const errorDiv = element.shadowRoot.querySelector(
+        '.slds-scoped-notification[role="alert"]'
+      );
+      expect(errorDiv).not.toBeNull();
+      expect(errorDiv.getAttribute("aria-live")).toBe("assertive");
+      expect(errorDiv.getAttribute("aria-atomic")).toBe("true");
+    });
   });
 });

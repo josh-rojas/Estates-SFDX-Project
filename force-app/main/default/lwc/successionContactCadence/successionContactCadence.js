@@ -27,6 +27,7 @@ export default class SuccessionContactCadence extends NavigationMixin(
   wiredCadenceResult;
   error;
   isLoading = true;
+  statusAnnouncement = "";
 
   // PERFORMANCE: Centralized state management
   @track state = {
@@ -39,7 +40,6 @@ export default class SuccessionContactCadence extends NavigationMixin(
     ui: {
       isCollapsed: false,
       isNavigatingToEmail: false,
-      pendingEmailAttempt: null,
       highestAttemptStarted: 0
     },
     performance: {
@@ -93,7 +93,10 @@ export default class SuccessionContactCadence extends NavigationMixin(
         this.attemptWaitDurations[attemptNum] = waitDays * 24 * 60 * 60 * 1000;
       });
     } else if (error) {
-      console.error("Error loading wait durations from Custom Metadata:", error);
+      console.error(
+        "Error loading wait durations from Custom Metadata:",
+        error
+      );
       this.attemptWaitDurations = {
         2: 5 * 24 * 60 * 60 * 1000, // 5 days
         3: 30 * 24 * 60 * 60 * 1000, // 30 days
@@ -339,29 +342,6 @@ export default class SuccessionContactCadence extends NavigationMixin(
     return this.cadenceData.attempts.some(
       (attempt) => attempt.taskRecord !== null
     );
-  }
-
-  /**
-   * Get send email button label
-   */
-  get sendEmailButtonLabel() {
-    return this.state.ui.isNavigatingToEmail ? "Opening..." : "Open Email";
-  }
-
-  /**
-   * Template label hint for the pending email prompt (desktop)
-   */
-  get pendingEmailTemplateLabel() {
-    const map = {
-      1: "Day 0 - Initial Contact",
-      2: "Day 5 - First Follow-Up",
-      3: "Day 35 - Second Contact",
-      4: "Day 65 - Third Contact",
-      5: "Day 95 - Final Contact"
-    };
-    return this.state.ui.pendingEmailAttempt
-      ? map[this.state.ui.pendingEmailAttempt]
-      : "";
   }
 
   /**
@@ -795,17 +775,12 @@ export default class SuccessionContactCadence extends NavigationMixin(
         notes: this.state.editing.notes
       })
         .then(() => {
-          // If contact was NOT established (NO selected), show option to send email
-          if (!contactWasEstablished) {
-            this.state.ui.pendingEmailAttempt = attemptNumber;
-            this.showToastWithEmailOption(attemptNumber);
-          } else {
-            this.showToast(
-              "Success",
-              "Contact attempt outcome saved",
-              "success"
-            );
-          }
+          this.statusAnnouncement =
+            "Contact attempt outcome saved successfully";
+
+          // If contact was NOT established (NO selected), show standard success message
+          // Email prompt removed per user request
+          this.showToast("Success", "Contact attempt outcome saved", "success");
 
           // FIX: Advance to next attempt only after successful save
           // This prevents attempt 2 from being editable while attempt 1 is still being saved
@@ -855,195 +830,6 @@ export default class SuccessionContactCadence extends NavigationMixin(
     } catch (error) {
       this.handleError(error, "handleSaveOutcome");
       this.isLoading = false;
-    }
-  }
-
-  /**
-   * Show toast with option to send follow-up email
-   */
-  showToastWithEmailOption(attemptNumber) {
-    const templateMap = {
-      1: "Day 0 Initial Contact",
-      2: "Day 5 First Follow-Up",
-      3: "Day 35 Second Contact",
-      4: "Day 65 Third Contact",
-      5: "Day 95 Final Contact"
-    };
-
-    const templateLabel = templateMap[attemptNumber];
-
-    this.showToast(
-      "Outcome Saved",
-      `Next task created. Send ${templateLabel} email? (Optional)`,
-      "success"
-    );
-  }
-
-  /**
-   * Handle Send Email button click
-   * Includes double-click prevention and email validation
-   */
-  handleSendEmail(event) {
-    // Prevent double-click (button already disabled during navigation)
-    if (this.state.ui.isNavigatingToEmail) {
-      return;
-    }
-
-    // Validate email is available
-    if (!this.canSendEmail) {
-      this.showToast(
-        "Error",
-        this.emailWarningMessage || "Email sending not available",
-        "error"
-      );
-      return;
-    }
-
-    const attemptNumber = parseInt(
-      event.currentTarget.dataset.attemptNumber,
-      10
-    );
-    this.openListEmailDialog(attemptNumber);
-  }
-
-  /**
-   * Handle Skip Email button click
-   * This is the ONLY way to dismiss the email prompt (keeps it visible if agent closes composer)
-   */
-  handleSkipEmail() {
-    this.state.ui.pendingEmailAttempt = null;
-    this.state.ui.isNavigatingToEmail = false; // Reset navigation state
-    this.showToast("Email Skipped", "You can process the next case", "info");
-  }
-
-  /**
-   * Open Lightning Email Composer with appropriate context
-   *
-   * Uses Quick Action navigation pattern (Account.SendEmail / Contact.SendEmail) for reliability.
-   * This ensures stable composer opening across all Salesforce environments and org configurations.
-   *
-   * NOTE: This handles both Person Accounts and Business Accounts with Contacts.
-   * - Person Account: Uses Account.SendEmail Quick Action
-   * - Business Account: Uses Contact.SendEmail Quick Action
-   *
-   * TEMPLATE SELECTION: Opens composer with manual template selection UX.
-   * Agent must select template from dropdown. Pre-selection not implemented because:
-   * - Requires EmailTemplate API lookup (additional SOQL query + performance impact)
-   * - Template IDs vary across orgs (deployment complexity)
-   * - Manual selection ensures agent reviews template before sending (compliance benefit)
-   * - Quick Action pattern doesn't support automatic template selection
-   *
-   * IMPLEMENTATION NOTE: Changed from standard__composer to Quick Action pattern to fix
-   * "Page doesn't exist" navigation errors in certain org configurations.
-   */
-  openListEmailDialog(attemptNumber) {
-    // Validate cadence data exists
-    if (!this.cadenceData) {
-      this.showToast(
-        "Error",
-        "Cannot open email composer: Case data not loaded",
-        "error"
-      );
-      console.error("Cannot open list email: cadenceData is null or undefined");
-      return;
-    }
-
-    // Determine which record to use based on account type
-    const isPersonAccount = this.cadenceData.isPersonAccount;
-    const accountId = this.cadenceData.accountId;
-    const contactId = this.cadenceData.contactId;
-
-    // Determine recordId for recipient context based on account type
-    let recordId;
-
-    if (isPersonAccount) {
-      // Person Account: use AccountId
-      // IMPORTANT: Enhanced Email must be enabled in org for Account email sending
-      recordId = accountId;
-    } else {
-      // Business Account: use ContactId
-      recordId = contactId;
-    }
-
-    // Validate recordId exists
-    if (!recordId) {
-      const errorMsg = isPersonAccount
-        ? "Cannot open email composer: Account ID not found on case. Ensure Case has an Account."
-        : "Cannot open email composer: Contact ID not found on case. Ensure Case has a Contact.";
-      this.showToast("Error", errorMsg, "error");
-      console.error("Cannot open list email: Record ID not found", {
-        isPersonAccount,
-        accountId,
-        contactId,
-        caseId: this.recordId
-      });
-      return;
-    }
-
-    // Map attempt numbers to email template display names (for toast message)
-    const templateMap = {
-      1: "Day 0 - Initial Contact",
-      2: "Day 5 - First Follow-Up",
-      3: "Day 35 - Second Contact",
-      4: "Day 65 - Third Contact",
-      5: "Day 95 - Final Contact"
-    };
-
-    const templateDisplayName = templateMap[attemptNumber];
-
-    // Set navigation state to prevent double-click
-    this.state.ui.isNavigatingToEmail = true;
-
-    try {
-      // FIX: Use Quick Action navigation pattern for better cross-environment compatibility
-      // standard__composer sometimes fails with "Page doesn't exist" error in certain orgs
-      // Quick Action pattern (Account.SendEmail / Contact.SendEmail) is more reliable
-
-      // Determine which action to use based on record type
-      const actionName = isPersonAccount ? 'Account.SendEmail' : 'Contact.SendEmail';
-
-      this[NavigationMixin.Navigate]({
-        type: "standard__quickAction",
-        attributes: {
-          actionName: actionName,
-          objectApiName: isPersonAccount ? 'Account' : 'Contact',
-          recordId: recordId // Recipient: Contact or Account (Person Account)
-          // Note: relatedEntityId not available in quick action pattern
-          // Agent must manually reference Case fields if needed
-        }
-      });
-
-      // NOTE: Do NOT clear pendingEmailAttempt here
-      // Keep email prompt visible in case agent closes composer without sending
-      // Only clear when agent explicitly clicks "Skip" button
-
-      // Show reminder about which template to select
-      this.showToast(
-        "Email Composer Opening",
-        `Opening email composer. Select template: "${templateDisplayName}"`,
-        "info"
-      );
-
-      // NOTE: No Chatter post created for optional contact cadence emails
-      // Pathway form invitation email (automated) is handled separately by Flow
-
-      // Reset navigation state after short delay (allow composer to open)
-      // UX Enhancement: Prevents double-clicking "Send Email" button while composer loads
-      // 2s delay allows email composer window to fully load before re-enabling button
-      // Alternative considered: Navigation complete event, but not available for email composer
-      // eslint-disable-next-line @lwc/lwc/no-async-operation
-      this._emailNavigationTimeoutId = setTimeout(() => {
-        this.state.ui.isNavigatingToEmail = false;
-        this._emailNavigationTimeoutId = null;
-      }, 2000);
-    } catch (error) {
-      console.error("Error navigating to email composer:", error);
-      this.state.ui.isNavigatingToEmail = false; // Reset on error
-      this.showToast(
-        "Error",
-        `Failed to open email composer: ${error.message || "Unknown error"}`,
-        "error"
-      );
     }
   }
 
