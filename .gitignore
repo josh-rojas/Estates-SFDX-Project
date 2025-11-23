@@ -105,3 +105,7 @@ datasets/output/
 
 # Smock-it generated data
 data_gen/output/
+
+# Cursor editor configuration (local-only)
+.cursor/
+.cursorignore
