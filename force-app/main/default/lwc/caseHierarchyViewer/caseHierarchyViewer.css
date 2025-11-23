@@ -6,7 +6,7 @@
 
 /* Parent Case Header */
 .parent-case-header {
-  background-color: var(--slds-g-color-neutral-base-50);
+  background-color: var(--slds-g-color-neutral-base-95);
   padding: var(--slds-g-spacing-6);
   border-radius: var(--slds-g-radius-border-2);
 }
