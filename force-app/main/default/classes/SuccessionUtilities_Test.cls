@@ -366,65 +366,6 @@ private class SuccessionUtilities_Test {
   }
 
   @isTest
-  static void testCreateLinkedContentNote_Debug() {
-    User testUser = [
-      SELECT Id
-      FROM User
-      WHERE Email = 'standarduser@testorg.com'
-      LIMIT 1
-    ];
-
-    System.runAs(testUser) {
-      Case testCase = [SELECT Id FROM Case LIMIT 1];
-      String noteTitle = 'Test Note Debug';
-      String noteBody = 'Test note body content for debugging';
-
-      // Debug: Log test context and permissions
-      System.debug('DEBUG TEST: Starting testCreateLinkedContentNote_Debug');
-      System.debug('DEBUG TEST: Case ID: ' + testCase.Id);
-      System.debug('DEBUG TEST: Running user: ' + UserInfo.getUserName());
-
-      Id result = null;
-      Exception caughtException = null;
-
-      Test.startTest();
-      try {
-        System.debug('DEBUG TEST: About to call createLinkedContentNote');
-        result = SuccessionUtilities.createLinkedContentNote(
-          testCase.Id,
-          noteTitle,
-          noteBody
-        );
-        System.debug('DEBUG TEST: Method returned result: ' + result);
-      } catch (Exception e) {
-        caughtException = e;
-        System.debug('DEBUG TEST: Exception caught in test!');
-        System.debug('DEBUG TEST: Exception type: ' + e.getTypeName());
-        System.debug('DEBUG TEST: Exception message: ' + e.getMessage());
-      }
-      Test.stopTest();
-
-      // Report exception if caught
-      if (caughtException != null) {
-        System.assert(
-          false,
-          'Exception thrown: ' +
-            caughtException.getTypeName() +
-            ' - ' +
-            caughtException.getMessage()
-        );
-      }
-
-      // Verify result is not null
-      System.assertNotEquals(
-        null,
-        result,
-        'ContentNote ID should be returned (not null)'
-      );
-    }
-  }
-
-  @isTest
   static void testBuildContactAttemptNoteBody() {
     Integer attemptNumber = 3;
     Boolean contactEstablished = true;
@@ -808,10 +749,6 @@ private class SuccessionUtilities_Test {
       SuccessionUtilities.throwAuraException(userMessage, originalEx);
       System.assert(false, 'Should have thrown exception');
     } catch (Exception e) {
-      // Debug: Print actual exception message to understand format
-      System.debug('DEBUG: Actual exception message: ' + e.getMessage());
-      System.debug('DEBUG: Expected to contain: ' + userMessage);
-
       // Verify exception was thrown and contains user message
       System.assert(
         e.getMessage().contains(userMessage),
