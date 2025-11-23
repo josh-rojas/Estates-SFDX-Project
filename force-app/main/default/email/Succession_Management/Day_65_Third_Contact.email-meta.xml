@@ -3,7 +3,6 @@
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Day 65 - Third Contact (Time-Sensitive)</name>
-    <recipientType>Contact</recipientType>
     <style>none</style>
     <subject
   >Third Contact Regarding DAF Account {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}</subject>

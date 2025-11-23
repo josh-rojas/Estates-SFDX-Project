@@ -3,7 +3,6 @@
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Day 35 - Second Contact (Urgency)</name>
-    <recipientType>Contact</recipientType>
     <style>none</style>
     <subject
   >Follow-up Regarding DAF Account {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}</subject>

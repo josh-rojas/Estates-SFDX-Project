@@ -3,7 +3,6 @@
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Pathway Selection - Form Invitation</name>
-    <recipientType>Contact</recipientType>
     <style>none</style>
     <subject
   >Your Succession Pathway Options - DAF Account {!Case.FinServ__FinancialAccount__r.FinServ__FinancialAccountNumber__c}</subject>

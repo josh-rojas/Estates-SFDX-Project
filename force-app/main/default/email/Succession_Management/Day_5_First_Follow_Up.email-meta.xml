@@ -3,7 +3,6 @@
     <available>true</available>
     <encodingKey>ISO-8859-1</encodingKey>
     <name>Day 5 - First Follow-Up</name>
-    <recipientType>Contact</recipientType>
     <style>none</style>
     <subject
   >Follow-up: DAF Account Succession - Case {!Case.CaseNumber}</subject>
