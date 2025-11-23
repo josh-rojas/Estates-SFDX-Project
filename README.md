@@ -118,26 +118,40 @@ When `Pathway_Confirmed__c` is set on a Case, `SuccessionCaseTrigger` fires and 
    cd "Estates SFDX Project"
    ```
 
-2. **Authenticate to Org**
+2. **Set Up Shell Aliases (Optional but Recommended)**
 
    ```bash
-   sf org login web --alias succession-org
+   # Source the Salesforce CLI setup script
+   source scripts/sf-setup.sh
+
+   # Or add to your ~/.zshrc or ~/.bashrc for permanent setup
+   # See docs/SHELL_SETUP.md for detailed instructions
    ```
 
-3. **Deploy Metadata**
+3. **Authenticate to Org**
+
+   ```bash
+   sf org login web --alias succession-org --set-default
+   # Or use alias: sf-login
+   ```
+
+4. **Deploy Metadata**
 
    ```bash
    sf project deploy start --manifest manifest/package.xml
+   # Or use alias: sf-deploy
+   # Or use npm script: npm run sf:deploy
    ```
 
-4. **Assign Permission Sets**
+5. **Assign Permission Sets**
 
    ```bash
    sf org assign permset --name Succession_Management_Access
    sf org assign permset --name Succession_Field_Access
+   # Or use alias: sf-permset Succession_Management_Access
    ```
 
-5. **Load Demo Test Data** (Optional)
+6. **Load Demo Test Data** (Optional)
    ```bash
    cci task run load_demo_ui_showcase
    ```
@@ -154,6 +168,8 @@ When `Pathway_Confirmed__c` is set on a Case, `SuccessionCaseTrigger` fires and 
 | [docs/03-security.md](docs/03-security.md)                                         | Permission sets, Apex security modes, and compliance    |
 | [docs/04-deployment-ci.md](docs/04-deployment-ci.md)                               | Deployment procedures and CI/CD with CumulusCI          |
 | [docs/05-runbook.md](docs/05-runbook.md)                                           | Admin runbook for demos and troubleshooting             |
+| [docs/SALESFORCE_CLI_REFERENCE.md](docs/SALESFORCE_CLI_REFERENCE.md)               | Complete Salesforce CLI command reference and syntax    |
+| [docs/GLOBAL_SETUP.md](docs/GLOBAL_SETUP.md)                                       | Global shell setup instructions for Salesforce CLI      |
 | [CLAUDE.md](CLAUDE.md)                                                             | AI assistant context and patterns                       |
 
 ### D2 Diagrams
@@ -277,13 +293,24 @@ force-app/main/default/
 ```bash
 # Deploy to sandbox
 sf project deploy start --target-org sandbox
+# Or use alias: sf-deploy-to sandbox
+# Or use npm script: npm run sf:deploy -- --target-org sandbox
 
 # Run Apex tests
 sf apex run test --test-level RunLocalTests --code-coverage
+# Or use alias: sf-test
+# Or use npm script: npm run sf:test
 
 # Validate deployment
 sf project deploy validate --manifest manifest/package.xml
+# Or use alias: sf-deploy-validate
+# Or use npm script: npm run sf:deploy:validate
 ```
+
+**Note:**
+
+- See `docs/SALESFORCE_CLI_REFERENCE.md` for complete CLI command reference
+- See `docs/GLOBAL_SETUP.md` for global shell setup instructions
 
 ## 📈 Roadmap
 

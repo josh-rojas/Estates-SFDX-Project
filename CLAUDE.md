@@ -13,8 +13,13 @@ npm run test:unit:watch            # Watch mode for development
 npm run test:unit:coverage         # Generate coverage report
 
 # Apex tests (use Salesforce CLI)
+# Standard Command:
 sf apex run test --test-level RunLocalTests --code-coverage
-sf apex run test --tests ClassName_Test  # Run single test class
+sf apex run test --tests ClassName_Test
+
+# Global Alias (if enabled):
+sf-test                            # Run all local tests
+sf-test-class ClassName_Test       # Run single test class
 ```
 
 ### Linting & Formatting
@@ -26,20 +31,52 @@ npm run lint:apex                  # Apex static analysis via SF Scanner
 npm run validate                   # Full validation: lint + test
 ```
 
+### Pre-Deployment Validation
+
+Before deploying to a Salesforce org, run comprehensive validation checks:
+
+```bash
+# Full validation (recommended before deployment)
+npm run validate:deploy
+
+# Quick validation (skip Apex tests and deploy validate - faster)
+npm run validate:deploy:quick
+
+# Direct script execution with options
+scripts/validate_deployment.sh
+SKIP_APEX_TESTS=true SKIP_DEPLOY_VALIDATE=true scripts/validate_deployment.sh
+ORG_ALIAS=sandbox scripts/validate_deployment.sh
+```
+
+**Validation checks included:**
+
+- JavaScript/LWC linting (ESLint + Prettier)
+- Apex static analysis (SF Scanner)
+
+- LWC unit tests with coverage
+- Salesforce deployment manifest validation
+- Optional: Apex test execution (requires org connection)
+
 ### Salesforce Deployment
 
 ```bash
-# Deploy to org
+# Deploy to org (using manifest)
 sf project deploy start --manifest manifest/package.xml
 
 # Deploy and validate without tests
-sf project deploy start --target-org sandbox
+sf project deploy start --manifest manifest/package.xml --target-org sandbox
 
 # Validate deployment (check-only)
 sf project deploy validate --manifest manifest/package.xml
 
 # Retrieve metadata from org
 sf project retrieve start --manifest manifest/package.xml
+
+# --- Global Aliases (Preferred if enabled) ---
+sf-deploy                          # Deploy using manifest
+sf-deploy-to sandbox               # Deploy to specific org
+sf-deploy-validate                 # Validate deployment
+sf-retrieve                        # Retrieve metadata
 ```
 
 ### Permission Set Assignment
@@ -47,6 +84,9 @@ sf project retrieve start --manifest manifest/package.xml
 ```bash
 sf org assign permset --name Succession_Management_Access
 sf org assign permset --name Succession_Field_Access
+
+# Global Alias:
+sf-permset Succession_Management_Access
 ```
 
 ## Architecture Overview
