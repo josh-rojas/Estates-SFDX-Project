@@ -103,6 +103,7 @@ public with sharing class SuccessionChatterPoster {
         SELECT Id, CaseNumber, Subject
         FROM Case
         WHERE Id IN :caseIds
+        WITH USER_MODE
       ]) {
         casesById.put(c.Id, c);
       }

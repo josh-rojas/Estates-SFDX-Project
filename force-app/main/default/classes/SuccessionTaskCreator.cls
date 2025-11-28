@@ -124,20 +124,34 @@ public with sharing class SuccessionTaskCreator {
         Database.insert(tasksToCreate, AccessLevel.USER_MODE);
 
         // Update responses with created task IDs
-        Integer index = 0;
-        for (CreateTaskRequest req : requests) {
-          String key = req.caseId + '_' + req.attemptNumber;
-          if (pendingResponses.containsKey(key)) {
-            CreateTaskResponse response = pendingResponses.get(key);
+        // Build a map from key to task for proper correlation
+        Map<String, Task> keyToTask = new Map<String, Task>();
+        for (Task t : tasksToCreate) {
+          // Reconstruct key from task fields (WhatId = caseId, Contact_Attempt_Number__c = attemptNumber)
+          String key =
+            t.WhatId +
+            '_' +
+            Integer.valueOf(t.Contact_Attempt_Number__c);
+          keyToTask.put(key, t);
+        }
+
+        // Now update responses using the correct task for each key
+        for (String key : pendingResponses.keySet()) {
+          CreateTaskResponse response = pendingResponses.get(key);
+          Task createdTask = keyToTask.get(key);
+          if (createdTask != null) {
             response.taskCreated = true;
-            response.taskId = tasksToCreate[index].Id;
+            response.taskId = createdTask.Id;
+            // Extract attempt number from key for message
+            String attemptNum = key.substringAfter('_');
             response.message =
-              'Task for Attempt ' +
-              req.attemptNumber +
-              ' created successfully';
-            responses.add(response);
-            index++;
+              'Task for Attempt ' + attemptNum + ' created successfully';
+          } else {
+            response.taskCreated = false;
+            response.taskId = null;
+            response.message = 'Task creation failed - task not found in results';
           }
+          responses.add(response);
         }
       } catch (DmlException e) {
         // Handle errors - return failure responses

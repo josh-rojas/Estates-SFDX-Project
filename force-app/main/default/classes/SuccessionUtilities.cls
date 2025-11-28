@@ -135,9 +135,8 @@ public with sharing class SuccessionUtilities {
 
         FeedItem post = new FeedItem();
         post.ParentId = req.parentId;
-        post.Body = req.message; // Plain text backup
         post.IsRichText = true;
-        post.Body = richBody; // Sets rich text content
+        post.Body = richBody; // Rich text content with embedded link
         feedItems.add(post);
       } catch (Exception e) {
         SuccessionLogger.error(

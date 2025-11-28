@@ -822,7 +822,6 @@ export default class SuccessionContactCadence extends NavigationMixin(
         })
         .catch((error) => {
           this.handleError(error, "handleSaveOutcome");
-          this.isLoading = false;
         })
         .finally(() => {
           this.isLoading = false;

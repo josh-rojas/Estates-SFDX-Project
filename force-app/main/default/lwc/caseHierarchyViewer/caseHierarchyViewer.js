@@ -1,4 +1,4 @@
-import { LightningElement, api, wire } from "lwc";
+import { LightningElement, api, wire, track } from "lwc";
 import { NavigationMixin } from "lightning/navigation";
 import getCaseHierarchy from "@salesforce/apex/CaseHierarchyController.getCaseHierarchy";
 
@@ -29,7 +29,7 @@ export default class CaseHierarchyViewer extends NavigationMixin(
   hierarchyData;
   error;
   isLoading = true;
-  expandedSections = new Set(); // Track which sections are expanded
+  @track expandedSections = new Set(); // Track which sections are expanded
 
   /**
    * Wire adapter to fetch case hierarchy data

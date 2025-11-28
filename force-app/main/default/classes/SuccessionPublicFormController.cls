@@ -58,56 +58,70 @@ public with sharing class SuccessionPublicFormController {
 
       Case c = cases[0];
 
-      // PERSON ACCOUNT SUPPORT: Check if successor is Person Account or Contact
-      // - Person Account: Use Account fields (PersonEmail, FirstName, LastName, Phone)
-      // - Business Account: Use Contact fields (Email, Name, Phone)
-      Boolean isPersonAccount = c.Account?.IsPersonAccount ?? false;
+      // PERSON ACCOUNT SUPPORT: Query the successor's Contact to determine account type
+      // Case.AccountId points to the deceased donor, NOT the successor
+      // Case.Successor__c is a Contact lookup (PersonContactId for Person Accounts)
       Id successorLookupId = c.Successor__c;
 
       String successorName = null;
       String successorEmail = null;
       String successorPhone = null;
+      Boolean isSuccessorPersonAccount = false;
+      Id successorAccountId = null;
 
-      if (isPersonAccount) {
-        // Person Account: Use Account fields directly (already queried in Case SOQL)
-        // Account.FirstName + Account.LastName = full name
-        if (c.Account != null) {
-          String firstName = c.Account.FirstName != null
-            ? c.Account.FirstName
-            : '';
-          String lastName = c.Account.LastName != null
-            ? c.Account.LastName
-            : '';
-          successorName = (firstName + ' ' + lastName).trim();
-          successorEmail = c.Account.PersonEmail;
-          successorPhone = c.Account.Phone;
-        }
-      } else {
-        // Business Account: Query Contact fields
-        if (successorLookupId != null) {
-          List<Contact> successorContacts = [
-            SELECT Name, Email, Phone
-            FROM Contact
-            WHERE Id = :successorLookupId
-            WITH USER_MODE
-            LIMIT 1
-          ];
+      // Query the successor Contact to get their Account and determine if Person Account
+      if (successorLookupId != null) {
+        List<Contact> successorContacts = [
+          SELECT
+            Id,
+            Name,
+            Email,
+            Phone,
+            AccountId,
+            Account.IsPersonAccount,
+            Account.PersonEmail,
+            Account.FirstName,
+            Account.LastName,
+            Account.Phone
+          FROM Contact
+          WHERE Id = :successorLookupId
+          WITH USER_MODE
+          LIMIT 1
+        ];
 
-          if (!successorContacts.isEmpty()) {
-            successorName = successorContacts[0].Name;
-            successorEmail = successorContacts[0].Email;
-            successorPhone = successorContacts[0].Phone;
+        if (!successorContacts.isEmpty()) {
+          Contact successorContact = successorContacts[0];
+          isSuccessorPersonAccount =
+            successorContact.Account?.IsPersonAccount ?? false;
+          successorAccountId = successorContact.AccountId;
+
+          if (isSuccessorPersonAccount) {
+            // Person Account: Use Account fields from successor's Account
+            String firstName = successorContact.Account.FirstName != null
+              ? successorContact.Account.FirstName
+              : '';
+            String lastName = successorContact.Account.LastName != null
+              ? successorContact.Account.LastName
+              : '';
+            successorName = (firstName + ' ' + lastName).trim();
+            successorEmail = successorContact.Account.PersonEmail;
+            successorPhone = successorContact.Account.Phone;
+          } else {
+            // Business Account: Use Contact fields
+            successorName = successorContact.Name;
+            successorEmail = successorContact.Email;
+            successorPhone = successorContact.Phone;
           }
         }
       }
 
       // Query successor financial account role
-      // Person Account: Filter by RelatedAccount__c
-      // Business Account: Filter by RelatedContact__c
+      // Person Account: Filter by RelatedAccount__c (successor's Account)
+      // Business Account: Filter by RelatedContact__c (successor's Contact)
       List<FinServ__FinancialAccountRole__c> successorRoles = new List<FinServ__FinancialAccountRole__c>();
 
-      if (isPersonAccount && c.AccountId != null) {
-        // Person Account: Query by RelatedAccount
+      if (isSuccessorPersonAccount && successorAccountId != null) {
+        // Person Account: Query by successor's RelatedAccount
         // Use exact match with SuccessionUtilities.ROLE_SUCCESSOR constant
         // instead of LIKE pattern for precise role filtering
         successorRoles = [
@@ -120,11 +134,11 @@ public with sharing class SuccessionPublicFormController {
           WHERE
             FinServ__FinancialAccount__c = :c.FinServ__FinancialAccount__c
             AND FinServ__Role__c = :SuccessionUtilities.ROLE_SUCCESSOR
-            AND FinServ__RelatedAccount__c = :c.AccountId
+            AND FinServ__RelatedAccount__c = :successorAccountId
           WITH USER_MODE
           LIMIT 1
         ];
-      } else if (!isPersonAccount && successorLookupId != null) {
+      } else if (!isSuccessorPersonAccount && successorLookupId != null) {
         // Business Account: Query by RelatedContact
         // Use exact match with SuccessionUtilities.ROLE_SUCCESSOR constant
         // instead of LIKE pattern for precise role filtering
