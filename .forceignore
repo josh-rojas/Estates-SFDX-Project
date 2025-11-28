@@ -6,6 +6,11 @@ package.xml
 
 # Agent-specific local guidance (do not deploy)
 CLAUDE.md
+WARP.md
+AGENTS.md
+GIT_INITIALIZED.md
+.github/
+.vscode/
 
 # LWC configuration files
 **/jsconfig.json
@@ -21,4 +26,3 @@ force-app/main/default/classes/Schwab*.cls
 force-app/main/default/classes/Schwab*.cls-meta.xml
 force-app/main/default/classes/schw*.cls
 force-app/main/default/classes/schw*.cls-meta.xml
-

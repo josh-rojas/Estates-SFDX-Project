@@ -2,7 +2,15 @@
   "packageDirectories": [
     {
       "path": "force-app",
-      "default": true
+      "default": true,
+      "type": "source"
+    },
+    {
+      "path": "src/tesr",
+      "package": "tesr",
+      "versionName": "ver 0.1",
+      "versionNumber": "0.1.0.NEXT",
+      "default": false
     }
   ],
   "name": "Estates SFDX Project",
