@@ -1,7 +1,7 @@
 {
   "name": "salesforce-app",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Succession Management System for Salesforce FSC",
   "scripts": {
     "// === VALIDATION SCRIPTS (Read-only checks) ===": "",
