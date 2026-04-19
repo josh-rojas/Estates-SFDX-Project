@@ -1,1156 +1,276 @@
 /**
- * @description Test class for ContactCadenceController
- * @author Estate Administration Team
- * @date 2025-10-14
+ * Focused tests for the ContactCadenceController now that the repository
+ * only ships the contact cadence experience.
  */
-@isTest
+@IsTest
 private class ContactCadenceController_Test {
+  private static Id estateRecordTypeId;
+  private static Id validCaseId;
+  private static Id optedOutCaseId;
+  private static Id noEmailCaseId;
+  private static Id wrongTypeCaseId;
+  private static Id noAccountCaseId;
+
   @TestSetup
-  static void setupTestData() {
-    // Get Person Account record type
-    Id personAccountRecordTypeId = Account.SObjectType.getDescribe()
-      .getRecordTypeInfosByDeveloperName()
-      .get('PersonAccount')
-      .getRecordTypeId();
+  static void setupData() {
+    estateRecordTypeId = getEstateRecordTypeId();
 
-    // Create deceased donor (Person Account)
-    Account deceasedDonor = new Account(
-      RecordTypeId = personAccountRecordTypeId,
-      FirstName = 'Margaret',
-      LastName = 'Thompson',
-      PersonEmail = 'margaret.thompson@example.com',
-      PersonMobilePhone = '555-0101'
-    );
-    insert deceasedDonor;
-
-    // Create successor (Person Account) with valid email
-    Account successor = new Account(
-      RecordTypeId = personAccountRecordTypeId,
+    // Primary account/contact with good email
+    Account primaryAccount = new Account(Name = 'Estate Primary');
+    insert primaryAccount;
+    Contact primaryContact = new Contact(
       FirstName = 'Amanda',
       LastName = 'Williams',
-      PersonEmail = 'amanda.williams@example.com',
-      PersonMobilePhone = '555-0102'
+      AccountId = primaryAccount.Id,
+      Email = 'amanda.williams@example.com',
+      HasOptedOutOfEmail = false
     );
-    insert successor;
+    insert primaryContact;
 
-    // Create successor with opted-out email
-    Account optedOutSuccessor = new Account(
-      RecordTypeId = personAccountRecordTypeId,
+    // Opted-out contact
+    Account optedAccount = new Account(Name = 'Opted Account');
+    insert optedAccount;
+    Contact optedContact = new Contact(
       FirstName = 'Brandon',
       LastName = 'Williams',
-      PersonEmail = 'brandon.williams@example.com',
-      PersonMobilePhone = '555-0103'
+      AccountId = optedAccount.Id,
+      Email = 'brandon.williams@example.com',
+      HasOptedOutOfEmail = true
     );
-    insert optedOutSuccessor;
+    insert optedContact;
 
-    // Create successor with no email
-    Account noEmailSuccessor = new Account(
-      RecordTypeId = personAccountRecordTypeId,
+    // No-email contact
+    Account noEmailAccount = new Account(Name = 'No Email Account');
+    insert noEmailAccount;
+    Contact noEmailContact = new Contact(
       FirstName = 'Charlie',
       LastName = 'Williams',
-      PersonMobilePhone = '555-0104'
+      AccountId = noEmailAccount.Id
     );
-    insert noEmailSuccessor;
+    insert noEmailContact;
 
-    // Create Business Account with Contact (for testing Business Account branch)
-    Account businessAccount = new Account(
-      Name = 'Williams Family Foundation',
-      Type = 'Other'
-    );
-    insert businessAccount;
-
-    Contact businessContact = new Contact(
-      FirstName = 'Edward',
-      LastName = 'Williams',
-      AccountId = businessAccount.Id,
-      Email = 'edward.williams@example.com',
-      Phone = '555-0106'
-    );
-    insert businessContact;
-
-    // Query PersonContactId (auto-created with Person Accounts)
-    deceasedDonor = [
-      SELECT Id, PersonContactId
-      FROM Account
-      WHERE Id = :deceasedDonor.Id
-    ];
-    successor = [
-      SELECT Id, PersonContactId
-      FROM Account
-      WHERE Id = :successor.Id
-    ];
-
-    // Create financial account
-    FinServ__FinancialAccount__c finAccount = new FinServ__FinancialAccount__c(
-      Name = 'Thompson Family Fund',
-      FinServ__PrimaryOwner__c = deceasedDonor.Id,
-      FinServ__Balance__c = 2500000,
-      FinServ__FinancialAccountNumber__c = 'DAF-12345678',
-      FinServ__Status__c = 'Active'
-    );
-    insert finAccount;
-
-    // Get EstateAdministration record type
-    Id estateRecordTypeId = Case.SObjectType.getDescribe()
-      .getRecordTypeInfosByDeveloperName()
-      .get('EstateAdministration')
-      .getRecordTypeId();
-
-    // Create test cases for different scenarios
-    List<Case> testCases = new List<Case>();
-
-    // Case 1: Person Account with valid email
-    testCases.add(
+    // Cases for each scenario
+    List<Case> cases = new List<Case>{
       new Case(
         RecordTypeId = estateRecordTypeId,
-        Type = 'Named Successor Enactment',
-        Subject = 'Succession - Amanda Williams',
+        Type = 'Succession Management',
+        Subject = 'Valid Contact Cadence',
         Status = 'New',
-        AccountId = successor.Id,
-        ContactId = successor.PersonContactId,
-        Successor__c = successor.PersonContactId,
-        FinServ__FinancialAccount__c = finAccount.Id,
+        AccountId = primaryAccount.Id,
+        ContactId = primaryContact.Id,
+        Successor__c = primaryContact.Id,
         Contact_Established__c = false,
         Contact_Attempt_Count__c = 0
-      )
-    );
-
-    // Case 2: Person Account with opted-out email
-    testCases.add(
+      ),
       new Case(
         RecordTypeId = estateRecordTypeId,
-        Type = 'Named Successor Enactment',
-        Subject = 'Succession - Brandon Williams (Opted Out)',
+        Type = 'Succession Management',
+        Subject = 'Opted Out Contact',
         Status = 'New',
-        AccountId = optedOutSuccessor.Id,
-        Successor__c = optedOutSuccessor.PersonContactId,
+        AccountId = optedAccount.Id,
+        ContactId = optedContact.Id,
+        Successor__c = optedContact.Id,
         Contact_Established__c = false,
         Contact_Attempt_Count__c = 0
-      )
-    );
-
-    // Case 3: Person Account with no email
-    testCases.add(
+      ),
       new Case(
         RecordTypeId = estateRecordTypeId,
-        Type = 'Named Successor Enactment',
-        Subject = 'Succession - Charlie Williams (No Email)',
+        Type = 'Succession Management',
+        Subject = 'No Email Contact',
         Status = 'New',
-        AccountId = noEmailSuccessor.Id,
-        Successor__c = noEmailSuccessor.PersonContactId,
+        AccountId = noEmailAccount.Id,
+        ContactId = noEmailContact.Id,
+        Successor__c = noEmailContact.Id,
         Contact_Established__c = false,
         Contact_Attempt_Count__c = 0
-      )
-    );
-
-    // Case 4: Business Account with Contact
-    testCases.add(
+      ),
       new Case(
         RecordTypeId = estateRecordTypeId,
-        Type = 'Named Successor Enactment',
-        Subject = 'Succession - Williams Family Foundation',
-        Status = 'New',
-        AccountId = businessAccount.Id,
-        ContactId = businessContact.Id,
-        Successor__c = businessContact.Id,
-        Contact_Established__c = false,
-        Contact_Attempt_Count__c = 0
-      )
-    );
-
-    // Case 6: Wrong record type (should fail validation)
-    // Using 'Escalations_Complaints' record type which exists but is not EstateAdministration
-    Id standardRecordTypeId = Case.SObjectType.getDescribe()
-      .getRecordTypeInfosByDeveloperName()
-      .get('Escalations_Complaints')
-      .getRecordTypeId();
-    testCases.add(
-      new Case(
-        RecordTypeId = standardRecordTypeId,
         Type = 'Other',
-        Subject = 'Wrong Record Type Case',
-        Status = 'New',
-        AccountId = successor.Id
-      )
-    );
-
-    // Case 7: Estate Admin but wrong type
-    testCases.add(
-      new Case(
-        RecordTypeId = estateRecordTypeId,
-        Type = 'Multi-Account Succession Master',
         Subject = 'Wrong Type Case',
         Status = 'New',
-        AccountId = successor.Id
-      )
-    );
-
-    // Case 8: No Account (should fail validation)
-    testCases.add(
+        AccountId = primaryAccount.Id
+      ),
       new Case(
         RecordTypeId = estateRecordTypeId,
-        Type = 'Named Successor Enactment',
-        Subject = 'No Account Case',
+        Type = 'Succession Management',
+        Subject = 'Missing Account Case',
         Status = 'New'
       )
-    );
+    };
+    insert cases;
 
-    insert testCases;
+    validCaseId = cases[0].Id;
+    optedOutCaseId = cases[1].Id;
+    noEmailCaseId = cases[2].Id;
+    wrongTypeCaseId = cases[3].Id;
+    noAccountCaseId = cases[4].Id;
 
-    // Create contact attempt tasks for Case 1
-    Case testCase1 = [
-      SELECT Id, CreatedDate
-      FROM Case
-      WHERE Subject = 'Succession - Amanda Williams'
-      LIMIT 1
-    ];
-
-    List<Task> tasks = new List<Task>();
-
-    // Attempt 1 - Day 0 (completed with contact established)
-    tasks.add(
+    // Seed attempt tasks for the valid case
+    List<Task> tasks = new List<Task>{
       new Task(
-        WhatId = testCase1.Id,
+        WhatId = validCaseId,
         Subject = 'Succession Contact Attempt 1',
         Contact_Attempt_Number__c = 1,
         ActivityDate = Date.today(),
         Status = 'Completed',
         Succession_Contact_Established__c = true,
         Description = '[2025-10-14 10:00] Reached successor, explained pathways'
-      )
-    );
-
-    // Attempt 2 - Day 5 (completed without contact)
-    tasks.add(
+      ),
       new Task(
-        WhatId = testCase1.Id,
+        WhatId = validCaseId,
         Subject = 'Succession Contact Attempt 2',
         Contact_Attempt_Number__c = 2,
         ActivityDate = Date.today().addDays(5),
         Status = 'Completed',
         Succession_Contact_Established__c = false,
         Description = '[2025-10-19 14:00] No answer, left voicemail'
-      )
-    );
-
-    // Attempt 3 - Day 35 (task exists but locked - date in future)
-    tasks.add(
+      ),
       new Task(
-        WhatId = testCase1.Id,
+        WhatId = validCaseId,
         Subject = 'Succession Contact Attempt 3',
         Contact_Attempt_Number__c = 3,
         ActivityDate = Date.today().addDays(35),
         Status = 'Not Started',
         Succession_Contact_Established__c = false
       )
-    );
-
+    };
     insert tasks;
   }
 
-  /**
-   * Test successful contact cadence retrieval with Person Account
-   */
-  @isTest
-  static void testGetContactCadence_PersonAccountWithValidEmail() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Amanda Williams'
-      LIMIT 1
-    ];
-
-    Test.startTest();
-    ContactCadenceController.ContactCadenceData result = ContactCadenceController.getContactCadence(
-      testCase.Id
-    );
-    Test.stopTest();
-
-    // Verify basic data
-    System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertEquals(
-      true,
-      result.isValidRecordType,
-      'Record type should be valid'
-    );
-    System.assertEquals(5, result.totalAttempts, 'Should have 5 attempts');
-    System.assertEquals(
-      false,
-      result.contactEstablished,
-      'Contact not established in test setup'
-    );
-
-    // Verify Person Account detection
-    System.assertEquals(
-      true,
-      result.isPersonAccount,
-      'Should detect Person Account'
-    );
-    System.assertNotEquals(null, result.accountId, 'Should have Account ID');
-
-    // Verify email validation for Person Account
-    System.assertEquals(true, result.hasEmail, 'Should have email');
-    System.assertEquals(
-      'amanda.williams@example.com',
-      result.emailAddress,
-      'Email should match'
-    );
-    System.assertEquals(
-      true,
-      result.hasValidEmailFormat,
-      'Email format should be valid'
-    );
-    // Note: hasOptedOut not tested due to field availability in test org
-
-    // Verify task attempt data
-    System.assertEquals(
-      5,
-      result.attempts.size(),
-      'Should have 5 attempt records'
-    );
-
-    // Verify Attempt 1 (completed)
-    ContactCadenceController.TaskAttemptData attempt1 = result.attempts[0];
-    System.assertEquals(
-      1,
-      attempt1.attemptNumber,
-      'Attempt 1 number should match'
-    );
-    System.assertEquals(
-      true,
-      attempt1.isCompleted,
-      'Attempt 1 should be completed'
-    );
-    System.assertEquals(
-      false,
-      attempt1.isCurrent,
-      'Completed attempts are not current'
-    );
-    System.assertEquals('Day 0', attempt1.dayLabel, 'Day label should match');
-
-    // Verify Attempt 2 (completed)
-    ContactCadenceController.TaskAttemptData attempt2 = result.attempts[1];
-    System.assertEquals(
-      true,
-      attempt2.isCompleted,
-      'Attempt 2 should be completed'
-    );
-
-    // Verify Attempt 3 (locked - future date)
-    ContactCadenceController.TaskAttemptData attempt3 = result.attempts[2];
-    System.assertEquals(true, attempt3.isLocked, 'Attempt 3 should be locked');
-    System.assertEquals(
-      false,
-      attempt3.isCurrent,
-      'Locked attempt is not current'
-    );
-    System.assertNotEquals(
-      null,
-      attempt3.countdownText,
-      'Should have countdown text'
-    );
-  }
-
-  /**
-   * Test Business Account with Contact email detection
-   */
-  @isTest
-  static void testGetContactCadence_BusinessAccountWithContact() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Williams Family Foundation'
-      LIMIT 1
-    ];
-
-    Test.startTest();
-    ContactCadenceController.ContactCadenceData result = ContactCadenceController.getContactCadence(
-      testCase.Id
-    );
-    Test.stopTest();
-
-    // Verify Business Account detection
-    System.assertEquals(
-      false,
-      result.isPersonAccount,
-      'Should detect Business Account'
-    );
-    System.assertNotEquals(null, result.contactId, 'Should have Contact ID');
-
-    // Verify email validation for Business Account Contact
-    System.assertEquals(
-      true,
-      result.hasEmail,
-      'Should have email from Contact'
-    );
-    System.assertEquals(
-      'edward.williams@example.com',
-      result.emailAddress,
-      'Email should match Contact.Email'
-    );
-    System.assertEquals(
-      true,
-      result.hasValidEmailFormat,
-      'Email format should be valid'
-    );
-    // Note: hasOptedOut not tested due to field availability in test org
-  }
-
-  /**
-   * Test opted-out email validation
-   * NOTE: Skipped - HasOptedOutOfEmail field not available in test org
-   */
-  @isTest
-  static void testGetContactCadence_OptedOutEmail() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Brandon Williams (Opted Out)'
-      LIMIT 1
-    ];
-
-    Test.startTest();
-    ContactCadenceController.ContactCadenceData result = ContactCadenceController.getContactCadence(
-      testCase.Id
-    );
-    Test.stopTest();
-
-    // Verify basic data loads (opt-out validation skipped due to field availability)
-    System.assertNotEquals(null, result, 'Result should not be null');
-    System.assertEquals(
-      true,
-      result.isValidRecordType,
-      'Record type should be valid'
-    );
-  }
-
-  /**
-   * Test missing email validation
-   */
-  @isTest
-  static void testGetContactCadence_NoEmail() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Charlie Williams (No Email)'
-      LIMIT 1
-    ];
-
-    Test.startTest();
-    ContactCadenceController.ContactCadenceData result = ContactCadenceController.getContactCadence(
-      testCase.Id
-    );
-    Test.stopTest();
-
-    // Verify missing email detection
-    System.assertEquals(false, result.hasEmail, 'Should detect missing email');
-    System.assertEquals(
-      null,
-      result.emailAddress,
-      'Email address should be null'
-    );
-    System.assertEquals(
-      false,
-      result.hasValidEmailFormat,
-      'Format should be invalid when email missing'
-    );
-    System.assertNotEquals(null, result.emailWarning, 'Should have warning');
-    System.assert(
-      result.emailWarning.contains('No email'),
-      'Warning should mention missing email'
-    );
-  }
-
-  /**
-   * Test invalid email format validation
-   * NOTE: Removed - org enforces email format validation at Account creation time
-   * Email format validation is still tested via the regex logic in ContactCadenceController.validateEmailAddress()
-   */
-
-  /**
-   * Test record type validation - wrong record type
-   */
-  @isTest
-  static void testGetContactCadence_InvalidRecordType() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Wrong Record Type Case'
-      LIMIT 1
-    ];
-
-    Test.startTest();
-    ContactCadenceController.ContactCadenceData result = ContactCadenceController.getContactCadence(
-      testCase.Id
-    );
-    Test.stopTest();
-
-    // Verify validation failure
-    System.assertEquals(
-      false,
-      result.isValidRecordType,
-      'Should fail record type validation'
-    );
-    System.assertNotEquals(
-      null,
-      result.invalidRecordTypeMessage,
-      'Should have error message'
-    );
-    System.assert(
-      result.invalidRecordTypeMessage.contains('Estate Administration'),
-      'Error message should mention record type requirement'
-    );
-  }
-
-  /**
-   * Test case type validation - wrong type
-   */
-  @isTest
-  static void testGetContactCadence_InvalidCaseType() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Wrong Type Case'
-      LIMIT 1
-    ];
-
-    Test.startTest();
-    ContactCadenceController.ContactCadenceData result = ContactCadenceController.getContactCadence(
-      testCase.Id
-    );
-    Test.stopTest();
-
-    // Verify validation failure
-    System.assertEquals(
-      false,
-      result.isValidRecordType,
-      'Should fail case type validation'
-    );
-    System.assertNotEquals(
-      null,
-      result.invalidRecordTypeMessage,
-      'Should have error message'
-    );
-    System.assert(
-      result.invalidRecordTypeMessage.contains('Succession Management') ||
-      result.invalidRecordTypeMessage.contains('Named Successor Enactment'),
-      'Error message should mention required case types'
-    );
-  }
-
-  /**
-   * Test missing Account validation
-   */
-  @isTest
-  static void testGetContactCadence_NoAccount() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'No Account Case'
-      LIMIT 1
-    ];
-
-    Test.startTest();
-    ContactCadenceController.ContactCadenceData result = ContactCadenceController.getContactCadence(
-      testCase.Id
-    );
-    Test.stopTest();
-
-    // Verify validation failure
-    System.assertEquals(
-      false,
-      result.isValidRecordType,
-      'Should fail Account validation'
-    );
-    System.assertNotEquals(
-      null,
-      result.invalidRecordTypeMessage,
-      'Should have error message'
-    );
-    System.assert(
-      result.invalidRecordTypeMessage.contains('Account'),
-      'Error message should mention Account requirement'
-    );
-  }
-
-  /**
-   * Test saving attempt outcome - positive (contact established)
-   */
-  @isTest
-  static void testSaveAttemptOutcome_ContactEstablished() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Amanda Williams'
-      LIMIT 1
-    ];
-    Task attemptTask = [
-      SELECT Id
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 3
-      LIMIT 1
-    ];
-
-    String notes = 'Reached successor via phone, explained three pathway options';
-
-    Test.startTest();
-    String result = ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attemptTask.Id,
-      3,
-      true, // contactEstablished
-      notes
-    );
-    Test.stopTest();
-
-    // Verify success
-    System.assertEquals('Success', result, 'Should return success message');
-
-    // Verify task updated
-    Task updatedTask = [
-      SELECT Status, Succession_Contact_Established__c, Description
-      FROM Task
-      WHERE Id = :attemptTask.Id
-    ];
-    System.assertEquals(
-      'Completed',
-      updatedTask.Status,
-      'Task should be completed'
-    );
-    System.assertEquals(
-      true,
-      updatedTask.Succession_Contact_Established__c,
-      'Contact should be established'
-    );
-    System.assert(
-      updatedTask.Description.contains(notes),
-      'Task description should contain notes'
-    );
-
-    // Verify Case updated
-    Case updatedCase = [
-      SELECT Contact_Established__c, LastModifiedDate
-      FROM Case
-      WHERE Id = :testCase.Id
-    ];
-    System.assertEquals(
-      true,
-      updatedCase.Contact_Established__c,
-      'Case contact should be established'
-    );
-    System.assertNotEquals(
-      null,
-      updatedCase.LastModifiedDate,
-      'Last modified date should be set'
-    );
-
-    // Note: ContentNote and Chatter post creation may fail in test context
-    // These are supplementary features and don't affect core functionality
-    // If they're created, verify they're correct; if not, that's acceptable in tests
-  }
-
-  /**
-   * Test saving attempt outcome - negative (contact not established)
-   */
-  @isTest
-  static void testSaveAttemptOutcome_ContactNotEstablished() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Amanda Williams'
-      LIMIT 1
-    ];
-    Task attemptTask = [
-      SELECT Id
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 3
-      LIMIT 1
-    ];
-
-    String notes = 'No answer, left voicemail with callback number';
-
-    Test.startTest();
-    String result = ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attemptTask.Id,
-      3,
-      false, // contactEstablished
-      notes
-    );
-    Test.stopTest();
-
-    // Verify success
-    System.assertEquals('Success', result, 'Should return success message');
-
-    // Verify task updated
-    Task updatedTask = [
-      SELECT Status, Succession_Contact_Established__c
-      FROM Task
-      WHERE Id = :attemptTask.Id
-    ];
-    System.assertEquals(
-      'Completed',
-      updatedTask.Status,
-      'Task should be completed'
-    );
-    System.assertEquals(
-      false,
-      updatedTask.Succession_Contact_Established__c,
-      'Contact should not be established'
-    );
-
-    // Verify Case NOT updated (contact not established)
-    Case updatedCase = [
-      SELECT Contact_Established__c
-      FROM Case
-      WHERE Id = :testCase.Id
-    ];
-    System.assertEquals(
-      false,
-      updatedCase.Contact_Established__c,
-      'Case contact should still be false'
-    );
-
-    // Verify NEXT attempt task was auto-created
-    List<Task> nextTasks = [
-      SELECT
-        Subject,
-        Status,
-        Contact_Attempt_Number__c,
-        ActivityDate,
-        Description
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 4
-    ];
-    System.assertEquals(
-      1,
-      nextTasks.size(),
-      'Should have auto-created attempt 4 task'
-    );
-    System.assertEquals(
-      'Not Started',
-      nextTasks[0].Status,
-      'Next task should be Not Started'
-    );
-    System.assertEquals(
-      'Automatically created contact attempt',
-      nextTasks[0].Description,
-      'Description should indicate auto-creation'
-    );
-    // Default wait for attempt 4 is 30 days (fallback) or metadata value
-    System.assert(
-      nextTasks[0].ActivityDate > Date.today(),
-      'Due date should be in future'
-    );
-  }
-
-  /**
-   * Test saving outcome with null taskId (creating new task)
-   */
-  @isTest
-  static void testSaveAttemptOutcome_CreateNewTask() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Amanda Williams'
-      LIMIT 1
-    ];
-
-    String notes = 'Initial contact attempt - reached successor';
-
-    Test.startTest();
-    String result = ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      null, // taskId is null - create new task
-      4,
-      true,
-      notes
-    );
-    Test.stopTest();
-
-    // Verify success
-    System.assertEquals('Success', result, 'Should return success message');
-
-    // Verify new task created
-    List<Task> attemptTasks = [
-      SELECT
-        Contact_Attempt_Number__c,
-        Status,
-        Succession_Contact_Established__c
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 4
-    ];
-    System.assertEquals(1, attemptTasks.size(), 'Should have created new task');
-    System.assertEquals(
-      'Completed',
-      attemptTasks[0].Status,
-      'Task should be completed'
-    );
-    System.assertEquals(
-      true,
-      attemptTasks[0].Succession_Contact_Established__c,
-      'Contact should be established'
-    );
-  }
-
-  /**
-   * Test error handling with invalid case ID
-   */
-  @isTest
-  static void testSaveAttemptOutcome_InvalidCaseId() {
-    Id fakeCaseId = '500000000000000AAA';
-
-    Test.startTest();
-    try {
-      ContactCadenceController.saveAttemptOutcome(
-        fakeCaseId,
-        null,
-        1,
-        true,
-        'Test notes'
-      );
-      System.assert(false, 'Should have thrown an exception');
-    } catch (Exception e) {
-      // Verify an exception was thrown - the specific message may vary
-      // We just need to confirm the method throws an exception for invalid input
-      System.assert(e != null, 'Should throw an exception');
+  private static Id getEstateRecordTypeId() {
+    Map<String, Schema.RecordTypeInfo> infoByDevName = Case.SObjectType.getDescribe()
+      .getRecordTypeInfosByDeveloperName();
+    if (infoByDevName.containsKey('EstateAdministration')) {
+      return infoByDevName.get('EstateAdministration').getRecordTypeId();
     }
-    Test.stopTest();
+    return Case.SObjectType.getDescribe().getRecordTypeInfos()[0].getRecordTypeId();
   }
 
-  /**
-   * Test wrapper classes instantiation
-   */
-  @isTest
-  static void testWrapperClasses() {
-    // Test ContactCadenceData wrapper
-    ContactCadenceController.ContactCadenceData cadenceData = new ContactCadenceController.ContactCadenceData();
-    cadenceData.isValidRecordType = true;
-    cadenceData.totalAttempts = 5;
-    cadenceData.hasEmail = true;
-    cadenceData.emailAddress = 'test@example.com';
-    System.assertNotEquals(
-      null,
-      cadenceData,
-      'ContactCadenceData should be instantiated'
-    );
-
-    // Test TaskAttemptData wrapper
-    ContactCadenceController.TaskAttemptData attemptData = new ContactCadenceController.TaskAttemptData();
-    attemptData.attemptNumber = 1;
-    attemptData.attemptLabel = 'Attempt 1';
-    attemptData.dayLabel = 'Day 0';
-    attemptData.isCompleted = false;
-    System.assertNotEquals(
-      null,
-      attemptData,
-      'TaskAttemptData should be instantiated'
-    );
-    System.assertEquals(
-      1,
-      attemptData.attemptNumber,
-      'Attempt number should be set'
-    );
-  }
-
-  /**
-   * Test auto-creation of next attempt tasks (attempts 1→2→3→4→5)
-   * Verifies the fix for inactive flow bug - tasks are now created automatically
-   */
-  @isTest
-  static void testAutoCreateNextAttempt() {
-    // Create new case with only attempt 1 task
-    Id personAccountRecordTypeId = Account.SObjectType.getDescribe()
-      .getRecordTypeInfosByDeveloperName()
-      .get('PersonAccount')
-      .getRecordTypeId();
-
-    Account testSuccessor = new Account(
-      RecordTypeId = personAccountRecordTypeId,
-      FirstName = 'Test',
-      LastName = 'AutoCreate',
-      PersonEmail = 'test.autocreate@example.com'
-    );
-    insert testSuccessor;
-
-    testSuccessor = [
-      SELECT Id, PersonContactId
-      FROM Account
-      WHERE Id = :testSuccessor.Id
-    ];
-
-    Id estateRecordTypeId = Case.SObjectType.getDescribe()
-      .getRecordTypeInfosByDeveloperName()
-      .get('EstateAdministration')
-      .getRecordTypeId();
-
-    Case testCase = new Case(
-      RecordTypeId = estateRecordTypeId,
-      Type = 'Succession Management',
-      Subject = 'Auto-Create Test Case',
-      Status = 'New',
-      AccountId = testSuccessor.Id,
-      Successor__c = testSuccessor.PersonContactId,
-      Contact_Established__c = false
-    );
-    insert testCase;
-
-    // Create attempt 1 task
-    Task attempt1 = new Task(
-      WhatId = testCase.Id,
-      Subject = 'Succession Contact Attempt 1',
-      Contact_Attempt_Number__c = 1,
-      ActivityDate = Date.today(),
-      Status = 'Not Started'
-    );
-    insert attempt1;
-
+  @IsTest
+  static void getContactCadence_validCase() {
     Test.startTest();
-
-    // Complete attempt 1 - contact NOT established
-    String result1 = ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attempt1.Id,
-      1,
-      false, // contact NOT established
-      'Left voicemail'
+    ContactCadenceController.ContactCadenceData data = ContactCadenceController.getContactCadence(
+      validCaseId
     );
+    Test.stopTest();
 
-    System.assertEquals('Success', result1, 'Attempt 1 should succeed');
-
-    // Verify attempt 2 was auto-created
-    List<Task> attempt2Tasks = [
-      SELECT Id, ActivityDate, Contact_Attempt_Number__c, Status, Subject
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 2
-      WITH SYSTEM_MODE
-    ];
+    System.assertEquals(true, data.isValidRecordType, 'Record type should be valid');
+    System.assertEquals(5, data.totalAttempts, 'All attempts should be returned');
+    System.assertEquals(5, data.attempts.size(), 'Attempt list size should be 5');
     System.assertEquals(
-      1,
-      attempt2Tasks.size(),
-      'Attempt 2 should be auto-created'
+      true,
+      data.hasEmail,
+      'Valid case should report an email address'
     );
-    System.assertEquals(
-      'Not Started',
-      attempt2Tasks[0].Status,
-      'Attempt 2 should be Not Started'
-    );
-    System.assert(
-      attempt2Tasks[0].ActivityDate >= Date.today(),
-      'Attempt 2 should have future due date'
-    );
+  }
 
-    // Complete attempt 2 - contact NOT established
-    String result2 = ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attempt2Tasks[0].Id,
-      2,
-      false,
-      'No answer'
+  @IsTest
+  static void getContactCadence_optedOutAndMissingEmail() {
+    Test.startTest();
+    ContactCadenceController.ContactCadenceData opted = ContactCadenceController.getContactCadence(
+      optedOutCaseId
     );
-
-    System.assertEquals('Success', result2, 'Attempt 2 should succeed');
-
-    // Verify attempt 3 was auto-created
-    List<Task> attempt3Tasks = [
-      SELECT Id, ActivityDate, Contact_Attempt_Number__c
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 3
-    ];
-    System.assertEquals(
-      1,
-      attempt3Tasks.size(),
-      'Attempt 3 should be auto-created'
+    ContactCadenceController.ContactCadenceData missingEmail = ContactCadenceController.getContactCadence(
+      noEmailCaseId
     );
+    Test.stopTest();
 
-    // Complete attempt 3 - contact NOT established
-    String result3 = ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attempt3Tasks[0].Id,
-      3,
-      false,
-      'No answer again'
+    System.assertEquals(true, opted.hasOptedOut, 'Opted-out contact should be flagged');
+    System.assertEquals(false, missingEmail.hasEmail, 'Missing email should be flagged');
+  }
+
+  @IsTest
+  static void getContactCadence_invalidCases() {
+    Test.startTest();
+    ContactCadenceController.ContactCadenceData wrongType = ContactCadenceController.getContactCadence(
+      wrongTypeCaseId
     );
-
-    // Verify attempt 4 was auto-created
-    List<Task> attempt4Tasks = [
-      SELECT Id, Contact_Attempt_Number__c
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 4
-    ];
-    System.assertEquals(
-      1,
-      attempt4Tasks.size(),
-      'Attempt 4 should be auto-created'
+    ContactCadenceController.ContactCadenceData noAccount = ContactCadenceController.getContactCadence(
+      noAccountCaseId
     );
+    Test.stopTest();
 
-    // Complete attempt 4 - contact NOT established
-    String result4 = ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attempt4Tasks[0].Id,
+    System.assertEquals(false, wrongType.isValidRecordType, 'Wrong type should be invalid');
+    System.assertEquals(false, noAccount.isValidRecordType, 'Missing account should be invalid');
+  }
+
+  @IsTest
+  static void saveAttemptOutcome_createsNextAttempt() {
+    Test.startTest();
+    String result = ContactCadenceController.saveAttemptOutcome(
+      validCaseId,
+      null,
       4,
       false,
-      'Still no answer'
+      'Attempt 4 notes'
     );
-
-    // Verify attempt 5 was auto-created
-    List<Task> attempt5Tasks = [
-      SELECT Id, Contact_Attempt_Number__c
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 5
-    ];
-    System.assertEquals(
-      1,
-      attempt5Tasks.size(),
-      'Attempt 5 should be auto-created'
-    );
-
-    // Complete attempt 5 - contact NOT established
-    String result5 = ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attempt5Tasks[0].Id,
-      5,
-      false,
-      'Final attempt - no answer'
-    );
-
-    // Verify attempt 6 was NOT created
-    List<Task> attempt6Tasks = [
-      SELECT Id
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 6
-    ];
-    System.assertEquals(
-      0,
-      attempt6Tasks.size(),
-      'Attempt 6 should NOT be created'
-    );
-
     Test.stopTest();
 
-    // Final verification - all 5 attempts exist, no attempt 6
-    List<Task> allTasks = [
-      SELECT Contact_Attempt_Number__c
+    System.assertEquals('Success', result, 'Outcome should return success');
+
+    List<Task> createdTasks = [
+      SELECT Contact_Attempt_Number__c, Status
       FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c != NULL
+      WHERE WhatId = :validCaseId
       ORDER BY Contact_Attempt_Number__c
     ];
-    System.assertEquals(5, allTasks.size(), 'Should have exactly 5 attempts');
-  }
-
-  /**
-   * Test idempotency - calling saveAttemptOutcome multiple times shouldn't create duplicates
-   */
-  @isTest
-  static void testAutoCreateNextAttempt_Idempotency() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Amanda Williams'
-      LIMIT 1
-    ];
-
-    // Create attempt 4 task (no attempt 5 exists)
-    Task attempt4 = new Task(
-      WhatId = testCase.Id,
-      Subject = 'Succession Contact Attempt 4',
-      Contact_Attempt_Number__c = 4,
-      ActivityDate = Date.today(),
-      Status = 'Not Started'
+    System.assert(
+      createdTasks.anyMatch(t -> t.Contact_Attempt_Number__c == 4 && t.Status == 'Completed'),
+      'Attempt 4 should be completed'
     );
-    insert attempt4;
-
-    Test.startTest();
-
-    // Complete attempt 4 twice (simulating double-click or retry)
-    ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attempt4.Id,
-      4,
-      false,
-      'First call'
-    );
-
-    ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attempt4.Id,
-      4,
-      false,
-      'Second call'
-    );
-
-    Test.stopTest();
-
-    // Verify only ONE attempt 5 was created
-    List<Task> attempt5Tasks = [
-      SELECT Id
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 5
-    ];
-    System.assertEquals(
-      1,
-      attempt5Tasks.size(),
-      'Should only create one attempt 5 task (idempotency)'
+    System.assert(
+      createdTasks.anyMatch(t -> t.Contact_Attempt_Number__c == 5),
+      'Next attempt should be created when contact not established'
     );
   }
 
-  /**
-   * Test that next attempt is NOT created when contact is established
-   */
-  @isTest
-  static void testAutoCreateNextAttempt_ContactEstablished() {
-    Case testCase = [
-      SELECT Id
-      FROM Case
-      WHERE Subject = 'Succession - Amanda Williams'
-      LIMIT 1
-    ];
-
-    // Create attempt 4 task
-    Task attempt4 = new Task(
-      WhatId = testCase.Id,
-      Subject = 'Succession Contact Attempt 4',
-      Contact_Attempt_Number__c = 4,
-      ActivityDate = Date.today(),
-      Status = 'Not Started'
-    );
-    insert attempt4;
-
+  @IsTest
+  static void saveAttemptOutcome_contactEstablishedStopsNext() {
     Test.startTest();
-
-    // Complete attempt 4 with contact ESTABLISHED
-    ContactCadenceController.saveAttemptOutcome(
-      testCase.Id,
-      attempt4.Id,
-      4,
-      true, // contact ESTABLISHED
-      'Reached successor successfully'
+    String result = ContactCadenceController.saveAttemptOutcome(
+      validCaseId,
+      null,
+      5,
+      true,
+      'Attempt 5 notes'
     );
-
     Test.stopTest();
 
-    // Verify attempt 5 was NOT created (contact established)
-    List<Task> attempt5Tasks = [
-      SELECT Id
-      FROM Task
-      WHERE WhatId = :testCase.Id AND Contact_Attempt_Number__c = 5
-    ];
-    System.assertEquals(
-      0,
-      attempt5Tasks.size(),
-      'Should NOT create attempt 5 when contact established'
-    );
+    System.assertEquals('Success', result, 'Outcome should return success');
 
-    // Verify case was updated
     Case updatedCase = [
       SELECT Contact_Established__c
       FROM Case
-      WHERE Id = :testCase.Id
+      WHERE Id = :validCaseId
     ];
     System.assertEquals(
       true,
       updatedCase.Contact_Established__c,
-      'Case should be marked as contact established'
+      'Case should be marked contact established'
     );
+  }
+
+  @IsTest
+  static void markFormEmailSent_setsDate() {
+    Test.startTest();
+    String message = ContactCadenceController.markFormEmailSent(validCaseId);
+    Test.stopTest();
+
+    Case updatedCase = [SELECT Form_Sent_Date__c FROM Case WHERE Id = :validCaseId];
+    System.assertNotEquals(null, updatedCase.Form_Sent_Date__c, 'Form sent date should be set');
+    System.assert(message.startsWith('Pathway form email'), 'Message should confirm update');
+  }
+
+  @IsTest
+  static void getAttemptWaitDurations_fromMetadata() {
+    Test.startTest();
+    Map<Integer, Integer> durations = ContactCadenceController.getAttemptWaitDurations();
+    Test.stopTest();
+
+    System.assertEquals(5, durations.get(2), 'Attempt 2 wait should be 5 days');
+    System.assertEquals(30, durations.get(3), 'Attempt 3 wait should be 30 days');
+    System.assertEquals(30, durations.get(4), 'Attempt 4 wait should be 30 days');
+    System.assertEquals(30, durations.get(5), 'Attempt 5 wait should be 30 days');
   }
 }

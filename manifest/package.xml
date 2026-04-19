@@ -1,117 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
-    <!-- Apex Classes -->
     <types>
-        <members>CaseHierarchyController</members>
-        <members>CaseHierarchyController_Test</members>
         <members>ContactCadenceController</members>
         <members>ContactCadenceController_Test</members>
-        <members>CreateSuccessionCaseController</members>
-        <members>CreateSuccessionCaseControllerTest</members>
-        <members>SuccessionChatterPoster</members>
-        <members>SuccessionChatterPoster_Test</members>
-        <members>SuccessionIntegrationTest</members>
-        <members>SuccessionPathwayEmailSender</members>
-        <members>SuccessionPerformanceTestSuite</members>
-        <members>SuccessionPublicFormController</members>
-        <members>SuccessionPublicFormController_Test</members>
-        <members>SuccessionTaskCreator</members>
-        <members>SuccessionTaskCreator_Test</members>
-        <members>SuccessionTaskGenerator</members>
-        <members>SuccessionTaskGenerator_Test</members>
+        <members>SuccessionLogger</members>
+        <members>SuccessionLogger_Test</members>
         <members>SuccessionUtilities</members>
         <members>SuccessionUtilities_Test</members>
-        <members>SuccessionWorkflow_Integration_Test</members>
         <name>ApexClass</name>
     </types>
 
-    <!-- Triggers -->
     <types>
-        <members>SuccessionCaseTrigger</members>
-        <name>ApexTrigger</name>
-    </types>
-
-    <!-- Lightning Web Components -->
-    <types>
-        <members>caseHierarchyViewer</members>
-        <members>createSuccessionCase</members>
-        <members>recordPathwaySelection</members>
         <members>successionContactCadence</members>
-        <members>successionPublicForm</members>
         <name>LightningComponentBundle</name>
     </types>
 
-    <!-- Flows - Succession v1.1 (all Draft/inactive in source; trigger-based automation is primary) -->
-    <types>
-        <members>Succession_Close_Multi_Successor_Parent</members>
-        <members>Succession_Mark_Contact_Established</members>
-        <members>Succession_Schedule_Next_Contact</members>
-        <members>Succession_Send_Pathway_Form_Email</members>
-        <members>Succession_Start_Contact_Process</members>
-        <members>Succession_Update_Case_Status_And_Notify</members>
-        <name>Flow</name>
-    </types>
-
-    <!-- Custom Fields - Case (13 fields actively used by flows/LWCs) -->
     <types>
         <members>Case.Contact_Attempt_Count__c</members>
         <members>Case.Contact_Established__c</members>
         <members>Case.Contact_Established_Date__c</members>
-        <members>Case.Deceased_Donor__c</members>
-        <members>Case.Execution_Status__c</members>
-        <members>Case.Form_Completed_Date__c</members>
         <members>Case.Form_Sent_Date__c</members>
-        <members>Case.New_DAF_Account_Number__c</members>
-        <members>Case.Pathway_Confirmed__c</members>
-        <members>Case.SLA_Status__c</members>
         <members>Case.Successor__c</members>
-        <members>Case.Successor_Email__c</members>
-        <members>Case.Successor_Phone__c</members>
-        <members>Case.Verification_Status__c</members>
-        <name>CustomField</name>
-    </types>
-
-    <!-- Custom Fields - Activity (Task fields deployed via Activity) -->
-    <types>
         <members>Activity.Contact_Attempt_Number__c</members>
         <members>Activity.Succession_Contact_Established__c</members>
         <name>CustomField</name>
     </types>
 
-    <!-- Page Layouts - Excluded due to RelatedCaseList issue -->
-    <!-- <types>
-        <members>Case-Estate Administration Layout</members>
-        <name>Layout</name>
-    </types> -->
-
-    <!-- Quick Actions - Active Quick Actions only (excluding complex person-account helpers for now) -->
     <types>
-        <members>Case.Record_Pathway_Selection</members>
-        <members>FinServ__FinancialAccount__c.New_Account_Role</members>
-        <name>QuickAction</name>
+        <members>Case.Estate_Administration</members>
+        <name>BusinessProcess</name>
     </types>
 
-    <!-- Email Templates -->
     <types>
-        <members>Succession_Management</members>
-        <members>Succession_Management/Day_0_Initial_Contact</members>
-        <members>Succession_Management/Day_35_Second_Contact</members>
-        <members>Succession_Management/Day_5_First_Follow_Up</members>
-        <members>Succession_Management/Day_65_Third_Contact</members>
-        <members>Succession_Management/Day_95_Final_Contact</members>
-        <members>Succession_Management/Pathway_Form_Invitation</members>
-        <name>EmailTemplate</name>
+        <members>Case.EstateAdministration</members>
+        <name>RecordType</name>
     </types>
 
-    <!-- Permission Sets -->
     <types>
-        <members>Succession_Field_Access</members>
-        <members>Succession_Guest_Access</members>
-        <members>Succession_Management_Access</members>
-        <name>PermissionSet</name>
+        <members>CaseType</members>
+        <name>StandardValueSet</name>
     </types>
 
-    <!-- Custom Metadata Type + Records for Contact Cadence -->
     <types>
         <members>Succession_Contact_Cadence__mdt</members>
         <name>CustomObject</name>
@@ -123,14 +52,6 @@
         <members>Succession_Contact_Cadence.Attempt_4</members>
         <members>Succession_Contact_Cadence.Attempt_5</members>
         <name>CustomMetadata</name>
-    </types>
-
-
-
-    <!-- Actionable List Definitions -->
-    <types>
-        <members>Case</members>
-        <name>ActionableListDefinition</name>
     </types>
 
     <version>62.0</version>

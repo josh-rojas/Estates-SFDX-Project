@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StandardValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <standardValue>
+        <fullName>Problem</fullName>
+        <default>false</default>
+    </standardValue>
+    <standardValue>
+        <fullName>Question</fullName>
+        <default>false</default>
+    </standardValue>
+    <standardValue>
+        <fullName>Feature Request</fullName>
+        <default>false</default>
+    </standardValue>
+    <standardValue>
+        <fullName>Other</fullName>
+        <default>false</default>
+    </standardValue>
+    <standardValue>
+        <fullName>Succession Management</fullName>
+        <default>true</default>
+    </standardValue>
+    <standardValue>
+        <fullName>Named Successor Enactment</fullName>
+        <default>false</default>
+    </standardValue>
+</StandardValueSet>
