@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>EstateAdministration</fullName>
+    <active>true</active>
+    <businessProcess>Estate_Administration</businessProcess>
+    <description>Record type for succession contact cadence cases.</description>
+    <label>Estate Administration</label>
+    <picklistValues>
+        <picklist>Type</picklist>
+        <values>
+            <fullName>Succession Management</fullName>
+            <default>true</default>
+        </values>
+        <values>
+            <fullName>Named Successor Enactment</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

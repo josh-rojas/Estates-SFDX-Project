@@ -1,39 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <BusinessProcess xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Estate_Administration</fullName>
-    <description
-  >Simplified status values for Estate Administration succession cases. Broad, reusable values optimized for demo clarity.</description>
+    <description>Business process used by the EstateAdministration record type for contact cadence cases.</description>
     <isActive>true</isActive>
     <values>
         <fullName>New</fullName>
         <default>true</default>
     </values>
     <values>
-        <fullName>In Progress</fullName>
-        <default>false</default>
-    </values>
-    <values>
-        <fullName>Awaiting Response</fullName>
-        <default>false</default>
-    </values>
-    <values>
-        <fullName>In Review</fullName>
-        <default>false</default>
-    </values>
-    <values>
-        <fullName>On Hold</fullName>
-        <default>false</default>
-    </values>
-    <values>
-        <fullName>Escalated</fullName>
+        <fullName>Working</fullName>
         <default>false</default>
     </values>
     <values>
         <fullName>Closed</fullName>
-        <default>false</default>
-    </values>
-    <values>
-        <fullName>Canceled</fullName>
         <default>false</default>
     </values>
 </BusinessProcess>
